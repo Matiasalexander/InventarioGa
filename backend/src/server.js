@@ -3,6 +3,7 @@ const cors = require("cors");
 const inventarioRoutes = require("./routes/inventario.routes");
 const catalogosRoutes = require("./routes/catalogos.routes");
 const marcasRoutes = require("./routes/marcas.routes");
+const tipoEquipoRoutes = require("./routes/tipoEquipo.routes");
 require("dotenv").config();
 
 require("./config/db");
@@ -14,6 +15,8 @@ app.use(express.json());
 app.use("/api/inventario", inventarioRoutes);
 app.use("/api/catalogos", catalogosRoutes);
 app.use("/api/marcas", marcasRoutes);
+app.use("/api/tipo-equipo", tipoEquipoRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("🚀 API Inventario GA2 funcionando");
