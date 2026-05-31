@@ -4,6 +4,7 @@ const inventarioRoutes = require("./routes/inventario.routes");
 const catalogosRoutes = require("./routes/catalogos.routes");
 const marcasRoutes = require("./routes/marcas.routes");
 const tipoEquipoRoutes = require("./routes/tipoEquipo.routes");
+const estatusRoutes = require("./routes/estatus.routes");
 require("dotenv").config();
 
 require("./config/db");
@@ -16,6 +17,7 @@ app.use("/api/inventario", inventarioRoutes);
 app.use("/api/catalogos", catalogosRoutes);
 app.use("/api/marcas", marcasRoutes);
 app.use("/api/tipo-equipo", tipoEquipoRoutes);
+app.use("/api/estatus", estatusRoutes);
 
 
 app.get("/", (req, res) => {
