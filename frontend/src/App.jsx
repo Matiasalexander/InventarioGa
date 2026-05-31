@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import InventarioPage from "./pages/InventarioPage";
 import InventarioFormPage from "./pages/InventarioFormPage";
 import MarcasPage from "./pages/MarcasPage";
+import TipoEquipoPage from "./pages/TipoEquipoPage";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/inventario/nuevo" element={<InventarioFormPage />} />
         <Route path="/inventario/editar/:id" element={<InventarioFormPage />} />
         <Route path="/marcas" element={<MarcasPage />} />
+        <Route path="/tipo-equipo" element={<TipoEquipoPage />} />
       </Routes>
     </BrowserRouter>
   );
