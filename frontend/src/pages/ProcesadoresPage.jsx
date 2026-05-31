@@ -1,0 +1,153 @@
+import { useEffect, useState } from "react";
+import {
+  obtenerProcesadores,
+  crearProcesador,
+  actualizarProcesador,
+  eliminarProcesador
+} from "../services/procesadoresService";
+import "./InventarioPage.css";
+
+function ProcesadoresPage() {
+  const [procesadores, setProcesadores] = useState([]);
+  const [nombre, setNombre] = useState("");
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [idEditando, setIdEditando] = useState(null);
+
+  const cargarProcesadores = async () => {
+    const data = await obtenerProcesadores();
+    setProcesadores(data);
+  };
+
+  useEffect(() => {
+    cargarProcesadores();
+  }, []);
+
+  const limpiarFormulario = () => {
+    setNombre("");
+    setModoEdicion(false);
+    setIdEditando(null);
+  };
+
+  const guardarProcesador = async (e) => {
+    e.preventDefault();
+
+    if (!nombre.trim()) {
+      alert("Escribe un procesador");
+      return;
+    }
+
+    try {
+      const payload = {
+        Nombre: nombre.trim()
+      };
+
+      if (modoEdicion) {
+        await actualizarProcesador(idEditando, payload);
+        alert("Procesador actualizado correctamente");
+      } else {
+        await crearProcesador(payload);
+        alert("Procesador creado correctamente");
+      }
+
+      limpiarFormulario();
+      await cargarProcesadores();
+    } catch (error) {
+      console.error("Error guardando procesador:", error.response?.data || error);
+      alert(error.response?.data?.error || "Error guardando procesador");
+    }
+  };
+
+  const editarProcesador = (item) => {
+    setNombre(item.Nombre);
+    setModoEdicion(true);
+    setIdEditando(item.id);
+  };
+
+  const borrarProcesador = async (id) => {
+    if (!window.confirm("¿Deseas eliminar este procesador?")) return;
+
+    try {
+      await eliminarProcesador(id);
+      await cargarProcesadores();
+      alert("Procesador eliminado correctamente");
+    } catch (error) {
+      console.error("Error eliminando procesador:", error.response?.data || error);
+      alert(error.response?.data?.error || "Error eliminando procesador");
+    }
+  };
+
+  return (
+    <div className="contenedor">
+      <div className="header">
+        <div>
+          <h1>Procesadores</h1>
+          <p>Catálogo de procesadores disponibles para equipos.</p>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>{modoEdicion ? "Editar procesador" : "Agregar procesador"}</h2>
+
+        <form onSubmit={guardarProcesador} className="form-grid">
+          <input
+            placeholder="Nombre del procesador"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+          />
+
+          <button type="submit">
+            {modoEdicion ? "Actualizar procesador" : "Guardar procesador"}
+          </button>
+
+          {modoEdicion && (
+            <button type="button" onClick={limpiarFormulario}>
+              Cancelar
+            </button>
+          )}
+        </form>
+      </div>
+
+      <div className="card">
+        <h2>Listado de procesadores</h2>
+
+        <div className="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Procesador</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {procesadores.map((item) => (
+                <tr key={item.id}>
+                  <td>{item.id}</td>
+                  <td>{item.Nombre}</td>
+                  <td>
+                    <button type="button" onClick={() => editarProcesador(item)}>
+                      Editar
+                    </button>
+
+                    <button type="button" onClick={() => borrarProcesador(item.id)}>
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+
+              {procesadores.length === 0 && (
+                <tr>
+                  <td colSpan="3">No hay procesadores registrados.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default ProcesadoresPage;
