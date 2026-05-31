@@ -16,14 +16,15 @@ const obtenerCatalogos = async (req, res) => {
   ORDER BY r.Marca, u.Ubicacion
 `);
 
-    const restaurantes = await pool.request().query(`
-      SELECT 
-        Id,
-        Restaurante
-      FROM Restaurantesck
-      ORDER BY Restaurante
-    `);
-
+// CAMBIO: usamos tabla Restaurantes, no Restaurantesck
+const restaurantes = await pool.request().query(`
+  SELECT
+    id_marca AS Id,
+    Marca AS Restaurante,
+    Estado
+  FROM Restaurantes
+  ORDER BY Marca
+`);
     const tiposEquipo = await pool.request().query(`
       SELECT 
         id,
