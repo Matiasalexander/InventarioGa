@@ -3,6 +3,7 @@ import InventarioPage from "./pages/InventarioPage";
 import InventarioFormPage from "./pages/InventarioFormPage";
 import MarcasPage from "./pages/MarcasPage";
 import TipoEquipoPage from "./pages/TipoEquipoPage";
+import EstatusPage from "./pages/EstatusPage";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/inventario/editar/:id" element={<InventarioFormPage />} />
         <Route path="/marcas" element={<MarcasPage />} />
         <Route path="/tipo-equipo" element={<TipoEquipoPage />} />
+        <Route path="/estatus" element={<EstatusPage />} />
       </Routes>
     </BrowserRouter>
   );
