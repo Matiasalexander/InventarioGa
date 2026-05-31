@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   obtenerInventario,
@@ -8,6 +8,7 @@ import "./InventarioPage.css";
 
 function InventarioPage() {
   const [inventario, setInventario] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
 
   const navigate = useNavigate();
 
@@ -24,6 +25,30 @@ function InventarioPage() {
   useEffect(() => {
     cargarInventario();
   }, []);
+
+  const inventarioFiltrado = useMemo(() => {
+    const texto = busqueda.toLowerCase().trim();
+
+    if (!texto) return inventario;
+
+    return inventario.filter((item) =>
+      [
+        item.UNIDAD,
+        item.LOCALIDAD,
+        item.UBICACION,
+        item.TIPO_EQUIPO,
+        item.NOMBRE_EQUIPO,
+        item.SERIAL,
+        item.MARCA,
+        item.MODELO,
+        item.IP,
+        item.ESTATUS
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(texto)
+    );
+  }, [busqueda, inventario]);
 
   const irAgregar = () => {
     navigate("/inventario/nuevo");
@@ -57,12 +82,41 @@ function InventarioPage() {
         </div>
 
         <button type="button" onClick={irAgregar}>
-          Agregar equipo
+          + Agregar equipo
         </button>
       </div>
 
+      <div className="stats-grid">
+        <div className="stat-card">
+          <span>Total equipos</span>
+          <strong>{inventario.length}</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>Resultados visibles</span>
+          <strong>{inventarioFiltrado.length}</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>Búsqueda</span>
+          <strong>{busqueda ? "Activa" : "Libre"}</strong>
+        </div>
+      </div>
+
       <div className="card">
-        <h2>Equipos</h2>
+        <div className="toolbar">
+          <div>
+            <h2>Equipos</h2>
+            <p>Consulta, actualiza o elimina registros del inventario.</p>
+          </div>
+
+          <input
+            className="search-input"
+            placeholder="Buscar por equipo, serial, marca, IP..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+          />
+        </div>
 
         <div className="table-container">
           <table>
@@ -84,7 +138,7 @@ function InventarioPage() {
             </thead>
 
             <tbody>
-              {inventario.map((item) => (
+              {inventarioFiltrado.map((item) => (
                 <tr key={item.id}>
                   <td>{item.id}</td>
                   <td>{item.UNIDAD}</td>
@@ -96,13 +150,17 @@ function InventarioPage() {
                   <td>{item.MARCA}</td>
                   <td>{item.MODELO}</td>
                   <td>{item.IP}</td>
-                  <td>{item.ESTATUS}</td>
+                  <td>
+                    <span className="badge">
+                      {item.ESTATUS || "Sin estatus"}
+                    </span>
+                  </td>
                   <td>
                     <button
                       type="button"
                       onClick={() => irActualizar(item.id)}
                     >
-                      Actualizar
+                      Editar
                     </button>
 
                     <button
@@ -115,9 +173,9 @@ function InventarioPage() {
                 </tr>
               ))}
 
-              {inventario.length === 0 && (
+              {inventarioFiltrado.length === 0 && (
                 <tr>
-                  <td colSpan="12">No hay equipos registrados.</td>
+                  <td colSpan="12">No hay equipos para mostrar.</td>
                 </tr>
               )}
             </tbody>
