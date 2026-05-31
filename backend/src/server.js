@@ -1,0 +1,24 @@
+const express = require("express");
+const cors = require("cors");
+const inventarioRoutes = require("./routes/inventario.routes");
+const catalogosRoutes = require("./routes/catalogos.routes");
+require("dotenv").config();
+
+require("./config/db");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+app.use("/api/inventario", inventarioRoutes);
+app.use("/api/catalogos", catalogosRoutes);
+
+app.get("/", (req, res) => {
+  res.send("🚀 API Inventario GA2 funcionando");
+});
+
+const PORT = process.env.PORT || 3001;
+
+app.listen(PORT, () => {
+  console.log(`🔥 Servidor corriendo en puerto ${PORT}`);
+});
