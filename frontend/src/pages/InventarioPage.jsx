@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  obtenerInventario,
-  crearInventario
-} from "../services/inventarioService";
+import { obtenerInventario, crearInventario } from "../services/inventarioService";
 import { obtenerCatalogos } from "../services/catalogosService";
 import "./InventarioPage.css";
 
@@ -15,40 +12,38 @@ function InventarioPage() {
     marcas: [],
     modelos: [],
     estatus: [],
-    departamentos: []
+    departamentos: [],
+    procesadores: [],
+    modelosProcesador: []
   });
+  const [modelosFiltrados, setModelosFiltrados] = useState([]);
+  const [localidadesFiltradas, setLocalidadesFiltradas] = useState([]);
 
   const [formulario, setFormulario] = useState({
-    UNIDAD: "",
+    ID_UNIDAD: "",
     LOCALIDAD: "",
     UBICACION: "",
-    TIPO_EQUIPO: "",
+    ID_TIPO_EQUIPO: "",
     NOMBRE_EQUIPO: "",
+    ID_DEPARTAMENTO: "",
     SERIAL: "",
-    MARCA: "",
+    ID_PROCESADOR: "",
+    ID_MARCA: "",
     MODELO: "",
     IP: "",
-    ESTATUS: "",
+    ID_ESTATUS: "",
     ESTADO_FISICO: "",
     CORREO: ""
   });
 
   const cargarInventario = async () => {
-    try {
-      const data = await obtenerInventario();
-      setInventario(data);
-    } catch (error) {
-      console.error("Error cargando inventario:", error);
-    }
+    const data = await obtenerInventario();
+    setInventario(data);
   };
 
   const cargarCatalogos = async () => {
-    try {
-      const data = await obtenerCatalogos();
-      setCatalogos(data);
-    } catch (error) {
-      console.error("Error cargando catálogos:", error);
-    }
+    const data = await obtenerCatalogos();
+    setCatalogos(data);
   };
 
   useEffect(() => {
@@ -56,12 +51,49 @@ function InventarioPage() {
     cargarCatalogos();
   }, []);
 
-  const manejarCambio = (e) => {
-    setFormulario({
-      ...formulario,
-      [e.target.name]: e.target.value
-    });
-  };
+const manejarCambio = (e) => {
+  const { name, value } = e.target;
+
+  if (name === "ID_UNIDAD") {
+
+  const localidades = catalogos.unidades.filter(
+    (item) =>
+      String(item.id_marca) === String(value)
+  );
+
+  setLocalidadesFiltradas(localidades);
+
+  setFormulario((prev) => ({
+    ...prev,
+    ID_UNIDAD: value,
+    LOCALIDAD: ""
+  }));
+
+  return;
+}
+
+  // Marca -> Modelo
+  if (name === "ID_MARCA") {
+    const modelos = catalogos.modelos.filter(
+      (item) => String(item.id_marca) === String(value)
+    );
+
+    setModelosFiltrados(modelos);
+
+    setFormulario((prev) => ({
+      ...prev,
+      ID_MARCA: value,
+      MODELO: ""
+    }));
+
+    return;
+  }
+
+  setFormulario((prev) => ({
+    ...prev,
+    [name]: value
+  }));
+};
 
   const guardarEquipo = async (e) => {
     e.preventDefault();
@@ -70,30 +102,28 @@ function InventarioPage() {
       await crearInventario(formulario);
 
       setFormulario({
-        UNIDAD: "",
+        ID_UNIDAD: "",
         LOCALIDAD: "",
         UBICACION: "",
-        TIPO_EQUIPO: "",
+        ID_TIPO_EQUIPO: "",
         NOMBRE_EQUIPO: "",
+        ID_DEPARTAMENTO: "",
         SERIAL: "",
-        MARCA: "",
+        ID_PROCESADOR: "",
+        ID_MARCA: "",
         MODELO: "",
         IP: "",
-        ESTATUS: "",
+        ID_ESTATUS: "",
         ESTADO_FISICO: "",
         CORREO: ""
       });
 
       await cargarInventario();
       alert("Equipo agregado correctamente");
-    //} catch (error) {
-     // console.error("Error guardando equipo:", error);
-     // alert("Error guardando equipo");
-   // }
-   } catch (error) {
-  console.error("Error guardando equipo:", error.response?.data || error);
-  alert(error.response?.data?.error || "Error guardando equipo");
-}
+    } catch (error) {
+      console.error("Error guardando equipo:", error.response?.data || error);
+      alert(error.response?.data?.error || "Error guardando equipo");
+    }
   };
 
   return (
@@ -107,103 +137,95 @@ function InventarioPage() {
         <h2>Agregar equipo</h2>
 
         <form onSubmit={guardarEquipo} className="form-grid">
-          <select name="UNIDAD" value={formulario.UNIDAD} onChange={manejarCambio}>
+          <select name="ID_UNIDAD" value={formulario.ID_UNIDAD} onChange={manejarCambio}>
             <option value="">Selecciona unidad</option>
             {catalogos.unidades.map((item) => (
-              <option key={item.id} value={item.Ubicacion}>
-                {item.Ubicacion}
+              <option key={item.id} value={item.id}>
+                {item.unidad}
               </option>
             ))}
           </select>
 
-          <input
-            name="LOCALIDAD"
-            placeholder="Localidad"
-            value={formulario.LOCALIDAD}
-            onChange={manejarCambio}
-          />
+<select name="LOCALIDAD"  value={formulario.LOCALIDAD}  onChange={manejarCambio}
+> <option value="">
+    Selecciona localidad
+  </option>
+{localidadesFiltradas.map((item) => (
+    <option
+      key={item.id}
+      value={item.localidad}
+    >
+      {item.localidad}
+    </option>
+  ))}
+</select>
 
-          <input
-            name="UBICACION"
-            placeholder="Ubicación"
-            value={formulario.UBICACION}
-            onChange={manejarCambio}
-          />
+          <input name="UBICACION" placeholder="Ubicación" value={formulario.UBICACION} onChange={manejarCambio} />
 
-          <select
-            name="TIPO_EQUIPO"
-            value={formulario.TIPO_EQUIPO}
-            onChange={manejarCambio}
-          >
+          <select name="ID_TIPO_EQUIPO" value={formulario.ID_TIPO_EQUIPO} onChange={manejarCambio}>
             <option value="">Selecciona tipo de equipo</option>
             {catalogos.tiposEquipo.map((item) => (
-              <option key={item.id} value={item.tequipo}>
+              <option key={item.id} value={item.id}>
                 {item.tequipo}
               </option>
             ))}
           </select>
 
-          <input
-            name="NOMBRE_EQUIPO"
-            placeholder="Nombre equipo"
-            value={formulario.NOMBRE_EQUIPO}
-            onChange={manejarCambio}
-          />
+          <input name="NOMBRE_EQUIPO" placeholder="Nombre equipo" value={formulario.NOMBRE_EQUIPO} onChange={manejarCambio} />
 
-          <input
-            name="SERIAL"
-            placeholder="Serial"
-            value={formulario.SERIAL}
-            onChange={manejarCambio}
-          />
+          <select name="ID_DEPARTAMENTO" value={formulario.ID_DEPARTAMENTO} onChange={manejarCambio}>
+            <option value="">Selecciona departamento</option>
+            {catalogos.departamentos.map((item) => (
+              <option key={item.Id} value={item.Id}>
+                {item.Nombre_departamento}
+              </option>
+            ))}
+          </select>
 
-          <select name="MARCA" value={formulario.MARCA} onChange={manejarCambio}>
+          <input name="SERIAL" placeholder="Serial" value={formulario.SERIAL} onChange={manejarCambio} />
+
+          <select name="ID_PROCESADOR" value={formulario.ID_PROCESADOR} onChange={manejarCambio}>
+            <option value="">Selecciona procesador</option>
+            {catalogos.procesadores.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.Nombre}
+              </option>
+            ))}
+          </select>
+
+          <select name="ID_MARCA" value={formulario.ID_MARCA} onChange={manejarCambio}>
             <option value="">Selecciona marca</option>
             {catalogos.marcas.map((item) => (
-              <option key={item.id} value={item.Marca}>
+              <option key={item.id} value={item.id}>
                 {item.Marca}
               </option>
             ))}
           </select>
 
-          <select name="MODELO" value={formulario.MODELO} onChange={manejarCambio}>
-            <option value="">Selecciona modelo</option>
-            {catalogos.modelos.map((item) => (
-              <option key={item.id} value={item.Modelos}>
-                {item.Modelos}
-              </option>
-            ))}
-          </select>
+   <select name="MODELO" value={formulario.MODELO} onChange={manejarCambio}>
+  <option value="">Selecciona modelo</option>
 
-          <input
-            name="IP"
-            placeholder="IP"
-            value={formulario.IP}
-            onChange={manejarCambio}
-          />
+  {modelosFiltrados.map((item) => (
+    <option key={item.id} value={item.Modelo}>
+      {item.Modelo}
+    </option>
+  ))}
+</select>
 
-          <select name="ESTATUS" value={formulario.ESTATUS} onChange={manejarCambio}>
+          <input name="IP" placeholder="IP" value={formulario.IP} onChange={manejarCambio} />
+
+          <select name="ID_ESTATUS" value={formulario.ID_ESTATUS} onChange={manejarCambio}>
             <option value="">Selecciona estatus</option>
             {catalogos.estatus.map((item) => (
-              <option key={item.Id} value={item.Estatus_equipo}>
+              <option key={item.Id} value={item.Id}>
                 {item.Estatus_equipo}
               </option>
             ))}
           </select>
 
-          <input
-            name="ESTADO_FISICO"
-            placeholder="Estado físico"
-            value={formulario.ESTADO_FISICO}
-            onChange={manejarCambio}
-          />
+          <input name="ESTADO_FISICO" placeholder="Estado físico" value={formulario.ESTADO_FISICO} onChange={manejarCambio} />
 
-          <input
-            name="CORREO"
-            placeholder="Correo"
-            value={formulario.CORREO}
-            onChange={manejarCambio}
-          />
+          <input name="CORREO" placeholder="Correo" value={formulario.CORREO} onChange={manejarCambio} />
 
           <button type="submit">Guardar equipo</button>
         </form>

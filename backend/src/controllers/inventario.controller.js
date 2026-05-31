@@ -6,21 +6,35 @@ const obtenerInventario = async (req, res) => {
 
     const result = await pool.request().query(`
       SELECT TOP 100
-        id, -- AQUÍ ESTABA MAL: tenías @id
-        UNIDAD,
-        LOCALIDAD,
-        UBICACION,
-        TIPO_EQUIPO,
-        NOMBRE_EQUIPO,
-        SERIAL,
-        MARCA,
-        MODELO,
-        IP,
-        ESTATUS,
-        ESTADO_FISICO,
-        CORREO
-      FROM INVENTARIO_M
-      ORDER BY UNIDAD, TIPO_EQUIPO
+        i.id,
+        i.ID_UNIDAD,
+        r.Marca AS UNIDAD,
+        i.LOCALIDAD,
+        i.UBICACION,
+        i.ID_TIPO_EQUIPO,
+        te.tequipo AS TIPO_EQUIPO,
+        i.NOMBRE_EQUIPO,
+        i.SERIAL,
+        i.ID_DEPARTAMENTO,
+        d.Nombre_departamento AS DEPARTAMENTO,
+        i.ID_PROCESADOR,
+        p.Nombre AS PROCESADOR,
+        i.ID_MARCA,
+        m.Marca AS MARCA,
+        i.MODELO,
+        i.IP,
+        i.ID_ESTATUS,
+        e.Estatus_equipo AS ESTATUS,
+        i.ESTADO_FISICO,
+        i.CORREO
+      FROM INVENTARIO_M i
+      LEFT JOIN Restaurantes r ON i.ID_UNIDAD = r.id_marca
+      LEFT JOIN Tipo_equipo te ON i.ID_TIPO_EQUIPO = te.id
+      LEFT JOIN DEPARTAMENTOS d ON i.ID_DEPARTAMENTO = d.Id
+      LEFT JOIN PROCESADORES p ON i.ID_PROCESADOR = p.id
+      LEFT JOIN Marcas m ON i.ID_MARCA = m.id
+      LEFT JOIN Estatus e ON i.ID_ESTATUS = e.Id
+      ORDER BY i.id DESC
     `);
 
     res.json(result.recordset);
@@ -40,9 +54,10 @@ const obtenerInventarioPorId = async (req, res) => {
     const result = await pool.request()
       .input("id", id)
       .query(`
-        SELECT *
-        FROM INVENTARIO_M
-        WHERE id = @id -- AQUÍ ESTABA MAL: tenías WHERE @id = @id
+        SELECT
+          i.*
+        FROM INVENTARIO_M i
+        WHERE i.id = @id
       `);
 
     if (result.recordset.length === 0) {
@@ -61,16 +76,18 @@ const obtenerInventarioPorId = async (req, res) => {
 const crearInventario = async (req, res) => {
   try {
     const {
-      UNIDAD,
+      ID_UNIDAD,
       LOCALIDAD,
       UBICACION,
-      TIPO_EQUIPO,
+      ID_TIPO_EQUIPO,
       NOMBRE_EQUIPO,
+      ID_DEPARTAMENTO,
       SERIAL,
-      MARCA,
+      ID_PROCESADOR,
+      ID_MARCA,
       MODELO,
       IP,
-      ESTATUS,
+      ID_ESTATUS,
       ESTADO_FISICO,
       CORREO
     } = req.body;
@@ -78,47 +95,50 @@ const crearInventario = async (req, res) => {
     const pool = await poolPromise;
 
     await pool.request()
-      // AQUÍ YA NO VA .input("id", id) porque id es IDENTITY
-      .input("UNIDAD", UNIDAD)
-      .input("LOCALIDAD", LOCALIDAD)
-      .input("UBICACION", UBICACION)
-      .input("TIPO_EQUIPO", TIPO_EQUIPO)
-      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO)
-      .input("SERIAL", SERIAL)
-      .input("MARCA", MARCA)
-      .input("MODELO", MODELO)
-      .input("IP", IP)
-      .input("ESTATUS", ESTATUS)
-      .input("ESTADO_FISICO", ESTADO_FISICO)
-      .input("CORREO", CORREO)
+      .input("ID_UNIDAD", ID_UNIDAD || null)
+      .input("LOCALIDAD", LOCALIDAD || null)
+      .input("UBICACION", UBICACION || null)
+      .input("ID_TIPO_EQUIPO", ID_TIPO_EQUIPO || null)
+      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO || null)
+      .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
+      .input("SERIAL", SERIAL || null)
+      .input("ID_PROCESADOR", ID_PROCESADOR || null)
+      .input("ID_MARCA", ID_MARCA || null)
+      .input("MODELO", MODELO || null)
+      .input("IP", IP || null)
+      .input("ID_ESTATUS", ID_ESTATUS || null)
+      .input("ESTADO_FISICO", ESTADO_FISICO || null)
+      .input("CORREO", CORREO || null)
       .query(`
         INSERT INTO INVENTARIO_M (
-          -- AQUÍ ESTABA MAL: tenías @id en la lista de columnas
-          UNIDAD,
+          ID_UNIDAD,
           LOCALIDAD,
           UBICACION,
-          TIPO_EQUIPO,
+          ID_TIPO_EQUIPO,
           NOMBRE_EQUIPO,
+          ID_DEPARTAMENTO,
           SERIAL,
-          MARCA,
+          ID_PROCESADOR,
+          ID_MARCA,
           MODELO,
           IP,
-          ESTATUS,
+          ID_ESTATUS,
           ESTADO_FISICO,
           CORREO
         )
         VALUES (
-          -- AQUÍ ESTABA MAL: tenías @id en VALUES
-          @UNIDAD,
+          @ID_UNIDAD,
           @LOCALIDAD,
           @UBICACION,
-          @TIPO_EQUIPO,
+          @ID_TIPO_EQUIPO,
           @NOMBRE_EQUIPO,
+          @ID_DEPARTAMENTO,
           @SERIAL,
-          @MARCA,
+          @ID_PROCESADOR,
+          @ID_MARCA,
           @MODELO,
           @IP,
-          @ESTATUS,
+          @ID_ESTATUS,
           @ESTADO_FISICO,
           @CORREO
         )
@@ -140,16 +160,18 @@ const actualizarInventario = async (req, res) => {
     const { id } = req.params;
 
     const {
-      UNIDAD,
+      ID_UNIDAD,
       LOCALIDAD,
       UBICACION,
-      TIPO_EQUIPO,
+      ID_TIPO_EQUIPO,
       NOMBRE_EQUIPO,
+      ID_DEPARTAMENTO,
       SERIAL,
-      MARCA,
+      ID_PROCESADOR,
+      ID_MARCA,
       MODELO,
       IP,
-      ESTATUS,
+      ID_ESTATUS,
       ESTADO_FISICO,
       CORREO
     } = req.body;
@@ -158,31 +180,35 @@ const actualizarInventario = async (req, res) => {
 
     await pool.request()
       .input("id", id)
-      .input("UNIDAD", UNIDAD)
-      .input("LOCALIDAD", LOCALIDAD)
-      .input("UBICACION", UBICACION)
-      .input("TIPO_EQUIPO", TIPO_EQUIPO)
-      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO)
-      .input("SERIAL", SERIAL)
-      .input("MARCA", MARCA)
-      .input("MODELO", MODELO)
-      .input("IP", IP)
-      .input("ESTATUS", ESTATUS)
-      .input("ESTADO_FISICO", ESTADO_FISICO)
-      .input("CORREO", CORREO)
+      .input("ID_UNIDAD", ID_UNIDAD || null)
+      .input("LOCALIDAD", LOCALIDAD || null)
+      .input("UBICACION", UBICACION || null)
+      .input("ID_TIPO_EQUIPO", ID_TIPO_EQUIPO || null)
+      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO || null)
+      .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
+      .input("SERIAL", SERIAL || null)
+      .input("ID_PROCESADOR", ID_PROCESADOR || null)
+      .input("ID_MARCA", ID_MARCA || null)
+      .input("MODELO", MODELO || null)
+      .input("IP", IP || null)
+      .input("ID_ESTATUS", ID_ESTATUS || null)
+      .input("ESTADO_FISICO", ESTADO_FISICO || null)
+      .input("CORREO", CORREO || null)
       .query(`
         UPDATE INVENTARIO_M
         SET
-          UNIDAD = @UNIDAD,
+          ID_UNIDAD = @ID_UNIDAD,
           LOCALIDAD = @LOCALIDAD,
           UBICACION = @UBICACION,
-          TIPO_EQUIPO = @TIPO_EQUIPO,
+          ID_TIPO_EQUIPO = @ID_TIPO_EQUIPO,
           NOMBRE_EQUIPO = @NOMBRE_EQUIPO,
+          ID_DEPARTAMENTO = @ID_DEPARTAMENTO,
           SERIAL = @SERIAL,
-          MARCA = @MARCA,
+          ID_PROCESADOR = @ID_PROCESADOR,
+          ID_MARCA = @ID_MARCA,
           MODELO = @MODELO,
           IP = @IP,
-          ESTATUS = @ESTATUS,
+          ID_ESTATUS = @ID_ESTATUS,
           ESTADO_FISICO = @ESTADO_FISICO,
           CORREO = @CORREO
         WHERE id = @id
