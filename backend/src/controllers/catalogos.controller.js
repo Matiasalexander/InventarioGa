@@ -100,6 +100,11 @@ const restaurantes = await pool.request().query(`
       LEFT JOIN PROCESADORES p ON mp.Id_procesador = p.id
       ORDER BY p.Nombre, mp.Modelo
     `);
+    const modelosEspeciales = await pool.request().query(`
+  SELECT id, Mod_esp
+  FROM modesp
+  ORDER BY Mod_esp
+`);
 
     res.json({
       unidades: unidades.recordset,
@@ -111,7 +116,8 @@ const restaurantes = await pool.request().query(`
       departamentos: departamentos.recordset,
       puestos: puestos.recordset,
       procesadores: procesadores.recordset,
-      modelosProcesador: modelosProcesador.recordset
+      modelosProcesador: modelosProcesador.recordset,
+      modelosEspeciales: modelosEspeciales.recordset
     });
 
   } catch (error) {
