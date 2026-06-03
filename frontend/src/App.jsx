@@ -5,6 +5,7 @@ import MarcasPage from "./pages/MarcasPage";
 import TipoEquipoPage from "./pages/TipoEquipoPage";
 import EstatusPage from "./pages/EstatusPage";
 import ProcesadoresPage from "./pages/ProcesadoresPage";
+import ModelosPage from "./pages/ModelosPage";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/tipo-equipo" element={<TipoEquipoPage />} />
         <Route path="/estatus" element={<EstatusPage />} />
         <Route path="/procesadores" element={<ProcesadoresPage />} />
+        <Route path="/modelos" element={<ModelosPage />} />
       </Routes>
     </BrowserRouter>
   );
