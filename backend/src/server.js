@@ -7,6 +7,7 @@ const tipoEquipoRoutes = require("./routes/tipoEquipo.routes");
 const estatusRoutes = require("./routes/estatus.routes");
 const procesadoresRoutes = require("./routes/procesadores.routes");
 const modelosRoutes = require("./routes/modelos.routes");
+const responsivaRoutes = require("./routes/responsiva.routes")
 require("dotenv").config();
 
 require("./config/db");
@@ -22,6 +23,7 @@ app.use("/api/tipo-equipo", tipoEquipoRoutes);
 app.use("/api/estatus", estatusRoutes);
 app.use("/api/procesadores", procesadoresRoutes);
 app.use("/api/modelos", modelosRoutes);
+app.use("/api/responsiva", responsivaRoutes)
 
 
 app.get("/", (req, res) => {

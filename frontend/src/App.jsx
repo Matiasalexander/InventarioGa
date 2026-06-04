@@ -6,6 +6,7 @@ import TipoEquipoPage from "./pages/TipoEquipoPage";
 import EstatusPage from "./pages/EstatusPage";
 import ProcesadoresPage from "./pages/ProcesadoresPage";
 import ModelosPage from "./pages/ModelosPage";
+import ResponsivaPage from "./pages/ResponsivaPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/estatus" element={<EstatusPage />} />
         <Route path="/procesadores" element={<ProcesadoresPage />} />
         <Route path="/modelos" element={<ModelosPage />} />
+        <Route path="/responsiva" element={<ResponsivaPage />} />
       </Routes>
     </BrowserRouter>
   );
