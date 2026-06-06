@@ -16,6 +16,8 @@ function InventarioFormPage() {
 
   const estadosFisicos = ["Bueno", "Regular", "Dañado"];
 
+  //si ya hay serial existente
+  const [errorSerial, setErrorSerial] = useState("");
   const [catalogos, setCatalogos] = useState({
     restaurantes: [],
     unidades: [],
@@ -111,6 +113,11 @@ function InventarioFormPage() {
   const manejarCambio = (e) => {
     const { name, value } = e.target;
 
+    if (name === "SERIAL") {
+
+      setErrorSerial("");
+    }
+
     if (name === "ID_RESTAURANTE") {
       const localidades = catalogos.unidades.filter(
         (item) => String(item.id_marca) === String(value)
@@ -167,6 +174,7 @@ function InventarioFormPage() {
   const guardarEquipo = async (e) => {
     e.preventDefault();
 
+    setErrorSerial("");
     try {
       const payload = {
         ID_UNIDAD: formulario.ID_UNIDAD,
@@ -195,6 +203,13 @@ function InventarioFormPage() {
 
       navigate("/inventario");
     } catch (error) {
+      const mensaje = error.response?.data?.message || "ERROR GUARDANDO EL EQUIPO";
+      if (mensaje.includes("Numero de seria")) {
+        setErrorSerial("Este n´mero de serie ya existe");
+      } else {
+        alert(mensaje);
+      }
+
       console.error("Error guardando equipo:", error.response?.data || error);
       alert(error.response?.data?.error || "Error guardando equipo");
     }
@@ -282,6 +297,7 @@ function InventarioFormPage() {
             value={formulario.SERIAL}
             onChange={manejarCambio}
           />
+
 
           <select
             name="ID_TIPO_EQUIPO"
