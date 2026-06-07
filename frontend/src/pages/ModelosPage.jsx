@@ -24,43 +24,34 @@ function ModelosPage() {
   });
 
   const [modoEdicion, setModoEdicion] = useState(false);
-  const [modelosEspecialesFiltrados, setModelosEspecialesFiltrados] = useState([]);
   const [idEditando, setIdEditando] = useState(null);
 
   const cargarDatos = async () => {
-    const modelosData = await obtenerModelos();
-    const catalogosData = await obtenerCatalogos();
+    try {
+      const modelosData = await obtenerModelos();
+      const catalogosData = await obtenerCatalogos();
 
-    setModelos(modelosData);
-    setCatalogos(catalogosData);
+      setModelos(modelosData);
+      setCatalogos(catalogosData);
+    } catch (error) {
+      console.error("Error cargando modelos:", error.response?.data || error);
+      alert("Error cargando modelos");
+    }
   };
 
   useEffect(() => {
     cargarDatos();
   }, []);
 
-const manejarCambio = (e) => {
-  const { name, value } = e.target;
+  const manejarCambio = (e) => {
+    const { name, value } = e.target;
 
-  const nuevoFormulario = {
-    ...formulario,
-    [name]: value
+    setFormulario((prev) => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  if (name === "id_tequipo" || name === "id_marca") {
-    nuevoFormulario.id_modelos = "";
-
-    const modelosFiltrados = modelos.filter(
-      (item) =>
-        String(item.id_tequipo) === String(nuevoFormulario.id_tequipo) &&
-        String(item.id_marca) === String(nuevoFormulario.id_marca)
-    );
-
-    setModelosEspecialesFiltrados(modelosFiltrados);
-  }
-
-  setFormulario(nuevoFormulario);
-};
   const limpiarFormulario = () => {
     setFormulario({
       id_tequipo: "",
@@ -74,6 +65,11 @@ const manejarCambio = (e) => {
 
   const guardarModelo = async (e) => {
     e.preventDefault();
+
+    if (!formulario.id_tequipo || !formulario.id_marca || !formulario.id_modelos) {
+      alert("Selecciona tipo de equipo, marca y modelo");
+      return;
+    }
 
     try {
       const payload = {
@@ -98,24 +94,16 @@ const manejarCambio = (e) => {
     }
   };
 
-const editarModelo = (item) => {
-  const modelosFiltrados = modelos.filter(
-    (x) =>
-      String(x.id_tequipo) === String(item.id_tequipo) &&
-      String(x.id_marca) === String(item.id_marca)
-  );
+  const editarModelo = (item) => {
+    setFormulario({
+      id_tequipo: item.id_tequipo || "",
+      id_marca: item.id_marca || "",
+      id_modelos: item.id_modelos || ""
+    });
 
-  setModelosEspecialesFiltrados(modelosFiltrados);
-
-  setFormulario({
-    id_tequipo: item.id_tequipo || "",
-    id_marca: item.id_marca || "",
-    id_modelos: item.id_modelos || ""
-  });
-
-  setModoEdicion(true);
-  setIdEditando(item.id);
-};
+    setModoEdicion(true);
+    setIdEditando(item.id);
+  };
 
   const borrarModelo = async (id) => {
     if (!window.confirm("¿Deseas eliminar este modelo?")) return;
@@ -171,20 +159,19 @@ const editarModelo = (item) => {
             ))}
           </select>
 
-     <select
-  name="id_modelos"
-  value={formulario.id_modelos}
-  onChange={manejarCambio}
-  disabled={!formulario.id_tequipo || !formulario.id_marca}
->
-  <option value="">Selecciona modelo</option>
+          <select
+            name="id_modelos"
+            value={formulario.id_modelos}
+            onChange={manejarCambio}
+          >
+            <option value="">Selecciona modelo</option>
 
-  {modelosEspecialesFiltrados.map((item) => (
-    <option key={item.id_modelos} value={item.id_modelos}>
-      {item.Modelo}
-    </option>
-  ))}
-</select>
+            {catalogos.modelosEspeciales.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.Mod_esp}
+              </option>
+            ))}
+          </select>
 
           <button type="submit">
             {modoEdicion ? "Actualizar modelo" : "Guardar modelo"}
