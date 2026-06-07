@@ -11,7 +11,7 @@ const links = [
     { to: "/marcas", label: "Marcas", icon: Tag },
     { to: "/estatus", label: "Estatus", icon: CheckCircle },
     { to: "/tipo-equipo", label: "Tipo Equipo", icon: PcCase },
-
+    { to: "/modelos", label: "Modelos", icon: Layers },
     { to: "/procesadores", label: "Procesadores", icon: Cpu }
 
 ];
