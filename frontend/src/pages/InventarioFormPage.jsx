@@ -16,6 +16,15 @@ function InventarioFormPage() {
 
   const estadosFisicos = ["Bueno", "Regular", "Dañado"];
 
+  //const para enums
+  const tiposRam = [
+    "4GB",
+    "8GB",
+    "16GB",
+    "32GB",
+    "64GB"
+  ];
+
   //si ya hay serial existente
   const [errorSerial, setErrorSerial] = useState("");
   const [catalogos, setCatalogos] = useState({
@@ -215,6 +224,9 @@ function InventarioFormPage() {
     }
   };
 
+  //id dependiendo del tipo de equipo.
+  const esLaptop = Number(formulario.ID_TIPO_EQUIPO) === 1;
+
   return (
     <div className="contenedor">
       <div className="header">
@@ -312,6 +324,34 @@ function InventarioFormPage() {
               </option>
             ))}
           </select>
+
+          {
+            //si es laptop mostrar campos de laptop
+            esLaptop && (
+              <>
+                <select
+                  name="RAM"
+                  value={formulario.RAM || ""}
+                  onChange={manejarCambio}
+                >
+                  <option value="">Selecciona RAM</option>
+
+                  {tiposRam.map((ram) => (
+                    <option key={ram} value={ram}>
+                      {ram}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  name="DISCO_DURO"
+                  placeholder="Disco duro"
+                  value={formulario.DISCO_DURO || ""}
+                  onChange={manejarCambio}
+                />
+              </>
+            )
+          }
 
           <select
             name="ID_MARCA"

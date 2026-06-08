@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
+import InventarioDetallePage from "./pages/InventarioDetallePage";
 
 import InventarioPage from "./pages/InventarioPage";
 import InventarioFormPage from "./pages/InventarioFormPage";
@@ -14,9 +15,10 @@ function App() {
     <BrowserRouter>
       <div style={{ display: "flex", minHeight: "100vh" }}>
         <Sidebar />
-        <main style={{ flex: 1, width: "240px", padding: "24px", overflow: "auto" }}>
+        <main style={{ flex: 1, padding: "24px", overflow: "auto" }}>
 
           <Routes>
+            <Route path="/inventario/:id" element={<InventarioDetallePage />} />
             <Route path="/" element={<Navigate to="/inventario" />} />
             <Route path="/inventario" element={<InventarioPage />} />
             <Route path="/inventario/nuevo" element={<InventarioFormPage />} />
