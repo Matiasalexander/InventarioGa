@@ -29,6 +29,6 @@ export default function InventarioDetallePage() {
             <p><strong>Procesador: </strong>{equipo.ID_PROCESADOR}</p>
             <p><strong>Modelo de procesador: </strong>{equipo.MODELO_PROCESADOR}</p>
             <p><strong>Sistema operativo: </strong>{equipo.SISTEMA_OPERATIVO}</p>
-            
+
         </div>);
 }

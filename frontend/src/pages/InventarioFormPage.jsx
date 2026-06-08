@@ -25,6 +25,10 @@ function InventarioFormPage() {
     "64GB"
   ];
 
+  const tiposDisco = [
+    "128G", "512G", "1TB", "2TB"
+  ];
+
   //si ya hay serial existente
   const [errorSerial, setErrorSerial] = useState("");
   const [catalogos, setCatalogos] = useState({
@@ -226,6 +230,10 @@ function InventarioFormPage() {
 
   //id dependiendo del tipo de equipo.
   const esLaptop = Number(formulario.ID_TIPO_EQUIPO) === 1;
+  const esDesktop = Number(formulario.ID_TIPO_EQUIPO) === 2;
+  const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
+  const esPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
+  //
 
   return (
     <div className="contenedor">
@@ -327,7 +335,7 @@ function InventarioFormPage() {
 
           {
             //si es laptop mostrar campos de laptop
-            esLaptop && (
+            (esLaptop || esDesktop) && (
               <>
                 <select
                   name="RAM"
@@ -343,14 +351,38 @@ function InventarioFormPage() {
                   ))}
                 </select>
 
-                <input
+                <select
                   name="DISCO_DURO"
-                  placeholder="Disco duro"
                   value={formulario.DISCO_DURO || ""}
                   onChange={manejarCambio}
-                />
+                >
+                  <option value="">Selecciona disco duro</option>
+                  {
+                    tiposDisco.map((disco) => (
+                      <option key={disco} value={disco}>
+                        {disco}
+                      </option>
+                    ))
+                  }
+                </select>
+
+                <select
+                  name="ID_PROCESADOR"
+                  value={formulario.ID_PROCESADOR}
+                  onChange={manejarCambio}
+                >
+                  <option value="">Selecciona procesador</option>
+
+                  {catalogos.procesadores.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.Nombre}
+                    </option>
+                  ))}
+                </select>
+
               </>
             )
+            //si es desktop mostrar campos de desktop
           }
 
           <select
@@ -382,19 +414,7 @@ function InventarioFormPage() {
             ))}
           </select>
 
-          <select
-            name="ID_PROCESADOR"
-            value={formulario.ID_PROCESADOR}
-            onChange={manejarCambio}
-          >
-            <option value="">Selecciona procesador</option>
 
-            {catalogos.procesadores.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.Nombre}
-              </option>
-            ))}
-          </select>
 
           <input
             name="IP"
