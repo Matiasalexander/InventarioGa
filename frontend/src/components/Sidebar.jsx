@@ -13,7 +13,8 @@ const links = [
     { to: "/tipo-equipo", label: "Tipo Equipo", icon: PcCase },
     { to: "/modelos", label: "Modelos", icon: Layers },
     { to: "/procesadores", label: "Procesadores", icon: Cpu },
-    { to: "/restaurantes", label: "Restaurantes", icon: Box }
+    { to: "/restaurantes", label: "Restaurantes", icon: Box },
+    { to: "/unidades", label: "Unidades", icon: LayoutDashboard }
 
 ];
 

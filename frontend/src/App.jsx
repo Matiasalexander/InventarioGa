@@ -9,6 +9,7 @@ import EstatusPage from "./pages/EstatusPage";
 import ProcesadoresPage from "./pages/ProcesadoresPage";
 import ModelosPage from "./pages/ModelosPage";
 import RestaurantesPage from "./pages/RestaurantesPage";
+import UnidadesPage from "./pages/UnidadesPage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/procesadores" element={<ProcesadoresPage />} />
             <Route path="/modelos" element={<ModelosPage />} />
             <Route path="/restaurantes" element={<RestaurantesPage />} />
+            <Route path="/unidades" element={<UnidadesPage />} />
             
           </Routes>
         </main>

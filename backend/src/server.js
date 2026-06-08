@@ -8,6 +8,7 @@ const estatusRoutes = require("./routes/estatus.routes");
 const procesadoresRoutes = require("./routes/procesadores.routes");
 const modelosRoutes = require("./routes/modelos.routes");
 const restaurantesRoutes = require("./routes/restaurantes.routes");
+const unidadesRoutes = require("./routes/unidades.routes");
 require("dotenv").config();
 
 require("./config/db");
@@ -24,6 +25,7 @@ app.use("/api/estatus", estatusRoutes);
 app.use("/api/procesadores", procesadoresRoutes);
 app.use("/api/modelos", modelosRoutes);
 app.use("/api/restaurantes", restaurantesRoutes);
+app.use("/api/unidades", unidadesRoutes);
 
 
 app.get("/", (req, res) => {
