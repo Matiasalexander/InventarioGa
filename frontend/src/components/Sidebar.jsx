@@ -10,7 +10,7 @@ const links = [
     { to: "/inventario", label: "Inventario", icon: Monitor },
     { to: "/marcas", label: "Marcas", icon: Tag },
     { to: "/estatus", label: "Estatus", icon: CheckCircle },
-    { to: "/tipo-equipo", label: "Tipo Equipo", icon: PcCase },
+    { to: "/tipo-equipo", label: "Tipo Equipo", icon: Box },
     { to: "/modelos", label: "Modelos", icon: Layers },
     { to: "/procesadores", label: "Procesadores", icon: Cpu },
     { to: "/restaurantes", label: "Restaurantes", icon: Box },
