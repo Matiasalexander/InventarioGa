@@ -16,6 +16,7 @@ const links = [
     { to: "/restaurantes", label: "Restaurantes", icon: Box },
     { to: "/unidades", label: "Unidades", icon: LayoutDashboard }
 
+
 ];
 
 export default function Sidebar() {

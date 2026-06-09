@@ -16,6 +16,21 @@ function InventarioFormPage() {
 
   const estadosFisicos = ["Bueno", "Regular", "Dañado"];
 
+  //const para enums
+  const tiposRam = [
+    "4GB",
+    "8GB",
+    "16GB",
+    "32GB",
+    "64GB"
+  ];
+
+  const tiposDisco = [
+    "128G", "512G", "1TB", "2TB"
+  ];
+
+  //si ya hay serial existente
+  const [errorSerial, setErrorSerial] = useState("");
   const [catalogos, setCatalogos] = useState({
     restaurantes: [],
     unidades: [],
@@ -111,6 +126,11 @@ function InventarioFormPage() {
   const manejarCambio = (e) => {
     const { name, value } = e.target;
 
+    if (name === "SERIAL") {
+
+      setErrorSerial("");
+    }
+
     if (name === "ID_RESTAURANTE") {
       const localidades = catalogos.unidades.filter(
         (item) => String(item.id_marca) === String(value)
@@ -167,6 +187,7 @@ function InventarioFormPage() {
   const guardarEquipo = async (e) => {
     e.preventDefault();
 
+    setErrorSerial("");
     try {
       const payload = {
         ID_UNIDAD: formulario.ID_UNIDAD,
@@ -195,10 +216,24 @@ function InventarioFormPage() {
 
       navigate("/inventario");
     } catch (error) {
+      const mensaje = error.response?.data?.message || "ERROR GUARDANDO EL EQUIPO";
+      if (mensaje.includes("Numero de seria")) {
+        setErrorSerial("Este n´mero de serie ya existe");
+      } else {
+        alert(mensaje);
+      }
+
       console.error("Error guardando equipo:", error.response?.data || error);
       alert(error.response?.data?.error || "Error guardando equipo");
     }
   };
+
+  //id dependiendo del tipo de equipo.
+  const esLaptop = Number(formulario.ID_TIPO_EQUIPO) === 1;
+  const esDesktop = Number(formulario.ID_TIPO_EQUIPO) === 2;
+  const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
+  const esPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
+  //
 
   return (
     <div className="contenedor">
@@ -283,6 +318,7 @@ function InventarioFormPage() {
             onChange={manejarCambio}
           />
 
+
           <select
             name="ID_TIPO_EQUIPO"
             value={formulario.ID_TIPO_EQUIPO}
@@ -296,6 +332,58 @@ function InventarioFormPage() {
               </option>
             ))}
           </select>
+
+          {
+            //si es laptop mostrar campos de laptop
+            (esLaptop || esDesktop) && (
+              <>
+                <select
+                  name="RAM"
+                  value={formulario.RAM || ""}
+                  onChange={manejarCambio}
+                >
+                  <option value="">Selecciona RAM</option>
+
+                  {tiposRam.map((ram) => (
+                    <option key={ram} value={ram}>
+                      {ram}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  name="DISCO_DURO"
+                  value={formulario.DISCO_DURO || ""}
+                  onChange={manejarCambio}
+                >
+                  <option value="">Selecciona disco duro</option>
+                  {
+                    tiposDisco.map((disco) => (
+                      <option key={disco} value={disco}>
+                        {disco}
+                      </option>
+                    ))
+                  }
+                </select>
+
+                <select
+                  name="ID_PROCESADOR"
+                  value={formulario.ID_PROCESADOR}
+                  onChange={manejarCambio}
+                >
+                  <option value="">Selecciona procesador</option>
+
+                  {catalogos.procesadores.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.Nombre}
+                    </option>
+                  ))}
+                </select>
+
+              </>
+            )
+            //si es desktop mostrar campos de desktop
+          }
 
           <select
             name="ID_MARCA"
@@ -326,19 +414,7 @@ function InventarioFormPage() {
             ))}
           </select>
 
-          <select
-            name="ID_PROCESADOR"
-            value={formulario.ID_PROCESADOR}
-            onChange={manejarCambio}
-          >
-            <option value="">Selecciona procesador</option>
 
-            {catalogos.procesadores.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.Nombre}
-              </option>
-            ))}
-          </select>
 
           <input
             name="IP"
