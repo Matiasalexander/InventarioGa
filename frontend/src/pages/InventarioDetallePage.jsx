@@ -20,7 +20,7 @@ export default function InventarioDetallePage() {
             <p><strong>Nombre del equipo: </strong>{equipo.NOMBRE_EQUIPO}</p>
             <p><strong>Localidad: </strong>{equipo.LOCALIDAD}</p>
             <p><strong>Ubicacion: </strong>{equipo.UBICACION}</p>
-            <p><strong>Departamento: </strong>{equipo.ID_DEPARTAMENTO}</p>
+            <p><strong>Departamento: </strong> {}</p>
             <p><strong>Serial: </strong>{equipo.SERIAL}</p>
             <p><strong>Fecha de fabricación: </strong>{equipo.FECHA_FABRICACION}</p>
             <p><strong>Fecha de garantía: </strong>{equipo.FECHA_GARANTIA}</p>

@@ -385,6 +385,20 @@ function InventarioFormPage() {
             //si es desktop mostrar campos de desktop
           }
 
+          {
+            esImpresora &&(
+              <>
+            <input
+            name="IP"
+            placeholder="000.000.0.0"
+            value={formulario.IP}
+            onChange={manejarCambio}
+          />
+
+              </>
+            )
+          }
+
           <select
             name="ID_MARCA"
             value={formulario.ID_MARCA}
@@ -413,15 +427,6 @@ function InventarioFormPage() {
               </option>
             ))}
           </select>
-
-
-
-          <input
-            name="IP"
-            placeholder="IP"
-            value={formulario.IP}
-            onChange={manejarCambio}
-          />
 
           <select
             name="ID_ESTATUS"
