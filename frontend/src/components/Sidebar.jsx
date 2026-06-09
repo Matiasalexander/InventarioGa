@@ -2,7 +2,6 @@ import { NavLink } from "react-router-dom";
 import {
     Monitor, Tag, Layers, CheckCircle,
     Cpu, Box, LayoutDashboard,
-    PcCase
 } from "lucide-react";
 
 const links = [
