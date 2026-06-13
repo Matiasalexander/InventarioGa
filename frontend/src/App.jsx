@@ -17,7 +17,6 @@ import "react-toastify/dist/ReactToastify.css";
 import RestaurantesPage from "./pages/RestaurantesPage";
 import UnidadesPage from "./pages/UnidadesPage";
 import DepartamentosPage from "./pages/DepartamentosPage";
-import InventarioDetallePage from "./pages/InventarioDetallePage";
 
 function App() {
 
@@ -53,8 +52,7 @@ function App() {
               <Route path="/restaurantes" element={<RestaurantesPage setLoading={setLoading}/>} />
               <Route path="/unidades" element={<UnidadesPage setLoading={setLoading}/>} />
               <Route path="/departamentos" element={<DepartamentosPage setLoading={setLoading}/>} />
-              <Route path="/inventario/detalle/:id" element={<InventarioDetallePage />} />
-              <Route path="/inventario/detalle/:id" element={<InventarioDetallePage />} />
+              <Route path="/inventario/detalle/:id" element={<InventarioDetallePage setLoading={setLoading}/>} />
             </Routes>
           </main>
         </div>

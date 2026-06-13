@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { obtenerInventarioPorId } from "../services/inventarioService";
 import { obtenerCatalogos } from "../services/catalogosService";
-import "./InventarioPage.css";
+import "../styles/InventarioDetallePage.css";
 
 function InventarioDetallePage() {
   const { id } = useParams();
