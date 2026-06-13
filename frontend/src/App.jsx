@@ -16,6 +16,7 @@ import LoadingScreen from "./utils/LoadingScreen";
 import "react-toastify/dist/ReactToastify.css";
 import RestaurantesPage from "./pages/RestaurantesPage";
 import UnidadesPage from "./pages/UnidadesPage";
+import DepartamentosPage from "./pages/DepartamentosPage";
 
 function App() {
 
@@ -50,6 +51,7 @@ function App() {
               <Route path="/responsiva" element={<ResponsivaPage setLoading={setLoading} />} />
               <Route path="/restaurantes" element={<RestaurantesPage setLoading={setLoading}/>} />
               <Route path="/unidades" element={<UnidadesPage setLoading={setLoading}/>} />
+              <Route path="/departamentos" element={<DepartamentosPage />} />
             </Routes>
           </main>
         </div>
