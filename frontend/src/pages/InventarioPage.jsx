@@ -5,7 +5,7 @@ import {
   eliminarInventario
 } from "../services/inventarioService";
 import { toast } from "react-toastify";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function InventarioPage({ setLoading }) {
   const [inventario, setInventario] = useState([]);

@@ -16,7 +16,7 @@ function DepartamentosPage({ setLoading }) {
 
   const cargarDepartamentos = async () => {
     try {
-      setLoading?.(true);
+      setLoading(true);
 
       const data = await obtenerDepartamentos();
       setDepartamentos(data);
@@ -49,7 +49,7 @@ function DepartamentosPage({ setLoading }) {
     }
 
     try {
-      setLoading?.(true);
+      setLoading(true);
 
       const payload = {
         Nombre_departamento: nombreDepartamento.trim()
@@ -70,7 +70,7 @@ function DepartamentosPage({ setLoading }) {
         error.response?.data?.error || "Error al guardar departamento"
       );
     } finally {
-      setLoading?.(false);
+      setLoading(false);
     }
   };
 
@@ -84,7 +84,7 @@ function DepartamentosPage({ setLoading }) {
     if (!window.confirm("¿Deseas eliminar este departamento?")) return;
 
     try {
-      setLoading?.(true);
+      setLoading(true);
 
       await eliminarDepartamento(id);
       toast.success("Departamento eliminado correctamente");
@@ -95,7 +95,7 @@ function DepartamentosPage({ setLoading }) {
         error.response?.data?.error || "Error al eliminar departamento"
       );
     } finally {
-      setLoading?.(false);
+      setLoading(false);
     }
   };
 

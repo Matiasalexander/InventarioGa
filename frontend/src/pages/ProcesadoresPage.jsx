@@ -6,7 +6,7 @@ import {
   actualizarProcesador,
   eliminarProcesador
 } from "../services/procesadoresService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function ProcesadoresPage({ setLoading }) {
   const [procesadores, setProcesadores] = useState([]);

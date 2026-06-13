@@ -7,7 +7,7 @@ import {
   eliminarModelo
 } from "../services/modelosService";
 import { obtenerCatalogos } from "../services/catalogosService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function ModelosPage({ setLoading }) {
   const [modelos, setModelos] = useState([]);

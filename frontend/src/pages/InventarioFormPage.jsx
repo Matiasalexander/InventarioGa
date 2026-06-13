@@ -7,7 +7,7 @@ import {
   obtenerInventarioPorId
 } from "../services/inventarioService";
 import { obtenerCatalogos } from "../services/catalogosService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function InventarioFormPage({ setLoading }) {
   const navigate = useNavigate();

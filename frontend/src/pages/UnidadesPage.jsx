@@ -7,7 +7,7 @@ import {
   eliminarUnidad
 } from "../services/unidadesService";
 import { obtenerRestaurantes } from "../services/restaurantesService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function UnidadesPage({ setLoading }) {
   const [unidades, setUnidades] = useState([]);

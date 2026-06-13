@@ -6,7 +6,7 @@ import {
   actualizarTipoEquipo,
   eliminarTipoEquipo
 } from "../services/tipoEquipoService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function TipoEquipoPage({ setLoading }) {
   const [tiposEquipo, setTiposEquipo] = useState([]);

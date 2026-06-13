@@ -6,7 +6,7 @@ import {
   actualizarMarca,
   eliminarMarca
 } from "../services/marcasService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function MarcasPage({ setLoading }) {
   const [marcas, setMarcas] = useState([]);

@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
 import logo from '../img/gandersons-logo.png'
-import '../styles/ResponsivaPage.css'
+import "../styles/InventarioPage.css";
 
 function Responsiva({ setLoading }) {
 

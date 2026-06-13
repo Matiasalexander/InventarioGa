@@ -6,7 +6,7 @@ import {
   actualizarEstatus,
   eliminarEstatus
 } from "../services/estatusService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function EstatusPage({ setLoading }) {
 

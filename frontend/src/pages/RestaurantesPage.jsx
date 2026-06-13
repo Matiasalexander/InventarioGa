@@ -6,7 +6,7 @@ import {
   actualizarRestaurante,
   eliminarRestaurante
 } from "../services/restaurantesService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function RestaurantesPage({ setLoading }) {
   const [restaurantes, setRestaurantes] = useState([]);
