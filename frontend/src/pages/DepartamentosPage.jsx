@@ -1,93 +1,101 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
-  obtenerMarcas,
-  crearMarca,
-  actualizarMarca,
-  eliminarMarca
-} from "../services/marcasService";
+  obtenerDepartamentos,
+  crearDepartamento,
+  actualizarDepartamento,
+  eliminarDepartamento
+} from "../services/departamentosService";
 import "./InventarioPage.css";
 
 function DepartamentosPage({ setLoading }) {
-  const [marcas, setMarcas] = useState([]);
-  const [marca, setMarca] = useState("");
+  const [departamentos, setDepartamentos] = useState([]);
+  const [nombreDepartamento, setNombreDepartamento] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
 
-  const cargarMarcas = async () => {
+  const cargarDepartamentos = async () => {
     try {
-      setLoading(true);
-      const data = await obtenerMarcas();
-      setMarcas(data);
+      setLoading?.(true);
+
+      const data = await obtenerDepartamentos();
+      setDepartamentos(data);
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al cargar listado de marcas")
-    }finally{
-      setLoading(false);
+      toast.error(
+        error.response?.data?.error ||
+          "Error al cargar listado de departamentos"
+      );
+    } finally {
+      setLoading?.(false);
     }
-    
   };
 
   useEffect(() => {
-    cargarMarcas();
+    cargarDepartamentos();
   }, []);
 
   const limpiarFormulario = () => {
-    setMarca("");
+    setNombreDepartamento("");
     setModoEdicion(false);
     setIdEditando(null);
   };
 
-  const guardarMarca = async (e) => {
+  const guardarDepartamento = async (e) => {
     e.preventDefault();
 
-    if (!marca.trim()) {
-      toast.warning("Escribe una marca");
+    if (!nombreDepartamento.trim()) {
+      toast.warning("Escribe el nombre del departamento");
       return;
     }
 
     try {
-      setLoading(true);
+      setLoading?.(true);
+
       const payload = {
-        Marca: marca.trim()
+        Nombre_departamento: nombreDepartamento.trim()
       };
 
       if (modoEdicion) {
-        await actualizarMarca(idEditando, payload);
-        toast.success("Marca actualizada correctamente");
+        await actualizarDepartamento(idEditando, payload);
+        toast.success("Departamento actualizado correctamente");
       } else {
-        await crearMarca(payload);
-        toast.success("Marca creada correctamente");
+        await crearDepartamento(payload);
+        toast.success("Departamento creado correctamente");
       }
 
       limpiarFormulario();
-      await cargarMarcas();
+      await cargarDepartamentos();
     } catch (error) {
-      console.error("Error guardando marca:", error.response?.data || error);
-      toast.error(error.response?.data?.error || "Error guardando marca");
-    }finally{
-      setLoading(false);
+      toast.error(
+        error.response?.data?.error || "Error al guardar departamento"
+      );
+    } finally {
+      setLoading?.(false);
     }
   };
 
-  const editarMarca = (item) => {
-    setMarca(item.Marca);
+  const editarDepartamento = (item) => {
+    setNombreDepartamento(item.Nombre_departamento);
     setModoEdicion(true);
-    setIdEditando(item.id);
+    setIdEditando(item.Id);
   };
 
-  const borrarMarca = async (id) => {
-    if (!window.confirm("¿Deseas eliminar esta marca?")) return;
+  const borrarDepartamento = async (id) => {
+    if (!window.confirm("¿Deseas eliminar este departamento?")) return;
 
     try {
-      setLoading(true);
-      await eliminarMarca(id);
-      await cargarMarcas();
-      toast.success("Marca eliminada correctamente");
+      setLoading?.(true);
+
+      await eliminarDepartamento(id);
+      toast.success("Departamento eliminado correctamente");
+
+      await cargarDepartamentos();
     } catch (error) {
-      console.error("Error eliminando marca:", error.response?.data || error);
-      toast.error(error.response?.data?.error || "Error eliminando marca");
-    }finally{
-      setLoading(false);
+      toast.error(
+        error.response?.data?.error || "Error al eliminar departamento"
+      );
+    } finally {
+      setLoading?.(false);
     }
   };
 
@@ -95,23 +103,25 @@ function DepartamentosPage({ setLoading }) {
     <div className="contenedor">
       <div className="header">
         <div>
-          <h1>Marcas</h1>
-          <p>Catálogo de marcas de equipos.</p>
+          <h1>Departamentos</h1>
+          <p>Catálogo de departamentos internos.</p>
         </div>
       </div>
 
       <div className="card">
-        <h2>{modoEdicion ? "Editar marca" : "Agregar marca"}</h2>
+        <h2>
+          {modoEdicion ? "Editar departamento" : "Agregar departamento"}
+        </h2>
 
-        <form onSubmit={guardarMarca} className="form-grid">
+        <form onSubmit={guardarDepartamento} className="form-grid">
           <input
-            placeholder="Nombre de la marca"
-            value={marca}
-            onChange={(e) => setMarca(e.target.value)}
+            placeholder="Nombre del departamento"
+            value={nombreDepartamento}
+            onChange={(e) => setNombreDepartamento(e.target.value)}
           />
 
           <button type="submit">
-            {modoEdicion ? "Actualizar marca" : "Guardar marca"}
+            {modoEdicion ? "Actualizar departamento" : "Guardar departamento"}
           </button>
 
           {modoEdicion && (
@@ -123,38 +133,44 @@ function DepartamentosPage({ setLoading }) {
       </div>
 
       <div className="card">
-        <h2>Listado de marcas</h2>
+        <h2>Listado de departamentos</h2>
 
         <div className="table-container">
           <table>
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Marca</th>
+                <th>Departamento</th>
                 <th>Acciones</th>
               </tr>
             </thead>
 
             <tbody>
-              {marcas.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.Marca}</td>
+              {departamentos.map((item) => (
+                <tr key={item.Id}>
+                  <td>{item.Id}</td>
+                  <td>{item.Nombre_departamento}</td>
                   <td>
-                    <button type="button" onClick={() => editarMarca(item)}>
+                    <button
+                      type="button"
+                      onClick={() => editarDepartamento(item)}
+                    >
                       Editar
                     </button>
 
-                    <button type="button" onClick={() => borrarMarca(item.id)}>
+                    <button
+                      type="button"
+                      onClick={() => borrarDepartamento(item.Id)}
+                    >
                       Eliminar
                     </button>
                   </td>
                 </tr>
               ))}
 
-              {marcas.length === 0 && (
+              {departamentos.length === 0 && (
                 <tr>
-                  <td colSpan="3">No hay marcas registradas.</td>
+                  <td colSpan="3">No hay departamentos registrados.</td>
                 </tr>
               )}
             </tbody>
