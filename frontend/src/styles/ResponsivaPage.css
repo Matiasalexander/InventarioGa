@@ -1,0 +1,222 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f2f2f2;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.responsiva-container {
+
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+
+}
+
+.responsiva-card {
+
+    background: white;
+    width: 100%;
+    max-width: 900px;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .15);
+
+}
+
+.header {
+
+    display: flex;
+    justify-content: flex-start;
+
+}
+
+.logo {
+
+    width: 140px;
+
+}
+
+.titulo {
+    color: #010101
+}
+
+h1 {
+
+    text-align: center;
+    font-size: 30px;
+    margin-top: 20px;
+    margin-bottom: 40px;
+
+}
+
+p {
+
+    text-align: justify;
+    line-height: 1.8;
+    font-size: 16px;
+
+}
+
+.table-responsive {
+
+    overflow-x: auto;
+    margin-top: 25px;
+
+}
+
+table {
+
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+
+}
+
+th {
+
+    background: #ececec;
+    border: 1px solid #bdbdbd;
+    padding: 12px;
+    color: #010101;
+    text-align: center;
+
+}
+
+td {
+
+    border: 1px solid #d8d8d8;
+    padding: 10px;
+
+}
+
+.firma-container {
+
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+.signature-canvas {
+
+    width: 100%;
+    max-width: 500px;
+    height: 180px;
+    border: 2px dashed #999;
+    border-radius: 5px;
+
+}
+
+.firma-info {
+
+    margin-top: 30px;
+    text-align: center;
+
+}
+
+.linea {
+
+    width: 300px;
+    max-width: 90%;
+    margin: auto;
+    border-top: 1px solid black;
+    margin-bottom: 10px;
+
+}
+
+.firma-info h3 {
+
+    margin: 5px;
+
+}
+
+.firma-info span {
+
+    color: #666;
+
+}
+
+.acciones {
+
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+
+}
+
+.btn-secondary {
+
+    background: #757575;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+
+}
+
+.btn-primary {
+
+    background: #1565c0;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+
+}
+
+@media(max-width:768px) {
+
+    .responsiva-card {
+
+        padding: 20px;
+
+    }
+
+    h1 {
+
+        font-size: 22px;
+
+    }
+
+    p {
+
+        font-size: 14px;
+
+    }
+
+    .logo {
+
+        width: 90px;
+
+    }
+
+    .signature-canvas {
+
+        height: 140px;
+
+    }
+
+    .acciones {
+
+        flex-direction: column;
+
+    }
+
+    .btn-secondary,
+    .btn-primary {
+
+        width: 100%;
+
+    }
+
+}
