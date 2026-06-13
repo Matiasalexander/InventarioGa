@@ -10,6 +10,7 @@ const modelosRoutes = require("./routes/modelos.routes");
 const responsivaRoutes = require("./routes/responsiva.routes")
 const restaurantesRoutes = require("./routes/restaurantes.routes");
 const unidadesRoutes = require("./routes/unidades.routes");
+const departamentosRoutes = require("./routes/departamentos.routes");
 require("dotenv").config();
 
 require("./config/db");
@@ -28,6 +29,7 @@ app.use("/api/modelos", modelosRoutes);
 app.use("/api/responsiva", responsivaRoutes)
 app.use("/api/restaurantes", restaurantesRoutes);
 app.use("/api/unidades", unidadesRoutes);
+app.use("/api/departamentos", departamentosRoutes);
 
 
 app.get("/", (req, res) => {
