@@ -6,7 +6,7 @@ import {
   actualizarDepartamento,
   eliminarDepartamento
 } from "../services/departamentosService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
 
 function DepartamentosPage({ setLoading }) {
   const [departamentos, setDepartamentos] = useState([]);

@@ -1,56 +1,76 @@
 import { useEffect, useState } from "react";
-import { data, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { obtenerInventarioPorId } from "../services/inventarioService";
+import { obtenerCatalogos } from "../services/catalogosService";
+import "./InventarioPage.css";
 
-export default function InventarioDetallePage() {
-    const { id } = useParams();
-    const [equipo, setEquipo] = useState(null);
-    const [departamentos, setDepartamentos] = useState([]);
-    const [procesadores, setProcesadores] = useState([]);
+function InventarioDetallePage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        //obtener catalogo de equipos
-        fetch(`http://localhost:3001/api/inventario/${id}`)
-            .then((res) => res.json())
-            .then((data) => setEquipo(data))
-            .catch((error) => console.error('Error al obtener el equipo:', error));
+  const [equipo, setEquipo] = useState(null);
+  const [catalogos, setCatalogos] = useState({
+    departamentos: [],
+    procesadores: []
+  });
 
-            //obtener catalogo de departamentos
-           fetch("http://localhost:3001/api/catalogos")
-            .then((res) => res.json())
-            .then((data) => {
-            setDepartamentos(data.departamentos);
-            setProcesadores(data.procesadores);
-            })
-    .catch((error) =>
-        console.error("Error al obtener catálogos:", error)
-    );
-    }, [id]);
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const equipoData = await obtenerInventarioPorId(id);
+        const catalogosData = await obtenerCatalogos();
 
-    if (!equipo) {
-        return <p>Cargando</p>
-    }
+        setEquipo(equipoData);
+        setCatalogos(catalogosData);
+      } catch (error) {
+        console.error("Error cargando detalle:", error.response?.data || error);
+        alert("Error cargando detalle del equipo");
+      }
+    };
 
-        const departamento = departamentos.find(
-        (item) => item.Id == equipo.ID_DEPARTAMENTO
-        );
-        const procesador = procesadores.find(
-        (item)=> item.id == equipo.ID_PROCESADOR
-        );
+    cargarDatos();
+  }, [id]);
 
-    return (
+  if (!equipo) {
+    return <p>Cargando...</p>;
+  }
+
+  const departamento = catalogos.departamentos.find(
+    (item) => String(item.Id) === String(equipo.ID_DEPARTAMENTO)
+  );
+
+  const procesador = catalogos.procesadores.find(
+    (item) => String(item.id) === String(equipo.ID_PROCESADOR)
+  );
+
+  return (
+    <div className="contenedor">
+      <div className="header">
         <div>
-            <p><strong>Nombre del equipo: </strong>{equipo.NOMBRE_EQUIPO}</p>
-            <p><strong>Localidad: </strong>{equipo.LOCALIDAD}</p>
-            <p><strong>Ubicacion: </strong>{equipo.UBICACION}</p>
-            <p><strong>Departamento: </strong> {departamento?.Nombre_departamento}</p>
-            <p><strong>Serial: </strong>{equipo.SERIAL}</p>
-            <p><strong>Fecha de fabricación: </strong>{equipo.FECHA_FABRICACION}</p>
-            <p><strong>Fecha de garantía: </strong>{equipo.FECHA_GARANTIA}</p>
-            <p><strong>Disco duro: </strong>{equipo.DISCO_DURO}</p>
-            <p><strong>Memoria RAM: </strong>{equipo.RAM}</p>
-            <p><strong>Procesador: </strong>{procesador?.Nombre}</p>
-            <p><strong>Modelo de procesador: </strong>{equipo.MODELO_PROCESADOR}</p>
-            <p><strong>Sistema operativo: </strong>{equipo.SISTEMA_OPERATIVO}</p>
+          <h1>Detalle del equipo</h1>
+          <p>Información completa del registro seleccionado.</p>
+        </div>
 
-        </div>);
+        <button type="button" onClick={() => navigate("/inventario")}>
+          Volver
+        </button>
+      </div>
+
+      <div className="card">
+        <h2>{equipo.NOMBRE_EQUIPO || "Equipo sin nombre"}</h2>
+
+        <p><strong>Localidad:</strong> {equipo.LOCALIDAD || "N/A"}</p>
+        <p><strong>Ubicación:</strong> {equipo.UBICACION || "N/A"}</p>
+        <p><strong>Departamento:</strong> {departamento?.Nombre_departamento || "N/A"}</p>
+        <p><strong>Serial:</strong> {equipo.SERIAL || "N/A"}</p>
+        <p><strong>Disco duro:</strong> {equipo.DISCO_DURO || "N/A"}</p>
+        <p><strong>Memoria RAM:</strong> {equipo.RAM || "N/A"}</p>
+        <p><strong>Procesador:</strong> {procesador?.Nombre || "N/A"}</p>
+        <p><strong>Modelo procesador:</strong> {equipo.MODELO_PROCESADOR || "N/A"}</p>
+        <p><strong>Sistema operativo:</strong> {equipo.SISTEMA_OPERATIVO || "N/A"}</p>
+      </div>
+    </div>
+  );
 }
+
+export default InventarioDetallePage;
