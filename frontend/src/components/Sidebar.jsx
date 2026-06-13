@@ -13,7 +13,8 @@ const links = [
     { to: "/modelos", label: "Modelos", icon: Layers },
     { to: "/procesadores", label: "Procesadores", icon: Cpu },
     { to: "/restaurantes", label: "Restaurantes", icon: Box },
-    { to: "/unidades", label: "Unidades", icon: LayoutDashboard }
+    { to: "/unidades", label: "Unidades", icon: LayoutDashboard },
+    { to: "/departamentos", label: "Departamentos", icon: LayoutDashboard }
 
 
 ];
