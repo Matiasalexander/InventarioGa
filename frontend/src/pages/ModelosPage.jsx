@@ -27,11 +27,16 @@ function ModelosPage() {
   const [idEditando, setIdEditando] = useState(null);
 
   const cargarDatos = async () => {
-    const modelosData = await obtenerModelos();
-    const catalogosData = await obtenerCatalogos();
+    try {
+      const modelosData = await obtenerModelos();
+      const catalogosData = await obtenerCatalogos();
 
-    setModelos(modelosData);
-    setCatalogos(catalogosData);
+      setModelos(modelosData);
+      setCatalogos(catalogosData);
+    } catch (error) {
+      console.error("Error cargando modelos:", error.response?.data || error);
+      alert("Error cargando modelos");
+    }
   };
 
   useEffect(() => {
@@ -60,6 +65,11 @@ function ModelosPage() {
 
   const guardarModelo = async (e) => {
     e.preventDefault();
+
+    if (!formulario.id_tequipo || !formulario.id_marca || !formulario.id_modelos) {
+      alert("Selecciona tipo de equipo, marca y modelo");
+      return;
+    }
 
     try {
       const payload = {

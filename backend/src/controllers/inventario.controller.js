@@ -93,6 +93,17 @@ const crearInventario = async (req, res) => {
     } = req.body;
 
     const pool = await poolPromise;
+    const serialExiste = await pool
+      .request()
+      .input('SERIAL', SERIAL)
+      .query(
+        'SELECT * FROM INVENTARIO_M WHERE SERIAL = @SERIAL'
+      );
+    if (serialExiste.recordset.length > 0) {
+      return res.status(400).json({
+        message: "El número de serie ya existe en el inventario"
+      });
+    }
 
     await pool.request()
       .input("ID_UNIDAD", ID_UNIDAD || null)
