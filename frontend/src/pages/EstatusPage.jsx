@@ -18,13 +18,13 @@ function EstatusPage({ setLoading }) {
 
   const cargarEstatus = async () => {
     try {
-      // setLoading(true);
+      setLoading(true);
       const data = await obtenerEstatus();
       setEstatus(data);
     } catch (error) {
       toast.error(error.response?.data?.error || "Error al cargar listado de estatus")
     }finally{
-      // setLoading(false);
+      setLoading(false);
     }
     
   };
