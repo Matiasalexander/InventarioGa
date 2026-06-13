@@ -14,7 +14,6 @@ function Responsiva({ setLoading }) {
 
 
         try {
-            debugger
             setLoading(true);
             if (sigCanvas.current.isEmpty()) {
                 alert("Firma requerida");

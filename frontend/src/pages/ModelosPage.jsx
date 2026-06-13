@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   obtenerModelos,
   crearModelo,
@@ -8,7 +9,7 @@ import {
 import { obtenerCatalogos } from "../services/catalogosService";
 import "./InventarioPage.css";
 
-function ModelosPage() {
+function ModelosPage({ setLoading }) {
   const [modelos, setModelos] = useState([]);
 
   const [catalogos, setCatalogos] = useState({
@@ -28,6 +29,7 @@ function ModelosPage() {
 
   const cargarDatos = async () => {
     try {
+      setLoading(true);
       const modelosData = await obtenerModelos();
       const catalogosData = await obtenerCatalogos();
 
@@ -35,7 +37,9 @@ function ModelosPage() {
       setCatalogos(catalogosData);
     } catch (error) {
       console.error("Error cargando modelos:", error.response?.data || error);
-      alert("Error cargando modelos");
+      toast.error("Error al cargar listado de modelos");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -67,11 +71,12 @@ function ModelosPage() {
     e.preventDefault();
 
     if (!formulario.id_tequipo || !formulario.id_marca || !formulario.id_modelos) {
-      alert("Selecciona tipo de equipo, marca y modelo");
+      toast.warning("Selecciona tipo de equipo, marca y modelo");
       return;
     }
 
     try {
+      setLoading(true);
       const payload = {
         id_tequipo: formulario.id_tequipo,
         id_marca: formulario.id_marca,
@@ -80,17 +85,19 @@ function ModelosPage() {
 
       if (modoEdicion) {
         await actualizarModelo(idEditando, payload);
-        alert("Modelo actualizado correctamente");
+        toast.success("Modelo actualizado correctamente");
       } else {
         await crearModelo(payload);
-        alert("Modelo creado correctamente");
+        toast.success("Modelo creado correctamente");
       }
 
       limpiarFormulario();
       await cargarDatos();
     } catch (error) {
       console.error("Error guardando modelo:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error guardando modelo");
+      toast.error(error.response?.data?.error || "Error guardando modelo");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -109,12 +116,15 @@ function ModelosPage() {
     if (!window.confirm("¿Deseas eliminar este modelo?")) return;
 
     try {
+      setLoading(true);
       await eliminarModelo(id);
       await cargarDatos();
-      alert("Modelo eliminado correctamente");
+      toast.success("Modelo eliminado correctamente");
     } catch (error) {
       console.error("Error eliminando modelo:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error eliminando modelo");
+      toast.error(error.response?.data?.error || "Error eliminando modelo");
+    }finally{
+      setLoading(false);
     }
   };
 

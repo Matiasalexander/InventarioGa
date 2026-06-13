@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   crearInventario,
   actualizarInventario,
@@ -8,7 +9,7 @@ import {
 import { obtenerCatalogos } from "../services/catalogosService";
 import "./InventarioPage.css";
 
-function InventarioFormPage() {
+function InventarioFormPage({ setLoading }) {
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -112,11 +113,14 @@ function InventarioFormPage() {
   useEffect(() => {
     const cargarDatos = async () => {
       try {
+        setLoading(true);
         const data = await cargarCatalogos();
         await cargarEquipo(data);
       } catch (error) {
         console.error("Error cargando formulario:", error);
-        alert("Error cargando formulario");
+        toast.error("Error cargando formulario");
+      }finally{
+        setLoading(false);
       }
     };
 
@@ -189,6 +193,7 @@ function InventarioFormPage() {
 
     setErrorSerial("");
     try {
+      setLoading(true);
       const payload = {
         ID_UNIDAD: formulario.ID_UNIDAD,
         LOCALIDAD: formulario.LOCALIDAD,
@@ -208,23 +213,25 @@ function InventarioFormPage() {
 
       if (esEdicion) {
         await actualizarInventario(id, payload);
-        alert("Equipo actualizado correctamente");
+        toast.success("Equipo actualizado correctamente");
       } else {
         await crearInventario(payload);
-        alert("Equipo agregado correctamente");
+        toast.success("Equipo agregado correctamente");
       }
 
       navigate("/inventario");
     } catch (error) {
       const mensaje = error.response?.data?.message || "ERROR GUARDANDO EL EQUIPO";
-      if (mensaje.includes("Numero de seria")) {
-        setErrorSerial("Este n´mero de serie ya existe");
+      if (mensaje.includes("Numero de serie")) {
+        setErrorSerial("Este número de serie ya existe");
       } else {
-        alert(mensaje);
+        toast.error(mensaje);
       }
 
       console.error("Error guardando equipo:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error guardando equipo");
+      toast.error(error.response?.data?.error || "Error guardando equipo");
+    }finally{
+      setLoading(false);
     }
   };
 

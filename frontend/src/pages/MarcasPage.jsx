@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   obtenerMarcas,
   crearMarca,
@@ -7,15 +8,23 @@ import {
 } from "../services/marcasService";
 import "./InventarioPage.css";
 
-function MarcasPage() {
+function MarcasPage({ setLoading }) {
   const [marcas, setMarcas] = useState([]);
   const [marca, setMarca] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
 
   const cargarMarcas = async () => {
-    const data = await obtenerMarcas();
-    setMarcas(data);
+    try {
+      setLoading(true);
+      const data = await obtenerMarcas();
+      setMarcas(data);
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error al cargar listado de marcas")
+    }finally{
+      setLoading(false);
+    }
+    
   };
 
   useEffect(() => {
@@ -32,28 +41,31 @@ function MarcasPage() {
     e.preventDefault();
 
     if (!marca.trim()) {
-      alert("Escribe una marca");
+      toast.warning("Escribe una marca");
       return;
     }
 
     try {
+      setLoading(true);
       const payload = {
         Marca: marca.trim()
       };
 
       if (modoEdicion) {
         await actualizarMarca(idEditando, payload);
-        alert("Marca actualizada correctamente");
+        toast.success("Marca actualizada correctamente");
       } else {
         await crearMarca(payload);
-        alert("Marca creada correctamente");
+        toast.success("Marca creada correctamente");
       }
 
       limpiarFormulario();
       await cargarMarcas();
     } catch (error) {
       console.error("Error guardando marca:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error guardando marca");
+      toast.error(error.response?.data?.error || "Error guardando marca");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -67,12 +79,15 @@ function MarcasPage() {
     if (!window.confirm("¿Deseas eliminar esta marca?")) return;
 
     try {
+      setLoading(true);
       await eliminarMarca(id);
       await cargarMarcas();
-      alert("Marca eliminada correctamente");
+      toast.success("Marca eliminada correctamente");
     } catch (error) {
       console.error("Error eliminando marca:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error eliminando marca");
+      toast.error(error.response?.data?.error || "Error eliminando marca");
+    }finally{
+      setLoading(false);
     }
   };
 

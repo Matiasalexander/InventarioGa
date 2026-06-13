@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   obtenerUnidades,
   crearUnidad,
@@ -8,7 +9,7 @@ import {
 import { obtenerRestaurantes } from "../services/restaurantesService";
 import "./InventarioPage.css";
 
-function UnidadesPage() {
+function UnidadesPage({ setLoading }) {
   const [unidades, setUnidades] = useState([]);
   const [restaurantes, setRestaurantes] = useState([]);
 
@@ -22,11 +23,18 @@ function UnidadesPage() {
   const [idEditando, setIdEditando] = useState(null);
 
   const cargarDatos = async () => {
-    const unidadesData = await obtenerUnidades();
-    const restaurantesData = await obtenerRestaurantes();
+    try {
+      setLoading(true);
+      const unidadesData = await obtenerUnidades();
+      const restaurantesData = await obtenerRestaurantes();
 
-    setUnidades(unidadesData);
-    setRestaurantes(restaurantesData);
+      setUnidades(unidadesData);
+      setRestaurantes(restaurantesData);
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error al cargar listas")
+    }finally{
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -57,11 +65,12 @@ function UnidadesPage() {
     e.preventDefault();
 
     if (!formulario.id_marca || !formulario.Ubicacion.trim()) {
-      alert("Selecciona restaurante y escribe la ubicación");
+      toast.warning("Selecciona restaurante y escribe la ubicación");
       return;
     }
 
     try {
+      setLoading(true);
       const payload = {
         id_marca: formulario.id_marca,
         Ubicacion: formulario.Ubicacion.trim(),
@@ -70,17 +79,19 @@ function UnidadesPage() {
 
       if (modoEdicion) {
         await actualizarUnidad(idEditando, payload);
-        alert("Unidad actualizada correctamente");
+        toast.success("Unidad actualizada correctamente");
       } else {
         await crearUnidad(payload);
-        alert("Unidad creada correctamente");
+        toast.success("Unidad creada correctamente");
       }
 
       limpiarFormulario();
       await cargarDatos();
     } catch (error) {
       console.error("Error guardando unidad:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error guardando unidad");
+      toast.error(error.response?.data?.error || "Error guardando unidad");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -99,12 +110,15 @@ function UnidadesPage() {
     if (!window.confirm("¿Deseas eliminar esta unidad?")) return;
 
     try {
+      setLoading(true);
       await eliminarUnidad(id);
       await cargarDatos();
-      alert("Unidad eliminada correctamente");
+      toast.success("Unidad eliminada correctamente");
     } catch (error) {
       console.error("Error eliminando unidad:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error eliminando unidad");
+      toast.error(error.response?.data?.error || "Error eliminando unidad");
+    }finally{
+      setLoading(false)
     }
   };
 

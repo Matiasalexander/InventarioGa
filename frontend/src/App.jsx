@@ -23,6 +23,7 @@ function App() {
 
   return (
     <>
+      {loading && <LoadingScreen />}
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -32,28 +33,26 @@ function App() {
         pauseOnHover
         theme="light"
       />
-      {loading && <LoadingScreen />}
       <BrowserRouter>
-        <Routes>
-               <div style={{ display: "flex", minHeight: "100vh" }}>
-        <Sidebar />
-        <main style={{ flex: 1, padding: "24px", overflow: "auto" }}>
-          <Route path="/" element={<Navigate to="/inventario" />} />
-          <Route path="/inventario" element={<InventarioPage />} />
-          <Route path="/inventario/nuevo" element={<InventarioFormPage />} />
-          <Route path="/inventario/editar/:id" element={<InventarioFormPage />} />
-          <Route path="/marcas" element={<MarcasPage />} />
-          <Route path="/tipo-equipo" element={<TipoEquipoPage />} />
-          <Route path="/estatus" element={<EstatusPage />} />
-          <Route path="/procesadores" element={<ProcesadoresPage />} />
-          <Route path="/modelos" element={<ModelosPage />} />
-          <Route path="/responsiva" element={<ResponsivaPage setLoading={setLoading} />} />
-           <Route path="/restaurantes" element={<RestaurantesPage />} />
-            <Route path="/unidades" element={<UnidadesPage />} />
-</main>
-      </div>
-        </Routes>
- 
+        <div style={{ display: "flex", minHeight: "100vh" }}>
+          <Sidebar />
+          <main style={{ flex: 1, padding: "24px", overflow: "auto" }}>
+            <Routes>
+              <Route path="/" element={<Navigate to="/inventario" />} />
+              <Route path="/inventario" element={<InventarioPage setLoading={setLoading}/>} />
+              <Route path="/inventario/nuevo" element={<InventarioFormPage setLoading={setLoading}/>} />
+              <Route path="/inventario/editar/:id" element={<InventarioFormPage setLoading={setLoading}/>} />
+              <Route path="/marcas" element={<MarcasPage setLoading={setLoading}/>} />
+              <Route path="/tipo-equipo" element={<TipoEquipoPage setLoading={setLoading}/>} />
+              <Route path="/estatus" element={<EstatusPage setLoading={setLoading}/>} />
+              <Route path="/procesadores" element={<ProcesadoresPage setLoading={setLoading}/>} />
+              <Route path="/modelos" element={<ModelosPage setLoading={setLoading}/>} />
+              <Route path="/responsiva" element={<ResponsivaPage setLoading={setLoading} />} />
+              <Route path="/restaurantes" element={<RestaurantesPage setLoading={setLoading}/>} />
+              <Route path="/unidades" element={<UnidadesPage setLoading={setLoading}/>} />
+            </Routes>
+          </main>
+        </div>
       </BrowserRouter>
     </>
   );

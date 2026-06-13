@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   obtenerRestaurantes,
   crearRestaurante,
@@ -7,7 +8,7 @@ import {
 } from "../services/restaurantesService";
 import "./InventarioPage.css";
 
-function RestaurantesPage() {
+function RestaurantesPage({ setLoading }) {
   const [restaurantes, setRestaurantes] = useState([]);
   const [formulario, setFormulario] = useState({
     Marca: "",
@@ -18,8 +19,15 @@ function RestaurantesPage() {
   const [idEditando, setIdEditando] = useState(null);
 
   const cargarRestaurantes = async () => {
-    const data = await obtenerRestaurantes();
-    setRestaurantes(data);
+    try {
+      setLoading(true);
+      const data = await obtenerRestaurantes();
+      setRestaurantes(data);
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error al cargar listado de restaurantes")
+    }finally{
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -49,11 +57,12 @@ function RestaurantesPage() {
     e.preventDefault();
 
     if (!formulario.Marca.trim()) {
-      alert("Escribe el nombre del restaurante");
+      toast.warning("Escribe el nombre del restaurante");
       return;
     }
 
     try {
+      setLoading(true);
       const payload = {
         Marca: formulario.Marca.trim(),
         Estado: formulario.Estado
@@ -61,17 +70,19 @@ function RestaurantesPage() {
 
       if (modoEdicion) {
         await actualizarRestaurante(idEditando, payload);
-        alert("Restaurante actualizado correctamente");
+        toast.success("Restaurante actualizado correctamente");
       } else {
         await crearRestaurante(payload);
-        alert("Restaurante creado correctamente");
+        toast.success("Restaurante creado correctamente");
       }
 
       limpiarFormulario();
       await cargarRestaurantes();
     } catch (error) {
       console.error("Error guardando restaurante:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error guardando restaurante");
+      toast.error(error.response?.data?.error || "Error guardando restaurante");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -89,12 +100,15 @@ function RestaurantesPage() {
     if (!window.confirm("¿Deseas eliminar este restaurante?")) return;
 
     try {
+      setLoading(true);
       await eliminarRestaurante(id);
       await cargarRestaurantes();
-      alert("Restaurante eliminado correctamente");
+      toast.success("Restaurante eliminado correctamente");
     } catch (error) {
       console.error("Error eliminando restaurante:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error eliminando restaurante");
+      toast.error(error.response?.data?.error || "Error eliminando restaurante");
+    }finally{
+      setLoading(false);
     }
   };
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   obtenerEstatus,
   crearEstatus,
@@ -7,7 +8,7 @@ import {
 } from "../services/estatusService";
 import "./InventarioPage.css";
 
-function EstatusPage() {
+function EstatusPage({ setLoading }) {
 
   const [estatus, setEstatus] = useState([]);
   const [nombre, setNombre] = useState("");
@@ -16,8 +17,16 @@ function EstatusPage() {
   const [idEditando, setIdEditando] = useState(null);
 
   const cargarEstatus = async () => {
-    const data = await obtenerEstatus();
-    setEstatus(data);
+    try {
+      // setLoading(true);
+      const data = await obtenerEstatus();
+      setEstatus(data);
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error al cargar listado de estatus")
+    }finally{
+      // setLoading(false);
+    }
+    
   };
 
   useEffect(() => {
@@ -33,16 +42,18 @@ function EstatusPage() {
   const guardarEstatus = async (e) => {
     e.preventDefault();
 
-    try {
-
+    try {      
+      setLoading(true);
       const payload = {
         Estatus_equipo: nombre
       };
 
       if (modoEdicion) {
         await actualizarEstatus(idEditando, payload);
+        toast.success("Estatus actualizado correctamente");
       } else {
         await crearEstatus(payload);
+        toast.success("Estatus creado correctamente");
       }
 
       limpiarFormulario();
@@ -51,8 +62,10 @@ function EstatusPage() {
     } catch (error) {
 
       console.error(error);
-      alert("Error guardando estatus");
+      toast.error("Error guardando estatus");
 
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -67,9 +80,20 @@ function EstatusPage() {
     if (!window.confirm("¿Eliminar estatus?")) {
       return;
     }
+    try {
+      setLoading(true);
+      await eliminarEstatus(id);
+      await cargarEstatus();
+      toast.success("Estatus eliminado correctamente");
 
-    await eliminarEstatus(id);
-    await cargarEstatus();
+    } catch (error) {
+      console.error("Error eliminando estatus:", error.response?.data || error);
+      toast.error(error.response?.data?.error || "Error eliminando estatus");
+    }finally{
+      setLoading(false);
+    }
+
+    
   };
 
   return (

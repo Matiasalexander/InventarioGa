@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   obtenerTiposEquipo,
   crearTipoEquipo,
@@ -7,15 +8,23 @@ import {
 } from "../services/tipoEquipoService";
 import "./InventarioPage.css";
 
-function TipoEquipoPage() {
+function TipoEquipoPage({ setLoading }) {
   const [tiposEquipo, setTiposEquipo] = useState([]);
   const [tequipo, setTequipo] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
 
   const cargarTiposEquipo = async () => {
-    const data = await obtenerTiposEquipo();
-    setTiposEquipo(data);
+    try {
+      setLoading(true);
+      const data = await obtenerTiposEquipo();
+      setTiposEquipo(data);
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error al cargar listado de tipo equipo")
+    }finally{
+      setLoading(false);
+    }
+    
   };
 
   useEffect(() => {
@@ -32,28 +41,31 @@ function TipoEquipoPage() {
     e.preventDefault();
 
     if (!tequipo.trim()) {
-      alert("Escribe un tipo de equipo");
+      toast.warning("Escribe un tipo de equipo");
       return;
     }
 
     try {
+      setLoading(true);
       const payload = {
         tequipo: tequipo.trim()
       };
 
       if (modoEdicion) {
         await actualizarTipoEquipo(idEditando, payload);
-        alert("Tipo de equipo actualizado correctamente");
+        toast.success("Tipo de equipo actualizado correctamente");
       } else {
         await crearTipoEquipo(payload);
-        alert("Tipo de equipo creado correctamente");
+        toast.success("Tipo de equipo creado correctamente");
       }
 
       limpiarFormulario();
       await cargarTiposEquipo();
     } catch (error) {
       console.error("Error guardando tipo de equipo:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error guardando tipo de equipo");
+      toast.error(error.response?.data?.error || "Error guardando tipo de equipo");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -67,12 +79,15 @@ function TipoEquipoPage() {
     if (!window.confirm("¿Deseas eliminar este tipo de equipo?")) return;
 
     try {
+      setLoading(true);
       await eliminarTipoEquipo(id);
       await cargarTiposEquipo();
-      alert("Tipo de equipo eliminado correctamente");
+      toast.success("Tipo de equipo eliminado correctamente");
     } catch (error) {
       console.error("Error eliminando tipo de equipo:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error eliminando tipo de equipo");
+      toast.error(error.response?.data?.error || "Error eliminando tipo de equipo");
+    }finally{
+      setLoading(false);
     }
   };
 

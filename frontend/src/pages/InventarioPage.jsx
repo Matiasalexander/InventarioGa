@@ -4,9 +4,10 @@ import {
   obtenerInventario,
   eliminarInventario
 } from "../services/inventarioService";
+import { toast } from "react-toastify";
 import "./InventarioPage.css";
 
-function InventarioPage() {
+function InventarioPage({ setLoading }) {
   const [inventario, setInventario] = useState([]);
   const [busqueda, setBusqueda] = useState("");
 
@@ -14,11 +15,14 @@ function InventarioPage() {
 
   const cargarInventario = async () => {
     try {
+      setLoading(true);
       const data = await obtenerInventario();
       setInventario(data);
     } catch (error) {
       console.error("Error cargando inventario:", error);
-      alert("Error cargando inventario");
+      toast.error("Error cargando inventario");
+    }finally{
+      setLoading(false);
     }
   };
 

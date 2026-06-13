@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import {
   obtenerProcesadores,
   crearProcesador,
@@ -7,15 +8,22 @@ import {
 } from "../services/procesadoresService";
 import "./InventarioPage.css";
 
-function ProcesadoresPage() {
+function ProcesadoresPage({ setLoading }) {
   const [procesadores, setProcesadores] = useState([]);
   const [nombre, setNombre] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
 
   const cargarProcesadores = async () => {
-    const data = await obtenerProcesadores();
-    setProcesadores(data);
+    try {
+      setLoading(true);
+      const data = await obtenerProcesadores();
+      setProcesadores(data);
+    } catch (error) {
+      toast.error(error.response?.data?.error || "Error al cargar listado de procesadores")
+    }finally{
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -32,28 +40,31 @@ function ProcesadoresPage() {
     e.preventDefault();
 
     if (!nombre.trim()) {
-      alert("Escribe un procesador");
+      toast.warning("Escribe un procesador");
       return;
     }
 
     try {
+      setLoading(true);
       const payload = {
         Nombre: nombre.trim()
       };
 
       if (modoEdicion) {
         await actualizarProcesador(idEditando, payload);
-        alert("Procesador actualizado correctamente");
+        toast.success("Procesador actualizado correctamente");
       } else {
         await crearProcesador(payload);
-        alert("Procesador creado correctamente");
+        toast.success("Procesador creado correctamente");
       }
 
       limpiarFormulario();
       await cargarProcesadores();
     } catch (error) {
       console.error("Error guardando procesador:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error guardando procesador");
+      toast.error(error.response?.data?.error || "Error guardando procesador");
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -67,12 +78,15 @@ function ProcesadoresPage() {
     if (!window.confirm("¿Deseas eliminar este procesador?")) return;
 
     try {
+      setLoading(true);
       await eliminarProcesador(id);
       await cargarProcesadores();
-      alert("Procesador eliminado correctamente");
+      toast.success("Procesador eliminado correctamente");
     } catch (error) {
       console.error("Error eliminando procesador:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error eliminando procesador");
+      toast.error(error.response?.data?.error || "Error eliminando procesador");
+    }finally{
+      setLoading(false);
     }
   };
 

@@ -13,7 +13,7 @@ function LoadingScreen() {
                     className="loading-logo"
                 />
 
-                <h2>Generando responsiva...</h2>
+                <h2>Cargando...</h2>
 
                 <div className="spinner"></div>
 
