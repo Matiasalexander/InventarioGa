@@ -46,6 +46,7 @@ function InventarioFormPage({ setLoading }) {
 
   const [modelosFiltrados, setModelosFiltrados] = useState([]);
   const [localidadesFiltradas, setLocalidadesFiltradas] = useState([]);
+  const [modelosProcesadorFiltrados, setModelosProcesadorFiltrados] = useState([]);
 
   const [formulario, setFormulario] = useState({
     ID_RESTAURANTE: "",
@@ -57,6 +58,7 @@ function InventarioFormPage({ setLoading }) {
     ID_DEPARTAMENTO: "",
     SERIAL: "",
     ID_PROCESADOR: "",
+    Id: "",
     ID_MARCA: "",
     MODELO: "",
     IP: "",
@@ -87,6 +89,12 @@ function InventarioFormPage({ setLoading }) {
     const modelos = catalogosData.modelos.filter(
       (item) => String(item.id_marca) === String(equipo.ID_MARCA)
     );
+    
+    const modelosProcesador = catalogosData.modelosProcesador.filter(
+      (item) => String(item.Id_procesador) === String(equipo.ID_PROCESADOR)
+    );
+
+setModelosProcesadorFiltrados(modelosProcesador);
 
     setLocalidadesFiltradas(localidades);
     setModelosFiltrados(modelos);
@@ -101,6 +109,7 @@ function InventarioFormPage({ setLoading }) {
       ID_DEPARTAMENTO: equipo.ID_DEPARTAMENTO || "",
       SERIAL: equipo.SERIAL || "",
       ID_PROCESADOR: equipo.ID_PROCESADOR || "",
+      MODELO_PROCESADOR: equipo.MODELO_PROCESADOR || "",
       ID_MARCA: equipo.ID_MARCA || "",
       MODELO: equipo.MODELO || "",
       IP: equipo.IP || "",
@@ -182,6 +191,22 @@ function InventarioFormPage({ setLoading }) {
       return;
     }
 
+    if (name === "ID_PROCESADOR") {
+
+      const modelos = catalogos.modelosProcesador.filter(
+    (item) => String(item.Id_procesador) === String(value)
+      );
+
+    setModelosProcesadorFiltrados(modelos);
+
+    setFormulario((prev) => ({
+    ...prev,
+    ID_PROCESADOR: value,
+    MODELO_PROCESADOR: ""
+  }));
+
+  return;
+}
     setFormulario((prev) => ({
       ...prev,
       [name]: value
@@ -203,6 +228,7 @@ function InventarioFormPage({ setLoading }) {
         ID_DEPARTAMENTO: formulario.ID_DEPARTAMENTO,
         SERIAL: formulario.SERIAL,
         ID_PROCESADOR: formulario.ID_PROCESADOR,
+        MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
         ID_MARCA: formulario.ID_MARCA,
         MODELO: formulario.MODELO,
         IP: formulario.IP,
@@ -385,6 +411,24 @@ function InventarioFormPage({ setLoading }) {
                       {item.Nombre}
                     </option>
                   ))}
+                </select>
+
+                <select
+                  name = "MODELO_PROCESADOR"
+                  value = {formulario.MODELO_PROCESADOR || ""}
+                  onChange={manejarCambio}
+                  disabled = {!formulario.ID_PROCESADOR}
+                >
+
+                  <option value = "">Selecciona el modelo de procesador</option>
+                  {modelosProcesadorFiltrados.map(
+                    (item)=> (
+                      <option key={item.Id} value={item.Modelo}>
+                        {item.Modelo}
+                      </option>
+                    )
+                  )}
+                  
                 </select>
 
               </>

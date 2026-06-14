@@ -1,0 +1,38 @@
+.detalle-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
+    gap:20px;
+    margin-top:20px;
+}
+
+.detalle-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 0;
+    border-bottom:1px solid #ececec;
+}
+
+.detalle-item:last-child{
+    border-bottom:none;
+}
+
+.detalle-item span{
+    color:#666;
+    font-weight:500;
+}
+
+.detalle-item strong{
+    color:#222;
+}
+
+.card h2{
+    margin-bottom:20px;
+    padding-bottom:10px;
+    border-bottom:2px solid #f2f2f2;
+}
+
+.comentario{
+    line-height:1.8;
+    color:#555;
+}
