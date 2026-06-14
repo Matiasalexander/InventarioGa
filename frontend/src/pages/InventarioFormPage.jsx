@@ -30,6 +30,10 @@ function InventarioFormPage({ setLoading }) {
     "128G", "512G", "1TB", "2TB"
   ];
 
+  const tiposSistemas = [
+    "Windows","Android","Linux"
+  ];
+
   //si ya hay serial existente
   const [errorSerial, setErrorSerial] = useState("");
   const [catalogos, setCatalogos] = useState({
@@ -58,6 +62,7 @@ function InventarioFormPage({ setLoading }) {
     ID_DEPARTAMENTO: "",
     SERIAL: "",
     ID_PROCESADOR: "",
+    SISTEMA_OPERATIVO: "",
     Id: "",
     ID_MARCA: "",
     MODELO: "",
@@ -110,6 +115,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
       SERIAL: equipo.SERIAL || "",
       ID_PROCESADOR: equipo.ID_PROCESADOR || "",
       MODELO_PROCESADOR: equipo.MODELO_PROCESADOR || "",
+      SISTEMA_OPERATIVO: equipo.SISTEMA_OPERATIVO || "",
       ID_MARCA: equipo.ID_MARCA || "",
       MODELO: equipo.MODELO || "",
       IP: equipo.IP || "",
@@ -229,6 +235,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
         SERIAL: formulario.SERIAL,
         ID_PROCESADOR: formulario.ID_PROCESADOR,
         MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
+        SISTEMA_OPERATIVO: formulario.SISTEMA_OPERATIVO,
         ID_MARCA: formulario.ID_MARCA,
         MODELO: formulario.MODELO,
         IP: formulario.IP,
@@ -269,7 +276,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
   //
 
   return (
-    <div className="contenedor">
+    <div className="contenedor-responsive">
       <div className="header">
         <div>
           <h1>{esEdicion ? "Actualizar equipo" : "Agregar equipo"}</h1>
@@ -286,6 +293,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
       </div>
 
       <div className="card">
+
         <form onSubmit={guardarEquipo} className="form-grid">
           <select
             name="ID_RESTAURANTE"
@@ -429,6 +437,23 @@ setModelosProcesadorFiltrados(modelosProcesador);
                     )
                   )}
                   
+                </select>
+
+                <select
+                  name="SISTEMA_OPERATIVO"
+                  value={formulario.SISTEMA_OPERATIVO || ""}
+                  onChange={manejarCambio}
+                >
+                  <option value="">Selecciona el Sistema Operativo</option>
+                  {
+                    tiposSistemas.map((sistema)=>(
+                      <option key={sistema} value={sistema}>
+                        {sistema}
+                      </option>
+                    )
+
+                    )
+                  }
                 </select>
 
               </>

@@ -85,6 +85,7 @@ const crearInventario = async (req, res) => {
       SERIAL,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
+      SISTEMA_OPERATIVO,
       ID_MARCA,
       MODELO,
       IP,
@@ -116,7 +117,7 @@ const crearInventario = async (req, res) => {
       .input("SERIAL", SERIAL || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
-
+      .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
       .input("ID_MARCA", ID_MARCA || null)
       .input("MODELO", MODELO || null)
       .input("IP", IP || null)
@@ -134,6 +135,7 @@ const crearInventario = async (req, res) => {
           SERIAL,
           ID_PROCESADOR,
           MODELO_PROCESADOR,
+          SISTEMA_OPERATIVO,
           ID_MARCA,
           MODELO,
           IP,
@@ -151,6 +153,7 @@ const crearInventario = async (req, res) => {
           @SERIAL,
           @ID_PROCESADOR,
           @MODELO_PROCESADOR,
+          @SISTEMA_OPERATIVO,
           @ID_MARCA,
           @MODELO,
           @IP,
@@ -185,6 +188,7 @@ const actualizarInventario = async (req, res) => {
       SERIAL,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
+      SISTEMA_OPERATIVO,
       ID_MARCA,
       MODELO,
       IP,
@@ -206,6 +210,7 @@ const actualizarInventario = async (req, res) => {
       .input("SERIAL", SERIAL || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
+      .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
       .input("ID_MARCA", ID_MARCA || null)
       .input("MODELO", MODELO || null)
       .input("IP", IP || null)
@@ -224,6 +229,7 @@ const actualizarInventario = async (req, res) => {
           SERIAL = @SERIAL,
           ID_PROCESADOR = @ID_PROCESADOR,
           MODELO_PROCESADOR = @MODELO_PROCESADOR,
+          SISTEMA_OPERATIVO = @SISTEMA_OPERATIVO,
           ID_MARCA = @ID_MARCA,
           MODELO = @MODELO,
           IP = @IP,
