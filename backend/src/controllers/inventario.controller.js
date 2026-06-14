@@ -83,6 +83,8 @@ const crearInventario = async (req, res) => {
       NOMBRE_EQUIPO,
       ID_DEPARTAMENTO,
       SERIAL,
+      DISCO_DURO,
+      RAM,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
       SISTEMA_OPERATIVO,
@@ -115,6 +117,8 @@ const crearInventario = async (req, res) => {
       .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO || null)
       .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
       .input("SERIAL", SERIAL || null)
+      .input("DISCO_DURO", DISCO_DURO || null)
+      .input("RAM", RAM || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
       .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
@@ -133,6 +137,8 @@ const crearInventario = async (req, res) => {
           NOMBRE_EQUIPO,
           ID_DEPARTAMENTO,
           SERIAL,
+          DISCO_DURO,
+          RAM,
           ID_PROCESADOR,
           MODELO_PROCESADOR,
           SISTEMA_OPERATIVO,
@@ -151,6 +157,8 @@ const crearInventario = async (req, res) => {
           @NOMBRE_EQUIPO,
           @ID_DEPARTAMENTO,
           @SERIAL,
+          @DISCO_DURO,
+          @RAM,
           @ID_PROCESADOR,
           @MODELO_PROCESADOR,
           @SISTEMA_OPERATIVO,
@@ -186,6 +194,8 @@ const actualizarInventario = async (req, res) => {
       NOMBRE_EQUIPO,
       ID_DEPARTAMENTO,
       SERIAL,
+      DISCO_DURO,
+      RAM,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
       SISTEMA_OPERATIVO,
@@ -208,6 +218,8 @@ const actualizarInventario = async (req, res) => {
       .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO || null)
       .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
       .input("SERIAL", SERIAL || null)
+      .input("DISCO_DURO", DISCO_DURO || null)
+      .input("RAM", RAM || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
       .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
@@ -227,6 +239,8 @@ const actualizarInventario = async (req, res) => {
           NOMBRE_EQUIPO = @NOMBRE_EQUIPO,
           ID_DEPARTAMENTO = @ID_DEPARTAMENTO,
           SERIAL = @SERIAL,
+          DISCO_DURO = @DISCO_DURO,
+          RAM = @RAM,
           ID_PROCESADOR = @ID_PROCESADOR,
           MODELO_PROCESADOR = @MODELO_PROCESADOR,
           SISTEMA_OPERATIVO = @SISTEMA_OPERATIVO,
