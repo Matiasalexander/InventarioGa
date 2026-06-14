@@ -55,10 +55,9 @@ function InventarioPage({ setLoading }) {
   }, [busqueda, inventario]);
 
   //const detalleEquipo
-
-  const irDetalle = (id) => {
-    navigate(`/inventario/${id}`);
-  }
+const irDetalle = (id) => {
+  navigate(`/inventario/detalle/${id}`);
+};
   //fin const detalleEquipo
   const irAgregar = () => {
     navigate("/inventario/nuevo");
@@ -166,12 +165,9 @@ function InventarioPage({ setLoading }) {
                     </span>
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      onClick={() => irDetalle(item.id)}
-                    >
-                      Detalle
-                    </button>
+         <button type="button" onClick={() => irDetalle(item.id)}>
+  Detalles
+</button>
                     <button
                       type="button"
                       onClick={() => irActualizar(item.id)}
