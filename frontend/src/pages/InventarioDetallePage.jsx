@@ -113,16 +113,6 @@ useEffect(() => {
             </div>
 
             <div className="detalle-item">
-                <span>Serial</span>
-                <strong>{equipo.SERIAL || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Modelo</span>
-                <strong>{equipo.MODELO || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
                 <span>Correo: </span>
                 <strong>{equipo.CORREO || "N/A"}</strong>
             </div>
@@ -158,6 +148,16 @@ useEffect(() => {
             <div className="detalle-item">
                 <span>Sistema operativo</span>
                 <strong>{equipo.SISTEMA_OPERATIVO || "N/A"}</strong>
+            </div>
+
+                        <div className="detalle-item">
+                <span>Serial</span>
+                <strong>{equipo.SERIAL || "N/A"}</strong>
+            </div>
+
+            <div className="detalle-item">
+                <span>Modelo</span>
+                <strong>{equipo.MODELO || "N/A"}</strong>
             </div>
             </>
                 )

@@ -7,7 +7,7 @@ import {
   obtenerInventarioPorId
 } from "../services/inventarioService";
 import { obtenerCatalogos } from "../services/catalogosService";
-import "../styles/InventarioPage.css";
+import "../styles/InventarioFormPage.css";
 
 function InventarioFormPage({ setLoading }) {
   const navigate = useNavigate();
@@ -298,8 +298,10 @@ setModelosProcesadorFiltrados(modelosProcesador);
   const esPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
   //
 
+  //VISTA FORMULARIO
   return (
     <div className="contenedor-responsive">
+
       <div className="header">
         <div>
           <h1>{esEdicion ? "Actualizar equipo" : "Agregar equipo"}</h1>
@@ -317,7 +319,9 @@ setModelosProcesadorFiltrados(modelosProcesador);
 
       <div className="card">
 
-        <form onSubmit={guardarEquipo} className="form-grid">
+        <form onSubmit={guardarEquipo}>
+
+          <div className="card">
           <select
             name="ID_RESTAURANTE"
             value={formulario.ID_RESTAURANTE}
@@ -367,8 +371,12 @@ setModelosProcesadorFiltrados(modelosProcesador);
               </option>
             ))}
           </select>
+          </div>
 
-          <input
+         
+          <div className="card">
+            <h2>Especificaciones del equipo: </h2>
+ <input
             name="NOMBRE_EQUIPO"
             placeholder="Nombre equipo"
             value={formulario.NOMBRE_EQUIPO}
@@ -568,6 +576,8 @@ setModelosProcesadorFiltrados(modelosProcesador);
               </option>
             ))}
           </select>
+          </div>
+         
 
           <select
             name="ID_ESTATUS"
