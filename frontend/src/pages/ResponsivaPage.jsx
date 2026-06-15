@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
 import logo from '../img/gandersons-logo.png'
-import "../styles/InventarioPage.css";
+import "../styles/Responsiva.css";
 
 function Responsiva({ setLoading }) {
 
@@ -67,8 +67,8 @@ function Responsiva({ setLoading }) {
     };
 
     return (
-        <div className="responsiva-container">
-
+        <div className="responsiva-grid">
+           
             <div className="responsiva-card">
 
                 <div className="header">
@@ -191,8 +191,9 @@ function Responsiva({ setLoading }) {
                 </div>
 
             </div>
-
         </div>
+
+
     );
 }
 

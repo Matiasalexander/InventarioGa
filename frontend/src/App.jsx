@@ -52,6 +52,7 @@ function App() {
               <Route path="/restaurantes" element={<RestaurantesPage setLoading={setLoading}/>} />
               <Route path="/unidades" element={<UnidadesPage setLoading={setLoading}/>} />
               <Route path="/departamentos" element={<DepartamentosPage setLoading={setLoading}/>} />
+              <Route path="responsiva" element={<ResponsivaPage setLoading={setLoading}/>}/>
               <Route path="/inventario/detalle/:id" element={<InventarioDetallePage setLoading={setLoading}/>} />
             </Routes>
           </main>

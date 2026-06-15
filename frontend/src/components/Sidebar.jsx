@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
     Monitor, Tag, Layers, CheckCircle,
     Cpu, Box, LayoutDashboard,
+    Book,
 } from "lucide-react";
 
 const links = [
@@ -14,7 +15,8 @@ const links = [
     { to: "/procesadores", label: "Procesadores", icon: Cpu },
     { to: "/restaurantes", label: "Restaurantes", icon: Box },
     { to: "/unidades", label: "Unidades", icon: LayoutDashboard },
-    { to: "/departamentos", label: "Departamentos", icon: LayoutDashboard }
+    { to: "/departamentos", label: "Departamentos", icon: LayoutDashboard },
+    {to:"/responsiva", label: "Responsivas", icon: Book}
 
 
 ];

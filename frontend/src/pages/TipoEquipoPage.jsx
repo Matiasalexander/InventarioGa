@@ -145,7 +145,7 @@ function TipoEquipoPage({ setLoading }) {
                       Editar
                     </button>
 
-                    <button type="button" onClick={() => borrarTipoEquipo(item.id)}>
+                    <button type="button" onClick={() => borrarTipoEquipo(item.id)} hidden>
                       Eliminar
                     </button>
                   </td>
