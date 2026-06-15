@@ -88,9 +88,12 @@ const crearInventario = async (req, res) => {
       ID_PROCESADOR,
       MODELO_PROCESADOR,
       SISTEMA_OPERATIVO,
+      TIPO_IMPRESORA,
+      CONEXION,
       ID_MARCA,
       MODELO,
       IP,
+      PUERTO,
       ID_ESTATUS,
       ESTADO_FISICO,
       CORREO
@@ -122,9 +125,12 @@ const crearInventario = async (req, res) => {
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
       .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
+      .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
+      .input("CONEXION", CONEXION || null)
       .input("ID_MARCA", ID_MARCA || null)
       .input("MODELO", MODELO || null)
       .input("IP", IP || null)
+      .input("PUERTO", PUERTO || null)
       .input("ID_ESTATUS", ID_ESTATUS || null)
       .input("ESTADO_FISICO", ESTADO_FISICO || null)
       .input("CORREO", CORREO || null)
@@ -142,9 +148,12 @@ const crearInventario = async (req, res) => {
           ID_PROCESADOR,
           MODELO_PROCESADOR,
           SISTEMA_OPERATIVO,
+          TIPO_IMPRESORA,
+          CONEXION,
           ID_MARCA,
           MODELO,
           IP,
+          PUERTO,
           ID_ESTATUS,
           ESTADO_FISICO,
           CORREO
@@ -162,9 +171,12 @@ const crearInventario = async (req, res) => {
           @ID_PROCESADOR,
           @MODELO_PROCESADOR,
           @SISTEMA_OPERATIVO,
+          @TIPO_IMPRESORA,
+          @CONEXION,
           @ID_MARCA,
           @MODELO,
           @IP,
+          @PUERTO,
           @ID_ESTATUS,
           @ESTADO_FISICO,
           @CORREO
@@ -199,9 +211,12 @@ const actualizarInventario = async (req, res) => {
       ID_PROCESADOR,
       MODELO_PROCESADOR,
       SISTEMA_OPERATIVO,
+      TIPO_IMPRESORA,
+      CONEXION,
       ID_MARCA,
       MODELO,
       IP,
+      PUERTO,
       ID_ESTATUS,
       ESTADO_FISICO,
       CORREO
@@ -223,9 +238,12 @@ const actualizarInventario = async (req, res) => {
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
       .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
+      .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
+      .input("CONEXION", CONEXION || null)
       .input("ID_MARCA", ID_MARCA || null)
       .input("MODELO", MODELO || null)
       .input("IP", IP || null)
+      .input("PUERTO", PUERTO || null)
       .input("ID_ESTATUS", ID_ESTATUS || null)
       .input("ESTADO_FISICO", ESTADO_FISICO || null)
       .input("CORREO", CORREO || null)
@@ -244,9 +262,12 @@ const actualizarInventario = async (req, res) => {
           ID_PROCESADOR = @ID_PROCESADOR,
           MODELO_PROCESADOR = @MODELO_PROCESADOR,
           SISTEMA_OPERATIVO = @SISTEMA_OPERATIVO,
+          TIPO_IMPRESORA = @TIPO_IMPRESORA,
+          CONEXION = @CONEXION,
           ID_MARCA = @ID_MARCA,
           MODELO = @MODELO,
           IP = @IP,
+          PUERTO = @PUERTO,
           ID_ESTATUS = @ID_ESTATUS,
           ESTADO_FISICO = @ESTADO_FISICO,
           CORREO = @CORREO

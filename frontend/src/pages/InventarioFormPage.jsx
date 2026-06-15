@@ -34,6 +34,14 @@ function InventarioFormPage({ setLoading }) {
     "Windows","Android","Linux"
   ];
 
+  const tiposImpresoras = [
+    "Serial","Ethernet" , "Blueetoth"
+  ];
+
+  const tiposConexiones = [
+    "Directo a la pared", "UPS"
+  ];
+
   //si ya hay serial existente
   const [errorSerial, setErrorSerial] = useState("");
   const [catalogos, setCatalogos] = useState({
@@ -65,10 +73,13 @@ function InventarioFormPage({ setLoading }) {
     RAM: "",
     ID_PROCESADOR: "",
     SISTEMA_OPERATIVO: "",
+    TIPO_IMPRESORA: "",
+    CONEXION: "",
     Id: "",
     ID_MARCA: "",
     MODELO: "",
     IP: "",
+    PUERTO: "",
     ID_ESTATUS: "",
     ESTADO_FISICO: "",
     CORREO: ""
@@ -120,9 +131,12 @@ setModelosProcesadorFiltrados(modelosProcesador);
       ID_PROCESADOR: equipo.ID_PROCESADOR || "",
       MODELO_PROCESADOR: equipo.MODELO_PROCESADOR || "",
       SISTEMA_OPERATIVO: equipo.SISTEMA_OPERATIVO || "",
+      TIPO_IMPRESORA: equipo.TIPO_IMPRESORA || "",
+      CONEXION: equipo.CONEXION || "",
       ID_MARCA: equipo.ID_MARCA || "",
       MODELO: equipo.MODELO || "",
       IP: equipo.IP || "",
+      PUERTO: equipo.PUERTO || "",
       ID_ESTATUS: equipo.ID_ESTATUS || "",
       ESTADO_FISICO: equipo.ESTADO_FISICO || "",
       CORREO: equipo.CORREO || ""
@@ -242,9 +256,12 @@ setModelosProcesadorFiltrados(modelosProcesador);
         ID_PROCESADOR: formulario.ID_PROCESADOR,
         MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
         SISTEMA_OPERATIVO: formulario.SISTEMA_OPERATIVO,
+        TIPO_IMPRESORA: formulario.TIPO_IMPRESORA,
+        CONEXION: formulario.CONEXION,
         ID_MARCA: formulario.ID_MARCA,
         MODELO: formulario.MODELO,
         IP: formulario.IP,
+        PUERTO: formulario.PUERTO,
         ID_ESTATUS: formulario.ID_ESTATUS,
         ESTADO_FISICO: formulario.ESTADO_FISICO,
         CORREO: formulario.CORREO
@@ -470,12 +487,54 @@ setModelosProcesadorFiltrados(modelosProcesador);
           {
             esImpresora &&(
               <>
+
+               <select
+                  name="TIPO_IMPRESORA"
+                  value={formulario.TIPO_IMPRESORA || ""}
+                  onChange={manejarCambio}
+                >
+                  <option value="">Selecciona el tipo de impresora: </option>
+                  {
+                    tiposImpresoras.map((impresora)=>(
+                      <option key={impresora} value={impresora}>
+                        {impresora}
+                      </option>
+                    )
+
+                    )
+                  }
+                </select>
+
+                 <select
+                  name="CONEXION"
+                  value={formulario.CONEXION || ""}
+                  onChange={manejarCambio}
+                >
+                  <option value="">Selecciona el tipo de conexion</option>
+                  {
+                    tiposConexiones.map((conexion)=>(
+                      <option key={conexion} value={conexion}>
+                        {conexion}
+                      </option>
+                    )
+
+                    )
+                  }
+                </select>
+
             <input
             name="IP"
             placeholder="000.000.0.0"
             value={formulario.IP}
             onChange={manejarCambio}
-          />
+            />
+
+            <input
+            name = "PUERTO"
+            placeholder="INGRESE PUERTO"
+            value={formulario.PUERTO}
+            onChange={manejarCambio}
+            />
 
               </>
             )
