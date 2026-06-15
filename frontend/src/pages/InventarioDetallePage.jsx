@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { obtenerInventarioPorId } from "../services/inventarioService";
 import "../styles/InventarioDetallePage.css";
+import { Cpu } from "lucide-react";
 
 function InventarioDetallePage() {
   const { id } = useParams();
@@ -64,7 +65,11 @@ useEffect(() => {
     (item)=>item.Id == equipo.ID_DEPARTAMENTO
   );
 
-
+//CONST PARA EL TIPO DE EQUIPO EN ESPECÍFICO
+ const esLaptop = Number(equipo.ID_TIPO_EQUIPO) === 1;
+  const esDesktop = Number(equipo.ID_TIPO_EQUIPO) === 2;
+  const esImpresora = Number(equipo.ID_TIPO_EQUIPO) === 3;
+ /* const esPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;*/
 
   return (
 
@@ -81,7 +86,7 @@ useEffect(() => {
             type="button"
             onClick={() => navigate("/inventario")}
         >
-            ← Volver
+            Volver
         </button>
 
     </div>
@@ -118,21 +123,18 @@ useEffect(() => {
             </div>
 
             <div className="detalle-item">
-                <span>IP</span>
-                <strong>{equipo.IP || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Correo</span>
+                <span>Correo: </span>
                 <strong>{equipo.CORREO || "N/A"}</strong>
             </div>
 
         </div>
 
         <div className="card">
-
+            
             <h2> Especificaciones</h2>
-
+            {
+              (esLaptop || esDesktop)  &&(
+                <>
             <div className="detalle-item">
                 <span>Procesador</span>
                 <strong>{procesador?.Nombre || "N/A"}</strong>
@@ -157,7 +159,15 @@ useEffect(() => {
                 <span>Sistema operativo</span>
                 <strong>{equipo.SISTEMA_OPERATIVO || "N/A"}</strong>
             </div>
-
+            </>
+                )
+            }
+            
+            {/*SOLO OBTIENE LOS DETALLES QUE LE CORREPSONDEN A IMPRESORA*/}
+            {
+            (esImpresora) && 
+                (
+                    <>
             <div className="detalle-item">
                 <span>Conexión</span>
                 <strong>{equipo.CONEXION || "N/A"}</strong>
@@ -168,7 +178,21 @@ useEffect(() => {
                 <strong>{equipo.PUERTO || "N/A"}</strong>
             </div>
 
+            <div className="detalle-item">
+                <span>Lector de huella</span>
+                <strong>{equipo.LECTOR_DE_HUELLA || "N/A"}</strong>
+            </div>
+
+            <div className="detalle-item">
+                <span>IP</span>
+                <strong>{equipo.IP || "N/A"}</strong>
+            </div>
+            </>
+                )
+            }   
+
         </div>
+        
 
         <div className="card">
 
@@ -187,11 +211,6 @@ useEffect(() => {
             <div className="detalle-item">
                 <span>Fecha garantía</span>
                 <strong>{equipo.FECHA_GARANTIA || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Lector de huella</span>
-                <strong>{equipo.LECTOR_DE_HUELLA || "N/A"}</strong>
             </div>
 
         </div>
