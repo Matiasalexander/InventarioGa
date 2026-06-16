@@ -96,7 +96,11 @@ const crearInventario = async (req, res) => {
       PUERTO,
       ID_ESTATUS,
       ESTADO_FISICO,
-      CORREO
+      CORREO,
+      ACCESO_TEAM_VIEWER,
+      CONTRASEÑA_TEAM_VIEWER,
+      ACCESO_ANYDESK,
+      CONTRASEÑA_ANYDESK
     } = req.body;
 
     const pool = await poolPromise;
@@ -134,6 +138,10 @@ const crearInventario = async (req, res) => {
       .input("ID_ESTATUS", ID_ESTATUS || null)
       .input("ESTADO_FISICO", ESTADO_FISICO || null)
       .input("CORREO", CORREO || null)
+      .input("ACCESO_TEAM_VIEWER", ACCESO_TEAM_VIEWER || null)
+      .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
+      .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
+      .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
       .query(`
         INSERT INTO INVENTARIO_M (
           ID_UNIDAD,
@@ -156,7 +164,11 @@ const crearInventario = async (req, res) => {
           PUERTO,
           ID_ESTATUS,
           ESTADO_FISICO,
-          CORREO
+          CORREO,
+          ACCESO_TEAM_VIEWER,
+          CONTRASEÑA_TEAM_VIEWER,
+          ACCESO_ANYDESK,
+          CONTRASEÑA_ANYDESK
         )
         VALUES (
           @ID_UNIDAD,
@@ -179,7 +191,11 @@ const crearInventario = async (req, res) => {
           @PUERTO,
           @ID_ESTATUS,
           @ESTADO_FISICO,
-          @CORREO
+          @CORREO,
+          @ACCESO_TEAM_VIEWER,
+          @CONTRASEÑA_TEAM_VIEWER,
+          @ACCESO_ANYDESK,
+          @CONTRASEÑA_ANYDESK
         )
       `);
 
@@ -219,7 +235,11 @@ const actualizarInventario = async (req, res) => {
       PUERTO,
       ID_ESTATUS,
       ESTADO_FISICO,
-      CORREO
+      CORREO,
+      ACCESO_TEAM_VIEWER,
+      CONTRASEÑA_TEAM_VIEWER,
+      ACCESO_ANYDESK,
+      CONTRASEÑA_ANYDESK
     } = req.body;
 
     const pool = await poolPromise;
@@ -247,6 +267,10 @@ const actualizarInventario = async (req, res) => {
       .input("ID_ESTATUS", ID_ESTATUS || null)
       .input("ESTADO_FISICO", ESTADO_FISICO || null)
       .input("CORREO", CORREO || null)
+      .input("ACCESO_TEAM_VIEWER" || null)
+      .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
+      .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
+      .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
       .query(`
         UPDATE INVENTARIO_M
         SET
@@ -270,7 +294,11 @@ const actualizarInventario = async (req, res) => {
           PUERTO = @PUERTO,
           ID_ESTATUS = @ID_ESTATUS,
           ESTADO_FISICO = @ESTADO_FISICO,
-          CORREO = @CORREO
+          CORREO = @CORREO,
+          ACCESO_TEAM_VIEWER = @ACCESO_TEAM_VIEWER,
+          CONTRASEÑA_TEAM_VIEWER = @CONTRASEÑA_TEAM_VIEWER,
+          ACCESO_ANYDESK = @ACCESO_ANYDESK,
+          CONTRASEÑA_ANYDESK = @CONTRASEÑA_ANYDESK
         WHERE id = @id
       `);
 

@@ -82,7 +82,11 @@ function InventarioFormPage({ setLoading }) {
     PUERTO: "",
     ID_ESTATUS: "",
     ESTADO_FISICO: "",
-    CORREO: ""
+    CORREO: "",
+    ACCESO_TEAM_VIEWER: "",
+    CONTRASEÑA_TEAM_VIEWER: "",
+    ACCESO_ANYDESK: "",
+    CONTRASEÑA_ANYDESK:""
   });
 
   const cargarCatalogos = async () => {
@@ -139,7 +143,11 @@ setModelosProcesadorFiltrados(modelosProcesador);
       PUERTO: equipo.PUERTO || "",
       ID_ESTATUS: equipo.ID_ESTATUS || "",
       ESTADO_FISICO: equipo.ESTADO_FISICO || "",
-      CORREO: equipo.CORREO || ""
+      CORREO: equipo.CORREO || "",
+      ACCESO_TEAM_VIEWER: equipo.ACCESO_TEAM_VIEWER || "",
+      CONTRASEÑA_TEAM_VIEWER: equipo.CONTRASEÑA_TEAM_VIEWER || "",
+      ACCESO_ANYDESK: equipo.ACCESO_ANYDESK || "",
+      CONTRASEÑA_ANYDESK: equipo.CONTRASEÑA_ANYDESK || ""
     });
   };
 
@@ -264,7 +272,11 @@ setModelosProcesadorFiltrados(modelosProcesador);
         PUERTO: formulario.PUERTO,
         ID_ESTATUS: formulario.ID_ESTATUS,
         ESTADO_FISICO: formulario.ESTADO_FISICO,
-        CORREO: formulario.CORREO
+        CORREO: formulario.CORREO,
+        ACCESO_TEAM_VIEWER: formulario.ACCESO_TEAM_VIEWER,
+        CONTRASEÑA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
+        ACCESO_ANYDESK: formulario.ACCESO_ANYDESK,
+        CONTRASEÑA_ANYDESK: formulario.CONTRASEÑA_ANYDESK
       };
 
       if (esEdicion) {
@@ -295,7 +307,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
   const esLaptop = Number(formulario.ID_TIPO_EQUIPO) === 1;
   const esDesktop = Number(formulario.ID_TIPO_EQUIPO) === 2;
   const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
-  const esPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
+  const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
   //
 
   //VISTA FORMULARIO
@@ -317,11 +329,12 @@ setModelosProcesadorFiltrados(modelosProcesador);
         </button>
       </div>
 
-      <div className="card">
 
+        <div className="card">
         <form onSubmit={guardarEquipo}>
 
-          <div className="card">
+          <div className="formulario-card">
+          <h2>Infomación general</h2>
           <select
             name="ID_RESTAURANTE"
             value={formulario.ID_RESTAURANTE}
@@ -374,9 +387,9 @@ setModelosProcesadorFiltrados(modelosProcesador);
           </div>
 
          
-          <div className="card">
+          <div className="formulario-card">
             <h2>Especificaciones del equipo: </h2>
- <input
+          <input
             name="NOMBRE_EQUIPO"
             placeholder="Nombre equipo"
             value={formulario.NOMBRE_EQUIPO}
@@ -548,6 +561,43 @@ setModelosProcesadorFiltrados(modelosProcesador);
             )
           }
 
+          {
+            esTabletPOS && (
+              <>
+
+             <input
+            name = "ACCESO_TEAM_VIEWER"
+            placeholder="INGRESE ACCESO DE TEAM VIEWER"
+            value={formulario.ACCESO_TEAM_VIEWER}
+            onChange={manejarCambio}
+            />
+
+            <input
+            name = "CONTRASEÑA_TEAM_VIEWER"
+            placeholder="INGRESE CONTRASEÑA DE TEAM VIEWER"
+            value={formulario.CONTRASEÑA_TEAM_VIEWER}
+            disabled={!formulario.ACCESO_TEAM_VIEWER}
+            onChange={manejarCambio}
+            />
+
+            <input
+            name = "ACCESO_ANYDESK"
+            placeholder="INGRESE ACCESO ANYDESK"
+            value={formulario.ACCESO_ANYDESK}
+            onChange={manejarCambio}
+            />
+
+            <input
+            name = "CONTRASEÑA_ANYDESK"
+            placeholder="INGRESE CONTRASEÑA DEL ANYDESK"
+            value={formulario.CONTRASEÑA_ANYDESK}
+            disabled={!formulario.ACCESO_ANYDESK}            
+            onChange={manejarCambio}
+            />
+              </>
+            )
+          }
+
           <select
             name="ID_MARCA"
             value={formulario.ID_MARCA}
@@ -578,7 +628,9 @@ setModelosProcesadorFiltrados(modelosProcesador);
           </select>
           </div>
          
-
+          
+          <div className="formulario-card">
+          <h2>Estado/estatus del equipo</h2>
           <select
             name="ID_ESTATUS"
             value={formulario.ID_ESTATUS}
@@ -592,7 +644,6 @@ setModelosProcesadorFiltrados(modelosProcesador);
               </option>
             ))}
           </select>
-
           <select
             name="ESTADO_FISICO"
             value={formulario.ESTADO_FISICO}
@@ -612,13 +663,17 @@ setModelosProcesadorFiltrados(modelosProcesador);
             value={formulario.CORREO}
             onChange={manejarCambio}
           />
-
+          </div>
+          
+          <br></br>
           <button type="submit">
             {esEdicion ? "Actualizar equipo" : "Guardar equipo"}
           </button>
         </form>
+
+        </div>
+
       </div>
-    </div>
   );
 }
 
