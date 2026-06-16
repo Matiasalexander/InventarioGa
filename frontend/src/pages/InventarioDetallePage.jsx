@@ -69,7 +69,7 @@ useEffect(() => {
  const esLaptop = Number(equipo.ID_TIPO_EQUIPO) === 1;
   const esDesktop = Number(equipo.ID_TIPO_EQUIPO) === 2;
   const esImpresora = Number(equipo.ID_TIPO_EQUIPO) === 3;
- /* const esPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;*/
+ const esTabletPOS = Number(equipo.ID_TIPO_EQUIPO) === 4;
 
   return (
 
@@ -189,7 +189,35 @@ useEffect(() => {
             </div>
             </>
                 )
-            }   
+            }
+            
+            {
+            esTabletPOS &&(
+             <>
+            <div className="detalle-item">
+                <span>ACCESO TEAM VIEWER</span>
+                <strong>{equipo.ACCESO_TEAM_VIEWER || "N/A"}</strong>
+            </div>
+
+            <div className="detalle-item">
+                <span>CONTRASEÑA TEAM VIEWER</span>
+                <strong>{equipo.CONTRASEÑA_TEAM_VIEWER || "N/A"}</strong>
+            </div>
+            
+            <div className="detalle-item">
+                <span>ACCESO ANYDESK</span>
+                <strong>{equipo.ACCESO_ANYDESK || "N/A"}</strong>
+            </div>
+
+            <div className="detalle-item">
+                <span>CONTRASEÑA ANYDESK</span>
+                <strong>{equipo.CONTRASEÑA_ANYDESK || "N/A"}</strong>
+            </div>
+            </>
+            )
+
+        }
+            
 
         </div>
         
