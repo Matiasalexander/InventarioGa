@@ -100,7 +100,8 @@ const crearInventario = async (req, res) => {
       ACCESO_TEAM_VIEWER,
       CONTRASEÑA_TEAM_VIEWER,
       ACCESO_ANYDESK,
-      CONTRASEÑA_ANYDESK
+      CONTRASEÑA_ANYDESK,
+      COMENTARIO
     } = req.body;
 
     const pool = await poolPromise;
@@ -142,6 +143,7 @@ const crearInventario = async (req, res) => {
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
       .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
+      .input("COMENTARIO", COMENTARIO || null)
       .query(`
         INSERT INTO INVENTARIO_M (
           ID_UNIDAD,
@@ -168,7 +170,8 @@ const crearInventario = async (req, res) => {
           ACCESO_TEAM_VIEWER,
           CONTRASEÑA_TEAM_VIEWER,
           ACCESO_ANYDESK,
-          CONTRASEÑA_ANYDESK
+          CONTRASEÑA_ANYDESK,
+          COMENTARIO
         )
         VALUES (
           @ID_UNIDAD,
@@ -195,7 +198,8 @@ const crearInventario = async (req, res) => {
           @ACCESO_TEAM_VIEWER,
           @CONTRASEÑA_TEAM_VIEWER,
           @ACCESO_ANYDESK,
-          @CONTRASEÑA_ANYDESK
+          @CONTRASEÑA_ANYDESK,
+          @COMENTARIO
         )
       `);
 
@@ -239,7 +243,8 @@ const actualizarInventario = async (req, res) => {
       ACCESO_TEAM_VIEWER,
       CONTRASEÑA_TEAM_VIEWER,
       ACCESO_ANYDESK,
-      CONTRASEÑA_ANYDESK
+      CONTRASEÑA_ANYDESK,
+      COMENTARIO
     } = req.body;
 
     const pool = await poolPromise;
@@ -271,6 +276,7 @@ const actualizarInventario = async (req, res) => {
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
       .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
+      .input("COMENTARIO", COMENTARIO || null)
       .query(`
         UPDATE INVENTARIO_M
         SET
@@ -298,7 +304,8 @@ const actualizarInventario = async (req, res) => {
           ACCESO_TEAM_VIEWER = @ACCESO_TEAM_VIEWER,
           CONTRASEÑA_TEAM_VIEWER = @CONTRASEÑA_TEAM_VIEWER,
           ACCESO_ANYDESK = @ACCESO_ANYDESK,
-          CONTRASEÑA_ANYDESK = @CONTRASEÑA_ANYDESK
+          CONTRASEÑA_ANYDESK = @CONTRASEÑA_ANYDESK,
+          COMENTARIO = @COMENTARIO
         WHERE id = @id
       `);
 

@@ -86,7 +86,8 @@ function InventarioFormPage({ setLoading }) {
     ACCESO_TEAM_VIEWER: "",
     CONTRASEÑA_TEAM_VIEWER: "",
     ACCESO_ANYDESK: "",
-    CONTRASEÑA_ANYDESK:""
+    CONTRASEÑA_ANYDESK:"",
+    COMENTARIO: ""
   });
 
   const cargarCatalogos = async () => {
@@ -147,7 +148,8 @@ setModelosProcesadorFiltrados(modelosProcesador);
       ACCESO_TEAM_VIEWER: equipo.ACCESO_TEAM_VIEWER || "",
       CONTRASEÑA_TEAM_VIEWER: equipo.CONTRASEÑA_TEAM_VIEWER || "",
       ACCESO_ANYDESK: equipo.ACCESO_ANYDESK || "",
-      CONTRASEÑA_ANYDESK: equipo.CONTRASEÑA_ANYDESK || ""
+      CONTRASEÑA_ANYDESK: equipo.CONTRASEÑA_ANYDESK || "",
+      COMENTARIO: equipo.COMENTARIO || ""
     });
   };
 
@@ -276,7 +278,8 @@ setModelosProcesadorFiltrados(modelosProcesador);
         ACCESO_TEAM_VIEWER: formulario.ACCESO_TEAM_VIEWER,
         CONTRASEÑA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
         ACCESO_ANYDESK: formulario.ACCESO_ANYDESK,
-        CONTRASEÑA_ANYDESK: formulario.CONTRASEÑA_ANYDESK
+        CONTRASEÑA_ANYDESK: formulario.CONTRASEÑA_ANYDESK,
+        COMENTARIO: formulario.COMENTARIO
       };
 
       if (esEdicion) {
@@ -665,7 +668,15 @@ setModelosProcesadorFiltrados(modelosProcesador);
             value={formulario.CORREO}
             onChange={manejarCambio}
           />
-          </div>
+
+           <input
+            name="COMENTARIO"
+            placeholder="COMENTARIO"
+            value={formulario.COMENTARIO}
+            onChange={manejarCambio}
+          />
+
+          </div>   
           
           <br></br>
           <button type="submit">
