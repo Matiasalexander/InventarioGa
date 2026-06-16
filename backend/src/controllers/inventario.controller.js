@@ -267,7 +267,7 @@ const actualizarInventario = async (req, res) => {
       .input("ID_ESTATUS", ID_ESTATUS || null)
       .input("ESTADO_FISICO", ESTADO_FISICO || null)
       .input("CORREO", CORREO || null)
-      .input("ACCESO_TEAM_VIEWER" || null)
+      .input("ACCESO_TEAM_VIEWER", ACCESO_TEAM_VIEWER || null)
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
       .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
