@@ -566,6 +566,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
               <>
 
              <input
+             type="number"
             name = "ACCESO_TEAM_VIEWER"
             placeholder="INGRESE ACCESO DE TEAM VIEWER"
             value={formulario.ACCESO_TEAM_VIEWER}
@@ -581,6 +582,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
             />
 
             <input
+            type="number"
             name = "ACCESO_ANYDESK"
             placeholder="INGRESE ACCESO ANYDESK"
             value={formulario.ACCESO_ANYDESK}
