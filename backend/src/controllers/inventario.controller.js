@@ -28,7 +28,8 @@ const obtenerInventario = async (req, res) => {
         i.ESTADO_FISICO,
         i.CORREO
       FROM INVENTARIO_M i
-      LEFT JOIN Restaurantes r ON i.ID_UNIDAD = r.id_marca
+      LEFT JOIN Unidades u ON i.ID_UNIDAD = u.id
+      LEFT JOIN Restaurantes r ON u.id_marca = r.id_marca
       LEFT JOIN Tipo_equipo te ON i.ID_TIPO_EQUIPO = te.id
       LEFT JOIN DEPARTAMENTOS d ON i.ID_DEPARTAMENTO = d.Id
       LEFT JOIN PROCESADORES p ON i.ID_PROCESADOR = p.id
