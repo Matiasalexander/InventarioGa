@@ -68,7 +68,8 @@ function Responsiva({ setLoading }) {
 
     return (
         <div className="responsiva-grid">
-           
+            <div className="card">
+
             <div className="responsiva-card">
 
                 <div className="header">
@@ -170,6 +171,8 @@ function Responsiva({ setLoading }) {
 
                     <span>AREA</span>
 
+                </div>
+                
                 </div>
 
                 <div className="acciones">
