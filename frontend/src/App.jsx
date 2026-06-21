@@ -18,6 +18,7 @@ import RestaurantesPage from "./pages/RestaurantesPage";
 import UnidadesPage from "./pages/UnidadesPage";
 import DepartamentosPage from "./pages/DepartamentosPage";
 import PuestosPage from "./pages/PuestosPage";
+import ModespPage from "./pages/ModespPage";
 
 function App() {
 
@@ -56,6 +57,7 @@ function App() {
               <Route path="responsiva" element={<ResponsivaPage setLoading={setLoading}/>}/>
               <Route path="/inventario/detalle/:id" element={<InventarioDetallePage setLoading={setLoading}/>} />
               <Route path="/puestos" element={<PuestosPage setLoading={setLoading} />} />
+              <Route path="/modesp" element={<ModespPage setLoading={setLoading} />} />
             </Routes>
           </main>
         </div>
