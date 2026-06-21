@@ -12,6 +12,7 @@ const restaurantesRoutes = require("./routes/restaurantes.routes");
 const unidadesRoutes = require("./routes/unidades.routes");
 const departamentosRoutes = require("./routes/departamentos.routes");
 const puestosRoutes = require("./routes/puestos.routes");
+const modespRoutes = require("./routes/modesp.routes");
 require("dotenv").config();
 
 require("./config/db");
@@ -32,6 +33,7 @@ app.use("/api/restaurantes", restaurantesRoutes);
 app.use("/api/unidades", unidadesRoutes);
 app.use("/api/departamentos", departamentosRoutes);
 app.use("/api/puestos", puestosRoutes);
+app.use("/api/modesp", modespRoutes);
 
 
 
