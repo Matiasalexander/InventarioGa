@@ -16,6 +16,8 @@ const links = [
     { to: "/restaurantes", label: "Restaurantes", icon: Box },
     { to: "/unidades", label: "Unidades", icon: LayoutDashboard },
     { to: "/departamentos", label: "Departamentos", icon: LayoutDashboard },
+    { to: "/puestos", label: "Puestos", icon: LayoutDashboard },
+    { to: "/modesp", label: "Modelos base", icon: LayoutDashboard },
     {to:"/responsiva", label: "Responsivas", icon: Book}
 
 
