@@ -7,7 +7,8 @@ import {
   eliminarPuesto
 } from "../services/puestosService";
 import { obtenerDepartamentos } from "../services/departamentosService";
-import "./InventarioPage.css";
+import "../styles/InventarioPage.css";
+
 
 function PuestosPage({ setLoading }) {
   const [puestos, setPuestos] = useState([]);
