@@ -1,39 +1,38 @@
-import sql from "mssql";
-import { getConnection } from "../config/db.js";
+const { poolPromise } = require("../config/db");
 
-export const crearResponsiva = async (req, res) => {
-  const {
-    fecha,
-    nombreReceptor,
-    puesto,
-    area,
-    firmaBase64,
-    equipos
-  } = req.body;
-
-  if (!fecha || !nombreReceptor || !puesto || !equipos || equipos.length === 0) {
-    return res.status(400).json({
-      message: "Fecha, receptor, puesto y al menos un equipo son obligatorios"
-    });
-  }
-
-  const pool = await getConnection();
-  const transaction = new sql.Transaction(pool);
-
+const crearResponsiva = async (req, res) => {
   try {
-    await transaction.begin();
+    const {
+      Fecha,
+      NombreReceptor,
+      Puesto,
+      Area,
+      FirmaBase64,
+      equipos
+    } = req.body;
 
-    const requestResponsiva = new sql.Request(transaction);
+    if (!Fecha || !NombreReceptor || !Puesto) {
+      return res.status(400).json({
+        message: "Fecha, nombre del receptor y puesto son obligatorios"
+      });
+    }
 
-    const result = await requestResponsiva
-      .input("Fecha", sql.Date, fecha)
-      .input("NombreReceptor", sql.VarChar(150), nombreReceptor)
-      .input("Puesto", sql.VarChar(150), puesto)
-      .input("Area", sql.VarChar(150), area || null)
-      .input("FirmaBase64", sql.VarChar(sql.MAX), firmaBase64 || null)
+    if (!equipos || equipos.length === 0) {
+      return res.status(400).json({
+        message: "Debes agregar al menos un equipo a la responsiva"
+      });
+    }
+
+    const pool = await poolPromise;
+
+    const result = await pool.request()
+      .input("Fecha", Fecha)
+      .input("NombreReceptor", NombreReceptor)
+      .input("Puesto", Puesto)
+      .input("Area", Area || null)
+      .input("FirmaBase64", FirmaBase64 || null)
       .query(`
-        INSERT INTO Responsivas
-        (
+        INSERT INTO Responsivas (
           Fecha,
           NombreReceptor,
           Puesto,
@@ -41,8 +40,7 @@ export const crearResponsiva = async (req, res) => {
           FirmaBase64
         )
         OUTPUT INSERTED.IdResponsiva
-        VALUES
-        (
+        VALUES (
           @Fecha,
           @NombreReceptor,
           @Puesto,
@@ -51,21 +49,18 @@ export const crearResponsiva = async (req, res) => {
         )
       `);
 
-    const idResponsiva = result.recordset[0].IdResponsiva;
+    const IdResponsiva = result.recordset[0].IdResponsiva;
 
     for (const equipo of equipos) {
-      const requestDetalle = new sql.Request(transaction);
-
-      await requestDetalle
-        .input("IdResponsiva", sql.Int, idResponsiva)
-        .input("IdInventario", sql.Int, equipo.idInventario || null)
-        .input("Descripcion", sql.VarChar(200), equipo.descripcion)
-        .input("Marca", sql.VarChar(100), equipo.marca)
-        .input("Modelo", sql.VarChar(100), equipo.modelo)
-        .input("NoSerie", sql.VarChar(150), equipo.noSerie)
+      await pool.request()
+        .input("IdResponsiva", IdResponsiva)
+        .input("IdInventario", equipo.IdInventario || null)
+        .input("Descripcion", equipo.Descripcion || null)
+        .input("Marca", equipo.Marca || null)
+        .input("Modelo", equipo.Modelo || null)
+        .input("NoSerie", equipo.NoSerie || null)
         .query(`
-          INSERT INTO Responsiva_Detalle
-          (
+          INSERT INTO Responsiva_Detalle (
             IdResponsiva,
             IdInventario,
             Descripcion,
@@ -73,8 +68,7 @@ export const crearResponsiva = async (req, res) => {
             Modelo,
             NoSerie
           )
-          VALUES
-          (
+          VALUES (
             @IdResponsiva,
             @IdInventario,
             @Descripcion,
@@ -85,31 +79,25 @@ export const crearResponsiva = async (req, res) => {
         `);
     }
 
-    await transaction.commit();
-
     res.status(201).json({
       message: "Responsiva creada correctamente",
-      idResponsiva
+      IdResponsiva
     });
 
   } catch (error) {
-    await transaction.rollback();
-
-    console.error("Error al crear responsiva:", error);
-
     res.status(500).json({
-      message: "Error al crear responsiva",
+      message: "Error creando responsiva",
       error: error.message
     });
   }
 };
 
-export const obtenerResponsivas = async (req, res) => {
+const obtenerResponsivas = async (req, res) => {
   try {
-    const pool = await getConnection();
+    const pool = await poolPromise;
 
     const result = await pool.request().query(`
-      SELECT 
+      SELECT
         IdResponsiva,
         Fecha,
         NombreReceptor,
@@ -123,23 +111,20 @@ export const obtenerResponsivas = async (req, res) => {
 
     res.json(result.recordset);
   } catch (error) {
-    console.error("Error al obtener responsivas:", error);
-
     res.status(500).json({
-      message: "Error al obtener responsivas",
+      message: "Error obteniendo responsivas",
       error: error.message
     });
   }
 };
 
-export const obtenerResponsivaPorId = async (req, res) => {
-  const { id } = req.params;
-
+const obtenerResponsivaPorId = async (req, res) => {
   try {
-    const pool = await getConnection();
+    const { id } = req.params;
+    const pool = await poolPromise;
 
     const responsiva = await pool.request()
-      .input("IdResponsiva", sql.Int, id)
+      .input("IdResponsiva", id)
       .query(`
         SELECT *
         FROM Responsivas
@@ -153,7 +138,7 @@ export const obtenerResponsivaPorId = async (req, res) => {
     }
 
     const detalle = await pool.request()
-      .input("IdResponsiva", sql.Int, id)
+      .input("IdResponsiva", id)
       .query(`
         SELECT *
         FROM Responsiva_Detalle
@@ -167,69 +152,57 @@ export const obtenerResponsivaPorId = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error al obtener responsiva:", error);
-
     res.status(500).json({
-      message: "Error al obtener responsiva",
+      message: "Error obteniendo responsiva",
       error: error.message
     });
   }
 };
 
-export const eliminarResponsiva = async (req, res) => {
-  const { id } = req.params;
-
-  const pool = await getConnection();
-  const transaction = new sql.Transaction(pool);
-
+const eliminarResponsiva = async (req, res) => {
   try {
-    await transaction.begin();
+    const { id } = req.params;
+    const pool = await poolPromise;
 
-    await new sql.Request(transaction)
-      .input("IdResponsiva", sql.Int, id)
+    await pool.request()
+      .input("IdResponsiva", id)
       .query(`
         DELETE FROM Responsiva_Detalle
         WHERE IdResponsiva = @IdResponsiva
       `);
 
-    await new sql.Request(transaction)
-      .input("IdResponsiva", sql.Int, id)
+    await pool.request()
+      .input("IdResponsiva", id)
       .query(`
         DELETE FROM Responsivas
         WHERE IdResponsiva = @IdResponsiva
       `);
-
-    await transaction.commit();
 
     res.json({
       message: "Responsiva eliminada correctamente"
     });
 
   } catch (error) {
-    await transaction.rollback();
-
-    console.error("Error al eliminar responsiva:", error);
-
     res.status(500).json({
-      message: "Error al eliminar responsiva",
+      message: "Error eliminando responsiva",
       error: error.message
     });
   }
 };
 
-export const marcarEquipoDevuelto = async (req, res) => {
-  const { idDetalle } = req.params;
-  const { comentariosDevolucion } = req.body;
-
+const marcarEquipoDevuelto = async (req, res) => {
   try {
-    const pool = await getConnection();
+    const { idDetalle } = req.params;
+    const { ComentariosDevolucion } = req.body;
+
+    const pool = await poolPromise;
 
     await pool.request()
-      .input("IdDetalle", sql.Int, idDetalle)
-      .input("ComentariosDevolucion", sql.VarChar(sql.MAX), comentariosDevolucion || null)
+      .input("IdDetalle", idDetalle)
+      .input("ComentariosDevolucion", ComentariosDevolucion || null)
       .query(`
         UPDATE Responsiva_Detalle
-        SET 
+        SET
           Devuelto = 1,
           FechaDevolucion = GETDATE(),
           ComentariosDevolucion = @ComentariosDevolucion
@@ -241,11 +214,17 @@ export const marcarEquipoDevuelto = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error al marcar devolución:", error);
-
     res.status(500).json({
-      message: "Error al marcar devolución",
+      message: "Error marcando devolución",
       error: error.message
     });
   }
+};
+
+module.exports = {
+  crearResponsiva,
+  obtenerResponsivas,
+  obtenerResponsivaPorId,
+  eliminarResponsiva,
+  marcarEquipoDevuelto
 };

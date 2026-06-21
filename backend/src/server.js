@@ -36,6 +36,7 @@ app.use("/api/unidades", unidadesRoutes);
 app.use("/api/departamentos", departamentosRoutes);
 app.use("/api/puestos", puestosRoutes);
 app.use("/api/modesp", modespRoutes);
+
 app.use(
   "/api/modelos-procesador",
   modelosProcesadorRoutes
