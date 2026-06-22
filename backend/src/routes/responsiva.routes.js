@@ -21,34 +21,43 @@ const logoBase64 = fs.readFileSync(logoPath, {
 
 const logo = `data:image/png;base64,${logoBase64}`;
 
-/* ==========================
-   CRUD RESPONSIVAS
-========================== */
-
 router.get("/", obtenerResponsivas);
 
 router.post("/", crearResponsiva);
 
 router.put("/detalle/:idDetalle/devolver", marcarEquipoDevuelto);
 
-/* ==========================
-   GENERAR PDF
-========================== */
-
 router.post("/pdf", async (req, res) => {
   try {
     const {
-      nombre,
-      firma
+      fecha,
+      nombreReceptor,
+      puesto,
+      area,
+      firma,
+      equipos = []
     } = req.body;
+
+    const filasEquipos = equipos.length > 0
+      ? equipos.map((equipo) => `
+        <tr>
+          <td>${equipo.Descripcion || ""}</td>
+          <td>${equipo.Marca || ""}</td>
+          <td>${equipo.Modelo || ""}</td>
+          <td>${equipo.NoSerie || ""}</td>
+        </tr>
+      `).join("")
+      : `
+        <tr>
+          <td colspan="4">Sin equipos registrados</td>
+        </tr>
+      `;
 
     const html = `
 <!DOCTYPE html>
 <html>
-
 <head>
 <meta charset="UTF-8">
-
 <style>
 body{
   font-family: Arial;
@@ -136,13 +145,12 @@ td{
 
 <p>
 Por este medio hago constar que el equipo que se detalla a continuación se encuentra en calidad de préstamo a partir del día
-<strong>FECHA</strong>
+<strong>${fecha || "FECHA"}</strong>
 y que está bajo resguardo de
-<strong>NOMBRE RECEPTOR</strong>,
+<strong>${nombreReceptor || "NOMBRE RECEPTOR"}</strong>,
 quien se desempeña en el puesto
-<strong>PUESTO</strong>
-en Grupo Andersons.
-Dicho(s) equipo(s) cumplirá(n) el uso para los fines que fueron acordados y se hace responsable de regresarlo en las mismas condiciones que se le fue entregado.
+<strong>${puesto || "PUESTO"}</strong>
+en Grupo Andersons. Dicho(s) equipo(s) cumplirá(n) el uso para los fines que fueron acordados y se hace responsable de regresarlo en las mismas condiciones que se le fue entregado.
 </p>
 
 <p>
@@ -160,19 +168,7 @@ La descripción del (los) equipo(s) se detalla a continuación:
 </thead>
 
 <tbody>
-<tr>
-  <td>Laptop</td>
-  <td>Dell</td>
-  <td>Latitude 5420</td>
-  <td>ABC123456</td>
-</tr>
-
-<tr>
-  <td>Mouse</td>
-  <td>Logitech</td>
-  <td>M280</td>
-  <td>XYZ987654</td>
-</tr>
+${filasEquipos}
 </tbody>
 </table>
 
@@ -182,11 +178,11 @@ La descripción del (los) equipo(s) se detalla a continuación:
   <div class="linea"></div>
 
   <div class="nombre">
-    ${nombre || "NOMBRE"}
+    ${nombreReceptor || "NOMBRE"}
   </div>
 
   <div class="area">
-    AREA
+    ${area || "AREA"}
   </div>
 </div>
 
@@ -218,7 +214,6 @@ La descripción del (los) equipo(s) se detalla a continuación:
     );
 
     res.send(pdf);
-
   } catch (error) {
     console.error("ERROR GENERANDO PDF:");
     console.error(error);
@@ -230,10 +225,6 @@ La descripción del (los) equipo(s) se detalla a continuación:
     });
   }
 });
-
-/* ==========================
-   RUTAS CON ID AL FINAL
-========================== */
 
 router.get("/:id", obtenerResponsivaPorId);
 
