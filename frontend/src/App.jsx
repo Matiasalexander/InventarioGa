@@ -20,6 +20,7 @@ import DepartamentosPage from "./pages/DepartamentosPage";
 import PuestosPage from "./pages/PuestosPage";
 import ModespPage from "./pages/ModespPage";
 import ModelosProcesadorPage from "./pages/ModelosProcesadorPage";
+import HistorialResponsivasPage from "./pages/HistorialResponsivasPage";
 
 function App() {
 
@@ -59,6 +60,10 @@ function App() {
               <Route path="/inventario/detalle/:id" element={<InventarioDetallePage setLoading={setLoading}/>} />
               <Route path="/puestos" element={<PuestosPage setLoading={setLoading} />} />
               <Route path="/modesp" element={<ModespPage setLoading={setLoading} />} />
+              <Route
+  path="/responsivas/historial"
+  element={<HistorialResponsivasPage setLoading={setLoading} />}
+/>
              <Route
 path="/modelos-procesador"
   element={<ModelosProcesadorPage setLoading={setLoading} />}
