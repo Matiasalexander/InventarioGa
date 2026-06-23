@@ -22,6 +22,8 @@ import ModespPage from "./pages/ModespPage";
 import ModelosProcesadorPage from "./pages/ModelosProcesadorPage";
 import HistorialResponsivasPage from "./pages/HistorialResponsivasPage";
 import EquiposPage from "./pages/EquiposPage";
+import AreasUnidades from "./pages/AreasUnidades";
+import AreasCorporativas from "./pages/AreasCorporativas";
 
 function App() {
 
@@ -46,6 +48,8 @@ function App() {
             <Routes>
               <Route path="/" element={<Navigate to="/inventario" />} />  
               <Route path = "/equipo" element={<EquiposPage setLoading={setLoading}/>}/>
+              <Route path = "/Areas" element={<AreasUnidades setLoading={setLoading}/>}/>
+              <Route path = "/AreasCorporativas" element={<AreasCorporativas setLoading={setLoading}/>}/>
               <Route path="/inventario" element={<InventarioPage setLoading={setLoading}/>} />
               <Route path="/inventario/nuevo" element={<InventarioFormPage setLoading={setLoading}/>} />
               <Route path="/inventario/editar/:id" element={<InventarioFormPage setLoading={setLoading}/>} />

@@ -7,6 +7,7 @@ import "../styles/EquiposPage.css";
 import TipoEquipoPage from "./TipoEquipoPage";
 import MarcasPage from "./MarcasPage";
 import ModelosPage from "./ModelosPage";
+import ModespPage from "./ModespPage";
 
 
 function EquiposPage({ setLoading }) {
@@ -22,7 +23,10 @@ function EquiposPage({ setLoading }) {
         <MarcasPage setLoading={setLoading}/>
     </div>
     
-    <ModelosPage setLoading={setLoading}/>
+    <div className="dashboard-grid">
+        <ModelosPage setLoading={setLoading}/>
+        <ModespPage setLoading={setLoading}/>
+    </div>
 
 </div>
         </>

@@ -94,7 +94,6 @@ function ProcesadoresPage({ setLoading }) {
   return (
     <div className="responsive">
 
-      <ModelosProcesadorPage setLoading={setLoading}/>
       <div className="header">
         <div>
           <h1>Procesadores</h1>
@@ -162,6 +161,10 @@ function ProcesadoresPage({ setLoading }) {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="detail-item">
+            <ModelosProcesadorPage setLoading={setLoading}/>
       </div>
     </div>
   );

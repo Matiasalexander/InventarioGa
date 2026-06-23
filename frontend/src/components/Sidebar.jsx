@@ -3,23 +3,27 @@ import {
     Monitor, Tag, Layers, CheckCircle,
     Cpu, Box, LayoutDashboard,
     Book,
+    AreaChart,
+    AreaChartIcon,
 } from "lucide-react";
 
 const links = [
 
     { to: "/inventario", label: "Inventario", icon: Monitor },
     {to:"/Equipo", label: "Equipo", icon: Monitor},
+    {to: "/Areas", label: "Restaurantes/Unidades", icon: AreaChart},
+    {to: "/AreasCorporativas", label: "Áreas Corporativas", icon: AreaChart},
     /*{ to: "/marcas", label: "Marcas", icon: Tag },*/
    /* { to: "/estatus", label: "Estatus", icon: CheckCircle },*/
    /* { to: "/tipo-equipo", label: "Tipo Equipo", icon: Box },*/
     /*{ to: "/modelos", label: "Modelos", icon: Layers },*/
     { to: "/procesadores", label: "Procesadores", icon: Cpu },
-    { to: "/restaurantes", label: "Restaurantes", icon: Box },
-    { to: "/unidades", label: "Unidades", icon: LayoutDashboard },
-    { to: "/departamentos", label: "Departamentos", icon: LayoutDashboard },
-    { to: "/puestos", label: "Puestos", icon: LayoutDashboard },
-    { to: "/modesp", label: "Modelos base", icon: LayoutDashboard },
-    {to:"/modelos-procesador", label: "Modelos Procesador", icon: Book},
+    /*{ to: "/restaurantes", label: "Restaurantes", icon: Box },*/
+   /* { to: "/unidades", label: "Unidades", icon: LayoutDashboard },*/
+   /* { to: "/departamentos", label: "Departamentos", icon: LayoutDashboard },
+    { to: "/puestos", label: "Puestos", icon: LayoutDashboard },*/
+    /*{ to: "/modesp", label: "Modelos base", icon: LayoutDashboard },*/
+    /*{to:"/modelos-procesador", label: "Modelos Procesador", icon: Book},*/
       {to:"/responsiva", label: "Responsivas", icon: Book},
     {to:"/responsivas/historial", label: "Historial Responsivas", icon: Book}
 
