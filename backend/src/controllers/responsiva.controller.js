@@ -22,20 +22,34 @@ const crearResponsiva = async (req, res) => {
         message: "Debes agregar al menos un equipo a la responsiva"
       });
     }
-const equipoAsignado = await pool.request()
-  .input("IdInventario", equipo.IdInventario)
-  .query(`
-    SELECT TOP 1
-      rd.IdDetalle,
-      r.IdResponsiva,
-      r.NombreReceptor
-    FROM Responsiva_Detalle rd
-    INNER JOIN Responsivas r 
-      ON rd.IdResponsiva = r.IdResponsiva
-    WHERE rd.IdInventario = @IdInventario
-      AND ISNULL(rd.Devuelto, 0) = 0
-  `);
+
     const pool = await poolPromise;
+
+    for (const equipo of equipos) {
+      if (!equipo.IdInventario) {
+        continue;
+      }
+
+      const equipoAsignado = await pool.request()
+        .input("IdInventario", equipo.IdInventario)
+        .query(`
+          SELECT TOP 1
+            rd.IdDetalle,
+            r.IdResponsiva,
+            r.NombreReceptor
+          FROM Responsiva_Detalle rd
+          INNER JOIN Responsivas r 
+            ON rd.IdResponsiva = r.IdResponsiva
+          WHERE rd.IdInventario = @IdInventario
+            AND ISNULL(rd.Devuelto, 0) = 0
+        `);
+
+      if (equipoAsignado.recordset.length > 0) {
+        return res.status(400).json({
+          message: `El equipo ya está asignado a ${equipoAsignado.recordset[0].NombreReceptor}`
+        });
+      }
+    }
 
     const result = await pool.request()
       .input("Fecha", Fecha)
@@ -98,7 +112,7 @@ const equipoAsignado = await pool.request()
 
   } catch (error) {
     res.status(500).json({
-      message: "Error creando responsiva ' equipo en uso",
+      message: "Error creando responsiva",
       error: error.message
     });
   }
