@@ -103,7 +103,7 @@ if (equipoAsignado.recordset.length > 0) {
 
   } catch (error) {
     res.status(500).json({
-      message: "Error creando responsiva ' equipo ya asignado",
+      message: "Error creando responsiva ' equipo en uso",
       error: error.message
     });
   }
