@@ -24,7 +24,7 @@ const links = [
     { to: "/puestos", label: "Puestos", icon: LayoutDashboard },*/
     /*{ to: "/modesp", label: "Modelos base", icon: LayoutDashboard },*/
     /*{to:"/modelos-procesador", label: "Modelos Procesador", icon: Book},*/
-      {to:"/responsiva", label: "Responsivas", icon: Book},
+    /*  {to:"/responsiva", label: "Responsivas", icon: Book},*/
     {to:"/responsivas/historial", label: "Historial Responsivas", icon: Book}
 
 

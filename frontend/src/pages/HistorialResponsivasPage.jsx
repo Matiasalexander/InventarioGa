@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 function HistorialResponsivasPage({ setLoading }) {
+  const navigate = useNavigate();
   const [responsivas, setResponsivas] = useState([]);
   const [detalle, setDetalle] = useState([]);
   const [responsivaSeleccionada, setResponsivaSeleccionada] = useState(null);
@@ -81,8 +83,13 @@ function HistorialResponsivasPage({ setLoading }) {
   };
 
   return (
-    <div>
+    <div className="card">
+      <div className="header">
       <h2>Historial de Responsivas</h2>
+       <button type="button" onClick={() => navigate("/responsiva")}>
+          Crear Responsiva
+        </button>
+        </div>
 
       <div className="table-responsive">
         <table>

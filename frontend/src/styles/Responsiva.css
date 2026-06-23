@@ -1,3 +1,7 @@
+.form-responsiva p{
+    text-align:left ;
+}
+
 /*skeleton*/
 .responsiva-grid {
     display:grid;
@@ -6,6 +10,13 @@
     margin-top:20px;
 }
 
+.titulo {
+  text-align: center;
+  font-size: clamp(1.5rem, 5vw, 4rem);
+  line-height: 1.1;
+  margin: 20px 0;
+  word-wrap: break-word;
+}
 
 /*logo*/
 .logo {
@@ -19,4 +30,23 @@
     gap: 12px;
     margin-top: 20px;
     flex-wrap: wrap;
+}
+
+/*RESPONSIVE TABLA*/
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-responsive table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+}
+
+.table-responsive th,
+.table-responsive td {
+  padding: 10px;
+  text-align: left;
+  white-space: nowrap;
 }

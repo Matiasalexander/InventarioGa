@@ -3,8 +3,10 @@ import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
 import logo from "../img/gandersons-logo.png";
 import "../styles/Responsiva.css";
+import { useNavigate } from "react-router-dom";
 
 function Responsiva({ setLoading }) {
+  const navigate = useNavigate();
   const sigCanvas = useRef();
 
   const [fecha, setFecha] = useState("");
@@ -190,15 +192,26 @@ function Responsiva({ setLoading }) {
   });
 
   return (
-    <div className="responsiva-grid">
-      <div className="card">
+    <div className="contenedor">
+
+      
+        <div className="header">
+          <h2>Historial de responsivas</h2>
+          <button type="button" onClick={()=>navigate("/responsivas/historial")}>Volver</button>
+        </div>
+        
+        <div className="responsiva-grid">
+        <div className="card">
+
         <div className="form-responsiva">
+          <p>Fecha:</p>
           <input
             type="date"
             value={fecha}
             onChange={(e) => setFecha(e.target.value)}
           />
 
+          <p>Nombre de receptor:</p>
           <input
             type="text"
             placeholder="Nombre receptor"
@@ -206,6 +219,7 @@ function Responsiva({ setLoading }) {
             onChange={(e) => setNombreReceptor(e.target.value)}
           />
 
+          <p>Puesto:</p>
           <input
             type="text"
             placeholder="Puesto"
@@ -213,6 +227,7 @@ function Responsiva({ setLoading }) {
             onChange={(e) => setPuesto(e.target.value)}
           />
 
+          <p>Área:</p>
           <input
             type="text"
             placeholder="Área"
@@ -221,6 +236,7 @@ function Responsiva({ setLoading }) {
           />
         </div>
 
+        <p>Buscar equipo: </p>
         <div className="form-responsiva">
           <input
             type="text"
@@ -229,7 +245,10 @@ function Responsiva({ setLoading }) {
             onChange={(e) => setBusquedaEquipo(e.target.value)}
           />
         </div>
+{/*AQUI TERMINA EL FORMULARIO DE RESPONSIVAS*/}
+</div>
 
+<div className="card">
         <div className="table-responsive">
           <table>
             <thead>
@@ -270,8 +289,11 @@ function Responsiva({ setLoading }) {
             </tbody>
           </table>
         </div>
-
+    </div>
+  </div>
+<div className="card">
         <div className="responsiva-card">
+          
           <div className="header">
             <div></div>
 
@@ -281,7 +303,7 @@ function Responsiva({ setLoading }) {
               className="logo"
             />
           </div>
-
+          
           <h1 className="titulo">
             CARTA RESPONSIVA DE EQUIPO DE CÓMPUTO
           </h1>
@@ -382,6 +404,7 @@ function Responsiva({ setLoading }) {
         </div>
       </div>
     </div>
+  
   );
 }
 
