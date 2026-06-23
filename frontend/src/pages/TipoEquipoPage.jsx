@@ -98,6 +98,7 @@ function TipoEquipoPage({ setLoading }) {
           <h1>Tipos de equipo</h1>
           <p>Catálogo de tipos de equipo del inventario.</p>
         </div>
+
       </div>
 
       <div className="card">

@@ -7,6 +7,7 @@ import {
   eliminarProcesador
 } from "../services/procesadoresService";
 import "../styles/InventarioPage.css";
+import ModelosProcesadorPage from "./ModelosProcesadorPage";
 
 function ProcesadoresPage({ setLoading }) {
   const [procesadores, setProcesadores] = useState([]);
@@ -91,7 +92,9 @@ function ProcesadoresPage({ setLoading }) {
   };
 
   return (
-    <div className="contenedor">
+    <div className="responsive">
+
+      <ModelosProcesadorPage setLoading={setLoading}/>
       <div className="header">
         <div>
           <h1>Procesadores</h1>

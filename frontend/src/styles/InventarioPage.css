@@ -10,8 +10,9 @@ body {
 }
 
 .contenedor {
+  
   min-height: 100vh;
-  padding: 32px;
+  padding: clamp(12px, 3vw, 32px);
   background:
     radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 32%),
     linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);

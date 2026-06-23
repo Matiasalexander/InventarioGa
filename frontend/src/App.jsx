@@ -21,6 +21,7 @@ import PuestosPage from "./pages/PuestosPage";
 import ModespPage from "./pages/ModespPage";
 import ModelosProcesadorPage from "./pages/ModelosProcesadorPage";
 import HistorialResponsivasPage from "./pages/HistorialResponsivasPage";
+import EquiposPage from "./pages/EquiposPage";
 
 function App() {
 
@@ -43,7 +44,8 @@ function App() {
           <Sidebar />
           <main style={{ flex: 1, padding: "24px", overflow: "auto" }}>
             <Routes>
-              <Route path="/" element={<Navigate to="/inventario" />} />
+              <Route path="/" element={<Navigate to="/inventario" />} />  
+              <Route path = "/equipo" element={<EquiposPage setLoading={setLoading}/>}/>
               <Route path="/inventario" element={<InventarioPage setLoading={setLoading}/>} />
               <Route path="/inventario/nuevo" element={<InventarioFormPage setLoading={setLoading}/>} />
               <Route path="/inventario/editar/:id" element={<InventarioFormPage setLoading={setLoading}/>} />
