@@ -30,16 +30,11 @@ const equipoAsignado = await pool.request()
       r.IdResponsiva,
       r.NombreReceptor
     FROM Responsiva_Detalle rd
-    INNER JOIN Responsivas r ON rd.IdResponsiva = r.IdResponsiva
+    INNER JOIN Responsivas r 
+      ON rd.IdResponsiva = r.IdResponsiva
     WHERE rd.IdInventario = @IdInventario
-      AND rd.Devuelto = 0
+      AND ISNULL(rd.Devuelto, 0) = 0
   `);
-
-if (equipoAsignado.recordset.length > 0) {
-  return res.status(400).json({
-    message: `El equipo ya está asignado a ${equipoAsignado.recordset[0].NombreReceptor}`
-  });
-}
     const pool = await poolPromise;
 
     const result = await pool.request()
