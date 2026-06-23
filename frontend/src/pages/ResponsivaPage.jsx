@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
 import logo from "../img/gandersons-logo.png";
@@ -12,34 +12,45 @@ function Responsiva({ setLoading }) {
   const [puesto, setPuesto] = useState("");
   const [area, setArea] = useState("");
 
-  const [equipo, setEquipo] = useState({
-    Descripcion: "",
-    Marca: "",
-    Modelo: "",
-    NoSerie: ""
-  });
-
   const [equipos, setEquipos] = useState([]);
+  const [inventario, setInventario] = useState([]);
+  const [busquedaEquipo, setBusquedaEquipo] = useState("");
 
-  const agregarEquipo = () => {
-    if (
-      !equipo.Descripcion ||
-      !equipo.Marca ||
-      !equipo.Modelo ||
-      !equipo.NoSerie
-    ) {
-      toast.warning("Completa todos los datos del equipo.");
+  useEffect(() => {
+    cargarInventario();
+  }, []);
+
+  const cargarInventario = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/api/inventario");
+      const data = await response.json();
+
+      setInventario(data);
+    } catch (error) {
+      toast.error("Error cargando inventario.");
+    }
+  };
+
+  const agregarEquipoDesdeInventario = (item) => {
+    const yaAgregado = equipos.some(
+      (equipo) => equipo.IdInventario === item.id
+    );
+
+    if (yaAgregado) {
+      toast.warning("Este equipo ya fue agregado.");
       return;
     }
 
-    setEquipos([...equipos, equipo]);
+    const nuevoEquipo = {
+      IdInventario: item.id,
+      Descripcion: item.TIPO_EQUIPO || item.NOMBRE_EQUIPO || "",
+      Marca: item.MARCA || "",
+      Modelo: item.MODELO || "",
+      NoSerie: item.SERIAL || ""
+    };
 
-    setEquipo({
-      Descripcion: "",
-      Marca: "",
-      Modelo: "",
-      NoSerie: ""
-    });
+    setEquipos([...equipos, nuevoEquipo]);
+    toast.success("Equipo agregado a la responsiva.");
   };
 
   const eliminarEquipo = (index) => {
@@ -165,6 +176,19 @@ function Responsiva({ setLoading }) {
     }
   };
 
+  const inventarioFiltrado = inventario.filter((item) => {
+    const texto = `
+      ${item.TIPO_EQUIPO || ""}
+      ${item.NOMBRE_EQUIPO || ""}
+      ${item.MARCA || ""}
+      ${item.MODELO || ""}
+      ${item.SERIAL || ""}
+      ${item.ESTATUS || ""}
+    `.toLowerCase();
+
+    return texto.includes(busquedaEquipo.toLowerCase());
+  });
+
   return (
     <div className="responsiva-grid">
       <div className="card">
@@ -200,55 +224,51 @@ function Responsiva({ setLoading }) {
         <div className="form-responsiva">
           <input
             type="text"
-            placeholder="Descripción"
-            value={equipo.Descripcion}
-            onChange={(e) =>
-              setEquipo({
-                ...equipo,
-                Descripcion: e.target.value
-              })
-            }
+            placeholder="Buscar equipo por serie, nombre, marca, modelo o estatus"
+            value={busquedaEquipo}
+            onChange={(e) => setBusquedaEquipo(e.target.value)}
           />
+        </div>
 
-          <input
-            type="text"
-            placeholder="Marca"
-            value={equipo.Marca}
-            onChange={(e) =>
-              setEquipo({
-                ...equipo,
-                Marca: e.target.value
-              })
-            }
-          />
+        <div className="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Equipo</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>Serie</th>
+                <th>Estatus</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
 
-          <input
-            type="text"
-            placeholder="Modelo"
-            value={equipo.Modelo}
-            onChange={(e) =>
-              setEquipo({
-                ...equipo,
-                Modelo: e.target.value
-              })
-            }
-          />
+            <tbody>
+              {inventarioFiltrado.slice(0, 10).map((item) => (
+                <tr key={item.id}>
+                  <td>{item.TIPO_EQUIPO || item.NOMBRE_EQUIPO}</td>
+                  <td>{item.MARCA}</td>
+                  <td>{item.MODELO}</td>
+                  <td>{item.SERIAL}</td>
+                  <td>{item.ESTATUS}</td>
+                  <td>
+                    <button
+                      className="btn-primary"
+                      onClick={() => agregarEquipoDesdeInventario(item)}
+                    >
+                      Agregar
+                    </button>
+                  </td>
+                </tr>
+              ))}
 
-          <input
-            type="text"
-            placeholder="No. Serie"
-            value={equipo.NoSerie}
-            onChange={(e) =>
-              setEquipo({
-                ...equipo,
-                NoSerie: e.target.value
-              })
-            }
-          />
-
-          <button className="btn-primary" onClick={agregarEquipo}>
-            Agregar equipo
-          </button>
+              {inventarioFiltrado.length === 0 && (
+                <tr>
+                  <td colSpan="6">No se encontraron equipos.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
 
         <div className="responsiva-card">
