@@ -68,6 +68,65 @@ const login = async (req, res) => {
   }
 };
 
+const olvidePassword = async (req, res) => {
+  try {
+
+    const { correo } = req.body;
+
+    const pool = await poolPromise;
+
+    const usuario = await pool.request()
+      .input("Correo", correo)
+      .query(`
+        SELECT *
+        FROM Usuarios
+        WHERE Correo = @Correo
+      `);
+
+    if (usuario.recordset.length === 0) {
+      return res.status(404).json({
+        message: "No existe un usuario con ese correo"
+      });
+    }
+
+    const codigo = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    const IdUsuario = usuario.recordset[0].IdUsuario;
+
+    await pool.request()
+      .input("IdUsuario", IdUsuario)
+      .input("Token", codigo)
+      .input("Codigo", codigo)
+      .query(`
+        INSERT INTO PasswordResetTokens (
+          IdUsuario,
+          Token,
+          Codigo,
+          FechaExpiracion
+        )
+        VALUES (
+          @IdUsuario,
+          @Token,
+          @Codigo,
+          DATEADD(MINUTE,30,GETDATE())
+        )
+      `);
+
+    res.json({
+      message: "Código generado correctamente",
+      codigo
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error generando código",
+      error: error.message
+    });
+  }
+};
+
 const registrarUsuario = async (req, res) => {
   try {
 
