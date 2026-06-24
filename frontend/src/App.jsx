@@ -24,6 +24,7 @@ import HistorialResponsivasPage from "./pages/HistorialResponsivasPage";
 import EquiposPage from "./pages/EquiposPage";
 import AreasUnidades from "./pages/AreasUnidades";
 import AreasCorporativas from "./pages/AreasCorporativas";
+import UsuariosPage from "./pages/UsuariosPage";
 
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./utils/ProtectedRoute";
@@ -170,6 +171,10 @@ function App() {
                         path="/modesp"
                         element={<ModespPage setLoading={setLoading} />}
                       />
+                      <Route
+  path="/usuarios"
+  element={<UsuariosPage setLoading={setLoading} />}
+/>
 
                       <Route
                         path="/modelos-procesador"

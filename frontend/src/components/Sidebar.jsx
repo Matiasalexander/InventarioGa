@@ -14,7 +14,8 @@ const links = [
   { to: "/AreasCorporativas", label: "Áreas Corporativas", icon: AreaChart },
   { to: "/procesadores", label: "Procesadores", icon: Cpu },
   { to: "/responsiva", label: "Nueva Responsiva", icon: Book },
-  { to: "/responsivas/historial", label: "Historial Responsivas", icon: Book }
+  { to: "/responsivas/historial", label: "Historial Responsivas", icon: Book },
+  { to: "/usuarios", label: "Usuarios", icon: Book }
 ];
 
 export default function Sidebar() {
