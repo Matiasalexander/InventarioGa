@@ -25,6 +25,7 @@ import EquiposPage from "./pages/EquiposPage";
 import AreasUnidades from "./pages/AreasUnidades";
 import AreasCorporativas from "./pages/AreasCorporativas";
 import UsuariosPage from "./pages/UsuariosPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./utils/ProtectedRoute";
@@ -52,6 +53,10 @@ function App() {
             path="/login"
             element={<LoginPage setLoading={setLoading} />}
           />
+          <Route
+  path="/forgot-password"
+  element={<ForgotPasswordPage setLoading={setLoading} />}
+/>
 
           <Route
             path="/*"
