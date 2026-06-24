@@ -104,6 +104,22 @@ function LoginPage({ setLoading }) {
         >
           Iniciar sesión
         </button>
+
+        <button
+  type="button"
+  onClick={() => navigate("/forgot-password")}
+  style={{
+    width: "100%",
+    padding: "10px",
+    marginTop: "10px",
+    background: "transparent",
+    border: "none",
+    color: "#4f46e5",
+    cursor: "pointer"
+  }}
+>
+  ¿Olvidaste tu contraseña?
+</button>
       </form>
     </div>
   );
