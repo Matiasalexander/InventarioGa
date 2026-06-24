@@ -278,5 +278,7 @@ const registrarUsuario = async (req, res) => {
 
 module.exports = {
   login,
-  registrarUsuario
+  registrarUsuario,
+  olvidePassword,
+  resetPassword
 };
