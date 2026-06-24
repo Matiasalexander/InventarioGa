@@ -6,22 +6,37 @@ import {
   AreaChart,
   LogOut
 } from "lucide-react";
-
-const links = [
-  { to: "/inventario", label: "Inventario", icon: Monitor },
-  { to: "/Equipo", label: "Equipo", icon: Monitor },
-  { to: "/Areas", label: "Restaurantes/Unidades", icon: AreaChart },
-  { to: "/AreasCorporativas", label: "Áreas Corporativas", icon: AreaChart },
-  { to: "/procesadores", label: "Procesadores", icon: Cpu },
-  { to: "/responsiva", label: "Nueva Responsiva", icon: Book },
-  { to: "/responsivas/historial", label: "Historial Responsivas", icon: Book },
-  { to: "/usuarios", label: "Usuarios", icon: Book }
-];
+import { getRol } from "../utils/roles";
 
 export default function Sidebar() {
   const navigate = useNavigate();
-
   const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const rol = getRol();
+
+  const links = [];
+
+  if (rol === "Administrador" || rol === "Sistemas") {
+    links.push(
+      { to: "/inventario", label: "Inventario", icon: Monitor },
+      { to: "/Equipo", label: "Equipo", icon: Monitor },
+      { to: "/Areas", label: "Restaurantes/Unidades", icon: AreaChart },
+      { to: "/AreasCorporativas", label: "Áreas Corporativas", icon: AreaChart },
+      { to: "/procesadores", label: "Procesadores", icon: Cpu }
+    );
+  }
+
+  if (rol === "Administrador" || rol === "Sistemas" || rol === "RH") {
+    links.push(
+      { to: "/responsiva", label: "Nueva Responsiva", icon: Book },
+      { to: "/responsivas/historial", label: "Historial Responsivas", icon: Book }
+    );
+  }
+
+  if (rol === "Administrador") {
+    links.push(
+      { to: "/usuarios", label: "Usuarios", icon: Book }
+    );
+  }
 
   const cerrarSesion = () => {
     localStorage.removeItem("token");
