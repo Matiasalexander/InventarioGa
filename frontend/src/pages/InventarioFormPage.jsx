@@ -41,6 +41,8 @@ function InventarioFormPage({ setLoading }) {
   const tiposConexiones = [
     "Directo a la pared", "UPS"
   ];
+  //codificador
+  
 
   //si ya hay serial existente
   const [errorSerial, setErrorSerial] = useState("");
@@ -69,6 +71,7 @@ function InventarioFormPage({ setLoading }) {
     NOMBRE_EQUIPO: "",
     ID_DEPARTAMENTO: "",
     SERIAL: "",
+    FECHA_FABRICACION: "",
     DISCO_DURO: "",
     RAM: "",
     ID_PROCESADOR: "",
@@ -131,6 +134,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
       NOMBRE_EQUIPO: equipo.NOMBRE_EQUIPO || "",
       ID_DEPARTAMENTO: equipo.ID_DEPARTAMENTO || "",
       SERIAL: equipo.SERIAL || "",
+      FECHA_FABRICACION: equipo.FECHA_FABRICACION || "",
       DISCO_DURO: equipo.DISCO_DURO || "",
       RAM: equipo.RAM  || "",
       ID_PROCESADOR: equipo.ID_PROCESADOR || "",
@@ -238,9 +242,11 @@ setModelosProcesadorFiltrados(modelosProcesador);
     ID_PROCESADOR: value,
     MODELO_PROCESADOR: ""
   }));
+  
 
   return;
 }
+  
     setFormulario((prev) => ({
       ...prev,
       [name]: value
@@ -261,6 +267,7 @@ setModelosProcesadorFiltrados(modelosProcesador);
         NOMBRE_EQUIPO: formulario.NOMBRE_EQUIPO,
         ID_DEPARTAMENTO: formulario.ID_DEPARTAMENTO,
         SERIAL: formulario.SERIAL,
+        FECHA_FABRICACION: formulario.FECHA_FABRICACION,
         DISCO_DURO: formulario.DISCO_DURO,
         RAM: formulario.RAM,
         ID_PROCESADOR: formulario.ID_PROCESADOR,
@@ -392,16 +399,11 @@ setModelosProcesadorFiltrados(modelosProcesador);
          
           <div className="formulario-card">
             <h2>Especificaciones del equipo: </h2>
-          <input
-            name="NOMBRE_EQUIPO"
-            placeholder="Nombre equipo"
-            value={formulario.NOMBRE_EQUIPO}
-            onChange={manejarCambio}
-          />
+
 
           <input
             name="SERIAL"
-            placeholder="Serial"
+            placeholder="Número de serie"
             value={formulario.SERIAL}
             onChange={manejarCambio}
           />
@@ -418,8 +420,12 @@ setModelosProcesadorFiltrados(modelosProcesador);
               <option key={item.id} value={item.id}>
                 {item.tequipo}
               </option>
+              
             ))}
+            
           </select>
+
+         
 
           {
             //si es laptop mostrar campos de laptop
@@ -631,6 +637,21 @@ setModelosProcesadorFiltrados(modelosProcesador);
               </option>
             ))}
           </select>
+
+          <input
+            name = "FECHA_FABRICACION"
+            type="date"
+            value={formulario. FECHA_FABRICACION}
+            disabled={!formulario.ID_TIPO_EQUIPO}
+            onChange={manejarCambio}
+          />
+            <input
+            name="NOMBRE_EQUIPO"
+            placeholder="Nombre equipo"
+            value={formulario.NOMBRE_EQUIPO}
+            onChange={manejarCambio}
+          />
+
           </div>
          
           

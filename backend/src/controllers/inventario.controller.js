@@ -84,6 +84,7 @@ const crearInventario = async (req, res) => {
       NOMBRE_EQUIPO,
       ID_DEPARTAMENTO,
       SERIAL,
+      FECHA_FABRICACION,
       DISCO_DURO,
       RAM,
       ID_PROCESADOR,
@@ -126,6 +127,7 @@ const crearInventario = async (req, res) => {
       .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO || null)
       .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
       .input("SERIAL", SERIAL || null)
+      .input("FECHA_FABRICACION", FECHA_FABRICACION || null)
       .input("DISCO_DURO", DISCO_DURO || null)
       .input("RAM", RAM || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
@@ -154,6 +156,7 @@ const crearInventario = async (req, res) => {
           NOMBRE_EQUIPO,
           ID_DEPARTAMENTO,
           SERIAL,
+          FECHA_FABRICACION,
           DISCO_DURO,
           RAM,
           ID_PROCESADOR,
@@ -182,6 +185,7 @@ const crearInventario = async (req, res) => {
           @NOMBRE_EQUIPO,
           @ID_DEPARTAMENTO,
           @SERIAL,
+          @FECHA_FABRICACION,
           @DISCO_DURO,
           @RAM,
           @ID_PROCESADOR,
@@ -227,6 +231,7 @@ const actualizarInventario = async (req, res) => {
       NOMBRE_EQUIPO,
       ID_DEPARTAMENTO,
       SERIAL,
+      FECHA_FABRICACION,
       DISCO_DURO,
       RAM,
       ID_PROCESADOR,
@@ -259,6 +264,7 @@ const actualizarInventario = async (req, res) => {
       .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO || null)
       .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
       .input("SERIAL", SERIAL || null)
+      .input("FECHA_FABRICACION", FECHA_FABRICACION || null)
       .input("DISCO_DURO", DISCO_DURO || null)
       .input("RAM", RAM || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
@@ -288,6 +294,7 @@ const actualizarInventario = async (req, res) => {
           NOMBRE_EQUIPO = @NOMBRE_EQUIPO,
           ID_DEPARTAMENTO = @ID_DEPARTAMENTO,
           SERIAL = @SERIAL,
+          FECHA_FABRICACION = @FECHA_FABRICACION,
           DISCO_DURO = @DISCO_DURO,
           RAM = @RAM,
           ID_PROCESADOR = @ID_PROCESADOR,
