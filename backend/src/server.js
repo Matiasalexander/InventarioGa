@@ -14,6 +14,7 @@ const departamentosRoutes = require("./routes/departamentos.routes");
 const puestosRoutes = require("./routes/puestos.routes");
 const modespRoutes = require("./routes/modesp.routes");
 const authRoutes = require("./routes/auth.routes");
+const usuariosRoutes = require("./routes/usuarios.routes");
 const modelosProcesadorRoutes =
 require("./routes/modelosProcesador.routes");
 require("dotenv").config();
@@ -38,6 +39,7 @@ app.use("/api/departamentos", departamentosRoutes);
 app.use("/api/puestos", puestosRoutes);
 app.use("/api/modesp", modespRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/usuarios", usuariosRoutes);
 
 
 app.use(
