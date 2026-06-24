@@ -127,6 +127,88 @@ const olvidePassword = async (req, res) => {
   }
 };
 
+const resetPassword = async (req, res) => {
+  try {
+
+    const {
+      correo,
+      codigo,
+      nuevaPassword
+    } = req.body;
+
+    const pool = await poolPromise;
+
+    const usuario = await pool.request()
+      .input("Correo", correo)
+      .query(`
+        SELECT *
+        FROM Usuarios
+        WHERE Correo = @Correo
+      `);
+
+    if (usuario.recordset.length === 0) {
+      return res.status(404).json({
+        message: "Usuario no encontrado"
+      });
+    }
+
+    const IdUsuario = usuario.recordset[0].IdUsuario;
+
+    const token = await pool.request()
+      .input("IdUsuario", IdUsuario)
+      .input("Codigo", codigo)
+      .query(`
+        SELECT TOP 1 *
+        FROM PasswordResetTokens
+        WHERE IdUsuario = @IdUsuario
+          AND Codigo = @Codigo
+          AND Usado = 0
+          AND FechaExpiracion >= GETDATE()
+        ORDER BY IdToken DESC
+      `);
+
+    if (token.recordset.length === 0) {
+      return res.status(400).json({
+        message: "Código inválido o expirado"
+      });
+    }
+
+    const hash = await bcrypt.hash(
+      nuevaPassword,
+      10
+    );
+
+    await pool.request()
+      .input("IdUsuario", IdUsuario)
+      .input("PasswordHash", hash)
+      .query(`
+        UPDATE Usuarios
+        SET
+          PasswordHash = @PasswordHash,
+          FechaActualizacion = GETDATE()
+        WHERE IdUsuario = @IdUsuario
+      `);
+
+    await pool.request()
+      .input("IdToken", token.recordset[0].IdToken)
+      .query(`
+        UPDATE PasswordResetTokens
+        SET Usado = 1
+        WHERE IdToken = @IdToken
+      `);
+
+    res.json({
+      message: "Contraseña actualizada correctamente"
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error restableciendo contraseña",
+      error: error.message
+    });
+  }
+};
+
 const registrarUsuario = async (req, res) => {
   try {
 
