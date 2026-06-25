@@ -5,6 +5,7 @@ import {
   eliminarInventario
 } from "../services/inventarioService";
 import { toast } from "react-toastify";
+import { getRol } from "../utils/roles";
 import "../styles/InventarioPage.css";
 
 function InventarioPage({ setLoading }) {
@@ -12,6 +13,11 @@ function InventarioPage({ setLoading }) {
   const [busqueda, setBusqueda] = useState("");
 
   const navigate = useNavigate();
+  const rol = getRol();
+
+  const puedeCrear = rol === "Administrador" || rol === "Sistemas";
+  const puedeEditar = rol === "Administrador" || rol === "Sistemas";
+  const puedeEliminar = rol === "Administrador";
 
   const cargarInventario = async () => {
     try {
@@ -21,7 +27,7 @@ function InventarioPage({ setLoading }) {
     } catch (error) {
       console.error("Error cargando inventario:", error);
       toast.error("Error cargando inventario");
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -54,11 +60,10 @@ function InventarioPage({ setLoading }) {
     );
   }, [busqueda, inventario]);
 
-  //const detalleEquipo
-const irDetalle = (id) => {
-  navigate(`/inventario/detalle/${id}`);
-};
-  //fin const detalleEquipo
+  const irDetalle = (id) => {
+    navigate(`/inventario/detalle/${id}`);
+  };
+
   const irAgregar = () => {
     navigate("/inventario/nuevo");
   };
@@ -75,10 +80,10 @@ const irDetalle = (id) => {
     try {
       await eliminarInventario(id);
       await cargarInventario();
-      alert("Equipo eliminado correctamente");
+      toast.success("Equipo eliminado correctamente");
     } catch (error) {
       console.error("Error eliminando equipo:", error.response?.data || error);
-      alert(error.response?.data?.error || "Error eliminando equipo");
+      toast.error(error.response?.data?.error || "Error eliminando equipo");
     }
   };
 
@@ -90,9 +95,11 @@ const irDetalle = (id) => {
           <p>Listado general de equipos registrados.</p>
         </div>
 
-        <button type="button" onClick={irAgregar}>
-          + Agregar equipo
-        </button>
+        {puedeCrear && (
+          <button type="button" onClick={irAgregar}>
+            + Agregar equipo
+          </button>
+        )}
       </div>
 
       <div className="stats-grid">
@@ -116,7 +123,11 @@ const irDetalle = (id) => {
         <div className="toolbar">
           <div>
             <h2>Equipos</h2>
-            <p>Consulta, actualiza o elimina registros del inventario.</p>
+            <p>
+              {puedeEditar
+                ? "Consulta, actualiza o elimina registros del inventario."
+                : "Consulta de registros del inventario."}
+            </p>
           </div>
 
           <input
@@ -165,22 +176,27 @@ const irDetalle = (id) => {
                     </span>
                   </td>
                   <td>
-         <button type="button" onClick={() => irDetalle(item.id)}>
-  Detalles
-</button>
-                    <button
-                      type="button"
-                      onClick={() => irActualizar(item.id)}
-                    >
-                      Editar
+                    <button type="button" onClick={() => irDetalle(item.id)}>
+                      Detalles
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => borrarEquipo(item.id)}
-                    >
-                      Eliminar
-                    </button>
+                    {puedeEditar && (
+                      <button
+                        type="button"
+                        onClick={() => irActualizar(item.id)}
+                      >
+                        Editar
+                      </button>
+                    )}
+
+                    {puedeEliminar && (
+                      <button
+                        type="button"
+                        onClick={() => borrarEquipo(item.id)}
+                      >
+                        Eliminar
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
