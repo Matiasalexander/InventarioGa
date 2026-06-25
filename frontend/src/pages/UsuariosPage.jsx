@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-
+import "../styles/Usuarios.css";
 function UsuariosPage({ setLoading }) {
   const [usuarios, setUsuarios] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
@@ -160,10 +160,14 @@ function UsuariosPage({ setLoading }) {
   };
 
   return (
-    <div>
-      <h2>Usuarios</h2>
+    <div className="detail-user">
+
+    <div className="page-grid">
+      <div className="card">
+      <h2>Registrar usuario</h2>
 
       <form onSubmit={guardarUsuario} className="form-responsiva">
+        <p>Nombre</p>
         <input
           type="text"
           placeholder="Nombre"
@@ -173,6 +177,7 @@ function UsuariosPage({ setLoading }) {
           }
         />
 
+        <p>Email</p>
         <input
           type="email"
           placeholder="Correo"
@@ -182,6 +187,7 @@ function UsuariosPage({ setLoading }) {
           }
         />
 
+        <p>Télefono</p>
         <input
           type="text"
           placeholder="Teléfono"
@@ -191,6 +197,7 @@ function UsuariosPage({ setLoading }) {
           }
         />
 
+        <p>Contraseña</p>
         {!editandoId && (
           <input
             type="password"
@@ -202,6 +209,7 @@ function UsuariosPage({ setLoading }) {
           />
         )}
 
+        <p>Rol de usuario</p>
         <select
           value={form.Rol}
           onChange={(e) =>
@@ -215,6 +223,7 @@ function UsuariosPage({ setLoading }) {
           <option value="Usuario">Usuario</option>
         </select>
 
+        <p>Estado</p>
         <select
           value={form.Activo ? "1" : "0"}
           onChange={(e) =>
@@ -240,7 +249,11 @@ function UsuariosPage({ setLoading }) {
         )}
       </form>
 
+      </div>
+      
+      <div className="card">
       <div className="table-responsive" style={{ marginTop: "24px" }}>
+        <h2>Usuarios</h2>
         <table>
           <thead>
             <tr>
@@ -295,8 +308,10 @@ function UsuariosPage({ setLoading }) {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
+  </div>
   );
 }
 

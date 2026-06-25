@@ -1,0 +1,43 @@
+.loginPage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0f172a;
+}
+
+
+
+
+.loginPage .card {
+    width: min(400px, 100%);
+    background-color: white;
+}
+
+.logoGA {
+    width: 200px;
+}
+.loginPage .sesionI {
+background-color: #4f46e5;
+width: min(400px, 100%);
+padding: 12px;
+}
+
+.loginPage .correo {
+    margin-bottom: 30px;
+
+}
+.password {
+    margin-bottom: 30px;
+}
+
+.loginPage .forgot {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background: transparent;
+    border: none;
+    color: #4f46e5;
+    cursor: pointer;
+
+}
