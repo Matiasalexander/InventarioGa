@@ -50,9 +50,7 @@ function LoginPage({ setLoading }) {
   };
 
   return (
-    <div className="loginPage"   style={{
-    backgroundImage: `url(${fondo})`,
-  }}>
+    <div className="loginPage">
 
       <div className="card">
 
