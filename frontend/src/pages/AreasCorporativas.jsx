@@ -3,28 +3,28 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { toast } from "react-toastify";
 
-import "../styles/EquiposPage.css";
+import "../styles/Area.css";
 import DepartamentosPage from "./DepartamentosPage";
 import PuestosPage from "./PuestosPage";
 
-function AreasCorporativas({setLoading}) {
+function AreasCorporativas({ setLoading }) {
 
-        return(
-            <>
+    return (
+        <>
             <div className="responsive">
-                <div className="grid">
+                <div className="area-grid">
 
-                    <div className="detail-item">
-                        <DepartamentosPage setLoading={setLoading}/>
+                    <div className="area-item">
+                        <DepartamentosPage setLoading={setLoading} />
                     </div>
 
-                    <div className="detail-item">
-                        <PuestosPage setLoading={setLoading}/>
+                    <div className="area-item">
+                        <PuestosPage setLoading={setLoading} />
                     </div>
 
                 </div>
             </div>
-            </>
-        );
+        </>
+    );
 }
 export default AreasCorporativas;

@@ -27,7 +27,7 @@ export default function Sidebar() {
 
   if (rol === "Administrador" || rol === "Sistemas" || rol === "RH") {
     links.push(
-      { to: "/responsiva", label: "Nueva Responsiva", icon: Book },
+      /*{ to: "/responsiva", label: "Nueva Responsiva", icon: Book },*/
       { to: "/responsivas/historial", label: "Historial Responsivas", icon: Book }
     );
   }

@@ -10,12 +10,10 @@ body {
 }
 
 .contenedor {
-  
+
   min-height: 100vh;
   padding: clamp(12px, 3vw, 32px);
-  background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 32%),
-    linear-gradient(135deg, #f8fafc 0%, #eef2f7 100%);
+
 }
 
 .header {
@@ -58,7 +56,7 @@ body {
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
@@ -203,6 +201,7 @@ select:disabled {
     font-size: 30px;
   }
 }
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(180px, 1fr));

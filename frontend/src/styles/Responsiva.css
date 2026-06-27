@@ -1,13 +1,38 @@
-.form-responsiva p{
-    text-align:left ;
+/*RESPONSIVE PAGE*/
+
+.contenedor {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
 }
+
+.form-responsiva p {
+  text-align: left;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/*FIN RESPONSIVE PAGE*/
 
 /*skeleton*/
 .responsiva-grid {
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
-    gap:20px;
-    margin-top:20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
 }
 
 .titulo {
@@ -16,20 +41,21 @@
   line-height: 1.1;
   margin: 20px 0;
   word-wrap: break-word;
+  color: black;
 }
 
 /*logo*/
 .logo {
-    height: 80px;
-    
+  height: 80px;
+
 }
 
 .acciones {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 20px;
-    flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
 /*RESPONSIVE TABLA*/

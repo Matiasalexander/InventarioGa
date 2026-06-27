@@ -194,106 +194,108 @@ function Responsiva({ setLoading }) {
   return (
     <div className="contenedor">
 
-      
-        <div className="header">
-          <h2>Historial de responsivas</h2>
-          <button type="button" onClick={()=>navigate("/responsivas/historial")}>Volver</button>
-        </div>
-        
-        <div className="responsiva-grid">
+
+      <div className="header">
+        <h2>Historial de responsivas</h2>
+        <button type="button" onClick={() => navigate("/responsivas/historial")}>Volver</button>
+      </div>
+
+      <div className="responsiva-grid">
         <div className="card">
 
-        <div className="form-responsiva">
-          <p>Fecha:</p>
-          <input
-            type="date"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-          />
+          <div className="form-responsiva">
+            <p>Fecha:</p>
+            <input
+              type="date"
+              value={fecha}
+              onChange={(e) => setFecha(e.target.value)}
+            />
 
-          <p>Nombre de receptor:</p>
-          <input
-            type="text"
-            placeholder="Nombre receptor"
-            value={nombreReceptor}
-            onChange={(e) => setNombreReceptor(e.target.value)}
-          />
+            <p>Nombre de receptor:</p>
+            <input
+              type="text"
+              placeholder="Nombre receptor"
+              value={nombreReceptor}
+              onChange={(e) => setNombreReceptor(e.target.value)}
+            />
 
-          <p>Puesto:</p>
-          <input
-            type="text"
-            placeholder="Puesto"
-            value={puesto}
-            onChange={(e) => setPuesto(e.target.value)}
-          />
+            <p>Puesto:</p>
+            <input
+              type="text"
+              placeholder="Puesto"
+              value={puesto}
+              onChange={(e) => setPuesto(e.target.value)}
+            />
 
-          <p>Área:</p>
-          <input
-            type="text"
-            placeholder="Área"
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
-          />
+            <p>Área:</p>
+            <input
+              type="text"
+              placeholder="Área"
+              value={area}
+              onChange={(e) => setArea(e.target.value)}
+            />
+          </div>
+
+          <p>Buscar equipo: </p>
+          <div className="form-responsiva">
+            <input
+              type="text"
+              placeholder="Buscar equipo por serie, nombre, marca, modelo o estatus"
+              value={busquedaEquipo}
+              onChange={(e) => setBusquedaEquipo(e.target.value)}
+            />
+          </div>
+          {/*AQUI TERMINA EL FORMULARIO DE RESPONSIVAS*/}
+
         </div>
 
-        <p>Buscar equipo: </p>
-        <div className="form-responsiva">
-          <input
-            type="text"
-            placeholder="Buscar equipo por serie, nombre, marca, modelo o estatus"
-            value={busquedaEquipo}
-            onChange={(e) => setBusquedaEquipo(e.target.value)}
-          />
-        </div>
-{/*AQUI TERMINA EL FORMULARIO DE RESPONSIVAS*/}
-</div>
-
-<div className="card">
-        <div className="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Equipo</th>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>Serie</th>
-                <th>Estatus</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {inventarioFiltrado.slice(0, 10).map((item) => (
-                <tr key={item.id}>
-                  <td>{item.TIPO_EQUIPO || item.NOMBRE_EQUIPO}</td>
-                  <td>{item.MARCA}</td>
-                  <td>{item.MODELO}</td>
-                  <td>{item.SERIAL}</td>
-                  <td>{item.ESTATUS}</td>
-                  <td>
-                    <button
-                      className="btn-primary"
-                      onClick={() => agregarEquipoDesdeInventario(item)}
-                    >
-                      Agregar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-
-              {inventarioFiltrado.length === 0 && (
+        <div className="card">
+          <h3>Equipos disponibles:</h3>
+          <div className="table-responsive">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="6">No se encontraron equipos.</td>
+                  <th>Equipo</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Serie</th>
+                  <th>Estatus</th>
+                  <th>Acción</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {inventarioFiltrado.slice(0, 10).map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.TIPO_EQUIPO || item.NOMBRE_EQUIPO}</td>
+                    <td>{item.MARCA}</td>
+                    <td>{item.MODELO}</td>
+                    <td>{item.SERIAL}</td>
+                    <td>{item.ESTATUS}</td>
+                    <td>
+                      <button
+                        className="btn-primary"
+                        onClick={() => agregarEquipoDesdeInventario(item)}
+                      >
+                        Agregar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {inventarioFiltrado.length === 0 && (
+                  <tr>
+                    <td colSpan="6">No se encontraron equipos.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-    </div>
-  </div>
-<div className="card">
+      </div>
+      <div className="card">
         <div className="responsiva-card">
-          
+
           <div className="header">
             <div></div>
 
@@ -303,7 +305,7 @@ function Responsiva({ setLoading }) {
               className="logo"
             />
           </div>
-          
+
           <h1 className="titulo">
             CARTA RESPONSIVA DE EQUIPO DE CÓMPUTO
           </h1>
@@ -404,7 +406,7 @@ function Responsiva({ setLoading }) {
         </div>
       </div>
     </div>
-  
+
   );
 }
 
