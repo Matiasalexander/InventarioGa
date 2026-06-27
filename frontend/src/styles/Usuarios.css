@@ -1,12 +1,12 @@
-.form-responsiva {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
 .detail-user {
-    width: 100%;
-    overflow-x: hidden;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .page-grid {
@@ -20,4 +20,12 @@
   .page-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.botones {
+  grid-column: 1/-1;
+}
+
+.botones button {
+  width: 100%;
 }

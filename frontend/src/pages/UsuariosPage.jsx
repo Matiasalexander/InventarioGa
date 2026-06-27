@@ -162,156 +162,172 @@ function UsuariosPage({ setLoading }) {
   return (
     <div className="detail-user">
 
-    <div className="page-grid">
-      <div className="card">
-      <h2>Registrar usuario</h2>
+      <div className="page-grid">
 
-      <form onSubmit={guardarUsuario} className="form-responsiva">
-        <p>Nombre</p>
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={form.Nombre}
-          onChange={(e) =>
-            setForm({ ...form, Nombre: e.target.value })
-          }
-        />
+        <div className="card">
+          <h2>Registrar usuario</h2>
 
-        <p>Email</p>
-        <input
-          type="email"
-          placeholder="Correo"
-          value={form.Correo}
-          onChange={(e) =>
-            setForm({ ...form, Correo: e.target.value })
-          }
-        />
+          <form onSubmit={guardarUsuario} className="form-grid">
 
-        <p>Télefono</p>
-        <input
-          type="text"
-          placeholder="Teléfono"
-          value={form.Telefono}
-          onChange={(e) =>
-            setForm({ ...form, Telefono: e.target.value })
-          }
-        />
+            <div className="campo">
+              <p>Nombre</p>
+              <input
+                type="text"
+                placeholder="Nombre"
+                value={form.Nombre}
+                onChange={(e) =>
+                  setForm({ ...form, Nombre: e.target.value })
+                }
+              />
+            </div>
 
-        <p>Contraseña</p>
-        {!editandoId && (
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={form.Password}
-            onChange={(e) =>
-              setForm({ ...form, Password: e.target.value })
-            }
-          />
-        )}
+            <div className="campo">
+              <p>Email</p>
+              <input
+                type="email"
+                placeholder="Correo"
+                value={form.Correo}
+                onChange={(e) =>
+                  setForm({ ...form, Correo: e.target.value })
+                }
+              />
+            </div>
 
-        <p>Rol de usuario</p>
-        <select
-          value={form.Rol}
-          onChange={(e) =>
-            setForm({ ...form, Rol: e.target.value })
-          }
-        >
-          <option value="Administrador">Administrador</option>
-          <option value="Sistemas">Sistemas</option>
-          <option value="RH">RH</option>
-          <option value="Consulta">Consulta</option>
-          <option value="Usuario">Usuario</option>
-        </select>
+            <div className="campo">
+              <p>Télefono</p>
+              <input
+                type="text"
+                placeholder="Teléfono"
+                value={form.Telefono}
+                onChange={(e) =>
+                  setForm({ ...form, Telefono: e.target.value })
+                }
+              />
+            </div>
 
-        <p>Estado</p>
-        <select
-          value={form.Activo ? "1" : "0"}
-          onChange={(e) =>
-            setForm({ ...form, Activo: e.target.value === "1" })
-          }
-        >
-          <option value="1">Activo</option>
-          <option value="0">Inactivo</option>
-        </select>
+            <div className="campo">
+              <p>Contraseña</p>
+              {!editandoId && (
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  value={form.Password}
+                  onChange={(e) =>
+                    setForm({ ...form, Password: e.target.value })
+                  }
+                />
+              )}
+            </div>
 
-        <button className="btn-primary" type="submit">
-          {editandoId ? "Actualizar" : "Crear usuario"}
-        </button>
+            <div className="campo">
+              <p>Rol de usuario</p>
+              <select
+                value={form.Rol}
+                onChange={(e) =>
+                  setForm({ ...form, Rol: e.target.value })
+                }
+              >
+                <option value="Administrador">Administrador</option>
+                <option value="Sistemas">Sistemas</option>
+                <option value="RH">RH</option>
+                <option value="Consulta">Consulta</option>
+                <option value="Usuario">Usuario</option>
+              </select>
+            </div>
 
-        {editandoId && (
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={limpiarForm}
-          >
-            Cancelar
-          </button>
-        )}
-      </form>
+            <div className="campo">
+              <p>Estado</p>
+              <select
+                value={form.Activo ? "1" : "0"}
+                onChange={(e) =>
+                  setForm({ ...form, Activo: e.target.value === "1" })
+                }
+              >
+                <option value="1">Activo</option>
+                <option value="0">Inactivo</option>
+              </select>
+            </div>
 
-      </div>
-      
-      <div className="card">
-      <div className="table-responsive" style={{ marginTop: "24px" }}>
-        <h2>Usuarios</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Correo</th>
-              <th>Teléfono</th>
-              <th>Rol</th>
-              <th>Activo</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
+            <div className="botones">
+              <button className="btn-primary" type="submit">
+                {editandoId ? "Actualizar" : "Crear usuario"}
+              </button>
+            </div>
 
-          <tbody>
-            {usuarios.length === 0 ? (
-              <tr>
-                <td colSpan="7">No hay usuarios registrados.</td>
-              </tr>
-            ) : (
-              usuarios.map((usuario) => (
-                <tr key={usuario.IdUsuario}>
-                  <td>{usuario.IdUsuario}</td>
-                  <td>{usuario.Nombre}</td>
-                  <td>{usuario.Correo}</td>
-                  <td>{usuario.Telefono}</td>
-                  <td>{usuario.Rol}</td>
-                  <td>{usuario.Activo ? "Sí" : "No"}</td>
-                  <td>
-                    <button
-                      className="btn-primary"
-                      onClick={() => editarUsuario(usuario)}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      className="btn-secondary"
-                      onClick={() => cambiarPassword(usuario.IdUsuario)}
-                    >
-                      Password
-                    </button>
-
-                    <button
-                      className="btn-secondary"
-                      onClick={() => eliminarUsuario(usuario.IdUsuario)}
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))
+            {editandoId && (
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={limpiarForm}
+              >
+                Cancelar
+              </button>
             )}
-          </tbody>
-        </table>
+          </form>
+
+        </div>
+
+        <div className="card">
+          <div className="table-responsive" style={{ marginTop: "24px" }}>
+            <h2>Usuarios</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Correo</th>
+                  <th>Teléfono</th>
+                  <th>Rol</th>
+                  <th>Activo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {usuarios.length === 0 ? (
+                  <tr>
+                    <td colSpan="7">No hay usuarios registrados.</td>
+                  </tr>
+                ) : (
+                  usuarios.map((usuario) => (
+                    <tr key={usuario.IdUsuario}>
+                      <td>{usuario.IdUsuario}</td>
+                      <td>{usuario.Nombre}</td>
+                      <td>{usuario.Correo}</td>
+                      <td>{usuario.Telefono}</td>
+                      <td>{usuario.Rol}</td>
+                      <td>{usuario.Activo ? "Sí" : "No"}</td>
+                      <td>
+                        <button
+                          className="btn-primary"
+                          onClick={() => editarUsuario(usuario)}
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          className="btn-secondary"
+                          onClick={() => cambiarPassword(usuario.IdUsuario)}
+                        >
+                          Password
+                        </button>
+
+                        <button
+                          className="btn-secondary"
+                          onClick={() => eliminarUsuario(usuario.IdUsuario)}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
-  </div>
   );
 }
 
