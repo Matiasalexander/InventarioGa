@@ -45,6 +45,7 @@ export default function Sidebar() {
   };
 
   return (
+
     <aside style={{
       width: "240px",
       minHeight: "100vh",
@@ -53,6 +54,7 @@ export default function Sidebar() {
       display: "flex",
       flexDirection: "column"
     }}>
+
       <div style={{
         padding: "20px 24px",
         fontSize: "18px",
@@ -82,6 +84,7 @@ export default function Sidebar() {
         gap: "4px",
         flex: 1
       }}>
+
         {links.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
@@ -99,31 +102,34 @@ export default function Sidebar() {
               background: isActive ? "#4f46e5" : "transparent"
             })}
           >
+
             <Icon size={18} />
             {label}
           </NavLink>
         ))}
+
+        <button
+          onClick={cerrarSesion}
+          style={{
+            margin: "12px",
+            padding: "10px 12px",
+            borderRadius: "8px",
+            border: "1px solid #334155",
+            background: "transparent",
+            color: "#fca5a5",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            fontSize: "14px"
+          }}
+        >
+          <LogOut size={18} />
+          Cerrar sesión
+        </button>
       </nav>
 
-      <button
-        onClick={cerrarSesion}
-        style={{
-          margin: "12px",
-          padding: "10px 12px",
-          borderRadius: "8px",
-          border: "1px solid #334155",
-          background: "transparent",
-          color: "#fca5a5",
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          fontSize: "14px"
-        }}
-      >
-        <LogOut size={18} />
-        Cerrar sesión
-      </button>
+
     </aside>
   );
 }
