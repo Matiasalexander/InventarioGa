@@ -54,9 +54,9 @@ function App() {
             element={<LoginPage setLoading={setLoading} />}
           />
           <Route
-  path="/forgot-password"
-  element={<ForgotPasswordPage setLoading={setLoading} />}
-/>
+            path="/forgot-password"
+            element={<ForgotPasswordPage setLoading={setLoading} />}
+          />
 
           <Route
             path="/*"
@@ -69,7 +69,12 @@ function App() {
                     style={{
                       flex: 1,
                       padding: "24px",
-                      overflow: "auto"
+                      overflow: "auto",
+                      background: `
+                      radial-gradient(circle at top left,
+                     rgba(37,99,235,.20) 0%,
+                      white 60%
+                      )`
                     }}
                   >
                     <Routes>
@@ -177,9 +182,9 @@ function App() {
                         element={<ModespPage setLoading={setLoading} />}
                       />
                       <Route
-  path="/usuarios"
-  element={<UsuariosPage setLoading={setLoading} />}
-/>
+                        path="/usuarios"
+                        element={<UsuariosPage setLoading={setLoading} />}
+                      />
 
                       <Route
                         path="/modelos-procesador"
