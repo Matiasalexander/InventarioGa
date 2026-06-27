@@ -1,4 +1,5 @@
 const { poolPromise } = require("../config/db");
+const generarNombreEquipo = require("../helpers/generarNombreEquipo");
 
 const obtenerInventario = async (req, res) => {
   try {
@@ -13,20 +14,36 @@ const obtenerInventario = async (req, res) => {
         i.UBICACION,
         i.ID_TIPO_EQUIPO,
         te.tequipo AS TIPO_EQUIPO,
+        i.TIPO_IMPRESORA,
         i.NOMBRE_EQUIPO,
-        i.SERIAL,
         i.ID_DEPARTAMENTO,
         d.Nombre_departamento AS DEPARTAMENTO,
+        i.PUESTO,
+        i.SERIAL,
+        i.FECHA_FABRICACION,
+        i.FECHA_GARANTIA,
+        i.FECHA_INICIO,
+        i.Grestante,
+        i.Auso,
+        i.FECHA_REGISTRO,
+        i.DISCO_DURO,
+        i.RAM,
         i.ID_PROCESADOR,
         p.Nombre AS PROCESADOR,
+        i.MODELO_PROCESADOR,
+        i.SISTEMA_OPERATIVO,
+        i.LECTOR_DE_HUELLA,
+        i.CONEXION,
         i.ID_MARCA,
         m.Marca AS MARCA,
         i.MODELO,
         i.IP,
+        i.PUERTO,
         i.ID_ESTATUS,
         e.Estatus_equipo AS ESTATUS,
         i.ESTADO_FISICO,
-        i.CORREO
+        i.CORREO,
+        i.COMENTARIO
       FROM INVENTARIO_M i
       LEFT JOIN Unidades u ON i.ID_UNIDAD = u.id
       LEFT JOIN Restaurantes r ON u.id_marca = r.id_marca
@@ -55,10 +72,9 @@ const obtenerInventarioPorId = async (req, res) => {
     const result = await pool.request()
       .input("id", id)
       .query(`
-        SELECT
-          i.*
-        FROM INVENTARIO_M i
-        WHERE i.id = @id
+        SELECT *
+        FROM INVENTARIO_M
+        WHERE id = @id
       `);
 
     if (result.recordset.length === 0) {
@@ -81,16 +97,19 @@ const crearInventario = async (req, res) => {
       LOCALIDAD,
       UBICACION,
       ID_TIPO_EQUIPO,
-      NOMBRE_EQUIPO,
+      TIPO_IMPRESORA,
       ID_DEPARTAMENTO,
+      PUESTO,
       SERIAL,
       FECHA_FABRICACION,
+      FECHA_GARANTIA,
+      FECHA_INICIO,
       DISCO_DURO,
       RAM,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
       SISTEMA_OPERATIVO,
-      TIPO_IMPRESORA,
+      LECTOR_DE_HUELLA,
       CONEXION,
       ID_MARCA,
       MODELO,
@@ -107,33 +126,49 @@ const crearInventario = async (req, res) => {
     } = req.body;
 
     const pool = await poolPromise;
-    const serialExiste = await pool
-      .request()
-      .input('SERIAL', SERIAL)
-      .query(
-        'SELECT * FROM INVENTARIO_M WHERE SERIAL = @SERIAL'
-      );
-    if (serialExiste.recordset.length > 0) {
-      return res.status(400).json({
-        message: "El número de serie ya existe en el inventario"
-      });
+
+    if (SERIAL) {
+      const serialExiste = await pool.request()
+        .input("SERIAL", SERIAL)
+        .query(`
+          SELECT id
+          FROM INVENTARIO_M
+          WHERE SERIAL = @SERIAL
+        `);
+
+      if (serialExiste.recordset.length > 0) {
+        return res.status(400).json({
+          message: "El número de serie ya existe en el inventario"
+        });
+      }
     }
+
+    const NOMBRE_EQUIPO = await generarNombreEquipo(
+      pool,
+      ID_TIPO_EQUIPO,
+      SISTEMA_OPERATIVO,
+      FECHA_FABRICACION
+    );
 
     await pool.request()
       .input("ID_UNIDAD", ID_UNIDAD || null)
       .input("LOCALIDAD", LOCALIDAD || null)
       .input("UBICACION", UBICACION || null)
       .input("ID_TIPO_EQUIPO", ID_TIPO_EQUIPO || null)
-      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO || null)
+      .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
+      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO)
       .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
+      .input("PUESTO", PUESTO || null)
       .input("SERIAL", SERIAL || null)
       .input("FECHA_FABRICACION", FECHA_FABRICACION || null)
+      .input("FECHA_GARANTIA", FECHA_GARANTIA || null)
+      .input("FECHA_INICIO", FECHA_INICIO || null)
       .input("DISCO_DURO", DISCO_DURO || null)
       .input("RAM", RAM || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
       .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
-      .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
+      .input("LECTOR_DE_HUELLA", LECTOR_DE_HUELLA || null)
       .input("CONEXION", CONEXION || null)
       .input("ID_MARCA", ID_MARCA || null)
       .input("MODELO", MODELO || null)
@@ -153,16 +188,20 @@ const crearInventario = async (req, res) => {
           LOCALIDAD,
           UBICACION,
           ID_TIPO_EQUIPO,
+          TIPO_IMPRESORA,
           NOMBRE_EQUIPO,
           ID_DEPARTAMENTO,
+          PUESTO,
           SERIAL,
           FECHA_FABRICACION,
+          FECHA_GARANTIA,
+          FECHA_INICIO,
           DISCO_DURO,
           RAM,
           ID_PROCESADOR,
           MODELO_PROCESADOR,
           SISTEMA_OPERATIVO,
-          TIPO_IMPRESORA,
+          LECTOR_DE_HUELLA,
           CONEXION,
           ID_MARCA,
           MODELO,
@@ -182,16 +221,20 @@ const crearInventario = async (req, res) => {
           @LOCALIDAD,
           @UBICACION,
           @ID_TIPO_EQUIPO,
+          @TIPO_IMPRESORA,
           @NOMBRE_EQUIPO,
           @ID_DEPARTAMENTO,
+          @PUESTO,
           @SERIAL,
           @FECHA_FABRICACION,
+          @FECHA_GARANTIA,
+          @FECHA_INICIO,
           @DISCO_DURO,
           @RAM,
           @ID_PROCESADOR,
           @MODELO_PROCESADOR,
           @SISTEMA_OPERATIVO,
-          @TIPO_IMPRESORA,
+          @LECTOR_DE_HUELLA,
           @CONEXION,
           @ID_MARCA,
           @MODELO,
@@ -209,7 +252,8 @@ const crearInventario = async (req, res) => {
       `);
 
     res.status(201).json({
-      message: "Equipo agregado correctamente"
+      message: "Equipo agregado correctamente",
+      NOMBRE_EQUIPO
     });
   } catch (error) {
     res.status(500).json({
@@ -228,16 +272,19 @@ const actualizarInventario = async (req, res) => {
       LOCALIDAD,
       UBICACION,
       ID_TIPO_EQUIPO,
-      NOMBRE_EQUIPO,
+      TIPO_IMPRESORA,
       ID_DEPARTAMENTO,
+      PUESTO,
       SERIAL,
       FECHA_FABRICACION,
+      FECHA_GARANTIA,
+      FECHA_INICIO,
       DISCO_DURO,
       RAM,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
       SISTEMA_OPERATIVO,
-      TIPO_IMPRESORA,
+      LECTOR_DE_HUELLA,
       CONEXION,
       ID_MARCA,
       MODELO,
@@ -261,16 +308,19 @@ const actualizarInventario = async (req, res) => {
       .input("LOCALIDAD", LOCALIDAD || null)
       .input("UBICACION", UBICACION || null)
       .input("ID_TIPO_EQUIPO", ID_TIPO_EQUIPO || null)
-      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO || null)
+      .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
       .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
+      .input("PUESTO", PUESTO || null)
       .input("SERIAL", SERIAL || null)
       .input("FECHA_FABRICACION", FECHA_FABRICACION || null)
+      .input("FECHA_GARANTIA", FECHA_GARANTIA || null)
+      .input("FECHA_INICIO", FECHA_INICIO || null)
       .input("DISCO_DURO", DISCO_DURO || null)
       .input("RAM", RAM || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
       .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
-      .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
+      .input("LECTOR_DE_HUELLA", LECTOR_DE_HUELLA || null)
       .input("CONEXION", CONEXION || null)
       .input("ID_MARCA", ID_MARCA || null)
       .input("MODELO", MODELO || null)
@@ -291,16 +341,19 @@ const actualizarInventario = async (req, res) => {
           LOCALIDAD = @LOCALIDAD,
           UBICACION = @UBICACION,
           ID_TIPO_EQUIPO = @ID_TIPO_EQUIPO,
-          NOMBRE_EQUIPO = @NOMBRE_EQUIPO,
+          TIPO_IMPRESORA = @TIPO_IMPRESORA,
           ID_DEPARTAMENTO = @ID_DEPARTAMENTO,
+          PUESTO = @PUESTO,
           SERIAL = @SERIAL,
           FECHA_FABRICACION = @FECHA_FABRICACION,
+          FECHA_GARANTIA = @FECHA_GARANTIA,
+          FECHA_INICIO = @FECHA_INICIO,
           DISCO_DURO = @DISCO_DURO,
           RAM = @RAM,
           ID_PROCESADOR = @ID_PROCESADOR,
           MODELO_PROCESADOR = @MODELO_PROCESADOR,
           SISTEMA_OPERATIVO = @SISTEMA_OPERATIVO,
-          TIPO_IMPRESORA = @TIPO_IMPRESORA,
+          LECTOR_DE_HUELLA = @LECTOR_DE_HUELLA,
           CONEXION = @CONEXION,
           ID_MARCA = @ID_MARCA,
           MODELO = @MODELO,
