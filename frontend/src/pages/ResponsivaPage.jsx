@@ -201,7 +201,7 @@ function Responsiva({ setLoading }) {
       </div>
 
       <div className="responsiva-grid">
-        <div className="card">
+        <div className="card-responsiva">
 
           <div className="form-responsiva">
             <p>Fecha:</p>
