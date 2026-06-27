@@ -24,3 +24,20 @@ select:disabled {
     opacity: 0.7;
     border: 1px solid #d1d5db;
 }
+.campo-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-form label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.campo-form small {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.3;
+}
