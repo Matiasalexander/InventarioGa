@@ -334,167 +334,222 @@ function InventarioFormPage({ setLoading }) {
           <div className="formulario-card">
             <h2>Información general</h2>
 
-            <select
-              name="ID_RESTAURANTE"
-              value={formulario.ID_RESTAURANTE}
-              onChange={manejarCambio}
-            >
-              <option value="">Selecciona restaurante</option>
-              {catalogos.restaurantes.map((item) => (
-                <option key={item.Id} value={item.Id}>
-                  {item.Restaurante}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Restaurante / marca</label>
+              <select
+                name="ID_RESTAURANTE"
+                value={formulario.ID_RESTAURANTE}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona restaurante</option>
+                {catalogos.restaurantes.map((item) => (
+                  <option key={item.Id} value={item.Id}>
+                    {item.Restaurante}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <select
-              name="ID_UNIDAD"
-              value={formulario.ID_UNIDAD}
-              onChange={manejarCambio}
-              disabled={!formulario.ID_RESTAURANTE}
-            >
-              <option value="">Selecciona localidad</option>
-              {localidadesFiltradas.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.localidad}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Localidad / unidad</label>
+              <select
+                name="ID_UNIDAD"
+                value={formulario.ID_UNIDAD}
+                onChange={manejarCambio}
+                disabled={!formulario.ID_RESTAURANTE}
+              >
+                <option value="">Selecciona localidad</option>
+                {localidadesFiltradas.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.localidad}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <input
-              name="UBICACION"
-              placeholder="Ubicación interna / área / lugar físico"
-              value={formulario.UBICACION}
-              onChange={manejarCambio}
-            />
+            <div className="campo-form">
+              <label>Ubicación interna</label>
+              <input
+                name="UBICACION"
+                placeholder="Área, oficina, almacén, caja, barra..."
+                value={formulario.UBICACION}
+                onChange={manejarCambio}
+              />
+            </div>
 
-            <select
-              name="ID_DEPARTAMENTO"
-              value={formulario.ID_DEPARTAMENTO}
-              onChange={manejarCambio}
-            >
-              <option value="">Selecciona departamento</option>
-              {catalogos.departamentos.map((item) => (
-                <option key={item.Id} value={item.Id}>
-                  {item.Nombre_departamento}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Departamento</label>
+              <select
+                name="ID_DEPARTAMENTO"
+                value={formulario.ID_DEPARTAMENTO}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona departamento</option>
+                {catalogos.departamentos.map((item) => (
+                  <option key={item.Id} value={item.Id}>
+                    {item.Nombre_departamento}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <input
-              name="PUESTO"
-              placeholder="Puesto"
-              value={formulario.PUESTO}
-              onChange={manejarCambio}
-            />
+            <div className="campo-form">
+              <label>Puesto</label>
+              <input
+                name="PUESTO"
+                placeholder="Puesto del usuario o área responsable"
+                value={formulario.PUESTO}
+                onChange={manejarCambio}
+              />
+            </div>
           </div>
 
           <div className="formulario-card">
             <h2>Identificación del equipo</h2>
 
-            <input
-              name="NOMBRE_EQUIPO"
-              placeholder="Se generará automáticamente al guardar"
-              value={
-                esEdicion
-                  ? formulario.NOMBRE_EQUIPO
-                  : "Se generará automáticamente al guardar"
-              }
-              disabled
-            />
+            <div className="campo-form">
+              <label>Nombre del equipo</label>
+              <input
+                name="NOMBRE_EQUIPO"
+                value={
+                  esEdicion
+                    ? formulario.NOMBRE_EQUIPO
+                    : "Se generará automáticamente al guardar"
+                }
+                disabled
+              />
+              <small>
+                Se forma con tipo de equipo, sistema operativo, año de fabricación y consecutivo.
+              </small>
+            </div>
 
-            <select
-              name="ID_TIPO_EQUIPO"
-              value={formulario.ID_TIPO_EQUIPO}
-              onChange={manejarCambio}
-            >
-              <option value="">Selecciona tipo de equipo</option>
-              {catalogos.tiposEquipo.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.tequipo}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Tipo de equipo</label>
+              <select
+                name="ID_TIPO_EQUIPO"
+                value={formulario.ID_TIPO_EQUIPO}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona tipo de equipo</option>
+                {catalogos.tiposEquipo.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.tequipo}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <select
-              name="SISTEMA_OPERATIVO"
-              value={formulario.SISTEMA_OPERATIVO || ""}
-              onChange={manejarCambio}
-            >
-              <option value="">Selecciona sistema operativo</option>
-              {tiposSistemas.map((sistema) => (
-                <option key={sistema} value={sistema}>
-                  {sistema}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Sistema operativo</label>
+              <select
+                name="SISTEMA_OPERATIVO"
+                value={formulario.SISTEMA_OPERATIVO || ""}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona sistema operativo</option>
+                {tiposSistemas.map((sistema) => (
+                  <option key={sistema} value={sistema}>
+                    {sistema}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <input
-              name="FECHA_FABRICACION"
-              type="date"
-              value={formulario.FECHA_FABRICACION}
-              onChange={manejarCambio}
-            />
+            <div className="campo-form">
+              <label>Fecha de fabricación</label>
+              <input
+                name="FECHA_FABRICACION"
+                type="date"
+                value={formulario.FECHA_FABRICACION}
+                onChange={manejarCambio}
+              />
+              <small>
+                Se usa para generar automáticamente el nombre del equipo.
+              </small>
+            </div>
 
-            <input
-              name="SERIAL"
-              placeholder="Número de serie"
-              value={formulario.SERIAL}
-              onChange={manejarCambio}
-            />
-
-            {errorSerial && (
-              <p style={{ color: "red", margin: 0 }}>{errorSerial}</p>
-            )}
+            <div className="campo-form">
+              <label>Número de serie</label>
+              <input
+                name="SERIAL"
+                placeholder="Número de serie del equipo"
+                value={formulario.SERIAL}
+                onChange={manejarCambio}
+              />
+              {errorSerial && (
+                <small style={{ color: "red" }}>{errorSerial}</small>
+              )}
+            </div>
           </div>
 
           <div className="formulario-card">
             <h2>Fechas y garantía</h2>
 
-            <input
-              name="FECHA_GARANTIA"
-              type="date"
-              value={formulario.FECHA_GARANTIA}
-              onChange={manejarCambio}
-            />
+            <div className="campo-form">
+              <label>Fecha de inicio de garantía</label>
+              <input
+                name="FECHA_GARANTIA"
+                type="date"
+                value={formulario.FECHA_GARANTIA}
+                onChange={manejarCambio}
+              />
+              <small>
+                Fecha en la que inicia o vence la garantía del equipo.
+              </small>
+            </div>
 
-            <input
-              name="FECHA_INICIO"
-              type="date"
-              value={formulario.FECHA_INICIO}
-              onChange={manejarCambio}
-            />
+            <div className="campo-form">
+              <label>Fecha de inicio de uso</label>
+              <input
+                name="FECHA_INICIO"
+                type="date"
+                value={formulario.FECHA_INICIO}
+                onChange={manejarCambio}
+              />
+              <small>
+                Fecha en la que el equipo fue entregado o comenzó a utilizarse.
+              </small>
+            </div>
 
             {esEdicion && (
               <>
-                <input
-                  name="FECHA_REGISTRO"
-                  placeholder="Fecha registro"
-                  value={formulario.FECHA_REGISTRO || ""}
-                  disabled
-                />
+                <div className="campo-form">
+                  <label>Fecha de registro</label>
+                  <input
+                    name="FECHA_REGISTRO"
+                    value={formulario.FECHA_REGISTRO || ""}
+                    disabled
+                  />
+                  <small>
+                    Se genera automáticamente cuando se guarda el equipo.
+                  </small>
+                </div>
 
-                <input
-                  name="Auso"
-                  placeholder="Tiempo de uso"
-                  value={
-                    formulario.Auso !== ""
-                      ? `${formulario.Auso} días de uso`
-                      : "Sin fecha de inicio"
-                  }
-                  disabled
-                />
+                <div className="campo-form">
+                  <label>Tiempo de uso</label>
+                  <input
+                    name="Auso"
+                    value={
+                      formulario.Auso !== ""
+                        ? `${formulario.Auso} días de uso`
+                        : "Sin fecha de inicio"
+                    }
+                    disabled
+                  />
+                </div>
 
-                <input
-                  name="Grestante"
-                  placeholder="Garantía restante"
-                  value={
-                    formulario.Grestante !== ""
-                      ? `${formulario.Grestante} días restantes de garantía`
-                      : "Sin fecha de garantía"
-                  }
-                  disabled
-                />
+                <div className="campo-form">
+                  <label>Garantía restante</label>
+                  <input
+                    name="Grestante"
+                    value={
+                      formulario.Grestante !== ""
+                        ? `${formulario.Grestante} días restantes de garantía`
+                        : "Sin fecha de garantía"
+                    }
+                    disabled
+                  />
+                </div>
               </>
             )}
           </div>
@@ -504,211 +559,265 @@ function InventarioFormPage({ setLoading }) {
 
             {(esLaptop || esDesktop) && (
               <>
-                <select
-                  name="RAM"
-                  value={formulario.RAM || ""}
-                  onChange={manejarCambio}
-                >
-                  <option value="">Selecciona RAM</option>
-                  {tiposRam.map((ram) => (
-                    <option key={ram} value={ram}>
-                      {ram}
-                    </option>
-                  ))}
-                </select>
+                <div className="campo-form">
+                  <label>Memoria RAM</label>
+                  <select
+                    name="RAM"
+                    value={formulario.RAM || ""}
+                    onChange={manejarCambio}
+                  >
+                    <option value="">Selecciona RAM</option>
+                    {tiposRam.map((ram) => (
+                      <option key={ram} value={ram}>
+                        {ram}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <select
-                  name="DISCO_DURO"
-                  value={formulario.DISCO_DURO || ""}
-                  onChange={manejarCambio}
-                >
-                  <option value="">Selecciona disco duro</option>
-                  {tiposDisco.map((disco) => (
-                    <option key={disco} value={disco}>
-                      {disco}
-                    </option>
-                  ))}
-                </select>
+                <div className="campo-form">
+                  <label>Disco duro</label>
+                  <select
+                    name="DISCO_DURO"
+                    value={formulario.DISCO_DURO || ""}
+                    onChange={manejarCambio}
+                  >
+                    <option value="">Selecciona disco duro</option>
+                    {tiposDisco.map((disco) => (
+                      <option key={disco} value={disco}>
+                        {disco}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <select
-                  name="ID_PROCESADOR"
-                  value={formulario.ID_PROCESADOR}
-                  onChange={manejarCambio}
-                >
-                  <option value="">Selecciona procesador</option>
-                  {catalogos.procesadores.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.Nombre}
-                    </option>
-                  ))}
-                </select>
+                <div className="campo-form">
+                  <label>Procesador</label>
+                  <select
+                    name="ID_PROCESADOR"
+                    value={formulario.ID_PROCESADOR}
+                    onChange={manejarCambio}
+                  >
+                    <option value="">Selecciona procesador</option>
+                    {catalogos.procesadores.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.Nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <select
-                  name="MODELO_PROCESADOR"
-                  value={formulario.MODELO_PROCESADOR || ""}
-                  onChange={manejarCambio}
-                  disabled={!formulario.ID_PROCESADOR}
-                >
-                  <option value="">Selecciona modelo de procesador</option>
-                  {modelosProcesadorFiltrados.map((item) => (
-                    <option key={item.Id} value={item.Modelo}>
-                      {item.Modelo}
-                    </option>
-                  ))}
-                </select>
+                <div className="campo-form">
+                  <label>Modelo de procesador</label>
+                  <select
+                    name="MODELO_PROCESADOR"
+                    value={formulario.MODELO_PROCESADOR || ""}
+                    onChange={manejarCambio}
+                    disabled={!formulario.ID_PROCESADOR}
+                  >
+                    <option value="">Selecciona modelo de procesador</option>
+                    {modelosProcesadorFiltrados.map((item) => (
+                      <option key={item.Id} value={item.Modelo}>
+                        {item.Modelo}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </>
             )}
 
             {esImpresora && (
               <>
-                <select
-                  name="TIPO_IMPRESORA"
-                  value={formulario.TIPO_IMPRESORA || ""}
-                  onChange={manejarCambio}
-                >
-                  <option value="">Selecciona tipo de impresora</option>
-                  {tiposImpresoras.map((impresora) => (
-                    <option key={impresora} value={impresora}>
-                      {impresora}
-                    </option>
-                  ))}
-                </select>
+                <div className="campo-form">
+                  <label>Tipo de impresora</label>
+                  <select
+                    name="TIPO_IMPRESORA"
+                    value={formulario.TIPO_IMPRESORA || ""}
+                    onChange={manejarCambio}
+                  >
+                    <option value="">Selecciona tipo de impresora</option>
+                    {tiposImpresoras.map((impresora) => (
+                      <option key={impresora} value={impresora}>
+                        {impresora}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <select
-                  name="CONEXION"
-                  value={formulario.CONEXION || ""}
-                  onChange={manejarCambio}
-                >
-                  <option value="">Selecciona tipo de conexión</option>
-                  {tiposConexiones.map((conexion) => (
-                    <option key={conexion} value={conexion}>
-                      {conexion}
-                    </option>
-                  ))}
-                </select>
+                <div className="campo-form">
+                  <label>Tipo de conexión</label>
+                  <select
+                    name="CONEXION"
+                    value={formulario.CONEXION || ""}
+                    onChange={manejarCambio}
+                  >
+                    <option value="">Selecciona tipo de conexión</option>
+                    {tiposConexiones.map((conexion) => (
+                      <option key={conexion} value={conexion}>
+                        {conexion}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                <input
-                  name="IP"
-                  placeholder="000.000.0.0"
-                  value={formulario.IP}
-                  onChange={manejarCambio}
-                />
+                <div className="campo-form">
+                  <label>IP</label>
+                  <input
+                    name="IP"
+                    placeholder="000.000.0.0"
+                    value={formulario.IP}
+                    onChange={manejarCambio}
+                  />
+                </div>
 
-                <input
-                  name="PUERTO"
-                  placeholder="Ingrese puerto"
-                  value={formulario.PUERTO}
-                  onChange={manejarCambio}
-                />
+                <div className="campo-form">
+                  <label>Puerto</label>
+                  <input
+                    name="PUERTO"
+                    placeholder="Puerto"
+                    value={formulario.PUERTO}
+                    onChange={manejarCambio}
+                  />
+                </div>
               </>
             )}
 
             {esTabletPOS && (
               <>
-                <input
-                  type="number"
-                  name="ACCESO_TEAM_VIEWER"
-                  placeholder="Acceso TeamViewer"
-                  value={formulario.ACCESO_TEAM_VIEWER}
-                  onChange={manejarCambio}
-                />
+                <div className="campo-form">
+                  <label>Acceso TeamViewer</label>
+                  <input
+                    type="number"
+                    name="ACCESO_TEAM_VIEWER"
+                    placeholder="Acceso TeamViewer"
+                    value={formulario.ACCESO_TEAM_VIEWER}
+                    onChange={manejarCambio}
+                  />
+                </div>
 
-                <input
-                  name="CONTRASEÑA_TEAM_VIEWER"
-                  placeholder="Contraseña TeamViewer"
-                  value={formulario.CONTRASEÑA_TEAM_VIEWER}
-                  disabled={!formulario.ACCESO_TEAM_VIEWER}
-                  onChange={manejarCambio}
-                />
+                <div className="campo-form">
+                  <label>Contraseña TeamViewer</label>
+                  <input
+                    name="CONTRASEÑA_TEAM_VIEWER"
+                    placeholder="Contraseña TeamViewer"
+                    value={formulario.CONTRASEÑA_TEAM_VIEWER}
+                    disabled={!formulario.ACCESO_TEAM_VIEWER}
+                    onChange={manejarCambio}
+                  />
+                </div>
 
-                <input
-                  type="number"
-                  name="ACCESO_ANYDESK"
-                  placeholder="Acceso AnyDesk"
-                  value={formulario.ACCESO_ANYDESK}
-                  onChange={manejarCambio}
-                />
+                <div className="campo-form">
+                  <label>Acceso AnyDesk</label>
+                  <input
+                    type="number"
+                    name="ACCESO_ANYDESK"
+                    placeholder="Acceso AnyDesk"
+                    value={formulario.ACCESO_ANYDESK}
+                    onChange={manejarCambio}
+                  />
+                </div>
 
-                <input
-                  name="CONTRASEÑA_ANYDESK"
-                  placeholder="Contraseña AnyDesk"
-                  value={formulario.CONTRASEÑA_ANYDESK}
-                  disabled={!formulario.ACCESO_ANYDESK}
-                  onChange={manejarCambio}
-                />
+                <div className="campo-form">
+                  <label>Contraseña AnyDesk</label>
+                  <input
+                    name="CONTRASEÑA_ANYDESK"
+                    placeholder="Contraseña AnyDesk"
+                    value={formulario.CONTRASEÑA_ANYDESK}
+                    disabled={!formulario.ACCESO_ANYDESK}
+                    onChange={manejarCambio}
+                  />
+                </div>
               </>
             )}
 
-            <select
-              name="ID_MARCA"
-              value={formulario.ID_MARCA}
-              onChange={manejarCambio}
-            >
-              <option value="">Selecciona marca</option>
-              {catalogos.marcas.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.Marca}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Marca</label>
+              <select
+                name="ID_MARCA"
+                value={formulario.ID_MARCA}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona marca</option>
+                {catalogos.marcas.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.Marca}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <select
-              name="MODELO"
-              value={formulario.MODELO}
-              onChange={manejarCambio}
-              disabled={!formulario.ID_MARCA}
-            >
-              <option value="">Selecciona modelo</option>
-              {modelosFiltrados.map((item) => (
-                <option key={item.id} value={item.Modelo}>
-                  {item.Modelo}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Modelo</label>
+              <select
+                name="MODELO"
+                value={formulario.MODELO}
+                onChange={manejarCambio}
+                disabled={!formulario.ID_MARCA}
+              >
+                <option value="">Selecciona modelo</option>
+                {modelosFiltrados.map((item) => (
+                  <option key={item.id} value={item.Modelo}>
+                    {item.Modelo}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="formulario-card">
             <h2>Estado / estatus del equipo</h2>
 
-            <select
-              name="ID_ESTATUS"
-              value={formulario.ID_ESTATUS}
-              onChange={manejarCambio}
-            >
-              <option value="">Selecciona estatus</option>
-              {catalogos.estatus.map((item) => (
-                <option key={item.Id} value={item.Id}>
-                  {item.Estatus_equipo}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Estatus</label>
+              <select
+                name="ID_ESTATUS"
+                value={formulario.ID_ESTATUS}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona estatus</option>
+                {catalogos.estatus.map((item) => (
+                  <option key={item.Id} value={item.Id}>
+                    {item.Estatus_equipo}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <select
-              name="ESTADO_FISICO"
-              value={formulario.ESTADO_FISICO}
-              onChange={manejarCambio}
-            >
-              <option value="">Selecciona estado físico</option>
-              {estadosFisicos.map((estado) => (
-                <option key={estado} value={estado}>
-                  {estado}
-                </option>
-              ))}
-            </select>
+            <div className="campo-form">
+              <label>Estado físico</label>
+              <select
+                name="ESTADO_FISICO"
+                value={formulario.ESTADO_FISICO}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona estado físico</option>
+                {estadosFisicos.map((estado) => (
+                  <option key={estado} value={estado}>
+                    {estado}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-            <input
-              name="CORREO"
-              placeholder="Correo"
-              value={formulario.CORREO}
-              onChange={manejarCambio}
-            />
+            <div className="campo-form">
+              <label>Correo</label>
+              <input
+                name="CORREO"
+                placeholder="Correo asignado o responsable"
+                value={formulario.CORREO}
+                onChange={manejarCambio}
+              />
+            </div>
 
-            <input
-              name="COMENTARIO"
-              placeholder="Comentario"
-              value={formulario.COMENTARIO}
-              onChange={manejarCambio}
-            />
+            <div className="campo-form">
+              <label>Comentario</label>
+              <input
+                name="COMENTARIO"
+                placeholder="Observaciones generales"
+                value={formulario.COMENTARIO}
+                onChange={manejarCambio}
+              />
+            </div>
           </div>
 
           <br />
