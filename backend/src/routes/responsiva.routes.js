@@ -7,6 +7,7 @@ const {
   crearResponsiva,
   obtenerResponsivas,
   obtenerResponsivaPorId,
+  obtenerResponsivasPorEquipo,
   eliminarResponsiva,
   marcarEquipoDevuelto,
   obtenerEquiposDisponibles
@@ -31,6 +32,7 @@ router.get("/", obtenerResponsivas);
 router.post("/", crearResponsiva);
 
 router.get("/equipos/disponibles", obtenerEquiposDisponibles);
+router.get("/equipo/:idInventario/historial", obtenerResponsivasPorEquipo);
 
 router.put("/detalle/:idDetalle/devolver", marcarEquipoDevuelto);
 
