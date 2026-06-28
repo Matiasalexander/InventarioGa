@@ -8,6 +8,10 @@ function InventarioDetallePage() {
   const navigate = useNavigate();
 
   const [equipo, setEquipo] = useState(null);
+  const [responsivasEquipo, setResponsivasEquipo] = useState({
+    activa: null,
+    historial: []
+  });
   const [error, setError] = useState("");
   const [departamentos, setDepartamentos] = useState([]);
   const [procesadores, setProcesadores] = useState([]);
@@ -29,6 +33,18 @@ function InventarioDetallePage() {
         setTiposEquipo(catalogos.tiposEquipo || []);
         setMarcas(catalogos.marcas || []);
         setEstatus(catalogos.estatus || []);
+
+        const resp = await fetch(
+          `http://localhost:3001/api/responsiva/equipo/${id}/historial`
+        );
+
+        const dataResp = await resp.json();
+
+        setResponsivasEquipo({
+          activa: dataResp.activa || null,
+          historial: dataResp.historial || []
+        });
+
       } catch (error) {
         console.error(error);
         setError("No se pudo cargar la información");
@@ -114,6 +130,61 @@ function InventarioDetallePage() {
       </div>
 
       <div className="detalle-grid">
+        <div className="card">
+          <h2>Responsiva activa</h2>
+
+          {responsivasEquipo.activa ? (
+            <>
+              <div className="detalle-item">
+                <span>No. Responsiva</span>
+                <strong>
+                  RESP-
+                  {String(responsivasEquipo.activa.IdResponsiva).padStart(5, "0")}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Asignado a</span>
+                <strong>{responsivasEquipo.activa.NombreReceptor}</strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Puesto</span>
+                <strong>{responsivasEquipo.activa.Puesto}</strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Área</span>
+                <strong>{responsivasEquipo.activa.Area || "N/A"}</strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Fecha préstamo</span>
+                <strong>{formatearFecha(responsivasEquipo.activa.Fecha)}</strong>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate("/responsivas/historial")}
+              >
+                Ver historial
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="detalle-item">
+                <span>Estado</span>
+                <strong>Disponible</strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Responsiva digital</span>
+                <strong>No</strong>
+              </div>
+            </>
+          )}
+        </div>
+
         <div className="card">
           <h2>Información general</h2>
 
@@ -317,13 +388,37 @@ function InventarioDetallePage() {
 
           <div className="detalle-item">
             <span>Responsiva digital</span>
-            <strong>{mostrar(equipo.RESPONSIVA_DIGITAL)}</strong>
+            <strong>{equipo.RESPONSIVA_DIGITAL ? "Sí" : "No"}</strong>
           </div>
 
           <div className="detalle-item">
             <span>Número responsiva</span>
-            <strong>{mostrar(equipo.NUM_RESPONSIVA)}</strong>
+            <strong>
+              {equipo.NUM_RESPONSIVA
+                ? `RESP-${String(equipo.NUM_RESPONSIVA).padStart(5, "0")}`
+                : "N/A"}
+            </strong>
           </div>
+        </div>
+
+        <div className="card">
+          <h2>Historial de responsivas</h2>
+
+          {responsivasEquipo.historial.length === 0 ? (
+            <p className="comentario">Sin historial de responsivas.</p>
+          ) : (
+            responsivasEquipo.historial.map((item) => (
+              <div className="detalle-item" key={item.IdDetalle}>
+                <span>
+                  RESP-{String(item.IdResponsiva).padStart(5, "0")}
+                </span>
+                <strong>
+                  {item.NombreReceptor} /{" "}
+                  {item.Devuelto ? "Devuelto" : "Activo"}
+                </strong>
+              </div>
+            ))
+          )}
         </div>
 
         <div className="card">
