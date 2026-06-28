@@ -1,10 +1,10 @@
 const { poolPromise } = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const transporter = require("../config/mailer");
 
 const login = async (req, res) => {
   try {
-
     const { correo, password } = req.body;
 
     const pool = await poolPromise;
@@ -44,7 +44,7 @@ const login = async (req, res) => {
         Correo: usuario.Correo,
         Rol: usuario.Rol
       },
-      "InventarioGA2026",
+      process.env.JWT_SECRET || "InventarioGA2026",
       {
         expiresIn: "8h"
       }
@@ -70,8 +70,13 @@ const login = async (req, res) => {
 
 const olvidePassword = async (req, res) => {
   try {
-
     const { correo } = req.body;
+
+    if (!correo) {
+      return res.status(400).json({
+        message: "El correo es obligatorio"
+      });
+    }
 
     const pool = await poolPromise;
 
@@ -81,11 +86,12 @@ const olvidePassword = async (req, res) => {
         SELECT *
         FROM Usuarios
         WHERE Correo = @Correo
+          AND Activo = 1
       `);
 
     if (usuario.recordset.length === 0) {
       return res.status(404).json({
-        message: "No existe un usuario con ese correo"
+        message: "No existe un usuario activo con ese correo"
       });
     }
 
@@ -94,6 +100,16 @@ const olvidePassword = async (req, res) => {
     ).toString();
 
     const IdUsuario = usuario.recordset[0].IdUsuario;
+    const NombreUsuario = usuario.recordset[0].Nombre;
+
+    await pool.request()
+      .input("IdUsuario", IdUsuario)
+      .query(`
+        UPDATE PasswordResetTokens
+        SET Usado = 1
+        WHERE IdUsuario = @IdUsuario
+          AND Usado = 0
+      `);
 
     await pool.request()
       .input("IdUsuario", IdUsuario)
@@ -114,9 +130,56 @@ const olvidePassword = async (req, res) => {
         )
       `);
 
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: correo,
+      subject: "Código para restablecer contraseña - Inventario GA2",
+      html: `
+        <div style="font-family: Arial, sans-serif; color:#111827; line-height:1.6;">
+          <h2 style="color:#1e293b;">Restablecimiento de contraseña</h2>
+
+          <p>Hola ${NombreUsuario || ""},</p>
+
+          <p>
+            Recibimos una solicitud para restablecer tu contraseña de
+            <strong>Inventario GA2</strong>.
+          </p>
+
+          <p>Tu código de recuperación es:</p>
+
+          <div style="
+            display:inline-block;
+            padding:14px 22px;
+            background:#f1f5f9;
+            border:1px solid #cbd5e1;
+            border-radius:8px;
+            font-size:28px;
+            font-weight:bold;
+            letter-spacing:5px;
+            color:#0f172a;
+          ">
+            ${codigo}
+          </div>
+
+          <p>
+            Este código vence en <strong>30 minutos</strong>.
+          </p>
+
+          <p>
+            Si no solicitaste este cambio, puedes ignorar este correo.
+          </p>
+
+          <hr style="border:none; border-top:1px solid #e5e7eb; margin:24px 0;" />
+
+          <p style="font-size:12px; color:#64748b;">
+            Este mensaje fue enviado automáticamente por Inventario GA2.
+          </p>
+        </div>
+      `
+    });
+
     res.json({
-      message: "Código generado correctamente",
-      codigo
+      message: "Código enviado correctamente al correo"
     });
 
   } catch (error) {
@@ -129,12 +192,17 @@ const olvidePassword = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-
     const {
       correo,
       codigo,
       nuevaPassword
     } = req.body;
+
+    if (!correo || !codigo || !nuevaPassword) {
+      return res.status(400).json({
+        message: "Correo, código y nueva contraseña son obligatorios"
+      });
+    }
 
     const pool = await poolPromise;
 
@@ -144,11 +212,12 @@ const resetPassword = async (req, res) => {
         SELECT *
         FROM Usuarios
         WHERE Correo = @Correo
+          AND Activo = 1
       `);
 
     if (usuario.recordset.length === 0) {
       return res.status(404).json({
-        message: "Usuario no encontrado"
+        message: "Usuario no encontrado o inactivo"
       });
     }
 
@@ -173,10 +242,7 @@ const resetPassword = async (req, res) => {
       });
     }
 
-    const hash = await bcrypt.hash(
-      nuevaPassword,
-      10
-    );
+    const hash = await bcrypt.hash(nuevaPassword, 10);
 
     await pool.request()
       .input("IdUsuario", IdUsuario)
@@ -211,7 +277,6 @@ const resetPassword = async (req, res) => {
 
 const registrarUsuario = async (req, res) => {
   try {
-
     const {
       Nombre,
       Correo,
@@ -219,6 +284,12 @@ const registrarUsuario = async (req, res) => {
       Password,
       Rol
     } = req.body;
+
+    if (!Nombre || !Correo || !Password) {
+      return res.status(400).json({
+        message: "Nombre, correo y contraseña son obligatorios"
+      });
+    }
 
     const pool = await poolPromise;
 
@@ -236,10 +307,7 @@ const registrarUsuario = async (req, res) => {
       });
     }
 
-    const hash = await bcrypt.hash(
-      Password,
-      10
-    );
+    const hash = await bcrypt.hash(Password, 10);
 
     await pool.request()
       .input("Nombre", Nombre)
