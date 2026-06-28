@@ -100,7 +100,7 @@ function InventarioPage({ setLoading }) {
     <div className="contenedor">
       <div className="header">
         <div>
-          <h1>Inventario GA2</h1>
+          <h1>Inventario</h1>
           <p>Listado general de equipos registrados.</p>
         </div>
 
