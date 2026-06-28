@@ -39,7 +39,7 @@ function DashboardPage({ setLoading }) {
     <div className="contenedor">
       <div className="header">
         <div>
-          <h1>Dashboard Ejecutivo</h1>
+          <h1>Inventario Grupo Anderson's</h1>
           <p>Resumen general del inventario y responsivas.</p>
         </div>
       </div>
