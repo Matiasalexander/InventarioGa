@@ -36,14 +36,6 @@ function InventarioPage({ setLoading }) {
     cargarInventario();
   }, []);
 
-  const equiposAsignados = useMemo(() => {
-    return inventario.filter((item) => item.RESPONSIVA_DIGITAL).length;
-  }, [inventario]);
-
-  const equiposDisponibles = useMemo(() => {
-    return inventario.length - equiposAsignados;
-  }, [inventario, equiposAsignados]);
-
   const inventarioFiltrado = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
 
@@ -61,7 +53,9 @@ function InventarioPage({ setLoading }) {
         item.MODELO,
         item.IP,
         item.ESTATUS,
-        item.RESPONSIVA_DIGITAL ? "asignado responsiva ocupado" : "disponible sin responsiva"
+        item.RESPONSIVA_DIGITAL
+          ? "asignado responsiva ocupado"
+          : "disponible sin responsiva"
       ]
         .join(" ")
         .toLowerCase()
@@ -101,7 +95,7 @@ function InventarioPage({ setLoading }) {
       <div className="header">
         <div>
           <h1>Inventario</h1>
-          <p>Listado general de equipos registrados.</p>
+          <p>Administración de equipos registrados.</p>
         </div>
 
         {puedeCrear && (
@@ -109,28 +103,6 @@ function InventarioPage({ setLoading }) {
             + Agregar equipo
           </button>
         )}
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <span>Total equipos</span>
-          <strong>{inventario.length}</strong>
-        </div>
-
-        <div className="stat-card">
-          <span>Disponibles</span>
-          <strong>{equiposDisponibles}</strong>
-        </div>
-
-        <div className="stat-card">
-          <span>Asignados</span>
-          <strong>{equiposAsignados}</strong>
-        </div>
-
-        <div className="stat-card">
-          <span>Resultados visibles</span>
-          <strong>{inventarioFiltrado.length}</strong>
-        </div>
       </div>
 
       <div className="card">
@@ -193,12 +165,11 @@ function InventarioPage({ setLoading }) {
                   <td>
                     {item.RESPONSIVA_DIGITAL ? (
                       <span className="badge">
-                        RESP-{String(item.NUM_RESPONSIVA || "").padStart(5, "0")}
+                        RESP-
+                        {String(item.NUM_RESPONSIVA || "").padStart(5, "0")}
                       </span>
                     ) : (
-                      <span className="badge">
-                        Disponible
-                      </span>
+                      <span className="badge">Disponible</span>
                     )}
                   </td>
                   <td>
