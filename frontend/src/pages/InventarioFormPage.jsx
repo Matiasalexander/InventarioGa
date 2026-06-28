@@ -486,7 +486,7 @@ function InventarioFormPage({ setLoading }) {
             <h2>Fechas y garantía</h2>
 
             <div className="campo-form">
-              <label>Fecha de inicio de garantía</label>
+              <label>Fecha de vencimiento de garantía</label>
               <input
                 name="FECHA_GARANTIA"
                 type="date"
@@ -494,7 +494,7 @@ function InventarioFormPage({ setLoading }) {
                 onChange={manejarCambio}
               />
               <small>
-                Fecha en la que inicia o vence la garantía del equipo.
+                Fecha en la que vence la garantía del equipo.
               </small>
             </div>
 
