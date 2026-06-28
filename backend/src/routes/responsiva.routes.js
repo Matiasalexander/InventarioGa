@@ -8,7 +8,7 @@ const {
   obtenerResponsivas,
   obtenerResponsivaPorId,
   eliminarResponsiva,
-  marcarEquipoDevuelto
+  marcarEquipoDevuelto,
   obtenerEquiposDisponibles
 } = require("../controllers/responsiva.controller");
 
@@ -22,12 +22,21 @@ const logoBase64 = fs.readFileSync(logoPath, {
 
 const logo = `data:image/png;base64,${logoBase64}`;
 
+/* ==========================
+   CRUD RESPONSIVAS
+========================== */
+
 router.get("/", obtenerResponsivas);
 
 router.post("/", crearResponsiva);
+
 router.get("/equipos/disponibles", obtenerEquiposDisponibles);
 
 router.put("/detalle/:idDetalle/devolver", marcarEquipoDevuelto);
+
+/* ==========================
+   GENERAR PDF
+========================== */
 
 router.post("/pdf", async (req, res) => {
   try {
@@ -227,6 +236,10 @@ ${filasEquipos}
     });
   }
 });
+
+/* ==========================
+   RUTAS CON ID AL FINAL
+========================== */
 
 router.get("/:id", obtenerResponsivaPorId);
 
