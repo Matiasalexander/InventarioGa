@@ -1,23 +1,22 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3001/api/modelos";
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerModelos = async () => {
-  const response = await axios.get(API_URL);
-  return response.data;
+  const { data } = await api.get(ENDPOINTS.MODELOS);
+  return data;
 };
 
 export const crearModelo = async (modelo) => {
-  const response = await axios.post(API_URL, modelo);
-  return response.data;
+  const { data } = await api.post(ENDPOINTS.MODELOS, modelo);
+  return data;
 };
 
 export const actualizarModelo = async (id, modelo) => {
-  const response = await axios.put(`${API_URL}/${id}`, modelo);
-  return response.data;
+  const { data } = await api.put(`${ENDPOINTS.MODELOS}/${id}`, modelo);
+  return data;
 };
 
 export const eliminarModelo = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.delete(`${ENDPOINTS.MODELOS}/${id}`);
+  return data;
 };

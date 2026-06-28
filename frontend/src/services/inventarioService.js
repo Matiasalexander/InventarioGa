@@ -1,27 +1,27 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3001/api/inventario";
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerInventario = async () => {
-  const response = await axios.get(API_URL);
-  return response.data;
+  const { data } = await api.get(ENDPOINTS.INVENTARIO);
+  return data;
 };
+
 export const obtenerInventarioPorId = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.get(`${ENDPOINTS.INVENTARIO}/${id}`);
+  return data;
 };
 
 export const crearInventario = async (equipo) => {
-  const response = await axios.post(API_URL, equipo);
-  return response.data;
+  const { data } = await api.post(ENDPOINTS.INVENTARIO, equipo);
+  return data;
 };
 
 export const actualizarInventario = async (id, equipo) => {
-  const response = await axios.put(`${API_URL}/${id}`, equipo);
-  return response.data;
+  const { data } = await api.put(`${ENDPOINTS.INVENTARIO}/${id}`, equipo);
+  return data;
 };
 
 export const eliminarInventario = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.delete(`${ENDPOINTS.INVENTARIO}/${id}`);
+  return data;
 };

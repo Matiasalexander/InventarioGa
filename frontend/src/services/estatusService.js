@@ -1,23 +1,22 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3001/api/estatus";
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerEstatus = async () => {
-  const response = await axios.get(API_URL);
-  return response.data;
+  const { data } = await api.get(ENDPOINTS.ESTATUS);
+  return data;
 };
 
 export const crearEstatus = async (estatus) => {
-  const response = await axios.post(API_URL, estatus);
-  return response.data;
+  const { data } = await api.post(ENDPOINTS.ESTATUS, estatus);
+  return data;
 };
 
 export const actualizarEstatus = async (id, estatus) => {
-  const response = await axios.put(`${API_URL}/${id}`, estatus);
-  return response.data;
+  const { data } = await api.put(`${ENDPOINTS.ESTATUS}/${id}`, estatus);
+  return data;
 };
 
 export const eliminarEstatus = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.delete(`${ENDPOINTS.ESTATUS}/${id}`);
+  return data;
 };

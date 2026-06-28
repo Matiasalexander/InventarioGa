@@ -1,28 +1,27 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3001/api/marcas";
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerMarcas = async () => {
-  const response = await axios.get(API_URL);
-  return response.data;
+  const { data } = await api.get(ENDPOINTS.MARCAS);
+  return data;
 };
 
 export const obtenerMarcaPorId = async (id) => {
-  const response = await axios.get(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.get(`${ENDPOINTS.MARCAS}/${id}`);
+  return data;
 };
 
 export const crearMarca = async (marca) => {
-  const response = await axios.post(API_URL, marca);
-  return response.data;
+  const { data } = await api.post(ENDPOINTS.MARCAS, marca);
+  return data;
 };
 
 export const actualizarMarca = async (id, marca) => {
-  const response = await axios.put(`${API_URL}/${id}`, marca);
-  return response.data;
+  const { data } = await api.put(`${ENDPOINTS.MARCAS}/${id}`, marca);
+  return data;
 };
 
 export const eliminarMarca = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.delete(`${ENDPOINTS.MARCAS}/${id}`);
+  return data;
 };

@@ -1,23 +1,22 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3001/api/procesadores";
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerProcesadores = async () => {
-  const response = await axios.get(API_URL);
-  return response.data;
+  const { data } = await api.get(ENDPOINTS.PROCESADORES);
+  return data;
 };
 
 export const crearProcesador = async (procesador) => {
-  const response = await axios.post(API_URL, procesador);
-  return response.data;
+  const { data } = await api.post(ENDPOINTS.PROCESADORES, procesador);
+  return data;
 };
 
 export const actualizarProcesador = async (id, procesador) => {
-  const response = await axios.put(`${API_URL}/${id}`, procesador);
-  return response.data;
+  const { data } = await api.put(`${ENDPOINTS.PROCESADORES}/${id}`, procesador);
+  return data;
 };
 
 export const eliminarProcesador = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.delete(`${ENDPOINTS.PROCESADORES}/${id}`);
+  return data;
 };

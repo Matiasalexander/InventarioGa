@@ -1,23 +1,22 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3001/api/unidades";
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerUnidades = async () => {
-  const response = await axios.get(API_URL);
-  return response.data;
+  const { data } = await api.get(ENDPOINTS.UNIDADES);
+  return data;
 };
 
 export const crearUnidad = async (unidad) => {
-  const response = await axios.post(API_URL, unidad);
-  return response.data;
+  const { data } = await api.post(ENDPOINTS.UNIDADES, unidad);
+  return data;
 };
 
 export const actualizarUnidad = async (id, unidad) => {
-  const response = await axios.put(`${API_URL}/${id}`, unidad);
-  return response.data;
+  const { data } = await api.put(`${ENDPOINTS.UNIDADES}/${id}`, unidad);
+  return data;
 };
 
 export const eliminarUnidad = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.delete(`${ENDPOINTS.UNIDADES}/${id}`);
+  return data;
 };

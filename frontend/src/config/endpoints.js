@@ -1,21 +1,17 @@
 const ENDPOINTS = {
-  AUTH: "/auth",
   INVENTARIO: "/inventario",
   CATALOGOS: "/catalogos",
-  DASHBOARD: "/dashboard",
-  USUARIOS: "/usuarios",
-  RESPONSIVA: "/responsiva",
+  DEPARTAMENTOS: "/departamentos",
+  ESTATUS: "/estatus",
   MARCAS: "/marcas",
   MODELOS: "/modelos",
-  ESTATUS: "/estatus",
-  RESTAURANTES: "/restaurantes",
-  UNIDADES: "/unidades",
-  DEPARTAMENTOS: "/departamentos",
-  PUESTOS: "/puestos",
-  PROCESADORES: "/procesadores",
-  TIPO_EQUIPO: "/tipo-equipo",
   MODELOS_PROCESADOR: "/modelos-procesador",
-  MODESP: "/modesp"
+  MODESP: "/modesp",
+  PROCESADORES: "/procesadores",
+  PUESTOS: "/puestos",
+  RESTAURANTES: "/restaurantes",
+  TIPO_EQUIPO: "/tipo-equipo",
+  UNIDADES: "/unidades"
 };
 
 export default ENDPOINTS;

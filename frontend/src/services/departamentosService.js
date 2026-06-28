@@ -1,23 +1,22 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3001/api/departamentos";
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerDepartamentos = async () => {
-  const response = await axios.get(API_URL);
-  return response.data;
+  const { data } = await api.get(ENDPOINTS.DEPARTAMENTOS);
+  return data;
 };
 
 export const crearDepartamento = async (departamento) => {
-  const response = await axios.post(API_URL, departamento);
-  return response.data;
+  const { data } = await api.post(ENDPOINTS.DEPARTAMENTOS, departamento);
+  return data;
 };
 
 export const actualizarDepartamento = async (id, departamento) => {
-  const response = await axios.put(`${API_URL}/${id}`, departamento);
-  return response.data;
+  const { data } = await api.put(`${ENDPOINTS.DEPARTAMENTOS}/${id}`, departamento);
+  return data;
 };
 
 export const eliminarDepartamento = async (id) => {
-  const response = await axios.delete(`${API_URL}/${id}`);
-  return response.data;
+  const { data } = await api.delete(`${ENDPOINTS.DEPARTAMENTOS}/${id}`);
+  return data;
 };

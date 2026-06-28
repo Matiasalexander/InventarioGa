@@ -1,8 +1,7 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:3001/api/catalogos";
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerCatalogos = async () => {
-  const response = await axios.get(API_URL);
-  return response.data;
+  const { data } = await api.get(ENDPOINTS.CATALOGOS);
+  return data;
 };
