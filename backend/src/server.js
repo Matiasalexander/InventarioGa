@@ -27,16 +27,18 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
+  "https://inventario-ga.azurewebsites.net",
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://inventario-ga.azurewebsites.net"
-];
-
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("No permitido por CORS"));
+  },
   credentials: true
 }));
 
