@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  obtenerResponsivas,
+  obtenerResponsivaPorId,
+  marcarEquipoDevuelto
+} from "../services/responsivaService";
 
 function HistorialResponsivasPage({ setLoading }) {
   const navigate = useNavigate();
@@ -16,12 +21,15 @@ function HistorialResponsivasPage({ setLoading }) {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:3001/api/responsiva");
-      const data = await response.json();
+      const data = await obtenerResponsivas();
 
       setResponsivas(data);
     } catch (error) {
-      toast.error("Error cargando responsivas.");
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Error cargando responsivas."
+      );
     } finally {
       setLoading(false);
     }
@@ -31,16 +39,16 @@ function HistorialResponsivasPage({ setLoading }) {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        `http://localhost:3001/api/responsiva/${idResponsiva}`
-      );
-
-      const data = await response.json();
+      const data = await obtenerResponsivaPorId(idResponsiva);
 
       setResponsivaSeleccionada(data.responsiva);
       setDetalle(data.equipos || []);
     } catch (error) {
-      toast.error("Error obteniendo detalle.");
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Error obteniendo detalle."
+      );
     } finally {
       setLoading(false);
     }
@@ -53,43 +61,33 @@ function HistorialResponsivasPage({ setLoading }) {
         "Equipo devuelto correctamente"
       );
 
-      const response = await fetch(
-        `http://localhost:3001/api/responsiva/detalle/${idDetalle}/devolver`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            ComentariosDevolucion: comentarios || null
-          })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Error devolviendo equipo.");
-      }
+      await marcarEquipoDevuelto(idDetalle, comentarios || null);
 
       toast.success("Equipo marcado como devuelto.");
 
       if (responsivaSeleccionada) {
-        verDetalle(responsivaSeleccionada.IdResponsiva);
+        await verDetalle(responsivaSeleccionada.IdResponsiva);
       }
 
-      cargarResponsivas();
+      await cargarResponsivas();
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Error devolviendo equipo."
+      );
     }
   };
 
   return (
     <div className="card">
       <div className="header">
-      <h2>Historial de Responsivas</h2>
-       <button type="button" onClick={() => navigate("/responsiva")}>
+        <h2>Historial de Responsivas</h2>
+
+        <button type="button" onClick={() => navigate("/responsiva")}>
           Crear Responsiva
         </button>
-        </div>
+      </div>
 
       <div className="table-responsive">
         <table>

@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+  olvidePassword,
+  resetPassword
+} from "../services/authService";
 
 function ForgotPasswordPage({ setLoading }) {
   const navigate = useNavigate();
@@ -16,27 +20,21 @@ function ForgotPasswordPage({ setLoading }) {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:3001/api/auth/olvide-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ correo })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error generando código");
-      }
+      const data = await olvidePassword(correo);
 
       toast.success("Código generado correctamente.");
 
-      alert(`Código temporal: ${data.codigo}`);
+      if (data.codigo) {
+        alert(`Código temporal: ${data.codigo}`);
+      }
 
       setPaso(2);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Error generando código"
+      );
     } finally {
       setLoading(false);
     }
@@ -48,41 +46,31 @@ function ForgotPasswordPage({ setLoading }) {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:3001/api/auth/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          correo,
-          codigo,
-          nuevaPassword
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error restableciendo contraseña");
-      }
+      await resetPassword(correo, codigo, nuevaPassword);
 
       toast.success("Contraseña actualizada correctamente.");
       navigate("/login");
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Error restableciendo contraseña"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: "#0f172a"
-    }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#0f172a"
+      }}
+    >
       <form
         onSubmit={paso === 1 ? solicitarCodigo : restablecerPassword}
         style={{
@@ -97,12 +85,14 @@ function ForgotPasswordPage({ setLoading }) {
           Recuperar contraseña
         </h2>
 
-        <p style={{
-          textAlign: "center",
-          color: "#64748b",
-          fontSize: "14px",
-          marginBottom: "20px"
-        }}>
+        <p
+          style={{
+            textAlign: "center",
+            color: "#64748b",
+            fontSize: "14px",
+            marginBottom: "20px"
+          }}
+        >
           {paso === 1
             ? "Ingresa tu correo para generar un código."
             : "Ingresa el código y tu nueva contraseña."}

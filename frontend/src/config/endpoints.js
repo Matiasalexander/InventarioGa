@@ -1,5 +1,20 @@
 const ENDPOINTS = {
+  // Autenticación
+  AUTH: "/auth",
+
+  // Dashboard
+  DASHBOARD: "/dashboard",
+
+  // Inventario
   INVENTARIO: "/inventario",
+
+  // Responsivas
+  RESPONSIVA: "/responsiva",
+
+  // Usuarios
+  USUARIOS: "/usuarios",
+
+  // Catálogos
   CATALOGOS: "/catalogos",
   DEPARTAMENTOS: "/departamentos",
   ESTATUS: "/estatus",

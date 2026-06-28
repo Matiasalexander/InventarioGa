@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "../styles/Usuarios.css";
+import {
+  obtenerUsuarios,
+  crearUsuario,
+  actualizarUsuario,
+  cambiarPasswordUsuario,
+  eliminarUsuario
+} from "../services/usuariosService";
+
 function UsuariosPage({ setLoading }) {
   const [usuarios, setUsuarios] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
@@ -22,12 +30,15 @@ function UsuariosPage({ setLoading }) {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:3001/api/usuarios");
-      const data = await response.json();
+      const data = await obtenerUsuarios();
 
       setUsuarios(data);
     } catch (error) {
-      toast.error("Error cargando usuarios.");
+      toast.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Error cargando usuarios."
+      );
     } finally {
       setLoading(false);
     }
@@ -51,37 +62,26 @@ function UsuariosPage({ setLoading }) {
     try {
       setLoading(true);
 
-      const url = editandoId
-        ? `http://localhost:3001/api/usuarios/${editandoId}`
-        : "http://localhost:3001/api/usuarios";
-
-      const method = editandoId ? "PUT" : "POST";
-
       const body = { ...form };
+
+      let data;
 
       if (editandoId) {
         delete body.Password;
+        data = await actualizarUsuario(editandoId, body);
+      } else {
+        data = await crearUsuario(body);
       }
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error guardando usuario");
-      }
-
-      toast.success(data.message);
+      toast.success(data.message || "Usuario guardado correctamente");
       limpiarForm();
       cargarUsuarios();
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Error guardando usuario"
+      );
     } finally {
       setLoading(false);
     }
@@ -106,32 +106,19 @@ function UsuariosPage({ setLoading }) {
     if (!nuevaPassword) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/usuarios/${idUsuario}/password`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            Password: nuevaPassword
-          })
-        }
-      );
+      const data = await cambiarPasswordUsuario(idUsuario, nuevaPassword);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error cambiando contraseña");
-      }
-
-      toast.success("Contraseña actualizada.");
+      toast.success(data.message || "Contraseña actualizada.");
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Error cambiando contraseña"
+      );
     }
   };
 
-  const eliminarUsuario = async (idUsuario) => {
+  const eliminarUsuarioClick = async (idUsuario) => {
     const confirmar = window.confirm(
       "¿Seguro que deseas eliminar este usuario?"
     );
@@ -139,36 +126,26 @@ function UsuariosPage({ setLoading }) {
     if (!confirmar) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/usuarios/${idUsuario}`,
-        {
-          method: "DELETE"
-        }
-      );
+      const data = await eliminarUsuario(idUsuario);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error eliminando usuario");
-      }
-
-      toast.success(data.message);
+      toast.success(data.message || "Usuario eliminado correctamente");
       cargarUsuarios();
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Error eliminando usuario"
+      );
     }
   };
 
   return (
     <div className="detail-user">
-
       <div className="page-grid">
-
         <div className="card">
           <h2>Registrar usuario</h2>
 
           <form onSubmit={guardarUsuario} className="form-grid">
-
             <div className="campo">
               <p>Nombre</p>
               <input
@@ -264,7 +241,6 @@ function UsuariosPage({ setLoading }) {
               </button>
             )}
           </form>
-
         </div>
 
         <div className="card">
@@ -314,7 +290,9 @@ function UsuariosPage({ setLoading }) {
 
                         <button
                           className="btn-secondary"
-                          onClick={() => eliminarUsuario(usuario.IdUsuario)}
+                          onClick={() =>
+                            eliminarUsuarioClick(usuario.IdUsuario)
+                          }
                         >
                           Eliminar
                         </button>

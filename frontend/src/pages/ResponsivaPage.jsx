@@ -4,6 +4,11 @@ import { toast } from "react-toastify";
 import logo from "../img/gandersons-logo.png";
 import "../styles/Responsiva.css";
 import { useNavigate } from "react-router-dom";
+import {
+  obtenerEquiposDisponibles,
+  crearResponsiva,
+  generarPDFResponsiva
+} from "../services/responsivaService";
 
 function Responsiva({ setLoading }) {
   const navigate = useNavigate();
@@ -26,19 +31,15 @@ function Responsiva({ setLoading }) {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        "http://localhost:3001/api/responsiva/equipos/disponibles"
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error cargando equipos disponibles.");
-      }
+      const data = await obtenerEquiposDisponibles();
 
       setInventario(data);
     } catch (error) {
-      toast.error(error.message || "Error cargando inventario.");
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Error cargando equipos disponibles."
+      );
     } finally {
       setLoading(false);
     }
@@ -70,49 +71,43 @@ function Responsiva({ setLoading }) {
     setEquipos(equipos.filter((_, i) => i !== index));
   };
 
+  const validarResponsiva = () => {
+    if (!fecha || !nombreReceptor || !puesto) {
+      toast.warning("Fecha, nombre receptor y puesto son obligatorios.");
+      return false;
+    }
+
+    if (equipos.length === 0) {
+      toast.warning("Agrega al menos un equipo.");
+      return false;
+    }
+
+    if (sigCanvas.current.isEmpty()) {
+      toast.warning("Firma requerida.");
+      return false;
+    }
+
+    return true;
+  };
+
   const guardarResponsiva = async () => {
     try {
       setLoading(true);
 
-      if (!fecha || !nombreReceptor || !puesto) {
-        toast.warning("Fecha, nombre receptor y puesto son obligatorios.");
-        return;
-      }
-
-      if (equipos.length === 0) {
-        toast.warning("Agrega al menos un equipo.");
-        return;
-      }
-
-      if (sigCanvas.current.isEmpty()) {
-        toast.warning("Firma requerida.");
-        return;
-      }
+      if (!validarResponsiva()) return;
 
       const firmaBase64 = sigCanvas.current
         .getCanvas()
         .toDataURL("image/png");
 
-      const response = await fetch("http://localhost:3001/api/responsiva", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          Fecha: fecha,
-          NombreReceptor: nombreReceptor,
-          Puesto: puesto,
-          Area: area,
-          FirmaBase64: firmaBase64,
-          equipos
-        })
+      await crearResponsiva({
+        Fecha: fecha,
+        NombreReceptor: nombreReceptor,
+        Puesto: puesto,
+        Area: area,
+        FirmaBase64: firmaBase64,
+        equipos
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error al guardar responsiva");
-      }
 
       toast.success("Responsiva guardada correctamente.");
 
@@ -125,7 +120,11 @@ function Responsiva({ setLoading }) {
 
       await cargarInventarioDisponible();
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Error al guardar responsiva"
+      );
     } finally {
       setLoading(false);
     }
@@ -135,48 +134,21 @@ function Responsiva({ setLoading }) {
     try {
       setLoading(true);
 
-      if (!fecha || !nombreReceptor || !puesto) {
-        toast.warning("Fecha, nombre receptor y puesto son obligatorios.");
-        return;
-      }
-
-      if (equipos.length === 0) {
-        toast.warning("Agrega al menos un equipo.");
-        return;
-      }
-
-      if (sigCanvas.current.isEmpty()) {
-        toast.warning("Firma requerida.");
-        return;
-      }
+      if (!validarResponsiva()) return;
 
       const firma = sigCanvas.current
         .getCanvas()
         .toDataURL("image/png");
 
-      const response = await fetch(
-        "http://localhost:3001/api/responsiva/pdf",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            fecha,
-            nombreReceptor,
-            puesto,
-            area,
-            firma,
-            equipos
-          })
-        }
-      );
+      const blob = await generarPDFResponsiva({
+        fecha,
+        nombreReceptor,
+        puesto,
+        area,
+        firma,
+        equipos
+      });
 
-      if (!response.ok) {
-        throw new Error("Error al generar el PDF.");
-      }
-
-      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
 
       const link = document.createElement("a");
@@ -191,7 +163,11 @@ function Responsiva({ setLoading }) {
 
       toast.success("Responsiva generada correctamente.");
     } catch (error) {
-      toast.error(error.message || "Ocurrió un error al generar el PDF.");
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Ocurrió un error al generar el PDF."
+      );
     } finally {
       setLoading(false);
     }

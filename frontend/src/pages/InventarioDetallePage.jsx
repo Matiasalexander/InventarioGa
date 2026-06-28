@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { obtenerInventarioPorId } from "../services/inventarioService";
+import { obtenerCatalogos } from "../services/catalogosService";
+import { obtenerHistorialResponsivasPorEquipo } from "../services/responsivaService";
 import "../styles/InventarioDetallePage.css";
 
 function InventarioDetallePage() {
@@ -25,8 +27,7 @@ function InventarioDetallePage() {
         const data = await obtenerInventarioPorId(id);
         setEquipo(data);
 
-        const response = await fetch("http://localhost:3001/api/catalogos");
-        const catalogos = await response.json();
+        const catalogos = await obtenerCatalogos();
 
         setProcesadores(catalogos.procesadores || []);
         setDepartamentos(catalogos.departamentos || []);
@@ -34,17 +35,12 @@ function InventarioDetallePage() {
         setMarcas(catalogos.marcas || []);
         setEstatus(catalogos.estatus || []);
 
-        const resp = await fetch(
-          `http://localhost:3001/api/responsiva/equipo/${id}/historial`
-        );
-
-        const dataResp = await resp.json();
+        const dataResp = await obtenerHistorialResponsivasPorEquipo(id);
 
         setResponsivasEquipo({
           activa: dataResp.activa || null,
           historial: dataResp.historial || []
         });
-
       } catch (error) {
         console.error(error);
         setError("No se pudo cargar la información");

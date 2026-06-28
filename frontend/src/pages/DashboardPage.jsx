@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "../styles/InventarioPage.css";
+import { obtenerDashboard } from "../services/dashboardService";
 
 function DashboardPage({ setLoading }) {
   const [dashboard, setDashboard] = useState({
@@ -18,16 +19,15 @@ function DashboardPage({ setLoading }) {
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:3001/api/dashboard");
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Error cargando dashboard");
-      }
+      const data = await obtenerDashboard();
 
       setDashboard(data);
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message ||
+        error.message ||
+        "Error cargando dashboard"
+      );
     } finally {
       setLoading(false);
     }
