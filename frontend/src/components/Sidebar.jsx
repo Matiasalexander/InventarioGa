@@ -17,6 +17,7 @@ export default function Sidebar() {
 
   if (rol === "Administrador" || rol === "Sistemas") {
     links.push(
+      { to: "/dashboard", label: "Dashboard", icon: AreaChart },
       { to: "/inventario", label: "Inventario", icon: Monitor },
       { to: "/Equipo", label: "Equipo", icon: Monitor },
       { to: "/Areas", label: "Restaurantes/Unidades", icon: AreaChart },
