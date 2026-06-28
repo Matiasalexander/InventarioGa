@@ -246,11 +246,50 @@ const marcarEquipoDevuelto = async (req, res) => {
     });
   }
 };
+const obtenerEquiposDisponibles = async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const result = await pool.request().query(`
+      SELECT
+        i.id,
+        i.NOMBRE_EQUIPO,
+        i.SERIAL,
+        i.MODELO,
+        i.SISTEMA_OPERATIVO,
+        i.ID_TIPO_EQUIPO,
+        te.tequipo AS TIPO_EQUIPO,
+        i.ID_MARCA,
+        m.Marca AS MARCA,
+        i.ID_ESTATUS,
+        e.Estatus_equipo AS ESTATUS
+      FROM INVENTARIO_M i
+      LEFT JOIN Tipo_equipo te ON i.ID_TIPO_EQUIPO = te.id
+      LEFT JOIN Marcas m ON i.ID_MARCA = m.id
+      LEFT JOIN Estatus e ON i.ID_ESTATUS = e.Id
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM Responsiva_Detalle rd
+        WHERE rd.IdInventario = i.id
+          AND ISNULL(rd.Devuelto, 0) = 0
+      )
+      ORDER BY i.id DESC
+    `);
+
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error obteniendo equipos disponibles",
+      error: error.message
+    });
+  }
+};
 
 module.exports = {
   crearResponsiva,
   obtenerResponsivas,
   obtenerResponsivaPorId,
   eliminarResponsiva,
-  marcarEquipoDevuelto
+  marcarEquipoDevuelto,
+  obtenerEquiposDisponibles
 };
