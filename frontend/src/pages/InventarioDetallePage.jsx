@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { obtenerInventarioPorId } from "../services/inventarioService";
 import "../styles/InventarioDetallePage.css";
-import { Cpu } from "lucide-react";
 
 function InventarioDetallePage() {
   const { id } = useParams();
@@ -11,28 +10,47 @@ function InventarioDetallePage() {
   const [equipo, setEquipo] = useState(null);
   const [error, setError] = useState("");
   const [departamentos, setDepartamentos] = useState([]);
-  const [procesadores, setProcesadores]=useState([]);
+  const [procesadores, setProcesadores] = useState([]);
+  const [tiposEquipo, setTiposEquipo] = useState([]);
+  const [marcas, setMarcas] = useState([]);
+  const [estatus, setEstatus] = useState([]);
 
-useEffect(() => {
-  const cargarDatos = async () => {
-    try {
-      const data = await obtenerInventarioPorId(id);
-      setEquipo(data);
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const data = await obtenerInventarioPorId(id);
+        setEquipo(data);
 
-      const response = await fetch("http://localhost:3001/api/catalogos");
-      const catalogos = await response.json();
+        const response = await fetch("http://localhost:3001/api/catalogos");
+        const catalogos = await response.json();
 
-      setProcesadores(catalogos.procesadores);
-      setDepartamentos(catalogos.departamentos);
+        setProcesadores(catalogos.procesadores || []);
+        setDepartamentos(catalogos.departamentos || []);
+        setTiposEquipo(catalogos.tiposEquipo || []);
+        setMarcas(catalogos.marcas || []);
+        setEstatus(catalogos.estatus || []);
+      } catch (error) {
+        console.error(error);
+        setError("No se pudo cargar la información");
+      }
+    };
 
-    } catch (error) {
-      console.error(error);
-      setError("No se pudo cargar la información");
-    }
+    cargarDatos();
+  }, [id]);
+
+  const formatearFecha = (fecha) => {
+    if (!fecha) return "N/A";
+
+    return new Date(fecha).toLocaleDateString("es-MX", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    });
   };
 
-  cargarDatos();
-}, [id]);
+  const mostrar = (valor) => {
+    return valor !== null && valor !== undefined && valor !== "" ? valor : "N/A";
+  };
 
   if (error) {
     return (
@@ -58,204 +76,265 @@ useEffect(() => {
   }
 
   const procesador = procesadores.find(
-    (item)=>item.id == equipo.ID_PROCESADOR
+    (item) => Number(item.id) === Number(equipo.ID_PROCESADOR)
   );
 
   const departamento = departamentos.find(
-    (item)=>item.Id == equipo.ID_DEPARTAMENTO
+    (item) => Number(item.Id) === Number(equipo.ID_DEPARTAMENTO)
   );
 
-//CONST PARA EL TIPO DE EQUIPO EN ESPECÍFICO
- const esLaptop = Number(equipo.ID_TIPO_EQUIPO) === 1;
+  const tipoEquipo = tiposEquipo.find(
+    (item) => Number(item.id) === Number(equipo.ID_TIPO_EQUIPO)
+  );
+
+  const marca = marcas.find(
+    (item) => Number(item.id) === Number(equipo.ID_MARCA)
+  );
+
+  const estatusEquipo = estatus.find(
+    (item) => Number(item.Id) === Number(equipo.ID_ESTATUS)
+  );
+
+  const esLaptop = Number(equipo.ID_TIPO_EQUIPO) === 1;
   const esDesktop = Number(equipo.ID_TIPO_EQUIPO) === 2;
   const esImpresora = Number(equipo.ID_TIPO_EQUIPO) === 3;
- const esTabletPOS = Number(equipo.ID_TIPO_EQUIPO) === 4;
+  const esTabletPOS = Number(equipo.ID_TIPO_EQUIPO) === 4;
 
   return (
-
     <div className="contenedor">
-
-    <div className="header">
-
+      <div className="header">
         <div>
-            <h1>{equipo.NOMBRE_EQUIPO}</h1>
-            <p>Detalle del equipo</p>
+          <h1>{equipo.NOMBRE_EQUIPO}</h1>
+          <p>Detalle del equipo</p>
         </div>
 
-        <button
-            type="button"
-            onClick={() => navigate("/inventario")}
-        >
-            Volver
+        <button type="button" onClick={() => navigate("/inventario")}>
+          Volver
         </button>
+      </div>
 
+      <div className="detalle-grid">
+        <div className="card">
+          <h2>Información general</h2>
+
+          <div className="detalle-item">
+            <span>Nombre equipo</span>
+            <strong>{mostrar(equipo.NOMBRE_EQUIPO)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Tipo de equipo</span>
+            <strong>{tipoEquipo?.tequipo || "N/A"}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Localidad</span>
+            <strong>{mostrar(equipo.LOCALIDAD)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Ubicación</span>
+            <strong>{mostrar(equipo.UBICACION)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Departamento</span>
+            <strong>{departamento?.Nombre_departamento || "N/A"}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Puesto</span>
+            <strong>{mostrar(equipo.PUESTO)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Correo</span>
+            <strong>{mostrar(equipo.CORREO)}</strong>
+          </div>
+        </div>
+
+        <div className="card">
+          <h2>Identificación</h2>
+
+          <div className="detalle-item">
+            <span>Serial</span>
+            <strong>{mostrar(equipo.SERIAL)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Marca</span>
+            <strong>{marca?.Marca || "N/A"}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Modelo</span>
+            <strong>{mostrar(equipo.MODELO)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Sistema operativo</span>
+            <strong>{mostrar(equipo.SISTEMA_OPERATIVO)}</strong>
+          </div>
+        </div>
+
+        <div className="card">
+          <h2>Fechas y garantía</h2>
+
+          <div className="detalle-item">
+            <span>Fecha fabricación</span>
+            <strong>{formatearFecha(equipo.FECHA_FABRICACION)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Fecha inicio garantía</span>
+            <strong>{formatearFecha(equipo.FECHA_GARANTIA)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Fecha inicio uso</span>
+            <strong>{formatearFecha(equipo.FECHA_INICIO)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Fecha registro</span>
+            <strong>{formatearFecha(equipo.FECHA_REGISTRO)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Tiempo de uso</span>
+            <strong>
+              {equipo.Auso !== null && equipo.Auso !== undefined
+                ? `${equipo.Auso} días`
+                : "N/A"}
+            </strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Garantía restante</span>
+            <strong>
+              {equipo.Grestante !== null && equipo.Grestante !== undefined
+                ? `${equipo.Grestante} días`
+                : "N/A"}
+            </strong>
+          </div>
+        </div>
+
+        {(esLaptop || esDesktop) && (
+          <div className="card">
+            <h2>Hardware</h2>
+
+            <div className="detalle-item">
+              <span>Procesador</span>
+              <strong>{procesador?.Nombre || "N/A"}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>Modelo procesador</span>
+              <strong>{mostrar(equipo.MODELO_PROCESADOR)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>RAM</span>
+              <strong>{mostrar(equipo.RAM)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>Disco duro</span>
+              <strong>{mostrar(equipo.DISCO_DURO)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>Lector de huella</span>
+              <strong>{mostrar(equipo.LECTOR_DE_HUELLA)}</strong>
+            </div>
+          </div>
+        )}
+
+        {esImpresora && (
+          <div className="card">
+            <h2>Impresora / red</h2>
+
+            <div className="detalle-item">
+              <span>Tipo impresora</span>
+              <strong>{mostrar(equipo.TIPO_IMPRESORA)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>Conexión</span>
+              <strong>{mostrar(equipo.CONEXION)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>IP</span>
+              <strong>{mostrar(equipo.IP)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>Puerto</span>
+              <strong>{mostrar(equipo.PUERTO)}</strong>
+            </div>
+          </div>
+        )}
+
+        {esTabletPOS && (
+          <div className="card">
+            <h2>Accesos remotos</h2>
+
+            <div className="detalle-item">
+              <span>Acceso TeamViewer</span>
+              <strong>{mostrar(equipo.ACCESO_TEAM_VIEWER)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>Contraseña TeamViewer</span>
+              <strong>{mostrar(equipo.CONTRASEÑA_TEAM_VIEWER)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>Acceso AnyDesk</span>
+              <strong>{mostrar(equipo.ACCESO_ANYDESK)}</strong>
+            </div>
+
+            <div className="detalle-item">
+              <span>Contraseña AnyDesk</span>
+              <strong>{mostrar(equipo.CONTRASEÑA_ANYDESK)}</strong>
+            </div>
+          </div>
+        )}
+
+        <div className="card">
+          <h2>Estado</h2>
+
+          <div className="detalle-item">
+            <span>Estatus</span>
+            <strong>{estatusEquipo?.Estatus_equipo || "N/A"}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Estado físico</span>
+            <strong>{mostrar(equipo.ESTADO_FISICO)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Responsiva digital</span>
+            <strong>{mostrar(equipo.RESPONSIVA_DIGITAL)}</strong>
+          </div>
+
+          <div className="detalle-item">
+            <span>Número responsiva</span>
+            <strong>{mostrar(equipo.NUM_RESPONSIVA)}</strong>
+          </div>
+        </div>
+
+        <div className="card">
+          <h2>Comentarios</h2>
+
+          <p className="comentario">
+            {equipo.COMENTARIO || "Sin comentarios registrados."}
+          </p>
+        </div>
+      </div>
     </div>
-
-    <div className="detalle-grid">
-
-        <div className="card">
-
-            <h2>Información general</h2>
-
-            <div className="detalle-item">
-                <span>Localidad</span>
-                <strong>{equipo.LOCALIDAD || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Ubicación</span>
-                <strong>{equipo.UBICACION || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Departamento</span>
-                <strong>{departamento?.Nombre_departamento || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Correo: </span>
-                <strong>{equipo.CORREO || "N/A"}</strong>
-            </div>
-
-        </div>
-
-        <div className="card">
-            
-            <h2> Especificaciones</h2>
-            {
-              (esLaptop || esDesktop)  &&(
-                <>
-            <div className="detalle-item">
-                <span>Procesador</span>
-                <strong>{procesador?.Nombre || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Modelo procesador</span>
-                <strong>{equipo.MODELO_PROCESADOR || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>RAM</span>
-                <strong>{equipo.RAM || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Disco duro</span>
-                <strong>{equipo.DISCO_DURO || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Sistema operativo</span>
-                <strong>{equipo.SISTEMA_OPERATIVO || "N/A"}</strong>
-            </div>
-
-                        <div className="detalle-item">
-                <span>Serial</span>
-                <strong>{equipo.SERIAL || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Modelo</span>
-                <strong>{equipo.MODELO || "N/A"}</strong>
-            </div>
-            </>
-                )
-            }
-            
-            {/*SOLO OBTIENE LOS DETALLES QUE LE CORREPSONDEN A IMPRESORA*/}
-            {
-            (esImpresora) && 
-                (
-                    <>
-            <div className="detalle-item">
-                <span>Conexión</span>
-                <strong>{equipo.CONEXION || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Puerto</span>
-                <strong>{equipo.PUERTO || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Lector de huella</span>
-                <strong>{equipo.LECTOR_DE_HUELLA || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>IP</span>
-                <strong>{equipo.IP || "N/A"}</strong>
-            </div>
-            </>
-                )
-            }
-            
-            {
-            esTabletPOS &&(
-             <>
-            <div className="detalle-item">
-                <span>ACCESO TEAM VIEWER</span>
-                <strong>{equipo.ACCESO_TEAM_VIEWER || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>CONTRASEÑA TEAM VIEWER</span>
-                <strong>{equipo.CONTRASEÑA_TEAM_VIEWER || "N/A"}</strong>
-            </div>
-            
-            <div className="detalle-item">
-                <span>ACCESO ANYDESK</span>
-                <strong>{equipo.ACCESO_ANYDESK || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>CONTRASEÑA ANYDESK</span>
-                <strong>{equipo.CONTRASEÑA_ANYDESK || "N/A"}</strong>
-            </div>
-            </>
-            )
-
-        }
-            
-
-        </div>
-        
-
-        <div className="card">
-
-            <h2> Estado y fecha</h2>
-
-            <div className="detalle-item">
-                <span>Estado físico</span>
-                <strong>{equipo.ESTADO_FISICO || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Fecha fabricación</span>
-                <strong>{equipo.FECHA_FABRICACION || "N/A"}</strong>
-            </div>
-
-            <div className="detalle-item">
-                <span>Fecha garantía</span>
-                <strong>{equipo.FECHA_GARANTIA || "N/A"}</strong>
-            </div>
-
-        </div>
-
-        <div className="card">
-
-            <h2> Comentarios</h2>
-
-            <p className="comentario">
-                {equipo.COMENTARIO || "Sin comentarios registrados."}
-            </p>
-
-        </div>
-
-    </div>
-
-</div>
   );
 }
 
