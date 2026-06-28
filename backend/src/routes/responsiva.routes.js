@@ -9,6 +9,7 @@ const {
   obtenerResponsivaPorId,
   eliminarResponsiva,
   marcarEquipoDevuelto
+  obtenerEquiposDisponibles
 } = require("../controllers/responsiva.controller");
 
 const router = express.Router();
@@ -24,6 +25,7 @@ const logo = `data:image/png;base64,${logoBase64}`;
 router.get("/", obtenerResponsivas);
 
 router.post("/", crearResponsiva);
+router.get("/equipos/disponibles", obtenerEquiposDisponibles);
 
 router.put("/detalle/:idDetalle/devolver", marcarEquipoDevuelto);
 
