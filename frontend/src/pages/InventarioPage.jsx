@@ -36,6 +36,14 @@ function InventarioPage({ setLoading }) {
     cargarInventario();
   }, []);
 
+  const equiposAsignados = useMemo(() => {
+    return inventario.filter((item) => item.RESPONSIVA_DIGITAL).length;
+  }, [inventario]);
+
+  const equiposDisponibles = useMemo(() => {
+    return inventario.length - equiposAsignados;
+  }, [inventario, equiposAsignados]);
+
   const inventarioFiltrado = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
 
@@ -52,7 +60,8 @@ function InventarioPage({ setLoading }) {
         item.MARCA,
         item.MODELO,
         item.IP,
-        item.ESTATUS
+        item.ESTATUS,
+        item.RESPONSIVA_DIGITAL ? "asignado responsiva ocupado" : "disponible sin responsiva"
       ]
         .join(" ")
         .toLowerCase()
@@ -109,13 +118,18 @@ function InventarioPage({ setLoading }) {
         </div>
 
         <div className="stat-card">
-          <span>Resultados visibles</span>
-          <strong>{inventarioFiltrado.length}</strong>
+          <span>Disponibles</span>
+          <strong>{equiposDisponibles}</strong>
         </div>
 
         <div className="stat-card">
-          <span>Búsqueda</span>
-          <strong>{busqueda ? "Activa" : "Libre"}</strong>
+          <span>Asignados</span>
+          <strong>{equiposAsignados}</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>Resultados visibles</span>
+          <strong>{inventarioFiltrado.length}</strong>
         </div>
       </div>
 
@@ -132,7 +146,7 @@ function InventarioPage({ setLoading }) {
 
           <input
             className="search-input"
-            placeholder="Buscar por equipo, serial, marca, IP..."
+            placeholder="Buscar por equipo, serial, marca, IP, responsiva..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
@@ -153,6 +167,7 @@ function InventarioPage({ setLoading }) {
                 <th>Modelo</th>
                 <th>IP</th>
                 <th>Estatus</th>
+                <th>Responsiva</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -174,6 +189,17 @@ function InventarioPage({ setLoading }) {
                     <span className="badge">
                       {item.ESTATUS || "Sin estatus"}
                     </span>
+                  </td>
+                  <td>
+                    {item.RESPONSIVA_DIGITAL ? (
+                      <span className="badge">
+                        RESP-{String(item.NUM_RESPONSIVA || "").padStart(5, "0")}
+                      </span>
+                    ) : (
+                      <span className="badge">
+                        Disponible
+                      </span>
+                    )}
                   </td>
                   <td>
                     <button type="button" onClick={() => irDetalle(item.id)}>
@@ -203,7 +229,7 @@ function InventarioPage({ setLoading }) {
 
               {inventarioFiltrado.length === 0 && (
                 <tr>
-                  <td colSpan="12">No hay equipos para mostrar.</td>
+                  <td colSpan="13">No hay equipos para mostrar.</td>
                 </tr>
               )}
             </tbody>
