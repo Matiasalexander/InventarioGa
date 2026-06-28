@@ -26,6 +26,7 @@ import AreasUnidades from "./pages/AreasUnidades";
 import AreasCorporativas from "./pages/AreasCorporativas";
 import UsuariosPage from "./pages/UsuariosPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import DashboardPage from "./pages/DashboardPage";
 
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./utils/ProtectedRoute";
@@ -53,6 +54,7 @@ function App() {
             path="/login"
             element={<LoginPage setLoading={setLoading} />}
           />
+
           <Route
             path="/forgot-password"
             element={<ForgotPasswordPage setLoading={setLoading} />}
@@ -71,16 +73,23 @@ function App() {
                       padding: "24px",
                       overflow: "auto",
                       background: `
-                      radial-gradient(circle at top left,
-                     rgba(37,99,235,.20) 0%,
-                      white 60%
-                      )`
+                        radial-gradient(
+                          circle at top left,
+                          rgba(37,99,235,.20) 0%,
+                          white 60%
+                        )
+                      `
                     }}
                   >
                     <Routes>
                       <Route
                         path="/"
-                        element={<Navigate to="/inventario" />}
+                        element={<Navigate to="/dashboard" />}
+                      />
+
+                      <Route
+                        path="/dashboard"
+                        element={<DashboardPage setLoading={setLoading} />}
                       />
 
                       <Route
@@ -114,6 +123,30 @@ function App() {
                       />
 
                       <Route
+                        path="/inventario/detalle/:id"
+                        element={
+                          <InventarioDetallePage setLoading={setLoading} />
+                        }
+                      />
+
+                      <Route
+                        path="/responsiva"
+                        element={<ResponsivaPage setLoading={setLoading} />}
+                      />
+
+                      <Route
+                        path="/responsivas/historial"
+                        element={
+                          <HistorialResponsivasPage setLoading={setLoading} />
+                        }
+                      />
+
+                      <Route
+                        path="/usuarios"
+                        element={<UsuariosPage setLoading={setLoading} />}
+                      />
+
+                      <Route
                         path="/marcas"
                         element={<MarcasPage setLoading={setLoading} />}
                       />
@@ -139,18 +172,6 @@ function App() {
                       />
 
                       <Route
-                        path="/responsiva"
-                        element={<ResponsivaPage setLoading={setLoading} />}
-                      />
-
-                      <Route
-                        path="/responsivas/historial"
-                        element={
-                          <HistorialResponsivasPage setLoading={setLoading} />
-                        }
-                      />
-
-                      <Route
                         path="/restaurantes"
                         element={<RestaurantesPage setLoading={setLoading} />}
                       />
@@ -166,13 +187,6 @@ function App() {
                       />
 
                       <Route
-                        path="/inventario/detalle/:id"
-                        element={
-                          <InventarioDetallePage setLoading={setLoading} />
-                        }
-                      />
-
-                      <Route
                         path="/puestos"
                         element={<PuestosPage setLoading={setLoading} />}
                       />
@@ -180,10 +194,6 @@ function App() {
                       <Route
                         path="/modesp"
                         element={<ModespPage setLoading={setLoading} />}
-                      />
-                      <Route
-                        path="/usuarios"
-                        element={<UsuariosPage setLoading={setLoading} />}
                       />
 
                       <Route
