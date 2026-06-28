@@ -1,7 +1,7 @@
 const express = require("express");
-const puppeteer = require("puppeteer");
 const fs = require("fs");
 const path = require("path");
+const PDFDocument = require("pdfkit");
 
 const {
   crearResponsiva,
@@ -17,12 +17,6 @@ const router = express.Router();
 
 const logoPath = path.join(__dirname, "../assets/gandersons-logo.png");
 
-const logoBase64 = fs.readFileSync(logoPath, {
-  encoding: "base64"
-});
-
-const logo = `data:image/png;base64,${logoBase64}`;
-
 /* ==========================
    CRUD RESPONSIVAS
 ========================== */
@@ -32,6 +26,7 @@ router.get("/", obtenerResponsivas);
 router.post("/", crearResponsiva);
 
 router.get("/equipos/disponibles", obtenerEquiposDisponibles);
+
 router.get("/equipo/:idInventario/historial", obtenerResponsivasPorEquipo);
 
 router.put("/detalle/:idDetalle/devolver", marcarEquipoDevuelto);
@@ -51,174 +46,10 @@ router.post("/pdf", async (req, res) => {
       equipos = []
     } = req.body;
 
-    const filasEquipos = equipos.length > 0
-      ? equipos.map((equipo) => `
-        <tr>
-          <td>${equipo.Descripcion || ""}</td>
-          <td>${equipo.Marca || ""}</td>
-          <td>${equipo.Modelo || ""}</td>
-          <td>${equipo.NoSerie || ""}</td>
-        </tr>
-      `).join("")
-      : `
-        <tr>
-          <td colspan="4">Sin equipos registrados</td>
-        </tr>
-      `;
-
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-body{
-  font-family: Arial;
-  margin:40px;
-  font-size:14px;
-  color:#222;
-}
-
-.header{
-  display:flex;
-  justify-content:flex-start;
-}
-
-.logo{
-  width:130px;
-}
-
-.titulo{
-  text-align:center;
-  font-size:24px;
-  font-weight:bold;
-  margin-top:20px;
-  margin-bottom:35px;
-}
-
-p{
-  text-align:justify;
-  line-height:1.8;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-}
-
-th{
-  background:#ececec;
-  border:1px solid black;
-  padding:10px;
-}
-
-td{
-  border:1px solid black;
-  padding:8px;
-}
-
-.firma{
-  margin-top:90px;
-  text-align:center;
-}
-
-.firma img{
-  width:220px;
-  height:auto;
-}
-
-.linea{
-  width:320px;
-  border-top:1px solid black;
-  margin:auto;
-  margin-top:-5px;
-}
-
-.nombre{
-  margin-top:10px;
-  font-weight:bold;
-}
-
-.area{
-  margin-top:5px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="header">
-  <img class="logo" src="${logo}">
-</div>
-
-<div class="titulo">
-  CARTA RESPONSIVA DE EQUIPO DE CÓMPUTO
-</div>
-
-<p>
-Por este medio hago constar que el equipo que se detalla a continuación se encuentra en calidad de préstamo a partir del día
-<strong>${fecha || "FECHA"}</strong>
-y que está bajo resguardo de
-<strong>${nombreReceptor || "NOMBRE RECEPTOR"}</strong>,
-quien se desempeña en el puesto
-<strong>${puesto || "PUESTO"}</strong>
-en Grupo Andersons. Dicho(s) equipo(s) cumplirá(n) el uso para los fines que fueron acordados y se hace responsable de regresarlo en las mismas condiciones que se le fue entregado.
-</p>
-
-<p>
-La descripción del (los) equipo(s) se detalla a continuación:
-</p>
-
-<table>
-<thead>
-<tr>
-  <th>Descripción</th>
-  <th>Marca</th>
-  <th>Modelo</th>
-  <th>Número de Serie</th>
-</tr>
-</thead>
-
-<tbody>
-${filasEquipos}
-</tbody>
-</table>
-
-<div class="firma">
-  <img src="${firma}" />
-
-  <div class="linea"></div>
-
-  <div class="nombre">
-    ${nombreReceptor || "NOMBRE"}
-  </div>
-
-  <div class="area">
-    ${area || "AREA"}
-  </div>
-</div>
-
-</body>
-</html>
-`;
-
-    const browser = await puppeteer.launch({
-      headless: true
+    const doc = new PDFDocument({
+      size: "A4",
+      margin: 50
     });
-
-    const page = await browser.newPage();
-
-    await page.setContent(html, {
-      waitUntil: "networkidle0"
-    });
-
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true
-    });
-
-    await browser.close();
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
@@ -226,16 +57,234 @@ ${filasEquipos}
       "attachment; filename=responsiva.pdf"
     );
 
-    res.send(pdf);
+    doc.pipe(res);
+
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 50, 35, {
+        width: 120
+      });
+    }
+
+    doc.moveDown(4);
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(18)
+      .text("CARTA RESPONSIVA DE EQUIPO DE CÓMPUTO", {
+        align: "center"
+      });
+
+    doc.moveDown(2);
+
+    doc
+      .font("Helvetica")
+      .fontSize(11)
+      .text(
+        "Por este medio hago constar que el equipo que se detalla a continuación se encuentra en calidad de préstamo a partir del día ",
+        {
+          continued: true,
+          align: "justify"
+        }
+      )
+      .font("Helvetica-Bold")
+      .text(fecha || "FECHA", {
+        continued: true
+      })
+      .font("Helvetica")
+      .text(" y que está bajo resguardo de ", {
+        continued: true
+      })
+      .font("Helvetica-Bold")
+      .text(nombreReceptor || "NOMBRE RECEPTOR", {
+        continued: true
+      })
+      .font("Helvetica")
+      .text(", quien se desempeña en el puesto ", {
+        continued: true
+      })
+      .font("Helvetica-Bold")
+      .text(puesto || "PUESTO", {
+        continued: true
+      })
+      .font("Helvetica")
+      .text(
+        " en Grupo Andersons. Dicho(s) equipo(s) cumplirá(n) el uso para los fines que fueron acordados y se hace responsable de regresarlo en las mismas condiciones que se le fue entregado."
+      );
+
+    doc.moveDown();
+
+    doc
+      .font("Helvetica")
+      .fontSize(11)
+      .text("La descripción del (los) equipo(s) se detalla a continuación:");
+
+    doc.moveDown();
+
+    const startX = 50;
+    const tableTop = doc.y;
+    const rowHeight = 26;
+
+    const columnWidths = {
+      descripcion: 180,
+      marca: 90,
+      modelo: 140,
+      serie: 130
+    };
+
+    const drawCell = (text, x, y, width, height, bold = false) => {
+      doc
+        .lineWidth(1)
+        .rect(x, y, width, height)
+        .stroke();
+
+      doc
+        .font(bold ? "Helvetica-Bold" : "Helvetica")
+        .fontSize(10)
+        .text(text || "", x + 6, y + 8, {
+          width: width - 12,
+          height: height - 8
+        });
+    };
+
+    drawCell(
+      "Descripción",
+      startX,
+      tableTop,
+      columnWidths.descripcion,
+      rowHeight,
+      true
+    );
+
+    drawCell(
+      "Marca",
+      startX + columnWidths.descripcion,
+      tableTop,
+      columnWidths.marca,
+      rowHeight,
+      true
+    );
+
+    drawCell(
+      "Modelo",
+      startX + columnWidths.descripcion + columnWidths.marca,
+      tableTop,
+      columnWidths.modelo,
+      rowHeight,
+      true
+    );
+
+    drawCell(
+      "Número de Serie",
+      startX + columnWidths.descripcion + columnWidths.marca + columnWidths.modelo,
+      tableTop,
+      columnWidths.serie,
+      rowHeight,
+      true
+    );
+
+    let y = tableTop + rowHeight;
+
+    if (equipos.length === 0) {
+      drawCell("Sin equipos registrados", startX, y, 540, rowHeight);
+      y += rowHeight;
+    } else {
+      equipos.forEach((equipo) => {
+        if (y > 680) {
+          doc.addPage();
+          y = 60;
+        }
+
+        drawCell(
+          equipo.Descripcion || "",
+          startX,
+          y,
+          columnWidths.descripcion,
+          rowHeight
+        );
+
+        drawCell(
+          equipo.Marca || "",
+          startX + columnWidths.descripcion,
+          y,
+          columnWidths.marca,
+          rowHeight
+        );
+
+        drawCell(
+          equipo.Modelo || "",
+          startX + columnWidths.descripcion + columnWidths.marca,
+          y,
+          columnWidths.modelo,
+          rowHeight
+        );
+
+        drawCell(
+          equipo.NoSerie || "",
+          startX + columnWidths.descripcion + columnWidths.marca + columnWidths.modelo,
+          y,
+          columnWidths.serie,
+          rowHeight
+        );
+
+        y += rowHeight;
+      });
+    }
+
+    doc.y = y + 75;
+
+    if (firma) {
+      try {
+        const firmaBase64 = firma.replace(/^data:image\/png;base64,/, "");
+        const firmaBuffer = Buffer.from(firmaBase64, "base64");
+
+        doc.image(firmaBuffer, 190, doc.y, {
+          fit: [220, 90]
+        });
+
+        doc.y += 95;
+      } catch (firmaError) {
+        console.error("Error procesando firma:", firmaError.message);
+        doc.moveDown(5);
+      }
+    } else {
+      doc.moveDown(5);
+    }
+
+    const lineY = doc.y;
+
+    doc
+      .moveTo(150, lineY)
+      .lineTo(445, lineY)
+      .stroke();
+
+    doc.moveDown(0.5);
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(11)
+      .text(nombreReceptor || "NOMBRE", {
+        align: "center"
+      });
+
+    doc
+      .font("Helvetica")
+      .fontSize(10)
+      .text(area || "AREA", {
+        align: "center"
+      });
+
+    doc.end();
+
   } catch (error) {
     console.error("ERROR GENERANDO PDF:");
     console.error(error);
 
-    res.status(500).json({
-      success: false,
-      message: error.message,
-      stack: error.stack
-    });
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
   }
 });
 
