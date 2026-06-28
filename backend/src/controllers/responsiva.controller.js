@@ -2,7 +2,14 @@ const { poolPromise } = require("../config/db");
 
 const crearResponsiva = async (req, res) => {
   try {
-    const { Fecha, NombreReceptor, Puesto, Area, FirmaBase64, equipos } = req.body;
+    const {
+      Fecha,
+      NombreReceptor,
+      Puesto,
+      Area,
+      FirmaBase64,
+      equipos
+    } = req.body;
 
     if (!Fecha || !NombreReceptor || !Puesto) {
       return res.status(400).json({
@@ -54,7 +61,8 @@ const crearResponsiva = async (req, res) => {
           NombreReceptor,
           Puesto,
           Area,
-          FirmaBase64
+          FirmaBase64,
+          Estado
         )
         OUTPUT INSERTED.IdResponsiva
         VALUES (
@@ -62,7 +70,8 @@ const crearResponsiva = async (req, res) => {
           @NombreReceptor,
           @Puesto,
           @Area,
-          @FirmaBase64
+          @FirmaBase64,
+          'ACTIVA'
         )
       `);
 
@@ -299,12 +308,21 @@ const marcarEquipoDevuelto = async (req, res) => {
     const detalle = await pool.request()
       .input("IdDetalle", idDetalle)
       .query(`
-        SELECT IdInventario
+        SELECT 
+          IdInventario,
+          IdResponsiva
         FROM Responsiva_Detalle
         WHERE IdDetalle = @IdDetalle
       `);
 
-    const IdInventario = detalle.recordset[0]?.IdInventario;
+    if (detalle.recordset.length === 0) {
+      return res.status(404).json({
+        message: "Detalle de responsiva no encontrado"
+      });
+    }
+
+    const IdInventario = detalle.recordset[0].IdInventario;
+    const IdResponsiva = detalle.recordset[0].IdResponsiva;
 
     await pool.request()
       .input("IdDetalle", idDetalle)
@@ -327,6 +345,25 @@ const marcarEquipoDevuelto = async (req, res) => {
             RESPONSIVA_DIGITAL = 0,
             NUM_RESPONSIVA = NULL
           WHERE id = @IdInventario
+        `);
+    }
+
+    const pendientes = await pool.request()
+      .input("IdResponsiva", IdResponsiva)
+      .query(`
+        SELECT COUNT(*) AS Pendientes
+        FROM Responsiva_Detalle
+        WHERE IdResponsiva = @IdResponsiva
+          AND ISNULL(Devuelto, 0) = 0
+      `);
+
+    if (pendientes.recordset[0].Pendientes === 0) {
+      await pool.request()
+        .input("IdResponsiva", IdResponsiva)
+        .query(`
+          UPDATE Responsivas
+          SET Estado = 'INACTIVA'
+          WHERE IdResponsiva = @IdResponsiva
         `);
     }
 
