@@ -19,17 +19,28 @@ function Responsiva({ setLoading }) {
   const [busquedaEquipo, setBusquedaEquipo] = useState("");
 
   useEffect(() => {
-    cargarInventario();
+    cargarInventarioDisponible();
   }, []);
 
-  const cargarInventario = async () => {
+  const cargarInventarioDisponible = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/inventario");
+      setLoading(true);
+
+      const response = await fetch(
+        "http://localhost:3001/api/responsiva/equipos/disponibles"
+      );
+
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Error cargando equipos disponibles.");
+      }
 
       setInventario(data);
     } catch (error) {
-      toast.error("Error cargando inventario.");
+      toast.error(error.message || "Error cargando inventario.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -104,6 +115,15 @@ function Responsiva({ setLoading }) {
       }
 
       toast.success("Responsiva guardada correctamente.");
+
+      setFecha("");
+      setNombreReceptor("");
+      setPuesto("");
+      setArea("");
+      setEquipos([]);
+      sigCanvas.current.clear();
+
+      await cargarInventarioDisponible();
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -160,7 +180,6 @@ function Responsiva({ setLoading }) {
       const url = window.URL.createObjectURL(blob);
 
       const link = document.createElement("a");
-
       link.href = url;
       link.download = "responsiva.pdf";
 
@@ -193,16 +212,19 @@ function Responsiva({ setLoading }) {
 
   return (
     <div className="contenedor">
-
-
       <div className="header">
-        <h2>Historial de responsivas</h2>
-        <button type="button" onClick={() => navigate("/responsivas/historial")}>Volver</button>
+        <h2>Nueva responsiva</h2>
+
+        <button
+          type="button"
+          onClick={() => navigate("/responsivas/historial")}
+        >
+          Ver historial
+        </button>
       </div>
 
       <div className="responsiva-grid">
         <div className="card-responsiva">
-
           <div className="form-responsiva">
             <p>Fecha:</p>
             <input
@@ -236,7 +258,8 @@ function Responsiva({ setLoading }) {
             />
           </div>
 
-          <p>Buscar equipo: </p>
+          <p>Buscar equipo:</p>
+
           <div className="form-responsiva">
             <input
               type="text"
@@ -245,12 +268,11 @@ function Responsiva({ setLoading }) {
               onChange={(e) => setBusquedaEquipo(e.target.value)}
             />
           </div>
-          {/*AQUI TERMINA EL FORMULARIO DE RESPONSIVAS*/}
-
         </div>
 
         <div className="card">
           <h3>Equipos disponibles:</h3>
+
           <div className="table-responsive">
             <table>
               <thead>
@@ -285,7 +307,7 @@ function Responsiva({ setLoading }) {
 
                 {inventarioFiltrado.length === 0 && (
                   <tr>
-                    <td colSpan="6">No se encontraron equipos.</td>
+                    <td colSpan="6">No hay equipos disponibles.</td>
                   </tr>
                 )}
               </tbody>
@@ -293,17 +315,13 @@ function Responsiva({ setLoading }) {
           </div>
         </div>
       </div>
+
       <div className="card">
         <div className="responsiva-card">
-
           <div className="header">
             <div></div>
 
-            <img
-              src={logo}
-              alt="Logo"
-              className="logo"
-            />
+            <img src={logo} alt="Logo" className="logo" />
           </div>
 
           <h1 className="titulo">
@@ -390,23 +408,16 @@ function Responsiva({ setLoading }) {
             Limpiar firma
           </button>
 
-          <button
-            className="btn-primary"
-            onClick={guardarResponsiva}
-          >
+          <button className="btn-primary" onClick={guardarResponsiva}>
             Guardar responsiva
           </button>
 
-          <button
-            className="btn-primary"
-            onClick={generarPDF}
-          >
+          <button className="btn-primary" onClick={generarPDF}>
             Descargar PDF
           </button>
         </div>
       </div>
     </div>
-
   );
 }
 
