@@ -103,6 +103,19 @@ const crearResponsiva = async (req, res) => {
             @NoSerie
           )
         `);
+
+      if (equipo.IdInventario) {
+        await pool.request()
+          .input("IdInventario", equipo.IdInventario)
+          .input("IdResponsiva", IdResponsiva)
+          .query(`
+            UPDATE INVENTARIO_M
+            SET
+              RESPONSIVA_DIGITAL = 1,
+              NUM_RESPONSIVA = @IdResponsiva
+            WHERE id = @IdInventario
+          `);
+      }
     }
 
     res.status(201).json({
@@ -190,6 +203,28 @@ const eliminarResponsiva = async (req, res) => {
     const { id } = req.params;
     const pool = await poolPromise;
 
+    const detalle = await pool.request()
+      .input("IdResponsiva", id)
+      .query(`
+        SELECT IdInventario
+        FROM Responsiva_Detalle
+        WHERE IdResponsiva = @IdResponsiva
+      `);
+
+    for (const equipo of detalle.recordset) {
+      if (equipo.IdInventario) {
+        await pool.request()
+          .input("IdInventario", equipo.IdInventario)
+          .query(`
+            UPDATE INVENTARIO_M
+            SET
+              RESPONSIVA_DIGITAL = 0,
+              NUM_RESPONSIVA = NULL
+            WHERE id = @IdInventario
+          `);
+      }
+    }
+
     await pool.request()
       .input("IdResponsiva", id)
       .query(`
@@ -223,6 +258,16 @@ const marcarEquipoDevuelto = async (req, res) => {
 
     const pool = await poolPromise;
 
+    const detalle = await pool.request()
+      .input("IdDetalle", idDetalle)
+      .query(`
+        SELECT IdInventario
+        FROM Responsiva_Detalle
+        WHERE IdDetalle = @IdDetalle
+      `);
+
+    const IdInventario = detalle.recordset[0]?.IdInventario;
+
     await pool.request()
       .input("IdDetalle", idDetalle)
       .input("ComentariosDevolucion", ComentariosDevolucion || null)
@@ -235,6 +280,18 @@ const marcarEquipoDevuelto = async (req, res) => {
         WHERE IdDetalle = @IdDetalle
       `);
 
+    if (IdInventario) {
+      await pool.request()
+        .input("IdInventario", IdInventario)
+        .query(`
+          UPDATE INVENTARIO_M
+          SET
+            RESPONSIVA_DIGITAL = 0,
+            NUM_RESPONSIVA = NULL
+          WHERE id = @IdInventario
+        `);
+    }
+
     res.json({
       message: "Equipo marcado como devuelto"
     });
@@ -246,6 +303,7 @@ const marcarEquipoDevuelto = async (req, res) => {
     });
   }
 };
+
 const obtenerEquiposDisponibles = async (req, res) => {
   try {
     const pool = await poolPromise;
