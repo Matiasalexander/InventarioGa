@@ -30,8 +30,13 @@ const allowedOrigins = [
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://inventario-ga.azurewebsites.net"
+];
+
 app.use(cors({
-  origin: allowedOrigins.length > 0 ? allowedOrigins : "*",
+  origin: allowedOrigins,
   credentials: true
 }));
 
