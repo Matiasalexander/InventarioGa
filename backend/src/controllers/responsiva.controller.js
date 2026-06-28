@@ -2,14 +2,7 @@ const { poolPromise } = require("../config/db");
 
 const crearResponsiva = async (req, res) => {
   try {
-    const {
-      Fecha,
-      NombreReceptor,
-      Puesto,
-      Area,
-      FirmaBase64,
-      equipos
-    } = req.body;
+    const { Fecha, NombreReceptor, Puesto, Area, FirmaBase64, equipos } = req.body;
 
     if (!Fecha || !NombreReceptor || !Puesto) {
       return res.status(400).json({
@@ -26,9 +19,7 @@ const crearResponsiva = async (req, res) => {
     const pool = await poolPromise;
 
     for (const equipo of equipos) {
-      if (!equipo.IdInventario) {
-        continue;
-      }
+      if (!equipo.IdInventario) continue;
 
       const equipoAsignado = await pool.request()
         .input("IdInventario", equipo.IdInventario)
@@ -198,6 +189,53 @@ const obtenerResponsivaPorId = async (req, res) => {
   }
 };
 
+const obtenerResponsivasPorEquipo = async (req, res) => {
+  try {
+    const { idInventario } = req.params;
+    const pool = await poolPromise;
+
+    const result = await pool.request()
+      .input("IdInventario", idInventario)
+      .query(`
+        SELECT
+          r.IdResponsiva,
+          r.Fecha,
+          r.NombreReceptor,
+          r.Puesto,
+          r.Area,
+          r.Estado,
+          rd.IdDetalle,
+          rd.IdInventario,
+          rd.Descripcion,
+          rd.Marca,
+          rd.Modelo,
+          rd.NoSerie,
+          rd.Devuelto,
+          rd.FechaDevolucion,
+          rd.ComentariosDevolucion
+        FROM Responsiva_Detalle rd
+        INNER JOIN Responsivas r
+          ON rd.IdResponsiva = r.IdResponsiva
+        WHERE rd.IdInventario = @IdInventario
+        ORDER BY r.Fecha DESC, r.IdResponsiva DESC
+      `);
+
+    const historial = result.recordset;
+    const activa = historial.find((item) => !item.Devuelto) || null;
+
+    res.json({
+      activa,
+      historial
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error obteniendo historial de responsivas del equipo",
+      error: error.message
+    });
+  }
+};
+
 const eliminarResponsiva = async (req, res) => {
   try {
     const { id } = req.params;
@@ -347,6 +385,7 @@ module.exports = {
   crearResponsiva,
   obtenerResponsivas,
   obtenerResponsivaPorId,
+  obtenerResponsivasPorEquipo,
   eliminarResponsiva,
   marcarEquipoDevuelto,
   obtenerEquiposDisponibles
