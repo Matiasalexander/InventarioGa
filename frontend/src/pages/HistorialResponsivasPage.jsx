@@ -4,11 +4,13 @@ import { toast } from "react-toastify";
 import {
   obtenerResponsivas,
   obtenerResponsivaPorId,
-  marcarEquipoDevuelto
+  marcarEquipoDevuelto,
+  descargarResponsivaPDF
 } from "../services/responsivaService";
 
 function HistorialResponsivasPage({ setLoading }) {
   const navigate = useNavigate();
+
   const [responsivas, setResponsivas] = useState([]);
   const [detalle, setDetalle] = useState([]);
   const [responsivaSeleccionada, setResponsivaSeleccionada] = useState(null);
@@ -20,9 +22,7 @@ function HistorialResponsivasPage({ setLoading }) {
   const cargarResponsivas = async () => {
     try {
       setLoading(true);
-
       const data = await obtenerResponsivas();
-
       setResponsivas(data);
     } catch (error) {
       toast.error(
@@ -38,7 +38,6 @@ function HistorialResponsivasPage({ setLoading }) {
   const verDetalle = async (idResponsiva) => {
     try {
       setLoading(true);
-
       const data = await obtenerResponsivaPorId(idResponsiva);
 
       setResponsivaSeleccionada(data.responsiva);
@@ -48,6 +47,22 @@ function HistorialResponsivasPage({ setLoading }) {
         error.response?.data?.message ||
           error.message ||
           "Error obteniendo detalle."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const descargarPDF = async (idResponsiva, folio) => {
+    try {
+      setLoading(true);
+      await descargarResponsivaPDF(idResponsiva, folio);
+      toast.success("Responsiva descargada correctamente.");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Error descargando responsiva."
       );
     } finally {
       setLoading(false);
@@ -99,7 +114,7 @@ function HistorialResponsivasPage({ setLoading }) {
               <th>Puesto</th>
               <th>Área</th>
               <th>Estado</th>
-              <th>Acción</th>
+              <th>Acciones</th>
             </tr>
           </thead>
 
@@ -109,24 +124,53 @@ function HistorialResponsivasPage({ setLoading }) {
                 <td colSpan="7">No hay responsivas registradas.</td>
               </tr>
             ) : (
-              responsivas.map((item) => (
-                <tr key={item.IdResponsiva}>
-                  <td>RESP-{String(item.IdResponsiva).padStart(5, "0")}</td>
-                  <td>{new Date(item.Fecha).toLocaleDateString()}</td>
-                  <td>{item.NombreReceptor}</td>
-                  <td>{item.Puesto}</td>
-                  <td>{item.Area}</td>
-                  <td>{item.Estado}</td>
-                  <td>
-                    <button
-                      className="btn-primary"
-                      onClick={() => verDetalle(item.IdResponsiva)}
-                    >
-                      Ver detalle
-                    </button>
-                  </td>
-                </tr>
-              ))
+              responsivas.map((item) => {
+                const folio =
+                  item.Folio ||
+                  `RESP-${String(item.IdResponsiva).padStart(5, "0")}`;
+
+                return (
+                  <tr key={item.IdResponsiva}>
+                    <td>{folio}</td>
+                    <td>
+                      {item.Fecha
+                        ? new Date(item.Fecha).toLocaleDateString("es-MX")
+                        : ""}
+                    </td>
+                    <td>{item.NombreReceptor}</td>
+                    <td>{item.Puesto}</td>
+                    <td>{item.Area}</td>
+                    <td>{item.Estado}</td>
+                    <td>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          justifyContent: "center"
+                        }}
+                      >
+                        <button
+                          className="btn-primary"
+                          type="button"
+                          onClick={() => verDetalle(item.IdResponsiva)}
+                        >
+                          Ver detalle
+                        </button>
+
+                        <button
+                          className="btn-secondary"
+                          type="button"
+                          onClick={() =>
+                            descargarPDF(item.IdResponsiva, folio)
+                          }
+                        >
+                          Descargar PDF
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -135,8 +179,32 @@ function HistorialResponsivasPage({ setLoading }) {
       {responsivaSeleccionada && (
         <>
           <h3 style={{ marginTop: "30px" }}>
-            Detalle de {responsivaSeleccionada.NombreReceptor}
+            Detalle de{" "}
+            {responsivaSeleccionada.Folio ||
+              `RESP-${String(responsivaSeleccionada.IdResponsiva).padStart(
+                5,
+                "0"
+              )}`}{" "}
+            - {responsivaSeleccionada.NombreReceptor}
           </h3>
+
+          <div style={{ marginBottom: "15px" }}>
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={() =>
+                descargarPDF(
+                  responsivaSeleccionada.IdResponsiva,
+                  responsivaSeleccionada.Folio ||
+                    `RESP-${String(
+                      responsivaSeleccionada.IdResponsiva
+                    ).padStart(5, "0")}`
+                )
+              }
+            >
+              Descargar PDF
+            </button>
+          </div>
 
           <div className="table-responsive">
             <table>
@@ -154,33 +222,42 @@ function HistorialResponsivasPage({ setLoading }) {
               </thead>
 
               <tbody>
-                {detalle.map((item) => (
-                  <tr key={item.IdDetalle}>
-                    <td>{item.Descripcion}</td>
-                    <td>{item.Marca}</td>
-                    <td>{item.Modelo}</td>
-                    <td>{item.NoSerie}</td>
-                    <td>{item.Devuelto ? "Sí" : "No"}</td>
-                    <td>
-                      {item.FechaDevolucion
-                        ? new Date(item.FechaDevolucion).toLocaleString()
-                        : ""}
-                    </td>
-                    <td>{item.ComentariosDevolucion || ""}</td>
-                    <td>
-                      {!item.Devuelto ? (
-                        <button
-                          className="btn-secondary"
-                          onClick={() => devolverEquipo(item.IdDetalle)}
-                        >
-                          Devolver
-                        </button>
-                      ) : (
-                        "Devuelto"
-                      )}
-                    </td>
+                {detalle.length === 0 ? (
+                  <tr>
+                    <td colSpan="8">Sin equipos registrados.</td>
                   </tr>
-                ))}
+                ) : (
+                  detalle.map((item) => (
+                    <tr key={item.IdDetalle}>
+                      <td>{item.Descripcion}</td>
+                      <td>{item.Marca}</td>
+                      <td>{item.Modelo}</td>
+                      <td>{item.NoSerie}</td>
+                      <td>{item.Devuelto ? "Sí" : "No"}</td>
+                      <td>
+                        {item.FechaDevolucion
+                          ? new Date(item.FechaDevolucion).toLocaleString(
+                              "es-MX"
+                            )
+                          : ""}
+                      </td>
+                      <td>{item.ComentariosDevolucion || ""}</td>
+                      <td>
+                        {!item.Devuelto ? (
+                          <button
+                            className="btn-secondary"
+                            type="button"
+                            onClick={() => devolverEquipo(item.IdDetalle)}
+                          >
+                            Devolver
+                          </button>
+                        ) : (
+                          "Devuelto"
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
