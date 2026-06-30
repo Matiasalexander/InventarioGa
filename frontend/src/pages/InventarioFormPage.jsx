@@ -369,6 +369,8 @@ function InventarioFormPage({ setLoading }) {
   esSwitch ||
   esAPS ||
   esCCTV ||
+  esTabletPOS ||
+  esWorkstationpos ||
   (esImpresora && formulario.CONEXION === "wifi");
   {/*Herramientas en general*/}
 
@@ -550,7 +552,7 @@ function InventarioFormPage({ setLoading }) {
               <small>Fecha en la que vence la garantía del equipo.</small>
             </div>
 
-            <div className="campo-form">
+            {/*div className="campo-form">
               <label>Fecha de inicio de uso</label>
               <input
                 name="FECHA_INICIO"
@@ -561,7 +563,7 @@ function InventarioFormPage({ setLoading }) {
               <small>
                 Fecha en la que el equipo fue entregado o comenzó a utilizarse.
               </small>
-            </div>
+            </div>*/}
 
             {esEdicion && (
               <>

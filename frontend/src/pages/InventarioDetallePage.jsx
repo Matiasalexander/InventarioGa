@@ -107,12 +107,35 @@ function InventarioDetallePage() {
     (item) => Number(item.Id) === Number(equipo.ID_ESTATUS)
   );
 
+  {/*Telefono*/}
+  const esTelefono = Number(equipo.ID_TIPO_EQUIPO) === 15;
+  {/*Equipos con SO*/}
   const esLaptop = Number(equipo.ID_TIPO_EQUIPO) === 1;
   const esDesktop = Number(equipo.ID_TIPO_EQUIPO) === 2;
-  const esImpresora = Number(equipo.ID_TIPO_EQUIPO) === 3;
-  const esTabletPOS = Number(equipo.ID_TIPO_EQUIPO) === 4;
-  const esWorkstationpos = Number(equipo.ID_TIPO_EQUIPO) === 7;
+  const esTablet = Number(equipo.ID_TIPO_EQUIPO) === 14;  
 
+  {/*Equipos POS*/}
+  const esPantallaPOS = Number(equipo.ID_TIPO_EQUIPO) === 4;
+  const esWorkstationpos = Number(equipo.ID_TIPO_EQUIPO) === 7;
+  const esTabletPOS = Number(equipo.ID_TIPO_EQUIPO) === 13;
+
+  {/*Equipos que llevan IP*/}
+  const  esSwitch = Number(equipo.ID_TIPO_EQUIPO) === 17;
+  const esAPS = Number(equipo.ID_TIPO_EQUIPO) === 19;
+  const esCCTV = Number(equipo.ID_TIPO_EQUIPO) === 20;
+
+    {/*IMPRESORAS*/}
+  const esImpresora = Number(equipo.ID_TIPO_EQUIPO) === 3;
+
+  {/*CONST PARA ANEXAR EQUIPOS CON IP*/}
+    const mostrarIP =
+  esSwitch ||
+  esAPS ||
+  esCCTV ||
+  esTabletPOS ||
+  esWorkstationpos ||
+  (esImpresora && equipo.CONEXION === "wifi");
+  {/*Herramientas en general*/}
 
   return (
     <div className="contenedor">
@@ -193,11 +216,6 @@ function InventarioDetallePage() {
           <h2>Información general</h2>
 
           <div className="detalle-item">
-            <span>Nombre equipo</span>
-            <strong>{mostrar(equipo.NOMBRE_EQUIPO)}</strong>
-          </div>
-
-          <div className="detalle-item">
             <span>Tipo de equipo</span>
             <strong>{tipoEquipo?.tequipo || "N/A"}</strong>
           </div>
@@ -223,7 +241,7 @@ function InventarioDetallePage() {
           </div>
 
           <div className="detalle-item">
-            <span>Correo</span>
+            <span>Correo: </span>
             <strong>{mostrar(equipo.CORREO)}</strong>
           </div>
         </div>
@@ -325,10 +343,16 @@ function InventarioDetallePage() {
           </div>
         )}
 
-        {esImpresora && (
+        {mostrarIP && (
           <div className="card">
-            <h2>Impresora / red</h2>
 
+            {
+             equipo.tipoEquipo === "Impresora" ?(
+              <h2>Impresora</h2>
+             ) : (
+              <h2>Red</h2>
+             )
+            }
             <div className="detalle-item">
               <span>Tipo impresora</span>
               <strong>{mostrar(equipo.TIPO_IMPRESORA)}</strong>
@@ -351,7 +375,7 @@ function InventarioDetallePage() {
           </div>
         )}
 
-        {esTabletPOS || esWorkstationpos && (
+        {(esPantallaPOS || esWorkstationpos || esTabletPOS)  && (
           <div className="card">
             <h2>Accesos remotos</h2>
 
