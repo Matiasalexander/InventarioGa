@@ -10,7 +10,8 @@ const {
   obtenerResponsivasPorEquipo,
   eliminarResponsiva,
   marcarEquipoDevuelto,
-  obtenerEquiposDisponibles
+  obtenerEquiposDisponibles,
+  descargarResponsivaPdf
 } = require("../controllers/responsiva.controller");
 
 const router = express.Router();
@@ -31,8 +32,10 @@ router.get("/equipo/:idInventario/historial", obtenerResponsivasPorEquipo);
 
 router.put("/detalle/:idDetalle/devolver", marcarEquipoDevuelto);
 
+router.get("/:id/pdf", descargarResponsivaPdf);
+
 /* ==========================
-   GENERAR PDF
+   GENERAR PDF NUEVA RESPONSIVA
 ========================== */
 
 router.post("/pdf", async (req, res) => {

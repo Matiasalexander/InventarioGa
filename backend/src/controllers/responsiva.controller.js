@@ -1,4 +1,9 @@
 const { poolPromise } = require("../config/db");
+const PDFDocument = require("pdfkit");
+
+const crearFolioResponsiva = (id) => {
+  return `RESP-${String(id).padStart(5, "0")}`;
+};
 
 const crearResponsiva = async (req, res) => {
   try {
@@ -120,7 +125,8 @@ const crearResponsiva = async (req, res) => {
 
     res.status(201).json({
       message: "Responsiva creada correctamente",
-      IdResponsiva
+      IdResponsiva,
+      Folio: crearFolioResponsiva(IdResponsiva)
     });
 
   } catch (error) {
@@ -138,6 +144,7 @@ const obtenerResponsivas = async (req, res) => {
     const result = await pool.request().query(`
       SELECT
         IdResponsiva,
+        CONCAT('RESP-', RIGHT('00000' + CAST(IdResponsiva AS VARCHAR(10)), 5)) AS Folio,
         Fecha,
         NombreReceptor,
         Puesto,
@@ -165,7 +172,9 @@ const obtenerResponsivaPorId = async (req, res) => {
     const responsiva = await pool.request()
       .input("IdResponsiva", id)
       .query(`
-        SELECT *
+        SELECT
+          *,
+          CONCAT('RESP-', RIGHT('00000' + CAST(IdResponsiva AS VARCHAR(10)), 5)) AS Folio
         FROM Responsivas
         WHERE IdResponsiva = @IdResponsiva
       `);
@@ -208,6 +217,7 @@ const obtenerResponsivasPorEquipo = async (req, res) => {
       .query(`
         SELECT
           r.IdResponsiva,
+          CONCAT('RESP-', RIGHT('00000' + CAST(r.IdResponsiva AS VARCHAR(10)), 5)) AS Folio,
           r.Fecha,
           r.NombreReceptor,
           r.Puesto,
@@ -240,6 +250,133 @@ const obtenerResponsivasPorEquipo = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error obteniendo historial de responsivas del equipo",
+      error: error.message
+    });
+  }
+};
+
+const descargarResponsivaPdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pool = await poolPromise;
+
+    const responsivaResult = await pool.request()
+      .input("IdResponsiva", id)
+      .query(`
+        SELECT *
+        FROM Responsivas
+        WHERE IdResponsiva = @IdResponsiva
+      `);
+
+    if (responsivaResult.recordset.length === 0) {
+      return res.status(404).json({
+        message: "Responsiva no encontrada"
+      });
+    }
+
+    const detalleResult = await pool.request()
+      .input("IdResponsiva", id)
+      .query(`
+        SELECT *
+        FROM Responsiva_Detalle
+        WHERE IdResponsiva = @IdResponsiva
+        ORDER BY IdDetalle ASC
+      `);
+
+    const responsiva = responsivaResult.recordset[0];
+    const equipos = detalleResult.recordset;
+    const folio = crearFolioResponsiva(responsiva.IdResponsiva);
+
+    const doc = new PDFDocument({
+      size: "LETTER",
+      margin: 50
+    });
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=${folio}.pdf`
+    );
+
+    doc.pipe(res);
+
+    doc.fontSize(20).text("RESPONSIVA DE EQUIPO", { align: "center" });
+    doc.moveDown();
+
+    doc.fontSize(12);
+    doc.text(`Folio: ${folio}`);
+    doc.text(`Fecha: ${responsiva.Fecha ? new Date(responsiva.Fecha).toLocaleDateString("es-MX") : ""}`);
+    doc.text(`Receptor: ${responsiva.NombreReceptor || ""}`);
+    doc.text(`Puesto: ${responsiva.Puesto || ""}`);
+    doc.text(`Área: ${responsiva.Area || ""}`);
+    doc.text(`Estado: ${responsiva.Estado || ""}`);
+
+    doc.moveDown();
+    doc.fontSize(14).text("Equipos asignados", { underline: true });
+    doc.moveDown();
+
+    if (equipos.length === 0) {
+      doc.fontSize(11).text("Sin equipos registrados.");
+    } else {
+      equipos.forEach((equipo, index) => {
+        doc.fontSize(11).text(`${index + 1}. ${equipo.Descripcion || "Equipo"}`);
+        doc.text(`Marca: ${equipo.Marca || "NA"}`);
+        doc.text(`Modelo: ${equipo.Modelo || "NA"}`);
+        doc.text(`No. Serie: ${equipo.NoSerie || "NA"}`);
+        doc.text(`Devuelto: ${equipo.Devuelto ? "Sí" : "No"}`);
+
+        if (equipo.FechaDevolucion) {
+          doc.text(`Fecha devolución: ${new Date(equipo.FechaDevolucion).toLocaleDateString("es-MX")}`);
+        }
+
+        if (equipo.ComentariosDevolucion) {
+          doc.text(`Comentarios devolución: ${equipo.ComentariosDevolucion}`);
+        }
+
+        doc.moveDown();
+      });
+    }
+
+    doc.moveDown();
+
+    doc.fontSize(11).text(
+      "El receptor manifiesta haber recibido el equipo descrito en buenas condiciones, comprometiéndose a su cuidado, buen uso y devolución cuando sea requerido.",
+      { align: "justify" }
+    );
+
+    doc.moveDown(3);
+
+    if (responsiva.FirmaBase64) {
+      try {
+        const firmaBase64 = responsiva.FirmaBase64.replace(
+          /^data:image\/\w+;base64,/,
+          ""
+        );
+
+        const firmaBuffer = Buffer.from(firmaBase64, "base64");
+
+        doc.text("Firma del receptor:", { align: "center" });
+        doc.moveDown();
+        doc.image(firmaBuffer, {
+          fit: [250, 100],
+          align: "center"
+        });
+        doc.moveDown();
+      } catch (firmaError) {
+        doc.text("Firma no disponible para mostrar.", { align: "center" });
+        doc.moveDown();
+      }
+    }
+
+    doc.moveDown(2);
+    doc.text("______________________________", { align: "center" });
+    doc.text(responsiva.NombreReceptor || "Receptor", { align: "center" });
+
+    doc.end();
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Error descargando responsiva PDF",
       error: error.message
     });
   }
@@ -423,6 +560,7 @@ module.exports = {
   obtenerResponsivas,
   obtenerResponsivaPorId,
   obtenerResponsivasPorEquipo,
+  descargarResponsivaPdf,
   eliminarResponsiva,
   marcarEquipoDevuelto,
   obtenerEquiposDisponibles
