@@ -1,5 +1,9 @@
 const { poolPromise } = require("../config/db");
 const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
+
+const logoPath = path.join(__dirname, "../assets/gandersons-logo.png");
 
 const crearFolioResponsiva = (id) => {
   return `RESP-${String(id).padStart(5, "0")}`;
@@ -288,7 +292,7 @@ const descargarResponsivaPdf = async (req, res) => {
     const folio = crearFolioResponsiva(responsiva.IdResponsiva);
 
     const doc = new PDFDocument({
-      size: "LETTER",
+      size: "A4",
       margin: 50
     });
 
@@ -300,51 +304,182 @@ const descargarResponsivaPdf = async (req, res) => {
 
     doc.pipe(res);
 
-    doc.fontSize(20).text("RESPONSIVA DE EQUIPO", { align: "center" });
-    doc.moveDown();
-
-    doc.fontSize(12);
-    doc.text(`Folio: ${folio}`);
-    doc.text(`Fecha: ${responsiva.Fecha ? new Date(responsiva.Fecha).toLocaleDateString("es-MX") : ""}`);
-    doc.text(`Receptor: ${responsiva.NombreReceptor || ""}`);
-    doc.text(`Puesto: ${responsiva.Puesto || ""}`);
-    doc.text(`Área: ${responsiva.Area || ""}`);
-    doc.text(`Estado: ${responsiva.Estado || ""}`);
-
-    doc.moveDown();
-    doc.fontSize(14).text("Equipos asignados", { underline: true });
-    doc.moveDown();
-
-    if (equipos.length === 0) {
-      doc.fontSize(11).text("Sin equipos registrados.");
-    } else {
-      equipos.forEach((equipo, index) => {
-        doc.fontSize(11).text(`${index + 1}. ${equipo.Descripcion || "Equipo"}`);
-        doc.text(`Marca: ${equipo.Marca || "NA"}`);
-        doc.text(`Modelo: ${equipo.Modelo || "NA"}`);
-        doc.text(`No. Serie: ${equipo.NoSerie || "NA"}`);
-        doc.text(`Devuelto: ${equipo.Devuelto ? "Sí" : "No"}`);
-
-        if (equipo.FechaDevolucion) {
-          doc.text(`Fecha devolución: ${new Date(equipo.FechaDevolucion).toLocaleDateString("es-MX")}`);
-        }
-
-        if (equipo.ComentariosDevolucion) {
-          doc.text(`Comentarios devolución: ${equipo.ComentariosDevolucion}`);
-        }
-
-        doc.moveDown();
+    if (fs.existsSync(logoPath)) {
+      doc.image(logoPath, 50, 35, {
+        width: 120
       });
     }
 
+    doc.moveDown(4);
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(18)
+      .text("CARTA RESPONSIVA DE EQUIPO DE CÓMPUTO", {
+        align: "center"
+      });
+
+    doc.moveDown(2);
+
+    const fecha = responsiva.Fecha
+      ? new Date(responsiva.Fecha).toLocaleDateString("es-MX")
+      : "FECHA";
+
+    doc
+      .font("Helvetica")
+      .fontSize(11)
+      .text(
+        "Por este medio hago constar que el equipo que se detalla a continuación se encuentra en calidad de préstamo a partir del día ",
+        {
+          continued: true,
+          align: "justify"
+        }
+      )
+      .font("Helvetica-Bold")
+      .text(fecha, {
+        continued: true
+      })
+      .font("Helvetica")
+      .text(" y que está bajo resguardo de ", {
+        continued: true
+      })
+      .font("Helvetica-Bold")
+      .text(responsiva.NombreReceptor || "NOMBRE RECEPTOR", {
+        continued: true
+      })
+      .font("Helvetica")
+      .text(", quien se desempeña en el puesto ", {
+        continued: true
+      })
+      .font("Helvetica-Bold")
+      .text(responsiva.Puesto || "PUESTO", {
+        continued: true
+      })
+      .font("Helvetica")
+      .text(
+        " en Grupo Andersons. Dicho(s) equipo(s) cumplirá(n) el uso para los fines que fueron acordados y se hace responsable de regresarlo en las mismas condiciones que se le fue entregado."
+      );
+
     doc.moveDown();
 
-    doc.fontSize(11).text(
-      "El receptor manifiesta haber recibido el equipo descrito en buenas condiciones, comprometiéndose a su cuidado, buen uso y devolución cuando sea requerido.",
-      { align: "justify" }
+    doc
+      .font("Helvetica")
+      .fontSize(11)
+      .text("La descripción del (los) equipo(s) se detalla a continuación:");
+
+    doc.moveDown();
+
+    const startX = 50;
+    const tableTop = doc.y;
+    const rowHeight = 26;
+
+    const columnWidths = {
+      descripcion: 180,
+      marca: 90,
+      modelo: 140,
+      serie: 130
+    };
+
+    const drawCell = (text, x, y, width, height, bold = false) => {
+      doc
+        .lineWidth(1)
+        .rect(x, y, width, height)
+        .stroke();
+
+      doc
+        .font(bold ? "Helvetica-Bold" : "Helvetica")
+        .fontSize(10)
+        .text(text || "", x + 6, y + 8, {
+          width: width - 12,
+          height: height - 8
+        });
+    };
+
+    drawCell(
+      "Descripción",
+      startX,
+      tableTop,
+      columnWidths.descripcion,
+      rowHeight,
+      true
     );
 
-    doc.moveDown(3);
+    drawCell(
+      "Marca",
+      startX + columnWidths.descripcion,
+      tableTop,
+      columnWidths.marca,
+      rowHeight,
+      true
+    );
+
+    drawCell(
+      "Modelo",
+      startX + columnWidths.descripcion + columnWidths.marca,
+      tableTop,
+      columnWidths.modelo,
+      rowHeight,
+      true
+    );
+
+    drawCell(
+      "Número de Serie",
+      startX + columnWidths.descripcion + columnWidths.marca + columnWidths.modelo,
+      tableTop,
+      columnWidths.serie,
+      rowHeight,
+      true
+    );
+
+    let y = tableTop + rowHeight;
+
+    if (equipos.length === 0) {
+      drawCell("Sin equipos registrados", startX, y, 540, rowHeight);
+      y += rowHeight;
+    } else {
+      equipos.forEach((equipo) => {
+        if (y > 680) {
+          doc.addPage();
+          y = 60;
+        }
+
+        drawCell(
+          equipo.Descripcion || "",
+          startX,
+          y,
+          columnWidths.descripcion,
+          rowHeight
+        );
+
+        drawCell(
+          equipo.Marca || "",
+          startX + columnWidths.descripcion,
+          y,
+          columnWidths.marca,
+          rowHeight
+        );
+
+        drawCell(
+          equipo.Modelo || "",
+          startX + columnWidths.descripcion + columnWidths.marca,
+          y,
+          columnWidths.modelo,
+          rowHeight
+        );
+
+        drawCell(
+          equipo.NoSerie || "",
+          startX + columnWidths.descripcion + columnWidths.marca + columnWidths.modelo,
+          y,
+          columnWidths.serie,
+          rowHeight
+        );
+
+        y += rowHeight;
+      });
+    }
+
+    doc.y = y + 75;
 
     if (responsiva.FirmaBase64) {
       try {
@@ -355,30 +490,54 @@ const descargarResponsivaPdf = async (req, res) => {
 
         const firmaBuffer = Buffer.from(firmaBase64, "base64");
 
-        doc.text("Firma del receptor:", { align: "center" });
-        doc.moveDown();
-        doc.image(firmaBuffer, {
-          fit: [250, 100],
-          align: "center"
+        doc.image(firmaBuffer, 190, doc.y, {
+          fit: [220, 90]
         });
-        doc.moveDown();
+
+        doc.y += 95;
       } catch (firmaError) {
-        doc.text("Firma no disponible para mostrar.", { align: "center" });
-        doc.moveDown();
+        console.error("Error procesando firma:", firmaError.message);
+        doc.moveDown(5);
       }
+    } else {
+      doc.moveDown(5);
     }
 
-    doc.moveDown(2);
-    doc.text("______________________________", { align: "center" });
-    doc.text(responsiva.NombreReceptor || "Receptor", { align: "center" });
+    const lineY = doc.y;
+
+    doc
+      .moveTo(150, lineY)
+      .lineTo(445, lineY)
+      .stroke();
+
+    doc.moveDown(0.5);
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(11)
+      .text(responsiva.NombreReceptor || "NOMBRE", {
+        align: "center"
+      });
+
+    doc
+      .font("Helvetica")
+      .fontSize(10)
+      .text(responsiva.Area || "AREA", {
+        align: "center"
+      });
 
     doc.end();
 
   } catch (error) {
-    res.status(500).json({
-      message: "Error descargando responsiva PDF",
-      error: error.message
-    });
+    console.error("ERROR DESCARGANDO PDF:");
+    console.error(error);
+
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: "Error descargando responsiva PDF",
+        error: error.message
+      });
+    }
   }
 };
 
