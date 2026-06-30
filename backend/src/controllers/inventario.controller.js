@@ -1,6 +1,33 @@
 const { poolPromise } = require("../config/db");
 const generarNombreEquipo = require("../helpers/generarNombreEquipo");
 
+const normalizarTexto = (valor) => {
+  return (valor || "")
+    .toString()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+};
+
+const debeGenerarNombreEquipo = async (pool, ID_UNIDAD, LOCALIDAD) => {
+  if (!ID_UNIDAD) return false;
+
+  const result = await pool.request()
+    .input("ID_UNIDAD", ID_UNIDAD)
+    .query(`
+      SELECT r.Marca AS UNIDAD
+      FROM Unidades u
+      LEFT JOIN Restaurantes r ON u.id_marca = r.id_marca
+      WHERE u.id = @ID_UNIDAD
+    `);
+
+  const unidad = normalizarTexto(result.recordset[0]?.UNIDAD);
+  const localidad = normalizarTexto(LOCALIDAD);
+
+  return unidad === "CORPORATIVO" && localidad === "CANCUN";
+};
+
 const obtenerInventario = async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -143,12 +170,16 @@ const crearInventario = async (req, res) => {
       }
     }
 
-    const NOMBRE_EQUIPO = await generarNombreEquipo(
-      pool,
-      ID_TIPO_EQUIPO,
-      SISTEMA_OPERATIVO,
-      FECHA_FABRICACION
-    );
+    let NOMBRE_EQUIPO = "NA";
+
+    if (await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD)) {
+      NOMBRE_EQUIPO = await generarNombreEquipo(
+        pool,
+        ID_TIPO_EQUIPO,
+        SISTEMA_OPERATIVO,
+        FECHA_FABRICACION
+      );
+    }
 
     await pool.request()
       .input("ID_UNIDAD", ID_UNIDAD || null)
@@ -302,6 +333,17 @@ const actualizarInventario = async (req, res) => {
 
     const pool = await poolPromise;
 
+    let NOMBRE_EQUIPO = "NA";
+
+    if (await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD)) {
+      NOMBRE_EQUIPO = await generarNombreEquipo(
+        pool,
+        ID_TIPO_EQUIPO,
+        SISTEMA_OPERATIVO,
+        FECHA_FABRICACION
+      );
+    }
+
     await pool.request()
       .input("id", id)
       .input("ID_UNIDAD", ID_UNIDAD || null)
@@ -309,6 +351,7 @@ const actualizarInventario = async (req, res) => {
       .input("UBICACION", UBICACION || null)
       .input("ID_TIPO_EQUIPO", ID_TIPO_EQUIPO || null)
       .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
+      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO)
       .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
       .input("PUESTO", PUESTO || null)
       .input("SERIAL", SERIAL || null)
@@ -342,6 +385,7 @@ const actualizarInventario = async (req, res) => {
           UBICACION = @UBICACION,
           ID_TIPO_EQUIPO = @ID_TIPO_EQUIPO,
           TIPO_IMPRESORA = @TIPO_IMPRESORA,
+          NOMBRE_EQUIPO = @NOMBRE_EQUIPO,
           ID_DEPARTAMENTO = @ID_DEPARTAMENTO,
           PUESTO = @PUESTO,
           SERIAL = @SERIAL,
@@ -371,7 +415,8 @@ const actualizarInventario = async (req, res) => {
       `);
 
     res.json({
-      message: "Equipo actualizado correctamente"
+      message: "Equipo actualizado correctamente",
+      NOMBRE_EQUIPO
     });
   } catch (error) {
     res.status(500).json({
