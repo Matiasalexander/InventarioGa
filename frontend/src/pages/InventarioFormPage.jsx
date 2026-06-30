@@ -77,6 +77,23 @@ function InventarioFormPage({ setLoading }) {
     COMENTARIO: ""
   });
 
+  const normalizarTexto = (valor) => {
+    return (valor || "")
+      .toString()
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase();
+  };
+
+  const restauranteSeleccionado = catalogos.restaurantes.find(
+    (item) => String(item.Id) === String(formulario.ID_RESTAURANTE)
+  );
+
+  const esCorporativoCancun =
+    normalizarTexto(restauranteSeleccionado?.Restaurante) === "CORPORATIVO" &&
+    normalizarTexto(formulario.LOCALIDAD) === "CANCUN";
+
   const formatearFecha = (fecha) => {
     if (!fecha) return "";
     return String(fecha).split("T")[0];
@@ -186,7 +203,10 @@ function InventarioFormPage({ setLoading }) {
         ...prev,
         ID_RESTAURANTE: value,
         ID_UNIDAD: "",
-        LOCALIDAD: ""
+        LOCALIDAD: "",
+        UBICACION: "",
+        ID_DEPARTAMENTO: "",
+        PUESTO: ""
       }));
 
       return;
@@ -200,7 +220,10 @@ function InventarioFormPage({ setLoading }) {
       setFormulario((prev) => ({
         ...prev,
         ID_UNIDAD: value,
-        LOCALIDAD: unidadSeleccionada?.localidad || ""
+        LOCALIDAD: unidadSeleccionada?.localidad || "",
+        UBICACION: "",
+        ID_DEPARTAMENTO: "",
+        PUESTO: ""
       }));
 
       return;
@@ -255,10 +278,21 @@ function InventarioFormPage({ setLoading }) {
       const payload = {
         ID_UNIDAD: formulario.ID_UNIDAD,
         LOCALIDAD: formulario.LOCALIDAD,
-        UBICACION: formulario.UBICACION,
+
+        UBICACION: esCorporativoCancun
+          ? "NA"
+          : formulario.UBICACION || "NA",
+
         ID_TIPO_EQUIPO: formulario.ID_TIPO_EQUIPO,
-        ID_DEPARTAMENTO: formulario.ID_DEPARTAMENTO,
-        PUESTO: formulario.PUESTO,
+
+        ID_DEPARTAMENTO: esCorporativoCancun
+          ? formulario.ID_DEPARTAMENTO || null
+          : null,
+
+        PUESTO: esCorporativoCancun
+          ? formulario.PUESTO || "NA"
+          : "NA",
+
         SERIAL: formulario.SERIAL,
         FECHA_FABRICACION: formulario.FECHA_FABRICACION,
         FECHA_GARANTIA: formulario.FECHA_GARANTIA,
@@ -367,41 +401,47 @@ function InventarioFormPage({ setLoading }) {
               </select>
             </div>
 
-            <div className="campo-form">
-              <label>Ubicación interna</label>
-              <input
-                name="UBICACION"
-                placeholder="Área, oficina, almacén, caja, barra..."
-                value={formulario.UBICACION}
-                onChange={manejarCambio}
-              />
-            </div>
+            {!esCorporativoCancun && (
+              <div className="campo-form">
+                <label>Ubicación interna</label>
+                <input
+                  name="UBICACION"
+                  placeholder="Área, oficina, almacén, caja, barra..."
+                  value={formulario.UBICACION}
+                  onChange={manejarCambio}
+                />
+              </div>
+            )}
 
-            <div className="campo-form">
-              <label>Departamento</label>
-              <select
-                name="ID_DEPARTAMENTO"
-                value={formulario.ID_DEPARTAMENTO}
-                onChange={manejarCambio}
-              >
-                <option value="">Selecciona departamento</option>
-                {catalogos.departamentos.map((item) => (
-                  <option key={item.Id} value={item.Id}>
-                    {item.Nombre_departamento}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {esCorporativoCancun && (
+              <>
+                <div className="campo-form">
+                  <label>Departamento</label>
+                  <select
+                    name="ID_DEPARTAMENTO"
+                    value={formulario.ID_DEPARTAMENTO}
+                    onChange={manejarCambio}
+                  >
+                    <option value="">Selecciona departamento</option>
+                    {catalogos.departamentos.map((item) => (
+                      <option key={item.Id} value={item.Id}>
+                        {item.Nombre_departamento}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <div className="campo-form">
-              <label>Puesto</label>
-              <input
-                name="PUESTO"
-                placeholder="Puesto del usuario o área responsable"
-                value={formulario.PUESTO}
-                onChange={manejarCambio}
-              />
-            </div>
+                <div className="campo-form">
+                  <label>Puesto</label>
+                  <input
+                    name="PUESTO"
+                    placeholder="Puesto del usuario o área responsable"
+                    value={formulario.PUESTO}
+                    onChange={manejarCambio}
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           <div className="formulario-card">
@@ -414,12 +454,14 @@ function InventarioFormPage({ setLoading }) {
                 value={
                   esEdicion
                     ? formulario.NOMBRE_EQUIPO
-                    : "Se generará automáticamente al guardar"
+                    : esCorporativoCancun
+                      ? "Se generará automáticamente al guardar"
+                      : "NA"
                 }
                 disabled
               />
               <small>
-                Se forma con tipo de equipo, sistema operativo, año de fabricación y consecutivo.
+                Solo se genera automáticamente para Corporativo Cancún.
               </small>
             </div>
 
@@ -493,9 +535,7 @@ function InventarioFormPage({ setLoading }) {
                 value={formulario.FECHA_GARANTIA}
                 onChange={manejarCambio}
               />
-              <small>
-                Fecha en la que vence la garantía del equipo.
-              </small>
+              <small>Fecha en la que vence la garantía del equipo.</small>
             </div>
 
             <div className="campo-form">
