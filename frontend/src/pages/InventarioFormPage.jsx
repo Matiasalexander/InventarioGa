@@ -737,7 +737,7 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
-{/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo seleccionado.*/}
+{/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo selecionado.*/}
             { (esPantallaPOS || esWorkstationpos) && (
               <>
             <div className="campo-form">
