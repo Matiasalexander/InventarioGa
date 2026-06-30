@@ -63,8 +63,18 @@ const aplicarCalculosInventario = (item) => {
   };
 };
 
-const debeGenerarNombreEquipo = async (pool, ID_UNIDAD, LOCALIDAD) => {
-  if (!ID_UNIDAD) return false;
+const debeGenerarNombreEquipo = async (
+  pool,
+  ID_UNIDAD,
+  LOCALIDAD,
+  ID_TIPO_EQUIPO
+) => {
+  if (!ID_UNIDAD || !ID_TIPO_EQUIPO) return false;
+
+  const tipoEquipoPermitido =
+    Number(ID_TIPO_EQUIPO) === 1 || Number(ID_TIPO_EQUIPO) === 2;
+
+  if (!tipoEquipoPermitido) return false;
 
   const result = await pool.request()
     .input("ID_UNIDAD", ID_UNIDAD)
@@ -229,7 +239,7 @@ const crearInventario = async (req, res) => {
 
     let NOMBRE_EQUIPO = "NA";
 
-    if (await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD)) {
+    if (await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD, ID_TIPO_EQUIPO)) {
       NOMBRE_EQUIPO = await generarNombreEquipo(
         pool,
         ID_TIPO_EQUIPO,
@@ -409,7 +419,8 @@ const actualizarInventario = async (req, res) => {
     const aplicaNombre = await debeGenerarNombreEquipo(
       pool,
       ID_UNIDAD,
-      LOCALIDAD
+      LOCALIDAD,
+      ID_TIPO_EQUIPO
     );
 
     if (!aplicaNombre) {
