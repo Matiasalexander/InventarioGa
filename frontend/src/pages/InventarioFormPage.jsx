@@ -666,7 +666,7 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
-//en este bloque se muestran los campos específicos para impresoras y tablets POS, dependiendo del tipo de equipo seleccionado.
+{/*en este bloque se muestran los campos específicos para impresoras y tablets POS, dependiendo del tipo de equipo seleccionado.*/}
             {esImpresora && (
               <>
                 <div className="campo-form">
@@ -722,7 +722,7 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
-//en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo seleccionado.
+{/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo seleccionado.*/}
             {esTabletPOS && (
               <>
                 <div className="campo-form">
@@ -770,7 +770,7 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
-//aqui se muestran los campos de marca y modelo, que son comunes para todos los tipos de equipo.
+{/*//aqui se muestran los campos de marca y modelo, que son comunes para todos los tipos de equipo.]*/}
 
   {esWorkstationpos && (
               <>
@@ -819,7 +819,7 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
-//
+
             <div className="campo-form">
               <label>Marca</label>
               <select
