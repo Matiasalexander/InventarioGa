@@ -24,7 +24,7 @@ function InventarioFormPage({ setLoading }) {
     "Impresora de impacto",
     "Impresora en general"
   ];
-  const tiposConexiones = ["wifi", "Bluetooth", "Ethernet"];
+  const tiposConexiones = ["wifi", "Bluetooth", "Ethernet", "Serial", "Serial y Ethernet"];
 
   const [errorSerial, setErrorSerial] = useState("");
 
@@ -373,7 +373,7 @@ function InventarioFormPage({ setLoading }) {
   esTabletPOS ||
   esWorkstationpos ||
   esKDS ||
-  (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet");
+  (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet" || formulario.CONEXION === "Serial" || formulario.CONEXION === "Serial y Ethernet");
   {/*Herramientas en general*/}
 
   const mostrarAccesos = 
