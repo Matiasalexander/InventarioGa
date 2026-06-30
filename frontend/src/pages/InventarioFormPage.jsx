@@ -356,7 +356,7 @@ function InventarioFormPage({ setLoading }) {
   const esPantallaPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
   const esWorkstationpos = Number(formulario.ID_TIPO_EQUIPO) === 7;
   const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 13;
-  const esKDS = Number(formulario.ID_TIPO_EQUIPO) === 11;
+  const esKDS = Number(formulario.ID_TIPO_EQUIPO) === 21;
 
   {/*Equipos que llevan IP*/}
   const  esSwitch = Number(formulario.ID_TIPO_EQUIPO) === 17;
