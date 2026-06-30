@@ -57,7 +57,7 @@ const generarNombreEquipo = async (
     consecutivo = ultimoNumero + 1;
   }
 
-  const consecutivoFormateado = String(consecutivo).padStart(4, "0");
+  const consecutivoFormateado = String(consecutivo).padStart(3, "0");
 
   return `${prefijo}-${consecutivoFormateado}`;
 };
