@@ -19,8 +19,12 @@ function InventarioFormPage({ setLoading }) {
   const tiposRam = ["4GB", "8GB", "16GB", "32GB", "64GB"];
   const tiposDisco = ["128G", "512G", "1TB", "2TB"];
   const tiposSistemas = ["Windows", "Android", "Linux"];
-  const tiposImpresoras = ["Serial", "Ethernet", "Bluetooth"];
-  const tiposConexiones = ["Directo a la pared", "UPS"];
+  const tiposImpresoras = [
+    "Impresora térmica",
+    "Impresora de impacto",
+    "Impresora en general"
+  ];
+  const tiposConexiones = ["wifi", "Bluetooth", "Ethernet"];
 
   const [errorSerial, setErrorSerial] = useState("");
 
@@ -341,6 +345,8 @@ function InventarioFormPage({ setLoading }) {
     }
   };
 
+  {/*Telefono*/}
+  const esTelefono = Number(formulario.ID_TIPO_EQUIPO) === 15;
   {/*Equipos con SO*/}
   const esLaptop = Number(formulario.ID_TIPO_EQUIPO) === 1;
   const esDesktop = Number(formulario.ID_TIPO_EQUIPO) === 2;
@@ -349,17 +355,24 @@ function InventarioFormPage({ setLoading }) {
   {/*Equipos POS*/}
   const esPantallaPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
   const esWorkstationpos = Number(formulario.ID_TIPO_EQUIPO) === 7;
-  const esBasePOS = Number(formulario.ID_TIPO_EQUIPO) === 8;
   const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 13;
 
   {/*Equipos que llevan IP*/}
+  const  esSwitch = Number(formulario.ID_TIPO_EQUIPO) === 17;
+  const esAPS = Number(formulario.ID_TIPO_EQUIPO) === 19;
+  const esCCTV = Number(formulario.ID_TIPO_EQUIPO) === 20;
 
+    {/*IMPRESORAS*/}
+  const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
+  
+  const mostrarIP =
+  esSwitch ||
+  esAPS ||
+  esCCTV ||
+  (esImpresora && formulario.CONEXION === "wifi");
   {/*Herramientas en general*/}
 
   {/*Perifericos*/}
-
-  {/*IMPRESORAS*/}
-  const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
 
   return (
     <div className="contenedor-responsive">
@@ -596,7 +609,7 @@ function InventarioFormPage({ setLoading }) {
           <div className="formulario-card">
             <h2>Especificaciones del equipo</h2>
 
-            {(esLaptop || esDesktop || esTablet) && (
+            {(esLaptop || esDesktop || esTablet || esTelefono || esTabletPOS || esWorkstationpos) && (
               <>
               
             <div className="campo-form">
@@ -716,16 +729,7 @@ function InventarioFormPage({ setLoading }) {
                   </select>
                 </div>
 
-                <div className="campo-form">
-                  <label>IP</label>
-                  <input
-                    name="IP"
-                    placeholder="000.000.0.0"
-                    value={formulario.IP}
-                    onChange={manejarCambio}
-                  />
-                </div>
-
+                {formulario.CONEXION == "Ethernet" && (
                 <div className="campo-form">
                   <label>Puerto</label>
                   <input
@@ -735,10 +739,24 @@ function InventarioFormPage({ setLoading }) {
                     onChange={manejarCambio}
                   />
                 </div>
+                )}
+
               </>
             )}
+
+            { mostrarIP &&(
+                <div className="campo-form">
+                  <label>IP</label>
+                  <input
+                    name="IP"
+                    placeholder="000.000.0.0"
+                    value={formulario.IP}
+                    onChange={manejarCambio}
+                  />
+                </div>
+                )}
 {/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo selecionado.*/}
-            { (esPantallaPOS || esWorkstationpos) && (
+            { (esPantallaPOS || esWorkstationpos || esTabletPOS) && (
               <>
             <div className="campo-form">
               <label>Sistema operativo</label>
@@ -876,6 +894,7 @@ function InventarioFormPage({ setLoading }) {
             <div className="campo-form">
               <label>Correo</label>
               <input
+              required
                 name="CORREO"
                 placeholder="Correo asignado o responsable"
                 value={formulario.CORREO}
