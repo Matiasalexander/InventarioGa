@@ -356,6 +356,7 @@ function InventarioFormPage({ setLoading }) {
   const esPantallaPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
   const esWorkstationpos = Number(formulario.ID_TIPO_EQUIPO) === 7;
   const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 13;
+  const esKDS = Number(formulario.ID_TIPO_EQUIPO) === 11;
 
   {/*Equipos que llevan IP*/}
   const  esSwitch = Number(formulario.ID_TIPO_EQUIPO) === 17;
@@ -371,9 +372,15 @@ function InventarioFormPage({ setLoading }) {
   esCCTV ||
   esTabletPOS ||
   esWorkstationpos ||
+  esKDS ||
   (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet");
   {/*Herramientas en general*/}
 
+  const mostrarAccesos = 
+  esPantallaPOS ||
+  esWorkstationpos ||
+  esTabletPOS ||
+  esKDS;
   {/*Perifericos*/}
 
   return (
@@ -758,7 +765,7 @@ function InventarioFormPage({ setLoading }) {
                 </div>
                 )}
 {/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo selecionado.*/}
-            { (esPantallaPOS || esWorkstationpos || esTabletPOS) && (
+            { mostrarAccesos && (
               <>
             <div className="campo-form">
               <label>Sistema operativo</label>
