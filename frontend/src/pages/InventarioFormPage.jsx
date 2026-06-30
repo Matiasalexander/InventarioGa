@@ -345,6 +345,7 @@ function InventarioFormPage({ setLoading }) {
   const esDesktop = Number(formulario.ID_TIPO_EQUIPO) === 2;
   const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
   const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
+  const esWorkstationpos = Number(formulario.ID_TIPO_EQUIPO) === 7;
 
   return (
     <div className="contenedor-responsive">
@@ -665,7 +666,7 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
-
+//en este bloque se muestran los campos específicos para impresoras y tablets POS, dependiendo del tipo de equipo seleccionado.
             {esImpresora && (
               <>
                 <div className="campo-form">
@@ -721,7 +722,7 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
-
+//en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo seleccionado.
             {esTabletPOS && (
               <>
                 <div className="campo-form">
@@ -769,7 +770,56 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
+//aqui se muestran los campos de marca y modelo, que son comunes para todos los tipos de equipo.
 
+  {esWorkstationpos && (
+              <>
+                <div className="campo-form">
+                  <label>Acceso TeamViewer</label>
+                  <input
+                    type="number"
+                    name="ACCESO_TEAM_VIEWER"
+                    placeholder="Acceso TeamViewer"
+                    value={formulario.ACCESO_TEAM_VIEWER}
+                    onChange={manejarCambio}
+                  />
+                </div>
+
+                <div className="campo-form">
+                  <label>Contraseña TeamViewer</label>
+                  <input
+                    name="CONTRASEÑA_TEAM_VIEWER"
+                    placeholder="Contraseña TeamViewer"
+                    value={formulario.CONTRASEÑA_TEAM_VIEWER}
+                    disabled={!formulario.ACCESO_TEAM_VIEWER}
+                    onChange={manejarCambio}
+                  />
+                </div>
+
+                <div className="campo-form">
+                  <label>Acceso AnyDesk</label>
+                  <input
+                    type="number"
+                    name="ACCESO_ANYDESK"
+                    placeholder="Acceso AnyDesk"
+                    value={formulario.ACCESO_ANYDESK}
+                    onChange={manejarCambio}
+                  />
+                </div>
+
+                <div className="campo-form">
+                  <label>Contraseña AnyDesk</label>
+                  <input
+                    name="CONTRASEÑA_ANYDESK"
+                    placeholder="Contraseña AnyDesk"
+                    value={formulario.CONTRASEÑA_ANYDESK}
+                    disabled={!formulario.ACCESO_ANYDESK}
+                    onChange={manejarCambio}
+                  />
+                </div>
+              </>
+            )}
+//
             <div className="campo-form">
               <label>Marca</label>
               <select
