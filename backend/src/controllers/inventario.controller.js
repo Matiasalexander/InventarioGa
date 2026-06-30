@@ -10,6 +10,38 @@ const normalizarTexto = (valor) => {
     .toUpperCase();
 };
 
+const formatearTiempoUso = (fechaFabricacion) => {
+  if (!fechaFabricacion) return "";
+
+  const inicio = new Date(fechaFabricacion);
+  const hoy = new Date();
+
+  if (isNaN(inicio.getTime())) return "";
+
+  const diferenciaMs = hoy - inicio;
+  const diasTotales = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
+
+  if (diasTotales < 0) return "0 días";
+
+  const años = Math.floor(diasTotales / 365);
+  const dias = diasTotales % 365;
+
+  if (años === 0) {
+    return `${dias} ${dias === 1 ? "día" : "días"}`;
+  }
+
+  return `${años} ${años === 1 ? "año" : "años"} y ${dias} ${
+    dias === 1 ? "día" : "días"
+  }`;
+};
+
+const aplicarCalculosInventario = (item) => {
+  return {
+    ...item,
+    Auso: formatearTiempoUso(item.FECHA_FABRICACION)
+  };
+};
+
 const debeGenerarNombreEquipo = async (pool, ID_UNIDAD, LOCALIDAD) => {
   if (!ID_UNIDAD) return false;
 
@@ -82,7 +114,9 @@ const obtenerInventario = async (req, res) => {
       ORDER BY i.id DESC
     `);
 
-    res.json(result.recordset);
+    const inventario = result.recordset.map(aplicarCalculosInventario);
+
+    res.json(inventario);
   } catch (error) {
     res.status(500).json({
       message: "Error obteniendo inventario",
@@ -108,7 +142,9 @@ const obtenerInventarioPorId = async (req, res) => {
       return res.status(404).json({ message: "Equipo no encontrado" });
     }
 
-    res.json(result.recordset[0]);
+    const equipo = aplicarCalculosInventario(result.recordset[0]);
+
+    res.json(equipo);
   } catch (error) {
     res.status(500).json({
       message: "Error obteniendo equipo",
@@ -347,7 +383,11 @@ const actualizarInventario = async (req, res) => {
 
     let NOMBRE_EQUIPO = equipoActual.recordset[0].NOMBRE_EQUIPO || "NA";
 
-    const aplicaNombre = await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD);
+    const aplicaNombre = await debeGenerarNombreEquipo(
+      pool,
+      ID_UNIDAD,
+      LOCALIDAD
+    );
 
     if (!aplicaNombre) {
       NOMBRE_EQUIPO = "NA";
@@ -425,7 +465,8 @@ const actualizarInventario = async (req, res) => {
 
     res.json({
       message: "Equipo actualizado correctamente",
-      NOMBRE_EQUIPO
+      NOMBRE_EQUIPO,
+      Auso: formatearTiempoUso(FECHA_FABRICACION)
     });
   } catch (error) {
     res.status(500).json({
