@@ -371,7 +371,7 @@ function InventarioFormPage({ setLoading }) {
   esCCTV ||
   esTabletPOS ||
   esWorkstationpos ||
-  (esImpresora && formulario.CONEXION === "wifi");
+  (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet");
   {/*Herramientas en general*/}
 
   {/*Perifericos*/}
