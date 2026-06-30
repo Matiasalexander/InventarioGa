@@ -10,6 +10,19 @@ const normalizarTexto = (valor) => {
     .toUpperCase();
 };
 
+const formatearDiasComoAniosYDias = (diasTotales) => {
+  const años = Math.floor(diasTotales / 365);
+  const dias = diasTotales % 365;
+
+  if (años === 0) {
+    return `${dias} ${dias === 1 ? "día" : "días"}`;
+  }
+
+  return `${años} ${años === 1 ? "año" : "años"} y ${dias} ${
+    dias === 1 ? "día" : "días"
+  }`;
+};
+
 const formatearTiempoUso = (fechaFabricacion) => {
   if (!fechaFabricacion) return "";
 
@@ -23,22 +36,30 @@ const formatearTiempoUso = (fechaFabricacion) => {
 
   if (diasTotales < 0) return "0 días";
 
-  const años = Math.floor(diasTotales / 365);
-  const dias = diasTotales % 365;
+  return formatearDiasComoAniosYDias(diasTotales);
+};
 
-  if (años === 0) {
-    return `${dias} ${dias === 1 ? "día" : "días"}`;
-  }
+const formatearGarantiaRestante = (fechaGarantia) => {
+  if (!fechaGarantia) return "";
 
-  return `${años} ${años === 1 ? "año" : "años"} y ${dias} ${
-    dias === 1 ? "día" : "días"
-  }`;
+  const fin = new Date(fechaGarantia);
+  const hoy = new Date();
+
+  if (isNaN(fin.getTime())) return "";
+
+  const diferenciaMs = fin - hoy;
+  const diasTotales = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
+
+  if (diasTotales < 0) return "Garantía vencida";
+
+  return formatearDiasComoAniosYDias(diasTotales);
 };
 
 const aplicarCalculosInventario = (item) => {
   return {
     ...item,
-    Auso: formatearTiempoUso(item.FECHA_FABRICACION)
+    Auso: formatearTiempoUso(item.FECHA_FABRICACION),
+    Grestante: formatearGarantiaRestante(item.FECHA_GARANTIA)
   };
 };
 
@@ -320,7 +341,9 @@ const crearInventario = async (req, res) => {
 
     res.status(201).json({
       message: "Equipo agregado correctamente",
-      NOMBRE_EQUIPO
+      NOMBRE_EQUIPO,
+      Auso: formatearTiempoUso(FECHA_FABRICACION),
+      Grestante: formatearGarantiaRestante(FECHA_GARANTIA)
     });
   } catch (error) {
     res.status(500).json({
@@ -466,7 +489,8 @@ const actualizarInventario = async (req, res) => {
     res.json({
       message: "Equipo actualizado correctamente",
       NOMBRE_EQUIPO,
-      Auso: formatearTiempoUso(FECHA_FABRICACION)
+      Auso: formatearTiempoUso(FECHA_FABRICACION),
+      Grestante: formatearGarantiaRestante(FECHA_GARANTIA)
     });
   } catch (error) {
     res.status(500).json({

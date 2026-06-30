@@ -71,12 +71,12 @@ function HistorialResponsivasPage({ setLoading }) {
 
   const devolverEquipo = async (idDetalle) => {
     try {
-      const comentarios = window.prompt(
-        "Comentarios de devolución:",
+      setLoading(true);
+
+      await marcarEquipoDevuelto(
+        idDetalle,
         "Equipo devuelto correctamente"
       );
-
-      await marcarEquipoDevuelto(idDetalle, comentarios || null);
 
       toast.success("Equipo marcado como devuelto.");
 
@@ -91,6 +91,8 @@ function HistorialResponsivasPage({ setLoading }) {
           error.message ||
           "Error devolviendo equipo."
       );
+    } finally {
+      setLoading(false);
     }
   };
 
