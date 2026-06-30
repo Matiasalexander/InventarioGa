@@ -341,11 +341,25 @@ function InventarioFormPage({ setLoading }) {
     }
   };
 
+  {/*Equipos con SO*/}
   const esLaptop = Number(formulario.ID_TIPO_EQUIPO) === 1;
   const esDesktop = Number(formulario.ID_TIPO_EQUIPO) === 2;
-  const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
-  const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
+  const esTablet = Number(formulario.ID_TIPO_EQUIPO) === 14;  
+
+  {/*Equipos POS*/}
+  const esPantallaPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
   const esWorkstationpos = Number(formulario.ID_TIPO_EQUIPO) === 7;
+  const esBasePOS = Number(formulario.ID_TIPO_EQUIPO) === 8;
+  const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 13;
+
+  {/*Equipos que llevan IP*/}
+
+  {/*Herramientas en general*/}
+
+  {/*Perifericos*/}
+
+  {/*IMPRESORAS*/}
+  const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
 
   return (
     <div className="contenedor-responsive">
@@ -483,22 +497,6 @@ function InventarioFormPage({ setLoading }) {
             </div>
 
             <div className="campo-form">
-              <label>Sistema operativo</label>
-              <select
-                name="SISTEMA_OPERATIVO"
-                value={formulario.SISTEMA_OPERATIVO || ""}
-                onChange={manejarCambio}
-              >
-                <option value="">Selecciona sistema operativo</option>
-                {tiposSistemas.map((sistema) => (
-                  <option key={sistema} value={sistema}>
-                    {sistema}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="campo-form">
               <label>Fecha de fabricación</label>
               <input
                 name="FECHA_FABRICACION"
@@ -598,8 +596,25 @@ function InventarioFormPage({ setLoading }) {
           <div className="formulario-card">
             <h2>Especificaciones del equipo</h2>
 
-            {(esLaptop || esDesktop) && (
+            {(esLaptop || esDesktop || esTablet) && (
               <>
+              
+            <div className="campo-form">
+              <label>Sistema operativo</label>
+              <select
+                name="SISTEMA_OPERATIVO"
+                value={formulario.SISTEMA_OPERATIVO || ""}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona sistema operativo</option>
+                {tiposSistemas.map((sistema) => (
+                  <option key={sistema} value={sistema}>
+                    {sistema}
+                  </option>
+                ))}
+              </select>
+            </div>
+
                 <div className="campo-form">
                   <label>Memoria RAM</label>
                   <select
@@ -723,8 +738,24 @@ function InventarioFormPage({ setLoading }) {
               </>
             )}
 {/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo seleccionado.*/}
-            {esTabletPOS && (
+            { (esPantallaPOS || esWorkstationpos) && (
               <>
+            <div className="campo-form">
+              <label>Sistema operativo</label>
+              <select
+                name="SISTEMA_OPERATIVO"
+                value={formulario.SISTEMA_OPERATIVO || ""}
+                onChange={manejarCambio}
+              >
+                <option value="">Selecciona sistema operativo</option>
+                {tiposSistemas.map((sistema) => (
+                  <option key={sistema} value={sistema}>
+                    {sistema}
+                  </option>
+                ))}
+              </select>
+            </div>
+
                 <div className="campo-form">
                   <label>Acceso TeamViewer</label>
                   <input
@@ -770,55 +801,8 @@ function InventarioFormPage({ setLoading }) {
                 </div>
               </>
             )}
-{/*//aqui se muestran los campos de marca y modelo, que son comunes para todos los tipos de equipo.]*/}
+{/*aqui se muestran los campos de marca y modelo, que son comunes para todos los tipos de equipo.*/}
 
-  {esWorkstationpos && (
-              <>
-                <div className="campo-form">
-                  <label>Acceso TeamViewer</label>
-                  <input
-                    type="number"
-                    name="ACCESO_TEAM_VIEWER"
-                    placeholder="Acceso TeamViewer"
-                    value={formulario.ACCESO_TEAM_VIEWER}
-                    onChange={manejarCambio}
-                  />
-                </div>
-
-                <div className="campo-form">
-                  <label>Contraseña TeamViewer</label>
-                  <input
-                    name="CONTRASEÑA_TEAM_VIEWER"
-                    placeholder="Contraseña TeamViewer"
-                    value={formulario.CONTRASEÑA_TEAM_VIEWER}
-                    disabled={!formulario.ACCESO_TEAM_VIEWER}
-                    onChange={manejarCambio}
-                  />
-                </div>
-
-                <div className="campo-form">
-                  <label>Acceso AnyDesk</label>
-                  <input
-                    type="number"
-                    name="ACCESO_ANYDESK"
-                    placeholder="Acceso AnyDesk"
-                    value={formulario.ACCESO_ANYDESK}
-                    onChange={manejarCambio}
-                  />
-                </div>
-
-                <div className="campo-form">
-                  <label>Contraseña AnyDesk</label>
-                  <input
-                    name="CONTRASEÑA_ANYDESK"
-                    placeholder="Contraseña AnyDesk"
-                    value={formulario.CONTRASEÑA_ANYDESK}
-                    disabled={!formulario.ACCESO_ANYDESK}
-                    onChange={manejarCambio}
-                  />
-                </div>
-              </>
-            )}
 
             <div className="campo-form">
               <label>Marca</label>

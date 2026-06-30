@@ -111,12 +111,20 @@ function InventarioDetallePage() {
   const esDesktop = Number(equipo.ID_TIPO_EQUIPO) === 2;
   const esImpresora = Number(equipo.ID_TIPO_EQUIPO) === 3;
   const esTabletPOS = Number(equipo.ID_TIPO_EQUIPO) === 4;
+  const esWorkstationpos = Number(equipo.ID_TIPO_EQUIPO) === 7;
+
 
   return (
     <div className="contenedor">
       <div className="header">
         <div>
-          <h1>{equipo.NOMBRE_EQUIPO}</h1>
+          {
+            equipo.NOMBRE_EQUIPO == "NA" ? (
+              <h1>{equipo.UBICACION}</h1>
+            ):(
+              <h1>{equipo.NOMBRE_EQUIPO}</h1>
+            )
+          }
           <p>Detalle del equipo</p>
         </div>
 
@@ -343,7 +351,7 @@ function InventarioDetallePage() {
           </div>
         )}
 
-        {esTabletPOS && (
+        {esTabletPOS || esWorkstationpos && (
           <div className="card">
             <h2>Accesos remotos</h2>
 
