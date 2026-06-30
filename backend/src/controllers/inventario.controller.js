@@ -294,137 +294,6 @@ const crearInventario = async (req, res) => {
   }
 };
 
-//const actualizarInventario = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const {
-      ID_UNIDAD,
-      LOCALIDAD,
-      UBICACION,
-      ID_TIPO_EQUIPO,
-      TIPO_IMPRESORA,
-      ID_DEPARTAMENTO,
-      PUESTO,
-      SERIAL,
-      FECHA_FABRICACION,
-      FECHA_GARANTIA,
-      FECHA_INICIO,
-      DISCO_DURO,
-      RAM,
-      ID_PROCESADOR,
-      MODELO_PROCESADOR,
-      SISTEMA_OPERATIVO,
-      LECTOR_DE_HUELLA,
-      CONEXION,
-      ID_MARCA,
-      MODELO,
-      IP,
-      PUERTO,
-      ID_ESTATUS,
-      ESTADO_FISICO,
-      CORREO,
-      ACCESO_TEAM_VIEWER,
-      CONTRASEÑA_TEAM_VIEWER,
-      ACCESO_ANYDESK,
-      CONTRASEÑA_ANYDESK,
-      COMENTARIO
-    } = req.body;
-
-    const pool = await poolPromise;
-
-    let NOMBRE_EQUIPO = "NA";
-
-    if (await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD)) {
-      NOMBRE_EQUIPO = await generarNombreEquipo(
-        pool,
-        ID_TIPO_EQUIPO,
-        SISTEMA_OPERATIVO,
-        FECHA_FABRICACION
-      );
-    }
-
-    await pool.request()
-      .input("id", id)
-      .input("ID_UNIDAD", ID_UNIDAD || null)
-      .input("LOCALIDAD", LOCALIDAD || null)
-      .input("UBICACION", UBICACION || null)
-      .input("ID_TIPO_EQUIPO", ID_TIPO_EQUIPO || null)
-      .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
-      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO)
-      .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
-      .input("PUESTO", PUESTO || null)
-      .input("SERIAL", SERIAL || null)
-      .input("FECHA_FABRICACION", FECHA_FABRICACION || null)
-      .input("FECHA_GARANTIA", FECHA_GARANTIA || null)
-      .input("FECHA_INICIO", FECHA_INICIO || null)
-      .input("DISCO_DURO", DISCO_DURO || null)
-      .input("RAM", RAM || null)
-      .input("ID_PROCESADOR", ID_PROCESADOR || null)
-      .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
-      .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
-      .input("LECTOR_DE_HUELLA", LECTOR_DE_HUELLA || null)
-      .input("CONEXION", CONEXION || null)
-      .input("ID_MARCA", ID_MARCA || null)
-      .input("MODELO", MODELO || null)
-      .input("IP", IP || null)
-      .input("PUERTO", PUERTO || null)
-      .input("ID_ESTATUS", ID_ESTATUS || null)
-      .input("ESTADO_FISICO", ESTADO_FISICO || null)
-      .input("CORREO", CORREO || null)
-      .input("ACCESO_TEAM_VIEWER", ACCESO_TEAM_VIEWER || null)
-      .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
-      .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
-      .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
-      .input("COMENTARIO", COMENTARIO || null)
-      .query(`
-        UPDATE INVENTARIO_M
-        SET
-          ID_UNIDAD = @ID_UNIDAD,
-          LOCALIDAD = @LOCALIDAD,
-          UBICACION = @UBICACION,
-          ID_TIPO_EQUIPO = @ID_TIPO_EQUIPO,
-          TIPO_IMPRESORA = @TIPO_IMPRESORA,
-          NOMBRE_EQUIPO = @NOMBRE_EQUIPO,
-          ID_DEPARTAMENTO = @ID_DEPARTAMENTO,
-          PUESTO = @PUESTO,
-          SERIAL = @SERIAL,
-          FECHA_FABRICACION = @FECHA_FABRICACION,
-          FECHA_GARANTIA = @FECHA_GARANTIA,
-          FECHA_INICIO = @FECHA_INICIO,
-          DISCO_DURO = @DISCO_DURO,
-          RAM = @RAM,
-          ID_PROCESADOR = @ID_PROCESADOR,
-          MODELO_PROCESADOR = @MODELO_PROCESADOR,
-          SISTEMA_OPERATIVO = @SISTEMA_OPERATIVO,
-          LECTOR_DE_HUELLA = @LECTOR_DE_HUELLA,
-          CONEXION = @CONEXION,
-          ID_MARCA = @ID_MARCA,
-          MODELO = @MODELO,
-          IP = @IP,
-          PUERTO = @PUERTO,
-          ID_ESTATUS = @ID_ESTATUS,
-          ESTADO_FISICO = @ESTADO_FISICO,
-          CORREO = @CORREO,
-          ACCESO_TEAM_VIEWER = @ACCESO_TEAM_VIEWER,
-          CONTRASEÑA_TEAM_VIEWER = @CONTRASEÑA_TEAM_VIEWER,
-          ACCESO_ANYDESK = @ACCESO_ANYDESK,
-          CONTRASEÑA_ANYDESK = @CONTRASEÑA_ANYDESK,
-          COMENTARIO = @COMENTARIO
-        WHERE id = @id
-      `);
-
-    res.json({
-      message: "Equipo actualizado correctamente",
-      NOMBRE_EQUIPO
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Error actualizando inventario",
-      error: error.message
-    });
-  }
-//};
 const actualizarInventario = async (req, res) => {
   try {
     const { id } = req.params;
@@ -478,13 +347,9 @@ const actualizarInventario = async (req, res) => {
 
     let NOMBRE_EQUIPO = equipoActual.recordset[0].NOMBRE_EQUIPO || "NA";
 
-    const aplicaNombreAutomatico = await debeGenerarNombreEquipo(
-      pool,
-      ID_UNIDAD,
-      LOCALIDAD
-    );
+    const aplicaNombre = await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD);
 
-    if (!aplicaNombreAutomatico) {
+    if (!aplicaNombre) {
       NOMBRE_EQUIPO = "NA";
     }
 
