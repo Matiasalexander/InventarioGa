@@ -1,146 +1,89 @@
-const { poolPromise } = require("../config/db");
-const generarPdfResponsiva = require("../helpers/generarPdfResponsiva");
-const enviarCorreoResponsiva = require("../helpers/enviarCorreoResponsiva");
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
-const crearFolioResponsiva = (id) =>
-  `RESP-${String(id).padStart(5, "0")}`;
+export const obtenerResponsivas = async () => {
+  const { data } = await api.get(ENDPOINTS.RESPONSIVA);
+  return data;
+};
 
-const crearResponsivaService = async (payload) => {
-  const {
-    Fecha,
-    NombreReceptor,
-    Puesto,
-    Area,
-    Correo,
-    FirmaBase64,
-    equipos
-  } = payload;
+export const obtenerResponsivaPorId = async (id) => {
+  const { data } = await api.get(`${ENDPOINTS.RESPONSIVA}/${id}`);
+  return data;
+};
 
-  const pool = await poolPromise;
+export const crearResponsiva = async (payload) => {
+  const { data } = await api.post(
+    ENDPOINTS.RESPONSIVA,
+    payload
+  );
 
-  const result = await pool.request()
-    .input("Fecha", Fecha)
-    .input("NombreReceptor", NombreReceptor)
-    .input("Puesto", Puesto)
-    .input("Area", Area || null)
-    .input("Correo", Correo || null)
-    .input("FirmaBase64", FirmaBase64 || null)
-    .query(`
-      INSERT INTO Responsivas (
-        Fecha, NombreReceptor, Puesto, Area, Correo, FirmaBase64, Estado
-      )
-      OUTPUT INSERTED.IdResponsiva
-      VALUES (
-        @Fecha, @NombreReceptor, @Puesto, @Area, @Correo, @FirmaBase64, 'ACTIVA'
-      )
-    `);
+  return data;
+};
 
-  const IdResponsiva = result.recordset[0].IdResponsiva;
+export const actualizarResponsiva = async (id, payload) => {
+  const { data } = await api.put(
+    `${ENDPOINTS.RESPONSIVA}/${id}`,
+    payload
+  );
 
-  for (const equipo of equipos) {
-    await pool.request()
-      .input("IdResponsiva", IdResponsiva)
-      .input("IdInventario", equipo.IdInventario || null)
-      .input("Descripcion", equipo.Descripcion || null)
-      .input("Marca", equipo.Marca || null)
-      .input("Modelo", equipo.Modelo || null)
-      .input("NoSerie", equipo.NoSerie || null)
-      .query(`
-        INSERT INTO Responsiva_Detalle (
-          IdResponsiva, IdInventario, Descripcion, Marca, Modelo, NoSerie
-        )
-        VALUES (
-          @IdResponsiva, @IdInventario, @Descripcion, @Marca, @Modelo, @NoSerie
-        )
-      `);
+  return data;
+};
 
-    if (equipo.IdInventario) {
-      await pool.request()
-        .input("IdInventario", equipo.IdInventario)
-        .input("IdResponsiva", IdResponsiva)
-        .query(`
-          UPDATE INVENTARIO_M
-          SET RESPONSIVA_DIGITAL = 1,
-              NUM_RESPONSIVA = @IdResponsiva
-          WHERE id = @IdInventario
-        `);
+export const reenviarResponsiva = async (id) => {
+  const { data } = await api.post(
+    `${ENDPOINTS.RESPONSIVA}/${id}/enviar`
+  );
+
+  return data;
+};
+
+export const descargarResponsivaPDF = async (id, folio) => {
+
+  const response = await api.get(
+    `${ENDPOINTS.RESPONSIVA}/${id}/pdf`,
+    {
+      responseType: "blob"
     }
-  }
+  );
 
-  const folio = crearFolioResponsiva(IdResponsiva);
+  const url = window.URL.createObjectURL(response.data);
 
-  let correoEnviado = false;
+  const link = document.createElement("a");
 
-  if (Correo) {
-    const { pdfBuffer } = await generarPdfResponsiva(IdResponsiva);
+  link.href = url;
 
-    await enviarCorreoResponsiva({
-      correo: Correo,
-      nombre: NombreReceptor,
-      folio,
-      pdfBuffer
-    });
+  link.download = `${folio}.pdf`;
 
-    correoEnviado = true;
-  }
+  document.body.appendChild(link);
 
-  return {
-    IdResponsiva,
-    Folio: folio,
-    correoEnviado
-  };
+  link.click();
+
+  link.remove();
+
+  window.URL.revokeObjectURL(url);
+
 };
 
-const actualizarResponsivaService = async (id, payload) => {
-  const {
-    Fecha,
-    NombreReceptor,
-    Puesto,
-    Area,
-    Correo
-  } = payload;
+export const obtenerEquiposDisponibles = async () => {
+  const { data } = await api.get(
+    `${ENDPOINTS.RESPONSIVA}/equipos/disponibles`
+  );
 
-  const pool = await poolPromise;
-
-  const existe = await pool.request()
-    .input("IdResponsiva", id)
-    .query(`
-      SELECT IdResponsiva
-      FROM Responsivas
-      WHERE IdResponsiva = @IdResponsiva
-    `);
-
-  if (existe.recordset.length === 0) {
-    const error = new Error("Responsiva no encontrada");
-    error.statusCode = 404;
-    throw error;
-  }
-
-  await pool.request()
-    .input("IdResponsiva", id)
-    .input("Fecha", Fecha)
-    .input("NombreReceptor", NombreReceptor)
-    .input("Puesto", Puesto)
-    .input("Area", Area || null)
-    .input("Correo", Correo || null)
-    .query(`
-      UPDATE Responsivas
-      SET
-        Fecha = @Fecha,
-        NombreReceptor = @NombreReceptor,
-        Puesto = @Puesto,
-        Area = @Area,
-        Correo = @Correo
-      WHERE IdResponsiva = @IdResponsiva
-    `);
-
-  return {
-    message: "Responsiva actualizada correctamente"
-  };
+  return data;
 };
 
-module.exports = {
-  crearResponsivaService,
-  actualizarResponsivaService,
-  crearFolioResponsiva
+export const marcarEquipoDevuelto = async (
+  idDetalle,
+  ComentariosDevolucion
+) => {
+
+  const { data } = await api.put(
+    `${ENDPOINTS.RESPONSIVA}/detalle/${idDetalle}/devolver`,
+    {
+      ComentariosDevolucion
+    }
+  );
+
+  return data;
+
 };

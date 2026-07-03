@@ -18,6 +18,7 @@ function Responsiva({ setLoading }) {
   const [nombreReceptor, setNombreReceptor] = useState("");
   const [puesto, setPuesto] = useState("");
   const [area, setArea] = useState("");
+  const [correo, setCorreo] = useState("");
 
   const [equipos, setEquipos] = useState([]);
   const [inventario, setInventario] = useState([]);
@@ -71,9 +72,28 @@ function Responsiva({ setLoading }) {
     setEquipos(equipos.filter((_, i) => i !== index));
   };
 
+  const limpiarFormulario = () => {
+    setFecha("");
+    setNombreReceptor("");
+    setPuesto("");
+    setArea("");
+    setCorreo("");
+    setEquipos([]);
+    setBusquedaEquipo("");
+
+    if (sigCanvas.current) {
+      sigCanvas.current.clear();
+    }
+  };
+
   const validarResponsiva = () => {
     if (!fecha || !nombreReceptor || !puesto) {
       toast.warning("Fecha, nombre receptor y puesto son obligatorios.");
+      return false;
+    }
+
+    if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      toast.warning("Ingresa un correo válido.");
       return false;
     }
 
@@ -82,7 +102,7 @@ function Responsiva({ setLoading }) {
       return false;
     }
 
-    if (sigCanvas.current.isEmpty()) {
+    if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
       toast.warning("Firma requerida.");
       return false;
     }
@@ -92,36 +112,37 @@ function Responsiva({ setLoading }) {
 
   const guardarResponsiva = async () => {
     try {
-      setLoading(true);
-
       if (!validarResponsiva()) return;
+
+      setLoading(true);
 
       const firmaBase64 = sigCanvas.current
         .getCanvas()
         .toDataURL("image/png");
 
-      await crearResponsiva({
+      const respuesta = await crearResponsiva({
         Fecha: fecha,
         NombreReceptor: nombreReceptor,
         Puesto: puesto,
         Area: area,
+        Correo: correo,
         FirmaBase64: firmaBase64,
         equipos
       });
 
-      toast.success("Responsiva guardada correctamente.");
+      toast.success(
+        respuesta?.correoEnviado
+          ? "Responsiva guardada y enviada por correo."
+          : "Responsiva guardada correctamente."
+      );
 
-      setFecha("");
-      setNombreReceptor("");
-      setPuesto("");
-      setArea("");
-      setEquipos([]);
-      sigCanvas.current.clear();
+      limpiarFormulario();
 
       await cargarInventarioDisponible();
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
+          error.response?.data?.error ||
           error.message ||
           "Error al guardar responsiva"
       );
@@ -132,9 +153,9 @@ function Responsiva({ setLoading }) {
 
   const generarPDF = async () => {
     try {
-      setLoading(true);
-
       if (!validarResponsiva()) return;
+
+      setLoading(true);
 
       const firma = sigCanvas.current
         .getCanvas()
@@ -232,6 +253,14 @@ function Responsiva({ setLoading }) {
               value={area}
               onChange={(e) => setArea(e.target.value)}
             />
+
+            <p>Correo:</p>
+            <input
+              type="email"
+              placeholder="correo@grupoandersons.com"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+            />
           </div>
 
           <p>Buscar equipo:</p>
@@ -273,6 +302,7 @@ function Responsiva({ setLoading }) {
                     <td>
                       <button
                         className="btn-primary"
+                        type="button"
                         onClick={() => agregarEquipoDesdeInventario(item)}
                       >
                         Agregar
@@ -346,6 +376,7 @@ function Responsiva({ setLoading }) {
                       <td>
                         <button
                           className="btn-secondary"
+                          type="button"
                           onClick={() => eliminarEquipo(index)}
                         >
                           Quitar
@@ -379,16 +410,25 @@ function Responsiva({ setLoading }) {
         <div className="acciones">
           <button
             className="btn-secondary"
+            type="button"
             onClick={() => sigCanvas.current.clear()}
           >
             Limpiar firma
           </button>
 
-          <button className="btn-primary" onClick={guardarResponsiva}>
+          <button
+            className="btn-primary"
+            type="button"
+            onClick={guardarResponsiva}
+          >
             Guardar responsiva
           </button>
 
-          <button className="btn-primary" onClick={generarPDF}>
+          <button
+            className="btn-primary"
+            type="button"
+            onClick={generarPDF}
+          >
             Descargar PDF
           </button>
         </div>
