@@ -11,79 +11,71 @@ export const obtenerResponsivaPorId = async (id) => {
   return data;
 };
 
-export const crearResponsiva = async (payload) => {
-  const { data } = await api.post(
-    ENDPOINTS.RESPONSIVA,
-    payload
-  );
-
+export const obtenerEquiposDisponibles = async () => {
+  const { data } = await api.get(`${ENDPOINTS.RESPONSIVA}/equipos/disponibles`);
   return data;
 };
 
-export const actualizarResponsiva = async (id, payload) => {
-  const { data } = await api.put(
-    `${ENDPOINTS.RESPONSIVA}/${id}`,
-    payload
+export const obtenerHistorialResponsivasPorEquipo = async (idInventario) => {
+  const { data } = await api.get(
+    `${ENDPOINTS.RESPONSIVA}/equipo/${idInventario}/historial`
   );
+  return data;
+};
 
+export const crearResponsiva = async (responsiva) => {
+  const { data } = await api.post(ENDPOINTS.RESPONSIVA, responsiva);
+  return data;
+};
+
+export const actualizarResponsiva = async (id, responsiva) => {
+  const { data } = await api.put(`${ENDPOINTS.RESPONSIVA}/${id}`, responsiva);
   return data;
 };
 
 export const reenviarResponsiva = async (id) => {
-  const { data } = await api.post(
-    `${ENDPOINTS.RESPONSIVA}/${id}/enviar`
-  );
-
+  const { data } = await api.post(`${ENDPOINTS.RESPONSIVA}/${id}/enviar`);
   return data;
 };
 
-export const descargarResponsivaPDF = async (id, folio) => {
+export const generarPDFResponsiva = async (payload) => {
+  const response = await api.post(`${ENDPOINTS.RESPONSIVA}/pdf`, payload, {
+    responseType: "blob"
+  });
 
-  const response = await api.get(
-    `${ENDPOINTS.RESPONSIVA}/${id}/pdf`,
-    {
-      responseType: "blob"
-    }
+  return response.data;
+};
+
+export const descargarResponsivaPDF = async (id, folio = null) => {
+  const response = await api.get(`${ENDPOINTS.RESPONSIVA}/${id}/pdf`, {
+    responseType: "blob"
+  });
+
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], { type: "application/pdf" })
   );
 
-  const url = window.URL.createObjectURL(response.data);
-
   const link = document.createElement("a");
-
   link.href = url;
-
-  link.download = `${folio}.pdf`;
+  link.download = `${folio || `RESP-${String(id).padStart(5, "0")}`}.pdf`;
 
   document.body.appendChild(link);
-
   link.click();
-
   link.remove();
 
   window.URL.revokeObjectURL(url);
-
 };
 
-export const obtenerEquiposDisponibles = async () => {
-  const { data } = await api.get(
-    `${ENDPOINTS.RESPONSIVA}/equipos/disponibles`
-  );
-
-  return data;
-};
-
-export const marcarEquipoDevuelto = async (
-  idDetalle,
-  ComentariosDevolucion
-) => {
-
+export const marcarEquipoDevuelto = async (idDetalle, ComentariosDevolucion) => {
   const { data } = await api.put(
     `${ENDPOINTS.RESPONSIVA}/detalle/${idDetalle}/devolver`,
-    {
-      ComentariosDevolucion
-    }
+    { ComentariosDevolucion }
   );
 
   return data;
+};
 
+export const eliminarResponsiva = async (id) => {
+  const { data } = await api.delete(`${ENDPOINTS.RESPONSIVA}/${id}`);
+  return data;
 };

@@ -4,8 +4,10 @@ import { toast } from "react-toastify";
 import {
   obtenerResponsivas,
   obtenerResponsivaPorId,
+  actualizarResponsiva,
   marcarEquipoDevuelto,
-  descargarResponsivaPDF
+  descargarResponsivaPDF,
+  reenviarResponsiva
 } from "../services/responsivaService";
 
 function HistorialResponsivasPage({ setLoading }) {
@@ -15,9 +17,23 @@ function HistorialResponsivasPage({ setLoading }) {
   const [detalle, setDetalle] = useState([]);
   const [responsivaSeleccionada, setResponsivaSeleccionada] = useState(null);
 
+  const [editando, setEditando] = useState(null);
+  const [formEditar, setFormEditar] = useState({
+    Fecha: "",
+    NombreReceptor: "",
+    Puesto: "",
+    Area: "",
+    Correo: ""
+  });
+
   useEffect(() => {
     cargarResponsivas();
   }, []);
+
+  const formatearFechaInput = (fecha) => {
+    if (!fecha) return "";
+    return String(fecha).split("T")[0];
+  };
 
   const cargarResponsivas = async () => {
     try {
@@ -25,11 +41,7 @@ function HistorialResponsivasPage({ setLoading }) {
       const data = await obtenerResponsivas();
       setResponsivas(data);
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Error cargando responsivas."
-      );
+      toast.error(error.response?.data?.message || "Error cargando responsivas.");
     } finally {
       setLoading(false);
     }
@@ -39,14 +51,60 @@ function HistorialResponsivasPage({ setLoading }) {
     try {
       setLoading(true);
       const data = await obtenerResponsivaPorId(idResponsiva);
-
       setResponsivaSeleccionada(data.responsiva);
       setDetalle(data.equipos || []);
     } catch (error) {
+      toast.error(error.response?.data?.message || "Error obteniendo detalle.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const abrirEditar = (item) => {
+    setEditando(item);
+    setFormEditar({
+      Fecha: formatearFechaInput(item.Fecha),
+      NombreReceptor: item.NombreReceptor || "",
+      Puesto: item.Puesto || "",
+      Area: item.Area || "",
+      Correo: item.Correo || ""
+    });
+  };
+
+  const cerrarEditar = () => {
+    setEditando(null);
+    setFormEditar({
+      Fecha: "",
+      NombreReceptor: "",
+      Puesto: "",
+      Area: "",
+      Correo: ""
+    });
+  };
+
+  const guardarEdicion = async () => {
+    try {
+      if (!formEditar.Fecha || !formEditar.NombreReceptor || !formEditar.Puesto) {
+        toast.warning("Fecha, receptor y puesto son obligatorios.");
+        return;
+      }
+
+      setLoading(true);
+
+      await actualizarResponsiva(editando.IdResponsiva, formEditar);
+
+      toast.success("Responsiva actualizada correctamente.");
+      cerrarEditar();
+      await cargarResponsivas();
+
+      if (responsivaSeleccionada?.IdResponsiva === editando.IdResponsiva) {
+        await verDetalle(editando.IdResponsiva);
+      }
+    } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "Error obteniendo detalle."
+          error.response?.data?.error ||
+          "Error actualizando responsiva."
       );
     } finally {
       setLoading(false);
@@ -59,10 +117,22 @@ function HistorialResponsivasPage({ setLoading }) {
       await descargarResponsivaPDF(idResponsiva, folio);
       toast.success("Responsiva descargada correctamente.");
     } catch (error) {
+      toast.error(error.response?.data?.message || "Error descargando responsiva.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reenviarCorreo = async (idResponsiva) => {
+    try {
+      setLoading(true);
+      await reenviarResponsiva(idResponsiva);
+      toast.success("Responsiva reenviada por correo.");
+    } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "Error descargando responsiva."
+          error.response?.data?.error ||
+          "Error reenviando correo."
       );
     } finally {
       setLoading(false);
@@ -73,10 +143,7 @@ function HistorialResponsivasPage({ setLoading }) {
     try {
       setLoading(true);
 
-      await marcarEquipoDevuelto(
-        idDetalle,
-        "Equipo devuelto correctamente"
-      );
+      await marcarEquipoDevuelto(idDetalle, "Equipo devuelto correctamente");
 
       toast.success("Equipo marcado como devuelto.");
 
@@ -86,11 +153,7 @@ function HistorialResponsivasPage({ setLoading }) {
 
       await cargarResponsivas();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Error devolviendo equipo."
-      );
+      toast.error(error.response?.data?.message || "Error devolviendo equipo.");
     } finally {
       setLoading(false);
     }
@@ -115,6 +178,7 @@ function HistorialResponsivasPage({ setLoading }) {
               <th>Receptor</th>
               <th>Puesto</th>
               <th>Área</th>
+              <th>Correo</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -123,7 +187,7 @@ function HistorialResponsivasPage({ setLoading }) {
           <tbody>
             {responsivas.length === 0 ? (
               <tr>
-                <td colSpan="7">No hay responsivas registradas.</td>
+                <td colSpan="8">No hay responsivas registradas.</td>
               </tr>
             ) : (
               responsivas.map((item) => {
@@ -142,15 +206,10 @@ function HistorialResponsivasPage({ setLoading }) {
                     <td>{item.NombreReceptor}</td>
                     <td>{item.Puesto}</td>
                     <td>{item.Area}</td>
+                    <td>{item.Correo || ""}</td>
                     <td>{item.Estado}</td>
                     <td>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "8px",
-                          justifyContent: "center"
-                        }}
-                      >
+                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                         <button
                           className="btn-primary"
                           type="button"
@@ -162,11 +221,26 @@ function HistorialResponsivasPage({ setLoading }) {
                         <button
                           className="btn-secondary"
                           type="button"
-                          onClick={() =>
-                            descargarPDF(item.IdResponsiva, folio)
-                          }
+                          onClick={() => abrirEditar(item)}
                         >
-                          Descargar PDF
+                          Editar
+                        </button>
+
+                        <button
+                          className="btn-secondary"
+                          type="button"
+                          onClick={() => descargarPDF(item.IdResponsiva, folio)}
+                        >
+                          PDF
+                        </button>
+
+                        <button
+                          className="btn-secondary"
+                          type="button"
+                          onClick={() => reenviarCorreo(item.IdResponsiva)}
+                          disabled={!item.Correo}
+                        >
+                          Correo
                         </button>
                       </div>
                     </td>
@@ -177,6 +251,72 @@ function HistorialResponsivasPage({ setLoading }) {
           </tbody>
         </table>
       </div>
+
+      {editando && (
+        <div className="card" style={{ marginTop: "25px" }}>
+          <h3>Editar responsiva {editando.Folio}</h3>
+
+          <div className="form-responsiva">
+            <p>Fecha:</p>
+            <input
+              type="date"
+              value={formEditar.Fecha}
+              onChange={(e) =>
+                setFormEditar({ ...formEditar, Fecha: e.target.value })
+              }
+            />
+
+            <p>Nombre receptor:</p>
+            <input
+              type="text"
+              value={formEditar.NombreReceptor}
+              onChange={(e) =>
+                setFormEditar({
+                  ...formEditar,
+                  NombreReceptor: e.target.value
+                })
+              }
+            />
+
+            <p>Puesto:</p>
+            <input
+              type="text"
+              value={formEditar.Puesto}
+              onChange={(e) =>
+                setFormEditar({ ...formEditar, Puesto: e.target.value })
+              }
+            />
+
+            <p>Área:</p>
+            <input
+              type="text"
+              value={formEditar.Area}
+              onChange={(e) =>
+                setFormEditar({ ...formEditar, Area: e.target.value })
+              }
+            />
+
+            <p>Correo:</p>
+            <input
+              type="email"
+              value={formEditar.Correo}
+              onChange={(e) =>
+                setFormEditar({ ...formEditar, Correo: e.target.value })
+              }
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+            <button className="btn-primary" type="button" onClick={guardarEdicion}>
+              Guardar cambios
+            </button>
+
+            <button className="btn-secondary" type="button" onClick={cerrarEditar}>
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
 
       {responsivaSeleccionada && (
         <>
@@ -189,24 +329,6 @@ function HistorialResponsivasPage({ setLoading }) {
               )}`}{" "}
             - {responsivaSeleccionada.NombreReceptor}
           </h3>
-
-          <div style={{ marginBottom: "15px" }}>
-            <button
-              className="btn-secondary"
-              type="button"
-              onClick={() =>
-                descargarPDF(
-                  responsivaSeleccionada.IdResponsiva,
-                  responsivaSeleccionada.Folio ||
-                    `RESP-${String(
-                      responsivaSeleccionada.IdResponsiva
-                    ).padStart(5, "0")}`
-                )
-              }
-            >
-              Descargar PDF
-            </button>
-          </div>
 
           <div className="table-responsive">
             <table>
@@ -238,9 +360,7 @@ function HistorialResponsivasPage({ setLoading }) {
                       <td>{item.Devuelto ? "Sí" : "No"}</td>
                       <td>
                         {item.FechaDevolucion
-                          ? new Date(item.FechaDevolucion).toLocaleString(
-                              "es-MX"
-                            )
+                          ? new Date(item.FechaDevolucion).toLocaleString("es-MX")
                           : ""}
                       </td>
                       <td>{item.ComentariosDevolucion || ""}</td>
