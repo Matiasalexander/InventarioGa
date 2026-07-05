@@ -141,6 +141,13 @@ function UsuariosPage({ setLoading }) {
 
   return (
     <div className="detail-user">
+      <div className="header">
+        <div>
+          <h1>Usuarios</h1>
+          <p>Administración de usuarios en el sistema.</p>
+        </div>
+        </div>
+      
       <div className="page-grid">
         <div className="card">
           <h2>Registrar usuario</h2>

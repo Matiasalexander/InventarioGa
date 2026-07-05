@@ -292,7 +292,7 @@ function Responsiva({ setLoading }) {
               </thead>
 
               <tbody>
-                {inventarioFiltrado.slice(0, 10).map((item) => (
+                {inventarioFiltrado.slice(0, 7).map((item) => (
                   <tr key={item.id}>
                     <td>{item.TIPO_EQUIPO || item.NOMBRE_EQUIPO}</td>
                     <td>{item.MARCA}</td>
@@ -417,7 +417,7 @@ function Responsiva({ setLoading }) {
           </button>
 
           <button
-            className="btn-primary"
+            className="btn-success"
             type="button"
             onClick={guardarResponsiva}
           >
@@ -425,7 +425,7 @@ function Responsiva({ setLoading }) {
           </button>
 
           <button
-            className="btn-primary"
+            className="btn-danger"
             type="button"
             onClick={generarPDF}
           >

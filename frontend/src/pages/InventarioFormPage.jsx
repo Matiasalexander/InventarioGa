@@ -738,7 +738,7 @@ function InventarioFormPage({ setLoading }) {
                   </select>
                 </div>
 
-                {formulario.CONEXION == "Ethernet" && (
+                {(formulario.CONEXION == "Ethernet" || formulario.CONEXION == "Serial y Ethernet") && (
                 <div className="campo-form">
                   <label>Puerto</label>
                   <input

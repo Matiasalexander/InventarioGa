@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerTiposEquipo,
@@ -13,6 +13,7 @@ function TipoEquipoPage({ setLoading }) {
   const [tequipo, setTequipo] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
 
   const cargarTiposEquipo = async () => {
     try {
@@ -30,6 +31,17 @@ function TipoEquipoPage({ setLoading }) {
   useEffect(() => {
     cargarTiposEquipo();
   }, []);
+
+  const tipoEquipoFiltrados = useMemo(()=> {
+    const texto = busqueda.toLocaleLowerCase().trim();
+    if(!texto) return tiposEquipo;
+
+    return tiposEquipo.filter((item)=>
+      item.tequipo.toLocaleLowerCase().includes(texto)
+    );
+  }, [busqueda, tiposEquipo]
+
+  );
 
   const limpiarFormulario = () => {
     setTequipo("");
@@ -98,7 +110,6 @@ function TipoEquipoPage({ setLoading }) {
           <h1>Tipos de equipo</h1>
           <p>Catálogo de tipos de equipo del inventario.</p>
         </div>
-
       </div>
 
       <div className="card">
@@ -110,6 +121,12 @@ function TipoEquipoPage({ setLoading }) {
             value={tequipo}
             onChange={(e) => setTequipo(e.target.value)}
           />
+        <input
+        className="search-input"
+        placeholder="Buscar tipo de equipo..."
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      />
 
           <button type="submit">
             {modoEdicion ? "Actualizar tipo" : "Guardar tipo"}
@@ -121,6 +138,7 @@ function TipoEquipoPage({ setLoading }) {
             </button>
           )}
         </form>
+        
         <br></br>
         <h2>Listado de tipos de equipo</h2>
 
@@ -135,7 +153,7 @@ function TipoEquipoPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {tiposEquipo.map((item) => (
+              {tipoEquipoFiltrados.slice(0,6).map((item) => (
                 <tr key={item.id}>
                   <td>{item.id}</td>
                   <td>{item.tequipo}</td>
@@ -151,7 +169,7 @@ function TipoEquipoPage({ setLoading }) {
                 </tr>
               ))}
 
-              {tiposEquipo.length === 0 && (
+              {tipoEquipoFiltrados.length === 0 && (
                 <tr>
                   <td colSpan="3">No hay tipos de equipo registrados.</td>
                 </tr>

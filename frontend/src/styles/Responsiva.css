@@ -9,6 +9,7 @@
   width: 100%;
   height: fit-content;
   align-self: start;
+  
 }
 
 .contenedor {
@@ -92,4 +93,15 @@
   padding: 10px;
   text-align: left;
   white-space: nowrap;
+}
+
+.btn-secondary{
+  background-color: #ffc106;
+}
+.btn-success{
+  background-color:#28a745;
+}
+
+.btn-danger {
+  background-color: #dd3545;
 }

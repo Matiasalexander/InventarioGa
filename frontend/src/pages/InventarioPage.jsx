@@ -145,7 +145,7 @@ function InventarioPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {inventarioFiltrado.map((item) => (
+              {inventarioFiltrado.slice(0,5).map((item) => (
                 <tr key={item.id}>
                   <td>{item.id}</td>
                   <td>{item.UNIDAD}</td>

@@ -193,7 +193,7 @@ function UnidadesPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {unidades.map((item) => (
+              {unidades.slice(0,10).map((item) => (
                 <tr key={item.id}>
                   <td>{item.id}</td>
                   <td>{item.Restaurante}</td>
