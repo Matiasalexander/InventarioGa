@@ -206,6 +206,12 @@ function Responsiva({ setLoading }) {
 
     return texto.includes(busquedaEquipo.toLowerCase());
   });
+  const estados = {
+    "En uso":"badge badge-en-uso",
+    "Activo": "badge badge-activo",
+    "Baja":"badge badge-baja",
+    "Disponible":"badge badge-disponible"
+  };
 
   return (
     <div className="contenedor">
@@ -298,7 +304,9 @@ function Responsiva({ setLoading }) {
                     <td>{item.MARCA}</td>
                     <td>{item.MODELO}</td>
                     <td>{item.SERIAL}</td>
-                    <td>{item.ESTATUS}</td>
+                    <span className={ estados[item.ESTATUS] || "badge badge-default"} >
+                    {item.ESTATUS || "Sin estatus"}
+                    </span>
                     <td>
                       <button
                         className="btn-primary"

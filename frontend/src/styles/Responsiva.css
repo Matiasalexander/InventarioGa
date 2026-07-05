@@ -105,3 +105,26 @@
 .btn-danger {
   background-color: #dd3545;
 }
+
+.header h2 {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #111827;
+  text-align: left;
+}
+
+.badge-en-uso{
+  background: #dcfce7;
+}
+.badge-activo{
+  background-color: rgb(255, 255, 150);
+}
+.badge-baja{
+  background-color: rgb(255, 179, 179);
+}
+
+.badge-disponible{
+ background-color: rgb(255, 255, 150);
+}

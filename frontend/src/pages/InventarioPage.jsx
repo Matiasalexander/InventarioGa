@@ -90,6 +90,11 @@ function InventarioPage({ setLoading }) {
     }
   };
 
+  const estados = {
+    "En uso":"badge badge-en-uso",
+    "Activo": "badge badge-activo",
+    "Baja":"badge badge-baja",
+  };
   return (
     <div className="contenedor">
       <div className="header">
@@ -158,9 +163,9 @@ function InventarioPage({ setLoading }) {
                   <td>{item.MODELO}</td>
                   <td>{item.IP}</td>
                   <td>
-                    <span className="badge">
-                      {item.ESTATUS || "Sin estatus"}
-                    </span>
+                <span className={ estados[item.ESTATUS] || "badge badge-default"} >
+                    {item.ESTATUS || "Sin estatus"}
+                </span>
                   </td>
                   <td>
                     {item.RESPONSIVA_DIGITAL ? (

@@ -163,7 +163,7 @@ function ProcesadoresPage({ setLoading }) {
           </table>
         </div>
       </div>
-</div>
+      </div>
       <div className="detail-item">
             <ModelosProcesadorPage setLoading={setLoading}/>
       </div>
