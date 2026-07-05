@@ -120,9 +120,8 @@ function MarcasPage({ setLoading }) {
             </button>
           )}
         </form>
-      </div>
+        <br></br>
 
-      <div className="card">
         <h2>Listado de marcas</h2>
 
         <div className="table-container">

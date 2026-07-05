@@ -767,21 +767,6 @@ function InventarioFormPage({ setLoading }) {
 {/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo selecionado.*/}
             { mostrarAccesos && (
               <>
-            <div className="campo-form">
-              <label>Sistema operativo</label>
-              <select
-                name="SISTEMA_OPERATIVO"
-                value={formulario.SISTEMA_OPERATIVO || ""}
-                onChange={manejarCambio}
-              >
-                <option value="">Selecciona sistema operativo</option>
-                {tiposSistemas.map((sistema) => (
-                  <option key={sistema} value={sistema}>
-                    {sistema}
-                  </option>
-                ))}
-              </select>
-            </div>
 
                 <div className="campo-form">
                   <label>Acceso TeamViewer</label>

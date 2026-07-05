@@ -118,9 +118,8 @@ function ModespPage({ setLoading }) {
             </button>
           )}
         </form>
-      </div>
+        <br></br>
 
-      <div className="card">
         <h2>Listado de modelos base</h2>
 
         <div className="table-container">

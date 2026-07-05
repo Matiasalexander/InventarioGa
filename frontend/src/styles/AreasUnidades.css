@@ -1,0 +1,17 @@
+.responsive-u {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    width: 100%;
+    align-items: start;
+}
+@media (max-width: 768px) {
+    .responsive-u {
+        grid-template-columns: 1fr;
+    }
+}
+
+.detail-item {
+    min-width: 0;
+}
+

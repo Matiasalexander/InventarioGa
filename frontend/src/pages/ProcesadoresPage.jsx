@@ -6,7 +6,7 @@ import {
   actualizarProcesador,
   eliminarProcesador
 } from "../services/procesadoresService";
-import "../styles/InventarioPage.css";
+import "../styles/AreasUnidades.css";
 import ModelosProcesadorPage from "./ModelosProcesadorPage";
 
 function ProcesadoresPage({ setLoading }) {
@@ -92,8 +92,9 @@ function ProcesadoresPage({ setLoading }) {
   };
 
   return (
-    <div className="responsive">
+    <div className="responsive-u">
 
+      <div className="detail-item">
       <div className="header">
         <div>
           <h1>Procesadores</h1>
@@ -162,7 +163,7 @@ function ProcesadoresPage({ setLoading }) {
           </table>
         </div>
       </div>
-
+</div>
       <div className="detail-item">
             <ModelosProcesadorPage setLoading={setLoading}/>
       </div>

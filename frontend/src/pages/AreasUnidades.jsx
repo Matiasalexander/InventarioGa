@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { toast } from "react-toastify";
 
-import "../styles/EquiposPage.css";
+import "../styles/AreasUnidades.css";
 //resutarantes
 import RestaurantesPage from "./RestaurantesPage";
 import UnidadesPage from "./UnidadesPage";
@@ -12,7 +12,7 @@ import UnidadesPage from "./UnidadesPage";
 function AreasUnidades({setLoading}) {
     return(
         <>
-        <div className="reponsive">
+        <div className="responsive-u">
 
             <div className="detail-item">
                 <RestaurantesPage setLoading={setLoading}/>

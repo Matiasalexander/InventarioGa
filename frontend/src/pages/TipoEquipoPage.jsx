@@ -102,7 +102,7 @@ function TipoEquipoPage({ setLoading }) {
       </div>
 
       <div className="card">
-        <h2>{modoEdicion ? "Editar tipo de equipo" : "Agregar tipo de equipo"}</h2>
+       <h2>{modoEdicion ? "Editar tipo de equipo" : "Agregar tipo de equipo"}</h2>
 
         <form onSubmit={guardarTipoEquipo} className="form-grid">
           <input
@@ -121,9 +121,7 @@ function TipoEquipoPage({ setLoading }) {
             </button>
           )}
         </form>
-      </div>
-
-      <div className="card">
+        <br></br>
         <h2>Listado de tipos de equipo</h2>
 
         <div className="table-container">
