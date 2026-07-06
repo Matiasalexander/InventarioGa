@@ -1,5 +1,6 @@
 const { poolPromise } = require("../config/db");
 const generarNombreEquipo = require("../helpers/generarNombreEquipo");
+const sql = require("mssql");
 
 const normalizarTexto = (valor) => {
   return (valor || "")
@@ -95,7 +96,21 @@ const obtenerInventario = async (req, res) => {
   try {
     const pool = await poolPromise;
 
-    const result = await pool.request().query(`
+    // NUEVO: recibimos el filtro desde la URL
+    // Ejemplo: /api/inventario?unidad=19
+    const { unidad } = req.query;
+
+    const request = pool.request();
+
+    let where = "";
+
+    // NUEVO: si viene unidad, agregamos filtro seguro con parámetro SQL
+    if (unidad) {
+      request.input("unidad", sql.Int, Number(unidad));
+      where = "WHERE i.ID_UNIDAD = @unidad";
+    }
+
+    const result = await request.query(`
       SELECT TOP 100
         i.id,
         i.ID_UNIDAD,
@@ -142,6 +157,7 @@ const obtenerInventario = async (req, res) => {
       LEFT JOIN PROCESADORES p ON i.ID_PROCESADOR = p.id
       LEFT JOIN Marcas m ON i.ID_MARCA = m.id
       LEFT JOIN Estatus e ON i.ID_ESTATUS = e.Id
+      ${where}
       ORDER BY i.id DESC
     `);
 
