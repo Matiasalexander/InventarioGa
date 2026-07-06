@@ -121,7 +121,7 @@ function ModelosProcesadorPage({ setLoading }) {
   };
 
   return (
-    <div className="contenedor">
+    <div className="detail-item">
       <div className="header">
         <div>
           <h1>Modelos de Procesador</h1>
