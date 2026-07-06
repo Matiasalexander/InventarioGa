@@ -13,7 +13,8 @@ function InventarioPage({ setLoading }) {
   const [inventario, setInventario] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [unidadSeleccionada, setUnidadSeleccionada] = useState(null);
-const [unidadNombreSeleccionada, setUnidadNombreSeleccionada] = useState("");
+  const [unidadNombreSeleccionada, setUnidadNombreSeleccionada] = useState("");
+
   const navigate = useNavigate();
   const rol = getRol();
 
@@ -21,7 +22,6 @@ const [unidadNombreSeleccionada, setUnidadNombreSeleccionada] = useState("");
   const puedeEditar = rol === "Administrador" || rol === "Sistemas";
   const puedeEliminar = rol === "Administrador";
 
-  // CAMBIO: ahora acepta unidad opcional para filtrar desde el árbol
   const cargarInventario = async (unidad = null) => {
     try {
       setLoading(true);
@@ -66,13 +66,23 @@ const [unidadNombreSeleccionada, setUnidadNombreSeleccionada] = useState("");
     );
   }, [busqueda, inventario]);
 
-  // CAMBIO: al seleccionar unidad limpia búsqueda y recarga inventario filtrado
-const mostrarTodos = async () => {
-  setUnidadSeleccionada(null);
-  setUnidadNombreSeleccionada("");
-  setBusqueda("");
-  await cargarInventario();
-};
+  // NOTA DEL ERROR:
+  // Aquí faltaba esta función. El componente la usa en:
+  // <InventarioTree onSeleccionarUnidad={handleSeleccionUnidad} />
+  // Si no existe, React marca error porque la referencia está indefinida.
+  const handleSeleccionUnidad = async (idUnidad, nombreCompleto) => {
+    setUnidadSeleccionada(idUnidad);
+    setUnidadNombreSeleccionada(nombreCompleto);
+    setBusqueda("");
+    await cargarInventario(idUnidad);
+  };
+
+  const mostrarTodos = async () => {
+    setUnidadSeleccionada(null);
+    setUnidadNombreSeleccionada("");
+    setBusqueda("");
+    await cargarInventario();
+  };
 
   const irDetalle = (id) => {
     navigate(`/inventario/detalle/${id}`);
@@ -109,10 +119,8 @@ const mostrarTodos = async () => {
 
   return (
     <div style={{ display: "flex", width: "100%" }}>
-      {/* NUEVO: árbol lateral de unidades */}
       <InventarioTree onSeleccionarUnidad={handleSeleccionUnidad} />
 
-      {/* CAMBIO: contenido original a la derecha del árbol */}
       <div className="contenedor" style={{ flex: 1 }}>
         <div className="header">
           <div>
@@ -136,6 +144,34 @@ const mostrarTodos = async () => {
                   ? "Consulta, actualiza o elimina registros del inventario."
                   : "Consulta de registros del inventario."}
               </p>
+
+              {unidadSeleccionada && (
+                <div
+                  style={{
+                    marginTop: 8,
+                    fontSize: 13,
+                    color: "#4f46e5",
+                    fontWeight: 600
+                  }}
+                >
+                  📍 {unidadNombreSeleccionada}
+
+                  <button
+                    type="button"
+                    onClick={mostrarTodos}
+                    style={{
+                      marginLeft: 10,
+                      border: "none",
+                      background: "transparent",
+                      color: "#dc2626",
+                      cursor: "pointer",
+                      fontWeight: 600
+                    }}
+                  >
+                    Mostrar todos
+                  </button>
+                </div>
+              )}
             </div>
 
             <input
