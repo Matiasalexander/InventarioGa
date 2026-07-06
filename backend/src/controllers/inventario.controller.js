@@ -1,7 +1,10 @@
 const { poolPromise } = require("../config/db");
 const generarNombreEquipo = require("../helpers/generarNombreEquipo");
 const sql = require("mssql");
-
+// NUEVO: Servicio de exportación a Excel
+const {
+  generarInventarioExcel,
+} = require("../services/excel/inventarioExcel.service");
 const normalizarTexto = (valor) => {
   return (valor || "")
     .toString()
@@ -611,6 +614,75 @@ const obtenerArbolUnidades = async (req, res) => {
     });
   }
 };
+
+const exportarInventarioExcel = async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const { unidad } = req.query;
+
+    const request = pool.request();
+
+    let where = "";
+
+    if (unidad) {
+      request.input("unidad", sql.Int, Number(unidad));
+      where = "WHERE i.ID_UNIDAD = @unidad";
+    }
+
+    const result = await request.query(`
+      SELECT
+        i.id,
+        r.Marca AS UNIDAD,
+        i.LOCALIDAD,
+        i.UBICACION,
+        te.tequipo AS TIPO_EQUIPO,
+        i.NOMBRE_EQUIPO,
+        i.SERIAL,
+        m.Marca AS MARCA,
+        i.MODELO,
+        i.IP,
+        e.Estatus_equipo AS ESTATUS,
+        i.ESTADO_FISICO,
+        i.CORREO,
+        i.COMENTARIO
+      FROM INVENTARIO_M i
+      LEFT JOIN Unidades u ON i.ID_UNIDAD = u.id
+      LEFT JOIN Restaurantes r ON u.id_marca = r.id_marca
+      LEFT JOIN Tipo_equipo te ON i.ID_TIPO_EQUIPO = te.id
+      LEFT JOIN Marcas m ON i.ID_MARCA = m.id
+      LEFT JOIN Estatus e ON i.ID_ESTATUS = e.Id
+
+      ${where}
+
+      ORDER BY r.Marca, i.LOCALIDAD, i.NOMBRE_EQUIPO
+    `);
+
+    const excel = await generarInventarioExcel(result.recordset);
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      'attachment; filename="InventarioGA.xlsx"'
+    );
+
+    res.send(excel);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: "Error exportando Excel",
+      error: error.message,
+    });
+
+  }
+};
 module.exports = {
   obtenerInventario,
   obtenerInventarioPorId,
@@ -618,5 +690,6 @@ module.exports = {
   actualizarInventario,
   eliminarInventario,
   obtenerArbolUnidades,
+  exportarInventarioExcel,
  
 };

@@ -6,12 +6,12 @@ obtenerInventarioPorId,
 crearInventario,
 actualizarInventario,
 eliminarInventario,
-obtenerArbolUnidades
-//exportarInventarioExcel
+obtenerArbolUnidades,
+exportarInventarioExcel
 
 }= require("../controllers/inventario.controller");
 router.get("/arbol-unidades", obtenerArbolUnidades);
-//router.get("/exportar-excel", exportarInventarioExcel);
+router.get("/exportar-excel", exportarInventarioExcel);
 
 router.get("/", obtenerInventario);
 router.get("/:id",obtenerInventarioPorId);
