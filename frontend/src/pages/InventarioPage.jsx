@@ -21,6 +21,7 @@ function InventarioPage({ setLoading }) {
   const puedeCrear = rol === "Administrador" || rol === "Sistemas";
   const puedeEditar = rol === "Administrador" || rol === "Sistemas";
   const puedeEliminar = rol === "Administrador";
+  const [unidadSeleccionada, setUnidadSeleccionada] = useState(null);
 
   const cargarInventario = async () => {
     try {
@@ -98,13 +99,19 @@ function InventarioPage({ setLoading }) {
     "Activo": "badge badge-activo",
     "Baja": "badge badge-baja",
   };
+  const handleSeleccionUnidad = (idUnidad) => {
+  console.log("Unidad seleccionada:", idUnidad);
+  setUnidadSeleccionada(idUnidad);
+};
 
   return (
     // NUEVO: contenedor general para poner árbol + tabla lado a lado
     <div style={{ display: "flex", width: "100%" }}>
       
       {/* NUEVO: árbol lateral de unidades */}
-      <InventarioTree />
+     <InventarioTree
+  onSeleccionarUnidad={handleSeleccionUnidad}
+/>
 
       {/* CAMBIO: tu contenedor original ahora vive a la derecha del árbol */}
       <div className="contenedor" style={{ flex: 1 }}>

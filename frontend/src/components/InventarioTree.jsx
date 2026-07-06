@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronRight, ChevronDown, Building2, MapPin } from "lucide-react";
 import { obtenerArbolUnidades } from "../services/inventarioTreeService";
 
-export default function InventarioTree() {
+export default function InventarioTree({ onSeleccionarUnidad }) {
   const [arbol, setArbol] = useState([]);
   const [abiertos, setAbiertos] = useState({});
 
@@ -63,22 +63,26 @@ export default function InventarioTree() {
           </div>
 
           {abiertos[marca.id] &&
-            marca.children.map((unidad) => (
-              <div
-                key={unidad.id}
-                style={{
-                  marginLeft: 28,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 8,
-                  padding: "6px 0",
-                  cursor: "pointer",
-                }}
-              >
-                <MapPin size={15} />
-                {unidad.nombre}
-              </div>
-            ))}
+  marca.children.map((unidad) => (
+    <div
+      key={unidad.id}
+      onClick={() => onSeleccionarUnidad?.(unidad.id)}
+      style={{
+        marginLeft: 28,
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "6px 0",
+        cursor: "pointer",
+        borderRadius: 6,
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.background = "#f3f4f6")}
+      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+    >
+      <MapPin size={15} />
+      {unidad.nombre}
+    </div>
+  ))}
         </div>
       ))}
     </div>
