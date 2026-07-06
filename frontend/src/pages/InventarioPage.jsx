@@ -7,6 +7,8 @@ import {
 import { toast } from "react-toastify";
 import { getRol } from "../utils/roles";
 import "../styles/InventarioPage.css";
+
+// NUEVO: importamos el árbol lateral de unidades
 import InventarioTree from "../components/InventarioTree";
 
 function InventarioPage({ setLoading }) {
@@ -92,125 +94,138 @@ function InventarioPage({ setLoading }) {
   };
 
   const estados = {
-    "En uso":"badge badge-en-uso",
+    "En uso": "badge badge-en-uso",
     "Activo": "badge badge-activo",
-    "Baja":"badge badge-baja",
+    "Baja": "badge badge-baja",
   };
+
   return (
-    <div className="contenedor">
-      <div className="header">
-        <div>
-          <h1>Inventario</h1>
-          <p>Administración de equipos registrados.</p>
-        </div>
+    // NUEVO: contenedor general para poner árbol + tabla lado a lado
+    <div style={{ display: "flex", width: "100%" }}>
+      
+      {/* NUEVO: árbol lateral de unidades */}
+      <InventarioTree />
 
-        {puedeCrear && (
-          <button type="button" onClick={irAgregar}>
-            + Agregar equipo
-          </button>
-        )}
-      </div>
-
-      <div className="card">
-        <div className="toolbar">
+      {/* CAMBIO: tu contenedor original ahora vive a la derecha del árbol */}
+      <div className="contenedor" style={{ flex: 1 }}>
+        <div className="header">
           <div>
-            <h2>Equipos</h2>
-            <p>
-              {puedeEditar
-                ? "Consulta, actualiza o elimina registros del inventario."
-                : "Consulta de registros del inventario."}
-            </p>
+            <h1>Inventario</h1>
+            <p>Administración de equipos registrados.</p>
           </div>
 
-          <input
-            className="search-input"
-            placeholder="Buscar por equipo, serial, marca, IP, responsiva..."
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-          />
+          {puedeCrear && (
+            <button type="button" onClick={irAgregar}>
+              + Agregar equipo
+            </button>
+          )}
         </div>
 
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Restaurante</th>
-                <th>Localidad</th>
-                <th>Ubicación</th>
-                <th>Tipo equipo</th>
-                <th>Nombre equipo</th>
-                <th>Serial</th>
-                <th>Marca</th>
-                <th>Modelo</th>
-                <th>IP</th>
-                <th>Estatus</th>
-                <th>Responsiva</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
+        <div className="card">
+          <div className="toolbar">
+            <div>
+              <h2>Equipos</h2>
+              <p>
+                {puedeEditar
+                  ? "Consulta, actualiza o elimina registros del inventario."
+                  : "Consulta de registros del inventario."}
+              </p>
+            </div>
 
-            <tbody>
-              {inventarioFiltrado.slice(0,5).map((item) => (
-                <tr key={item.id}>
-                  <td>{item.id}</td>
-                  <td>{item.UNIDAD}</td>
-                  <td>{item.LOCALIDAD}</td>
-                  <td>{item.UBICACION}</td>
-                  <td>{item.TIPO_EQUIPO}</td>
-                  <td>{item.NOMBRE_EQUIPO}</td>
-                  <td>{item.SERIAL}</td>
-                  <td>{item.MARCA}</td>
-                  <td>{item.MODELO}</td>
-                  <td>{item.IP}</td>
-                  <td>
-                <span className={ estados[item.ESTATUS] || "badge badge-default"} >
-                    {item.ESTATUS || "Sin estatus"}
-                </span>
-                  </td>
-                  <td>
-                    {item.RESPONSIVA_DIGITAL ? (
-                      <span className="badge">
-                        RESP-
-                        {String(item.NUM_RESPONSIVA || "").padStart(5, "0")}
-                      </span>
-                    ) : (
-                      <span className="badge">Disponible</span>
-                    )}
-                  </td>
-                  <td>
-                    <button type="button" onClick={() => irDetalle(item.id)}>
-                      Detalles
-                    </button>
+            <input
+              className="search-input"
+              placeholder="Buscar por equipo, serial, marca, IP, responsiva..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
+          </div>
 
-                    {puedeEditar && (
-                      <button
-                        type="button"
-                        onClick={() => irActualizar(item.id)}
-                      >
-                        Editar
-                      </button>
-                    )}
-
-                    {puedeEliminar && (
-                      <button
-                        type="button"
-                        onClick={() => borrarEquipo(item.id)}
-                      >
-                        Eliminar
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-
-              {inventarioFiltrado.length === 0 && (
+          <div className="table-container">
+            <table>
+              <thead>
                 <tr>
-                  <td colSpan="13">No hay equipos para mostrar.</td>
+                  <th>ID</th>
+                  <th>Restaurante</th>
+                  <th>Localidad</th>
+                  <th>Ubicación</th>
+                  <th>Tipo equipo</th>
+                  <th>Nombre equipo</th>
+                  <th>Serial</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>IP</th>
+                  <th>Estatus</th>
+                  <th>Responsiva</th>
+                  <th>Acciones</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {/* CAMBIO OPCIONAL:
+                   Si quieres seguir viendo solo 5 registros, regresa a:
+                   inventarioFiltrado.slice(0,5).map(...)
+                */}
+                {inventarioFiltrado.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.UNIDAD}</td>
+                    <td>{item.LOCALIDAD}</td>
+                    <td>{item.UBICACION}</td>
+                    <td>{item.TIPO_EQUIPO}</td>
+                    <td>{item.NOMBRE_EQUIPO}</td>
+                    <td>{item.SERIAL}</td>
+                    <td>{item.MARCA}</td>
+                    <td>{item.MODELO}</td>
+                    <td>{item.IP}</td>
+                    <td>
+                      <span className={estados[item.ESTATUS] || "badge badge-default"}>
+                        {item.ESTATUS || "Sin estatus"}
+                      </span>
+                    </td>
+                    <td>
+                      {item.RESPONSIVA_DIGITAL ? (
+                        <span className="badge">
+                          RESP-
+                          {String(item.NUM_RESPONSIVA || "").padStart(5, "0")}
+                        </span>
+                      ) : (
+                        <span className="badge">Disponible</span>
+                      )}
+                    </td>
+                    <td>
+                      <button type="button" onClick={() => irDetalle(item.id)}>
+                        Detalles
+                      </button>
+
+                      {puedeEditar && (
+                        <button
+                          type="button"
+                          onClick={() => irActualizar(item.id)}
+                        >
+                          Editar
+                        </button>
+                      )}
+
+                      {puedeEliminar && (
+                        <button
+                          type="button"
+                          onClick={() => borrarEquipo(item.id)}
+                        >
+                          Eliminar
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+
+                {inventarioFiltrado.length === 0 && (
+                  <tr>
+                    <td colSpan="13">No hay equipos para mostrar.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
