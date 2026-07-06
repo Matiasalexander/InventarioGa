@@ -119,7 +119,10 @@ function InventarioPage({ setLoading }) {
 
   return (
     <div style={{ display: "flex", width: "100%" }}>
-      <InventarioTree onSeleccionarUnidad={handleSeleccionUnidad} />
+   <InventarioTree
+  onSeleccionarUnidad={handleSeleccionUnidad}
+  unidadSeleccionada={unidadSeleccionada}
+/>
 
       <div className="contenedor" style={{ flex: 1 }}>
         <div className="header">

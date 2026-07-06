@@ -556,56 +556,61 @@ const obtenerArbolUnidades = async (req, res) => {
 
     const result = await pool.request().query(`
       SELECT
-          r.id_marca,
-          r.Marca,
-          u.id AS idUnidad,
-          u.Ubicacion
+        r.id_marca,
+        r.Marca,
+        u.id AS idUnidad,
+        u.Ubicacion,
+        COUNT(i.id) AS total
       FROM Unidades u
       INNER JOIN Restaurantes r
-          ON u.id_marca = r.id_marca
-      ORDER BY r.Marca, u.Ubicacion
+        ON u.id_marca = r.id_marca
+      LEFT JOIN INVENTARIO_M i
+        ON i.ID_UNIDAD = u.id
+      GROUP BY
+        r.id_marca,
+        r.Marca,
+        u.id,
+        u.Ubicacion
+      ORDER BY
+        r.Marca,
+        u.Ubicacion
     `);
 
     const arbol = [];
 
-    result.recordset.forEach(item => {
-
-      let restaurante = arbol.find(x => x.id === item.id_marca);
+    result.recordset.forEach((item) => {
+      let restaurante = arbol.find((x) => x.id === item.id_marca);
 
       if (!restaurante) {
-
         restaurante = {
           id: item.id_marca,
           nombre: item.Marca,
+          total: 0,
           children: []
         };
 
         arbol.push(restaurante);
-
       }
 
+      restaurante.total += item.total;
+
       restaurante.children.push({
-
         id: item.idUnidad,
-        nombre: item.Ubicacion
-
+        nombre: item.Ubicacion,
+        total: item.total
       });
-
     });
 
     res.json(arbol);
-
   } catch (error) {
-
     console.error(error);
 
     res.status(500).json({
-      message: "Error obteniendo árbol de unidades."
+      message: "Error obteniendo árbol de unidades.",
+      error: error.message
     });
-
   }
 };
-
 module.exports = {
   obtenerInventario,
   obtenerInventarioPorId,
