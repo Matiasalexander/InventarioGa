@@ -7,13 +7,12 @@ import {
 import { toast } from "react-toastify";
 import { getRol } from "../utils/roles";
 import "../styles/InventarioPage.css";
-
-// NUEVO: importamos el árbol lateral de unidades
 import InventarioTree from "../components/InventarioTree";
 
 function InventarioPage({ setLoading }) {
   const [inventario, setInventario] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+  const [unidadSeleccionada, setUnidadSeleccionada] = useState(null);
 
   const navigate = useNavigate();
   const rol = getRol();
@@ -21,12 +20,12 @@ function InventarioPage({ setLoading }) {
   const puedeCrear = rol === "Administrador" || rol === "Sistemas";
   const puedeEditar = rol === "Administrador" || rol === "Sistemas";
   const puedeEliminar = rol === "Administrador";
-  const [unidadSeleccionada, setUnidadSeleccionada] = useState(null);
 
-  const cargarInventario = async () => {
+  // CAMBIO: ahora acepta unidad opcional para filtrar desde el árbol
+  const cargarInventario = async (unidad = null) => {
     try {
       setLoading(true);
-      const data = await obtenerInventario();
+      const data = await obtenerInventario(unidad);
       setInventario(data);
     } catch (error) {
       console.error("Error cargando inventario:", error);
@@ -67,6 +66,14 @@ function InventarioPage({ setLoading }) {
     );
   }, [busqueda, inventario]);
 
+  // CAMBIO: al seleccionar unidad limpia búsqueda y recarga inventario filtrado
+  const handleSeleccionUnidad = async (idUnidad) => {
+    console.log("Unidad seleccionada:", idUnidad);
+    setUnidadSeleccionada(idUnidad);
+    setBusqueda("");
+    await cargarInventario(idUnidad);
+  };
+
   const irDetalle = (id) => {
     navigate(`/inventario/detalle/${id}`);
   };
@@ -86,7 +93,7 @@ function InventarioPage({ setLoading }) {
 
     try {
       await eliminarInventario(id);
-      await cargarInventario();
+      await cargarInventario(unidadSeleccionada);
       toast.success("Equipo eliminado correctamente");
     } catch (error) {
       console.error("Error eliminando equipo:", error.response?.data || error);
@@ -99,21 +106,13 @@ function InventarioPage({ setLoading }) {
     "Activo": "badge badge-activo",
     "Baja": "badge badge-baja",
   };
-  const handleSeleccionUnidad = (idUnidad) => {
-  console.log("Unidad seleccionada:", idUnidad);
-  setUnidadSeleccionada(idUnidad);
-};
 
   return (
-    // NUEVO: contenedor general para poner árbol + tabla lado a lado
     <div style={{ display: "flex", width: "100%" }}>
-      
       {/* NUEVO: árbol lateral de unidades */}
-     <InventarioTree
-  onSeleccionarUnidad={handleSeleccionUnidad}
-/>
+      <InventarioTree onSeleccionarUnidad={handleSeleccionUnidad} />
 
-      {/* CAMBIO: tu contenedor original ahora vive a la derecha del árbol */}
+      {/* CAMBIO: contenido original a la derecha del árbol */}
       <div className="contenedor" style={{ flex: 1 }}>
         <div className="header">
           <div>
@@ -168,10 +167,6 @@ function InventarioPage({ setLoading }) {
               </thead>
 
               <tbody>
-                {/* CAMBIO OPCIONAL:
-                   Si quieres seguir viendo solo 5 registros, regresa a:
-                   inventarioFiltrado.slice(0,5).map(...)
-                */}
                 {inventarioFiltrado.map((item) => (
                   <tr key={item.id}>
                     <td>{item.id}</td>
@@ -192,8 +187,7 @@ function InventarioPage({ setLoading }) {
                     <td>
                       {item.RESPONSIVA_DIGITAL ? (
                         <span className="badge">
-                          RESP-
-                          {String(item.NUM_RESPONSIVA || "").padStart(5, "0")}
+                          RESP-{String(item.NUM_RESPONSIVA || "").padStart(5, "0")}
                         </span>
                       ) : (
                         <span className="badge">Disponible</span>
@@ -205,19 +199,13 @@ function InventarioPage({ setLoading }) {
                       </button>
 
                       {puedeEditar && (
-                        <button
-                          type="button"
-                          onClick={() => irActualizar(item.id)}
-                        >
+                        <button type="button" onClick={() => irActualizar(item.id)}>
                           Editar
                         </button>
                       )}
 
                       {puedeEliminar && (
-                        <button
-                          type="button"
-                          onClick={() => borrarEquipo(item.id)}
-                        >
+                        <button type="button" onClick={() => borrarEquipo(item.id)}>
                           Eliminar
                         </button>
                       )}
