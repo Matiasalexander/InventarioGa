@@ -164,9 +164,6 @@ function ProcesadoresPage({ setLoading }) {
         </div>
       </div>
       </div>
-      <div className="detail-item">
-            <ModelosProcesadorPage setLoading={setLoading}/>
-      </div>
     </div>
   );
 }

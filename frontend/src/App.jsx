@@ -26,6 +26,7 @@ import AreasUnidades from "./pages/AreasUnidades";
 import AreasCorporativas from "./pages/AreasCorporativas";
 import UsuariosPage from "./pages/UsuariosPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ProcesadoresModelosPPage from "./pages/ProcesadoresModelosPPage";
 import DashboardPage from "./pages/DashboardPage";
 
 import LoginPage from "./pages/LoginPage";
@@ -162,8 +163,8 @@ function App() {
                       />
 
                       <Route
-                        path="/procesadores"
-                        element={<ProcesadoresPage setLoading={setLoading} />}
+                        path="/ProcesadoresModelosP"
+                        element={<ProcesadoresModelosPPage setLoading={setLoading}/>}
                       />
 
                       <Route

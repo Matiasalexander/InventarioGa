@@ -22,7 +22,7 @@ export default function Sidebar() {
       { to: "/Equipo", label: "Equipo", icon: Monitor },
       { to: "/Areas", label: "Restaurantes/Unidades", icon: AreaChart },
       { to: "/AreasCorporativas", label: "Áreas Corporativas", icon: AreaChart },
-      { to: "/procesadores", label: "Procesadores", icon: Cpu }
+      { to: "/ProcesadoresModelosP", label: "Procesadores", icon: Cpu }
     );
   }
 

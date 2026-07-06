@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerModelosProcesador,
@@ -12,6 +12,7 @@ import "../styles/InventarioPage.css";
 function ModelosProcesadorPage({ setLoading }) {
   const [modelos, setModelos] = useState([]);
   const [procesadores, setProcesadores] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
 
   const [formulario, setFormulario] = useState({
     Id_procesador: "",
@@ -40,6 +41,17 @@ function ModelosProcesadorPage({ setLoading }) {
   useEffect(() => {
     cargarDatos();
   }, []);
+
+ const modelosProcesadoresFiltrados = useMemo(() => {
+  const texto = busqueda.toLowerCase().trim();
+
+  if (!texto) return modelos;
+
+  return modelos.filter((item) =>
+    (item.Modelo || "").toLowerCase().includes(texto)
+  );
+}, [busqueda, modelos]);
+
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -153,6 +165,12 @@ function ModelosProcesadorPage({ setLoading }) {
             value={formulario.Modelo}
             onChange={manejarCambio}
           />
+               <input
+        className="search-input"
+        placeholder="Buscar modelo de procesador..."
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      />
 
           <button type="submit">
             {modoEdicion ? "Actualizar modelo" : "Guardar modelo"}
@@ -181,7 +199,7 @@ function ModelosProcesadorPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {modelos.map((item) => (
+              {modelosProcesadoresFiltrados.slice(0,7).map((item) => (
                 <tr key={item.Id}>
                   <td>{item.Id}</td>
                   <td>{item.Nombre}</td>
@@ -198,7 +216,7 @@ function ModelosProcesadorPage({ setLoading }) {
                 </tr>
               ))}
 
-              {modelos.length === 0 && (
+              {modelosProcesadoresFiltrados.length === 0 && (
                 <tr>
                   <td colSpan="4">No hay modelos de procesador registrados.</td>
                 </tr>

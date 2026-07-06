@@ -1,23 +1,6 @@
-.responsive-u {
+
+.area-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 50px;
-    width: 100%;
-    align-items: start;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 16px;
 }
-@media (max-width: 768px) {
-    .responsive-u {
-        grid-template-columns: 1fr;
-    }
-}
-
-.detail-item {
-    display: grid;
-    gap: 20px;
-    min-width: 0;
-}
-
-.header p{
-    text-align: left;
-}
-
