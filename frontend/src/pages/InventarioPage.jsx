@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   obtenerInventario,
-  eliminarInventario
+  eliminarInventario,
+  exportarInventarioExcel
 } from "../services/inventarioService";
 import { toast } from "react-toastify";
 import { getRol } from "../utils/roles";
@@ -111,6 +112,41 @@ function InventarioPage({ setLoading }) {
     }
   };
 
+
+  const descargarExcel = async () => {
+  try {
+    setLoading(true);
+
+    const blob = await exportarInventarioExcel(unidadSeleccionada);
+
+    const url = window.URL.createObjectURL(
+      new Blob([blob], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      })
+    );
+
+    const link = document.createElement("a");
+    link.href = url;
+
+    const nombreArchivo = unidadNombreSeleccionada
+      ? `Inventario_${unidadNombreSeleccionada.replaceAll(" / ", "_")}.xlsx`
+      : "Inventario_General.xlsx";
+
+    link.setAttribute("download", nombreArchivo);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+
+    toast.success("Excel descargado correctamente");
+  } catch (error) {
+    console.error("Error exportando Excel:", error);
+    toast.error("Error exportando Excel");
+  } finally {
+    setLoading(false);
+  }
+};
   const estados = {
     "En uso": "badge badge-en-uso",
     "Activo": "badge badge-activo",
@@ -136,7 +172,13 @@ function InventarioPage({ setLoading }) {
               + Agregar equipo
             </button>
           )}
+
+              <button type="button" onClick={descargarExcel}>
+  📥 Exportar Excel
+</button>
         </div>
+
+    
 
         <div className="card">
           <div className="toolbar">
