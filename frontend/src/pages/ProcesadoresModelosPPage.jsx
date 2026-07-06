@@ -12,11 +12,11 @@ function ProcesadoresModelosPPage ({setLoading}) {
     <>
         <div className="responsive">
            <div className="area-grid">
-            <div className="area-item">
+            <div className="detail-item">
                 <ProcesadoresPage setLoading={setLoading}></ProcesadoresPage>
             </div>
 
-            <div className="area-item">
+            <div className="detail-item">
                 <ModelosProcesadorPage setLoading={setLoading}></ModelosProcesadorPage>
             </div>
            </div>
