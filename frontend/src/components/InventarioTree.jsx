@@ -5,6 +5,7 @@ import { obtenerArbolUnidades } from "../services/inventarioTreeService";
 export default function InventarioTree({ onSeleccionarUnidad, unidadSeleccionada }) {
   const [arbol, setArbol] = useState([]);
   const [abiertos, setAbiertos] = useState({});
+  const [busquedaArbol, setBusquedaArbol] = useState("");
 
   useEffect(() => {
     cargarArbol();
@@ -24,7 +25,36 @@ export default function InventarioTree({ onSeleccionarUnidad, unidadSeleccionada
       ...prev,
       [id]: !prev[id],
     }));
+    
   };
+
+  const arbolFiltrado = arbol.filter((marca) => {
+  const texto = busquedaArbol.toLowerCase().trim();
+
+  if (!texto) return true;
+
+  const coincideMarca = marca.nombre?.toLowerCase().includes(texto);
+
+  const coincideUnidad = marca.children?.some((unidad) =>
+    unidad.nombre?.toLowerCase().includes(texto)
+  );
+
+  return coincideMarca || coincideUnidad;
+});
+
+const expandirTodo = () => {
+  const abiertosTemp = {};
+
+  arbol.forEach((marca) => {
+    abiertosTemp[marca.id] = true;
+  });
+
+  setAbiertos(abiertosTemp);
+};
+
+const contraerTodo = () => {
+  setAbiertos({});
+};
 
   return (
     <div
@@ -36,8 +66,30 @@ export default function InventarioTree({ onSeleccionarUnidad, unidadSeleccionada
       }}
     >
       <h3 style={{ marginBottom: 15 }}>Grupo Anderson's</h3>
+<input
+  placeholder="Buscar unidad..."
+  value={busquedaArbol}
+  onChange={(e) => setBusquedaArbol(e.target.value)}
+  style={{
+    width: "100%",
+    padding: "8px 10px",
+    border: "1px solid #e5e7eb",
+    borderRadius: 8,
+    marginBottom: 10,
+    fontSize: 13
+  }}
+/>
 
-      {arbol.map((marca) => (
+<div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+  <button type="button" onClick={expandirTodo}>
+    Expandir
+  </button>
+
+  <button type="button" onClick={contraerTodo}>
+    Contraer
+  </button>
+</div>
+      {arbolFiltrado.map((marca) => (
         <div key={marca.id}>
           <div
             onClick={() => toggle(marca.id)}
