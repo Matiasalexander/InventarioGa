@@ -77,7 +77,7 @@ export default function Sidebar() {
         <div className="sidebar-header">
 
           <span>
-            Inventario GA2
+            Inventario Grupo Anderson's
           </span>
 
           <button
