@@ -185,6 +185,7 @@ select:disabled {
   .header {
     align-items: flex-start;
     flex-direction: column;
+    gap: 10px;
   }
 }
 
@@ -198,7 +199,9 @@ select:disabled {
   }
 
   .header h1 {
+    white-space: nowrap;
     font-size: 30px;
+    margin: 0 0 12px 0;
   }
 }
 
