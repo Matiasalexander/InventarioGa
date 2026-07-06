@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { ChevronRight, ChevronDown, Building2, MapPin } from "lucide-react";
+import { ChevronRight, ChevronDown, Building2, MapPin, UtensilsCrossed, PoundSterlingIcon, Store } from "lucide-react";
 import { obtenerArbolUnidades } from "../services/inventarioTreeService";
+import "../styles/InventarioTree.css";
 
-export default function InventarioTree({ onSeleccionarUnidad, unidadSeleccionada }) {
+export default function InventarioTree({
+  onSeleccionarUnidad,
+  unidadSeleccionada,
+}) {
   const [arbol, setArbol] = useState([]);
   const [abiertos, setAbiertos] = useState({});
   const [busquedaArbol, setBusquedaArbol] = useState("");
@@ -25,82 +29,63 @@ export default function InventarioTree({ onSeleccionarUnidad, unidadSeleccionada
       ...prev,
       [id]: !prev[id],
     }));
-    
   };
 
   const arbolFiltrado = arbol.filter((marca) => {
-  const texto = busquedaArbol.toLowerCase().trim();
+    const texto = busquedaArbol.toLowerCase().trim();
 
-  if (!texto) return true;
+    if (!texto) return true;
 
-  const coincideMarca = marca.nombre?.toLowerCase().includes(texto);
+    const coincideMarca = marca.nombre?.toLowerCase().includes(texto);
 
-  const coincideUnidad = marca.children?.some((unidad) =>
-    unidad.nombre?.toLowerCase().includes(texto)
-  );
+    const coincideUnidad = marca.children?.some((unidad) =>
+      unidad.nombre?.toLowerCase().includes(texto)
+    );
 
-  return coincideMarca || coincideUnidad;
-});
-
-const expandirTodo = () => {
-  const abiertosTemp = {};
-
-  arbol.forEach((marca) => {
-    abiertosTemp[marca.id] = true;
+    return coincideMarca || coincideUnidad;
   });
 
-  setAbiertos(abiertosTemp);
-};
+  const expandirTodo = () => {
+    const abiertosTemp = {};
 
-const contraerTodo = () => {
-  setAbiertos({});
-};
+    arbol.forEach((marca) => {
+      abiertosTemp[marca.id] = true;
+    });
+
+    setAbiertos(abiertosTemp);
+  };
+
+  const contraerTodo = () => {
+    setAbiertos({});
+  };
+
 
   return (
-    <div
-      style={{
-        width: 260,
-        borderRight: "1px solid #e5e7eb",
-        padding: 15,
-        overflowY: "auto",
-      }}
-    >
-      <h3 style={{ marginBottom: 15 }}>Grupo Anderson's</h3>
-<input
-  placeholder="Buscar unidad..."
-  value={busquedaArbol}
-  onChange={(e) => setBusquedaArbol(e.target.value)}
-  style={{
-    width: "100%",
-    padding: "8px 10px",
-    border: "1px solid #e5e7eb",
-    borderRadius: 8,
-    marginBottom: 10,
-    fontSize: 13
-  }}
-/>
+    <div className="tree-container">
+      <h3 className="tree-title">Unidades</h3>
 
-<div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-  <button type="button" onClick={expandirTodo}>
-    Expandir
-  </button>
+      <input
+        className="tree-search"
+        placeholder="Buscar unidad..."
+        value={busquedaArbol}
+        onChange={(e) => setBusquedaArbol(e.target.value)}
+      />
 
-  <button type="button" onClick={contraerTodo}>
-    Contraer
-  </button>
-</div>
+      <div className="tree-actions">
+        <button className="tree-btn tree-btn-expand" onClick={expandirTodo}>
+          Expandir
+        </button>
+
+        <button className="tree-btn tree-btn-collapse" onClick={contraerTodo}>
+          Contraer
+        </button>
+      </div>
+
       {arbolFiltrado.map((marca) => (
         <div key={marca.id}>
           <div
+            className="tree-brand"
             onClick={() => toggle(marca.id)}
-            style={{
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              padding: "8px 4px",
-              fontWeight: 600,
-            }}
           >
             {abiertos[marca.id] ? (
               <ChevronDown size={16} />
@@ -109,13 +94,16 @@ const contraerTodo = () => {
             )}
 
             <Building2 size={16} />
-        <span style={{ flex: 1 }}>{marca.nombre}</span>
-<span style={{ fontSize: 12, color: "#64748b" }}>
-  ({marca.total || 0})
-</span>
+
+            <span className="tree-brand-name">
+              {marca.nombre}
+            </span>
+
+            <span className="tree-count">
+              ({marca.total || 0})
+            </span>
           </div>
 
-          {/* CAMBIO: aquí recuperamos el .map de unidades y calculamos si está activa */}
           {abiertos[marca.id] &&
             marca.children.map((unidad) => {
               const activo = unidadSeleccionada === unidad.id;
@@ -123,40 +111,23 @@ const contraerTodo = () => {
               return (
                 <div
                   key={unidad.id}
+                  className={`tree-unit ${activo ? "active" : ""}`}
                   onClick={() =>
                     onSeleccionarUnidad?.(
                       unidad.id,
                       `${marca.nombre} / ${unidad.nombre}`
                     )
                   }
-                  style={{
-                    marginLeft: 28,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: "6px 0",
-                    cursor: "pointer",
-                    borderRadius: 6,
-
-                    // CAMBIO: estilos para marcar la unidad seleccionada
-                    background: activo ? "#eef2ff" : "transparent",
-                    color: activo ? "#4f46e5" : "inherit",
-                    fontWeight: activo ? 700 : 400,
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "#f3f4f6")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = activo
-                      ? "#eef2ff"
-                      : "transparent")
-                  }
                 >
                   <MapPin size={15} />
-                <span style={{ flex: 1 }}>{unidad.nombre}</span>
-<span style={{ fontSize: 12, color: activo ? "#4f46e5" : "#64748b" }}>
-  ({unidad.total || 0})
-</span>
+
+                  <span className="tree-unit-name">
+                    {unidad.nombre}
+                  </span>
+
+                  <span className="tree-count">
+                    ({unidad.total || 0})
+                  </span>
                 </div>
               );
             })}

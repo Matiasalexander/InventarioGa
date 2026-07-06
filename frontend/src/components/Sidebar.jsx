@@ -1,17 +1,15 @@
+import { useState } from "react";
+import { Menu, X, Monitor, Cpu, Book, AreaChart, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
-import {
-  Monitor,
-  Cpu,
-  Book,
-  AreaChart,
-  LogOut
-} from "lucide-react";
 import { getRol } from "../utils/roles";
+import "../styles/Sidebar.css";
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   const rol = getRol();
+
+  const [abierto, setAbierto] = useState(false);
 
   const links = [];
 
@@ -26,18 +24,28 @@ export default function Sidebar() {
     );
   }
 
-  if (rol === "Administrador" || rol === "Sistemas" || rol === "RH") {
+  if (
+    rol === "Administrador" ||
+    rol === "Sistemas" ||
+    rol === "RH"
+  ) {
     links.push(
-      /*{ to: "/responsiva", label: "Nueva Responsiva", icon: Book },*/
-      { to: "/responsivas/historial", label: "Historial Responsivas", icon: Book }
+      {
+        to: "/responsivas/historial",
+        label: "Historial Responsivas",
+        icon: Book
+      }
     );
   }
 
   if (rol === "Administrador") {
-    links.push(
-      { to: "/usuarios", label: "Usuarios", icon: Book }
-    );
+    links.push({
+      to: "/usuarios",
+      label: "Usuarios",
+      icon: Book
+    });
   }
+
 
   const cerrarSesion = () => {
     localStorage.removeItem("token");
@@ -45,92 +53,94 @@ export default function Sidebar() {
     navigate("/login");
   };
 
+
   return (
+    <>
+      <button
+        className="menu-button"
+        onClick={() => setAbierto(true)}
+      >
+        <Menu size={26}/>
+      </button>
 
-    <aside style={{
-      width: "240px",
-      minHeight: "100vh",
-      background: "#1e293b",
-      color: "white",
-      display: "flex",
-      flexDirection: "column"
-    }}>
 
-      <div style={{
-        padding: "20px 24px",
-        fontSize: "18px",
-        fontWeight: "bold",
-        borderBottom: "1px solid #334155"
-      }}>
-        Inventario GA2
-      </div>
+      {abierto && (
+        <div
+          className="overlay"
+          onClick={() => setAbierto(false)}
+        />
+      )}
 
-      <div style={{
-        padding: "16px 24px",
-        borderBottom: "1px solid #334155"
-      }}>
-        <div style={{ fontSize: "14px", fontWeight: "bold" }}>
-          {usuario?.Nombre || "Usuario"}
+
+      <aside className={`sidebar ${abierto ? "activo" : ""}`}>
+
+        <div className="sidebar-header">
+
+          <span>
+            Inventario GA2
+          </span>
+
+          <button
+            className="close-button"
+            onClick={() => setAbierto(false)}
+          >
+            <X size={24}/>
+          </button>
+
         </div>
 
-        <div style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px" }}>
-          {usuario?.Rol || "Sin rol"}
+
+        <div className="usuario">
+
+          <strong>
+            {usuario?.Nombre || "Usuario"}
+          </strong>
+
+          <small>
+            {usuario?.Rol || "Sin rol"}
+          </small>
+
         </div>
-      </div>
 
-      <nav style={{
-        padding: "16px 12px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "4px",
-        flex: 1
-      }}>
 
-        {links.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === "/"}
-            style={({ isActive }) => ({
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "8px 12px",
-              borderRadius: "8px",
-              fontSize: "14px",
-              textDecoration: "none",
-              color: isActive ? "white" : "#94a3b8",
-              background: isActive ? "#4f46e5" : "transparent"
-            })}
+        <nav className="menu">
+
+          {
+            links.map(({to,label,icon:Icon}) => (
+
+              <NavLink
+                key={to}
+                to={to}
+                onClick={() => setAbierto(false)}
+                className={({isActive}) =>
+                  isActive ? "link activo-link" : "link"
+                }
+              >
+
+                <Icon size={18}/>
+                {label}
+
+              </NavLink>
+
+            ))
+          }
+
+
+          <button
+            className="logout"
+            onClick={cerrarSesion}
           >
 
-            <Icon size={18} />
-            {label}
-          </NavLink>
-        ))}
+            <LogOut size={18}/>
+            Cerrar sesión
 
-        <button
-          onClick={cerrarSesion}
-          style={{
-            margin: "12px",
-            padding: "10px 12px",
-            borderRadius: "8px",
-            border: "1px solid #334155",
-            background: "transparent",
-            color: "#fca5a5",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            fontSize: "14px"
-          }}
-        >
-          <LogOut size={18} />
-          Cerrar sesión
-        </button>
-      </nav>
+          </button>
 
 
-    </aside>
+        </nav>
+
+
+      </aside>
+    </>
   );
 }

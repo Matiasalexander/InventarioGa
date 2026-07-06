@@ -154,19 +154,14 @@ function InventarioPage({ setLoading }) {
   };
 
   return (
-    <div style={{ display: "flex", width: "100%" }}>
-   <InventarioTree
-  onSeleccionarUnidad={handleSeleccionUnidad}
-  unidadSeleccionada={unidadSeleccionada}
-/>
-
-      <div className="contenedor" style={{ flex: 1 }}>
-        <div className="header">
+    <>
+         <div className="header">
           <div>
             <h1>Inventario</h1>
             <p>Administración de equipos registrados.</p>
           </div>
 
+    <div className="header-actions">
           {puedeCrear && (
             <button type="button" onClick={irAgregar}>
               + Agregar equipo
@@ -176,8 +171,19 @@ function InventarioPage({ setLoading }) {
               <button type="button" onClick={descargarExcel}>
   📥 Exportar Excel
 </button>
+</div>
         </div>
 
+    <div className="inventario-layout">
+      
+      <aside className="tree-panel">
+   <InventarioTree
+  onSeleccionarUnidad={handleSeleccionUnidad}
+  unidadSeleccionada={unidadSeleccionada}
+/>
+</aside>
+      <div className="contenedor">
+   
     
 
         <div className="card">
@@ -305,7 +311,9 @@ function InventarioPage({ setLoading }) {
         </div>
       </div>
     </div>
+    </>
   );
+  
 }
 
 export default InventarioPage;

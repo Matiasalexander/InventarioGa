@@ -1,7 +1,21 @@
+/*headeractions*/
+.header-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+}
 * {
   box-sizing: border-box;
 }
 
+.inventario-layout{
+    display:flex;
+    align-items:flex-start;
+    gap:24px;
+    width:100%;
+    padding:24px;
+}
 body {
   margin: 0;
   background: #eef2f7;
@@ -9,19 +23,18 @@ body {
   color: #1f2937;
 }
 
-.contenedor {
-
-  min-height: 100vh;
-  padding: clamp(12px, 3vw, 32px);
-
+.contenedor{
+    flex:1;
+    min-width:0;
+    min-height:100vh;
+    padding:clamp(12px,3vw,32px);
 }
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 28px;
-  gap: 18px;
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
 }
 
 .header h1 {
@@ -234,12 +247,12 @@ select:disabled {
   font-weight: 800;
 }
 
-.toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 18px;
+.toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    flex-wrap:wrap;
 }
 
 .toolbar h2 {
@@ -291,4 +304,91 @@ select:disabled {
   .search-input {
     max-width: 100%;
   }
+}
+
+/*tree*/
+.tree-panel{
+    flex:0 0 280px;
+    width:280px;
+    position:sticky;
+    top:20px;
+}
+.content-panel{
+    flex:1;
+    min-width:0;
+}
+
+@media (max-width:1100px){
+
+.tree-panel{
+    flex:0 0 230px;
+    width:230px;
+}
+
+.header h1{
+    font-size:32px;
+}
+
+}
+
+@media (max-width:768px){
+
+.inventario-layout{
+    flex-direction:column;
+    padding:16px;
+}
+
+.tree-panel{
+    width:100%;
+    position:static;
+    flex:none;
+}
+
+.contenedor{
+    padding:0;
+}
+
+.header{
+    flex-direction:column;
+    align-items:stretch;
+}
+
+.header button{
+    width:100%;
+}
+
+.toolbar{
+    flex-direction:column;
+    align-items:stretch;
+}
+
+.search-input{
+    max-width:100%;
+}
+
+table{
+    min-width:1100px;
+}
+
+}
+@media (max-width:480px){
+
+.header h1{
+    font-size:28px;
+}
+
+.card{
+    padding:16px;
+}
+
+button{
+    width:100%;
+}
+
+td button{
+    display:block;
+    width:100%;
+    margin-bottom:6px;
+}
+
 }
