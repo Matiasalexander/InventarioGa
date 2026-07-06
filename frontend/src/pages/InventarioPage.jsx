@@ -13,7 +13,7 @@ function InventarioPage({ setLoading }) {
   const [inventario, setInventario] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [unidadSeleccionada, setUnidadSeleccionada] = useState(null);
-
+const [unidadNombreSeleccionada, setUnidadNombreSeleccionada] = useState("");
   const navigate = useNavigate();
   const rol = getRol();
 
@@ -67,12 +67,12 @@ function InventarioPage({ setLoading }) {
   }, [busqueda, inventario]);
 
   // CAMBIO: al seleccionar unidad limpia búsqueda y recarga inventario filtrado
-  const handleSeleccionUnidad = async (idUnidad) => {
-    console.log("Unidad seleccionada:", idUnidad);
-    setUnidadSeleccionada(idUnidad);
-    setBusqueda("");
-    await cargarInventario(idUnidad);
-  };
+const mostrarTodos = async () => {
+  setUnidadSeleccionada(null);
+  setUnidadNombreSeleccionada("");
+  setBusqueda("");
+  await cargarInventario();
+};
 
   const irDetalle = (id) => {
     navigate(`/inventario/detalle/${id}`);
