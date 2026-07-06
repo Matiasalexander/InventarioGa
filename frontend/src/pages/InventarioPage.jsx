@@ -7,6 +7,7 @@ import {
 import { toast } from "react-toastify";
 import { getRol } from "../utils/roles";
 import "../styles/InventarioPage.css";
+import InventarioTree from "../components/InventarioTree";
 
 function InventarioPage({ setLoading }) {
   const [inventario, setInventario] = useState([]);
