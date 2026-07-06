@@ -534,10 +534,68 @@ const eliminarInventario = async (req, res) => {
   }
 };
 
+const obtenerArbolUnidades = async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const result = await pool.request().query(`
+      SELECT
+          r.id_marca,
+          r.Marca,
+          u.id AS idUnidad,
+          u.Ubicacion
+      FROM Unidades u
+      INNER JOIN Restaurantes r
+          ON u.id_marca = r.id_marca
+      ORDER BY r.Marca, u.Ubicacion
+    `);
+
+    const arbol = [];
+
+    result.recordset.forEach(item => {
+
+      let restaurante = arbol.find(x => x.id === item.id_marca);
+
+      if (!restaurante) {
+
+        restaurante = {
+          id: item.id_marca,
+          nombre: item.Marca,
+          children: []
+        };
+
+        arbol.push(restaurante);
+
+      }
+
+      restaurante.children.push({
+
+        id: item.idUnidad,
+        nombre: item.Ubicacion
+
+      });
+
+    });
+
+    res.json(arbol);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: "Error obteniendo árbol de unidades."
+    });
+
+  }
+};
+
 module.exports = {
   obtenerInventario,
   obtenerInventarioPorId,
   crearInventario,
   actualizarInventario,
-  eliminarInventario
+  eliminarInventario,
+  obtenerArbolUnidades,
+ 
 };
