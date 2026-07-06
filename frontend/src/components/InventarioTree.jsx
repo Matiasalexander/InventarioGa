@@ -39,7 +39,6 @@ export default function InventarioTree({ onSeleccionarUnidad }) {
 
       {arbol.map((marca) => (
         <div key={marca.id}>
-
           <div
             onClick={() => toggle(marca.id)}
             style={{
@@ -58,31 +57,39 @@ export default function InventarioTree({ onSeleccionarUnidad }) {
             )}
 
             <Building2 size={16} />
-
             {marca.nombre}
           </div>
 
           {abiertos[marca.id] &&
-  marca.children.map((unidad) => (
-    <div
-      key={unidad.id}
-      onClick={() => onSeleccionarUnidad?.(unidad.id)}
-      style={{
-        marginLeft: 28,
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "6px 0",
-        cursor: "pointer",
-        borderRadius: 6,
-      }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = "#f3f4f6")}
-      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-    >
-      <MapPin size={15} />
-      {unidad.nombre}
-    </div>
-  ))}
+            marca.children.map((unidad) => (
+              <div
+                key={unidad.id}
+                onClick={() =>
+                  onSeleccionarUnidad?.(
+                    unidad.id,
+                    `${marca.nombre} / ${unidad.nombre}`
+                  )
+                }
+                style={{
+                  marginLeft: 28,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "6px 0",
+                  cursor: "pointer",
+                  borderRadius: 6,
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#f3f4f6")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "transparent")
+                }
+              >
+                <MapPin size={15} />
+                {unidad.nombre}
+              </div>
+            ))}
         </div>
       ))}
     </div>
