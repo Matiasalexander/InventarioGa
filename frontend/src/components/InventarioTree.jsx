@@ -57,7 +57,10 @@ export default function InventarioTree({ onSeleccionarUnidad, unidadSeleccionada
             )}
 
             <Building2 size={16} />
-            {marca.nombre}
+        <span style={{ flex: 1 }}>{marca.nombre}</span>
+<span style={{ fontSize: 12, color: "#64748b" }}>
+  ({marca.total || 0})
+</span>
           </div>
 
           {/* CAMBIO: aquí recuperamos el .map de unidades y calculamos si está activa */}
@@ -98,7 +101,10 @@ export default function InventarioTree({ onSeleccionarUnidad, unidadSeleccionada
                   }
                 >
                   <MapPin size={15} />
-                  {unidad.nombre}
+                <span style={{ flex: 1 }}>{unidad.nombre}</span>
+<span style={{ fontSize: 12, color: activo ? "#4f46e5" : "#64748b" }}>
+  ({unidad.total || 0})
+</span>
                 </div>
               );
             })}
