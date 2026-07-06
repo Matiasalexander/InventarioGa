@@ -159,6 +159,11 @@ function HistorialResponsivasPage({ setLoading }) {
     }
   };
 
+  const estados = {
+    "ACTIVA":"badge badge-activa",
+    "INACTIVA":"badge badge-inactiva"
+  };
+
   return (
     <div className="card">
       <div className="header">
@@ -207,7 +212,9 @@ function HistorialResponsivasPage({ setLoading }) {
                     <td>{item.Puesto}</td>
                     <td>{item.Area}</td>
                     <td>{item.Correo || ""}</td>
-                    <td>{item.Estado}</td>
+                    <td><span className={ estados[item.Estado] || "badge badge-default"} >
+                    {item.Estado || "Sin estatus"}
+                </span></td>
                     <td>
                       <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                         <button

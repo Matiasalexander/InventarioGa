@@ -139,6 +139,11 @@ function UsuariosPage({ setLoading }) {
     }
   };
 
+  const estados = {
+    "Si":"badge badge-si",
+    "No": "badge badge-no"
+  };
+
   return (
     <div className="detail-user">
       <div className="header">

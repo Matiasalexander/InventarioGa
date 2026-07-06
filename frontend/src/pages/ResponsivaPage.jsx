@@ -304,9 +304,11 @@ function Responsiva({ setLoading }) {
                     <td>{item.MARCA}</td>
                     <td>{item.MODELO}</td>
                     <td>{item.SERIAL}</td>
+                    <td>
                     <span className={ estados[item.ESTATUS] || "badge badge-default"} >
                     {item.ESTATUS || "Sin estatus"}
                     </span>
+                    </td>
                     <td>
                       <button
                         className="btn-primary"
