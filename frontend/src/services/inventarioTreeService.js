@@ -1,8 +1,7 @@
-import axios from "axios";
-
-const API = import.meta.env.VITE_API_URL;
+import api from "../api/axios";
+import ENDPOINTS from "../config/endpoints";
 
 export const obtenerArbolUnidades = async () => {
-  const { data } = await axios.get(`${API}/inventario/arbol-unidades`);
+  const { data } = await api.get(`${ENDPOINTS.INVENTARIO}/arbol-unidades`);
   return data;
 };
