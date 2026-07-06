@@ -1,8 +1,14 @@
 .area-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
+    align-items: start;
 }
+
+.detail-item {
+    min-width: 0; /* evita que el contenido rompa el grid */
+}
+
 @media (max-width: 992px) {
     .area-grid {
         grid-template-columns: 1fr;

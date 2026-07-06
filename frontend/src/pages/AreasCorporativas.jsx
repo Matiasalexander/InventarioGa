@@ -14,11 +14,11 @@ function AreasCorporativas({ setLoading }) {
             <div className="responsive">
                 <div className="area-grid">
 
-                    <div className="area-item">
+                    <div className="detail-item">
                         <DepartamentosPage setLoading={setLoading} />
                     </div>
 
-                    <div className="area-item">
+                    <div className="detail-item">
                         <PuestosPage setLoading={setLoading} />
                     </div>
 
