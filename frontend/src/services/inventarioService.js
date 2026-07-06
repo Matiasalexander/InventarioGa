@@ -1,8 +1,14 @@
 import api from "../api/axios";
 import ENDPOINTS from "../config/endpoints";
 
-export const obtenerInventario = async () => {
-  const { data } = await api.get(ENDPOINTS.INVENTARIO);
+export const obtenerInventario = async (unidad = null) => {
+  const params = {};
+
+  if (unidad) {
+    params.unidad = unidad;
+  }
+
+  const { data } = await api.get(ENDPOINTS.INVENTARIO, { params });
   return data;
 };
 
