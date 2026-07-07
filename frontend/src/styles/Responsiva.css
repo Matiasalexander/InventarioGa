@@ -21,6 +21,7 @@
 
 .form-responsiva p {
   text-align: left;
+  height: fit-content;
 }
 
 .form-responsiva input,
@@ -115,6 +116,16 @@
   text-align: left;
 }
 
+.firma-container {
+  width: 100%;
+  height: 50%;
+}
+
+.signature-canvas {
+  height: fit-content;
+  width: 100%;
+}
+
 .badge-en-uso{
   background: #dcfce7;
 }
@@ -127,4 +138,16 @@
 
 .badge-disponible{
  background-color: rgb(166, 178, 255);
+}
+
+@media (max-width:480px){
+  .card-responsiva {
+  width: 100%;
+  overflow-x: auto;
+  }
+
+  .card {
+    overflow: auto;
+    padding: 16px;
+  }
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X, Monitor, Cpu, Book, AreaChart, LogOut } from "lucide-react";
+import { Menu, Monitor, Cpu, Book, AreaChart, LogOut } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { getRol } from "../utils/roles";
 import "../styles/Sidebar.css";
@@ -56,12 +56,12 @@ export default function Sidebar() {
 
   return (
     <>
-      <button
-        className="menu-button"
-        onClick={() => setAbierto(true)}
-      >
-        <Menu size={26}/>
-      </button>
+<button
+  className="menu-button"
+  onClick={() => setAbierto(prev => !prev)}
+>
+  <Menu size={26} />
+</button>
 
 
       {abierto && (
@@ -79,13 +79,6 @@ export default function Sidebar() {
           <span>
             Inventario Grupo Anderson's
           </span>
-
-          <button
-            className="close-button"
-            onClick={() => setAbierto(false)}
-          >
-            <X size={24}/>
-          </button>
 
         </div>
 

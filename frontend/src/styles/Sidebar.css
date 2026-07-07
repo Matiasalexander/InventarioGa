@@ -92,19 +92,23 @@
 @media(max-width:768px){
 
     .menu-button {
-        display:block;
-        position:fixed;
-        top:15px;
-        left:15px;
-        z-index:1200;
-        background:#1e293b;
-        color:white;
-        border:none;
-        padding:8px;
-        border-radius:8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1200;
+        background: #1e293b;
+        color: white;
+        padding: 12px;
     }
 
-
+    .sidebar-header {
+        padding-top: 60px;
+    }
     .sidebar {
 
         transform:translateX(-100%);
@@ -113,7 +117,6 @@
 
 
     .sidebar.activo {
-
         transform:translateX(0);
     }
 
@@ -121,7 +124,6 @@
     .close-button {
 
         display:block;
-        background:none;
         border:none;
         color:white;
     }
@@ -131,7 +133,6 @@
 
         position:fixed;
         inset:0;
-        background:rgba(0,0,0,.5);
         z-index:900;
     }
 
