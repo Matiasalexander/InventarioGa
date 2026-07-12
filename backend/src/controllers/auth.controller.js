@@ -7,12 +7,26 @@ const login = async (req, res) => {
   try {
     const { correo, password } = req.body;
 
+    if (!correo || !password) {
+      return res.status(400).json({
+        message: "Correo y contraseña son obligatorios"
+      });
+    }
+
+    const correoNormalizado = correo.trim().toLowerCase();
     const pool = await poolPromise;
 
     const result = await pool.request()
-      .input("Correo", correo)
+      .input("Correo", correoNormalizado)
       .query(`
-        SELECT *
+        SELECT
+          IdUsuario,
+          Nombre,
+          Correo,
+          PasswordHash,
+          Rol,
+          Activo,
+          DebeCambiarPassword
         FROM Usuarios
         WHERE Correo = @Correo
           AND Activo = 1
@@ -37,12 +51,16 @@ const login = async (req, res) => {
       });
     }
 
+    const debeCambiarPassword =
+      Boolean(usuario.DebeCambiarPassword);
+
     const token = jwt.sign(
       {
         IdUsuario: usuario.IdUsuario,
         Nombre: usuario.Nombre,
         Correo: usuario.Correo,
-        Rol: usuario.Rol
+        Rol: usuario.Rol,
+        DebeCambiarPassword: debeCambiarPassword
       },
       process.env.JWT_SECRET || "InventarioGA2026",
       {
@@ -50,18 +68,21 @@ const login = async (req, res) => {
       }
     );
 
-    res.json({
+    return res.json({
       token,
       usuario: {
         IdUsuario: usuario.IdUsuario,
         Nombre: usuario.Nombre,
         Correo: usuario.Correo,
-        Rol: usuario.Rol
+        Rol: usuario.Rol,
+        DebeCambiarPassword: debeCambiarPassword
       }
     });
 
   } catch (error) {
-    res.status(500).json({
+    console.error("Error en login:", error);
+
+    return res.status(500).json({
       message: "Error en login",
       error: error.message
     });
@@ -78,12 +99,16 @@ const olvidePassword = async (req, res) => {
       });
     }
 
+    const correoNormalizado = correo.trim().toLowerCase();
     const pool = await poolPromise;
 
     const usuario = await pool.request()
-      .input("Correo", correo)
+      .input("Correo", correoNormalizado)
       .query(`
-        SELECT *
+        SELECT
+          IdUsuario,
+          Nombre,
+          Correo
         FROM Usuarios
         WHERE Correo = @Correo
           AND Activo = 1
@@ -126,17 +151,19 @@ const olvidePassword = async (req, res) => {
           @IdUsuario,
           @Token,
           @Codigo,
-          DATEADD(MINUTE,30,GETDATE())
+          DATEADD(MINUTE, 30, GETDATE())
         )
       `);
 
     await transporter.sendMail({
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: correo,
+      to: correoNormalizado,
       subject: "Código para restablecer contraseña - Inventario GA2",
       html: `
         <div style="font-family: Arial, sans-serif; color:#111827; line-height:1.6;">
-          <h2 style="color:#1e293b;">Restablecimiento de contraseña</h2>
+          <h2 style="color:#1e293b;">
+            Restablecimiento de contraseña
+          </h2>
 
           <p>Hola ${NombreUsuario || ""},</p>
 
@@ -169,7 +196,11 @@ const olvidePassword = async (req, res) => {
             Si no solicitaste este cambio, puedes ignorar este correo.
           </p>
 
-          <hr style="border:none; border-top:1px solid #e5e7eb; margin:24px 0;" />
+          <hr style="
+            border:none;
+            border-top:1px solid #e5e7eb;
+            margin:24px 0;
+          " />
 
           <p style="font-size:12px; color:#64748b;">
             Este mensaje fue enviado automáticamente por Inventario GA2.
@@ -178,12 +209,14 @@ const olvidePassword = async (req, res) => {
       `
     });
 
-    res.json({
+    return res.json({
       message: "Código enviado correctamente al correo"
     });
 
   } catch (error) {
-    res.status(500).json({
+    console.error("Error generando código:", error);
+
+    return res.status(500).json({
       message: "Error generando código",
       error: error.message
     });
@@ -204,12 +237,14 @@ const resetPassword = async (req, res) => {
       });
     }
 
+    const correoNormalizado = correo.trim().toLowerCase();
     const pool = await poolPromise;
 
     const usuario = await pool.request()
-      .input("Correo", correo)
+      .input("Correo", correoNormalizado)
       .query(`
-        SELECT *
+        SELECT
+          IdUsuario
         FROM Usuarios
         WHERE Correo = @Correo
           AND Activo = 1
@@ -227,7 +262,8 @@ const resetPassword = async (req, res) => {
       .input("IdUsuario", IdUsuario)
       .input("Codigo", codigo)
       .query(`
-        SELECT TOP 1 *
+        SELECT TOP 1
+          IdToken
         FROM PasswordResetTokens
         WHERE IdUsuario = @IdUsuario
           AND Codigo = @Codigo
@@ -251,6 +287,7 @@ const resetPassword = async (req, res) => {
         UPDATE Usuarios
         SET
           PasswordHash = @PasswordHash,
+          DebeCambiarPassword = 0,
           FechaActualizacion = GETDATE()
         WHERE IdUsuario = @IdUsuario
       `);
@@ -263,12 +300,14 @@ const resetPassword = async (req, res) => {
         WHERE IdToken = @IdToken
       `);
 
-    res.json({
+    return res.json({
       message: "Contraseña actualizada correctamente"
     });
 
   } catch (error) {
-    res.status(500).json({
+    console.error("Error restableciendo contraseña:", error);
+
+    return res.status(500).json({
       message: "Error restableciendo contraseña",
       error: error.message
     });
@@ -291,12 +330,13 @@ const registrarUsuario = async (req, res) => {
       });
     }
 
+    const correoNormalizado = Correo.trim().toLowerCase();
     const pool = await poolPromise;
 
     const existe = await pool.request()
-      .input("Correo", Correo)
+      .input("Correo", correoNormalizado)
       .query(`
-        SELECT *
+        SELECT IdUsuario
         FROM Usuarios
         WHERE Correo = @Correo
       `);
@@ -310,34 +350,39 @@ const registrarUsuario = async (req, res) => {
     const hash = await bcrypt.hash(Password, 10);
 
     await pool.request()
-      .input("Nombre", Nombre)
-      .input("Correo", Correo)
+      .input("Nombre", Nombre.trim())
+      .input("Correo", correoNormalizado)
       .input("Telefono", Telefono || null)
       .input("PasswordHash", hash)
       .input("Rol", Rol || "Usuario")
+      .input("DebeCambiarPassword", 1)
       .query(`
         INSERT INTO Usuarios (
           Nombre,
           Correo,
           Telefono,
           PasswordHash,
-          Rol
+          Rol,
+          DebeCambiarPassword
         )
         VALUES (
           @Nombre,
           @Correo,
           @Telefono,
           @PasswordHash,
-          @Rol
+          @Rol,
+          @DebeCambiarPassword
         )
       `);
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Usuario creado correctamente"
     });
 
   } catch (error) {
-    res.status(500).json({
+    console.error("Error creando usuario:", error);
+
+    return res.status(500).json({
       message: "Error creando usuario",
       error: error.message
     });
