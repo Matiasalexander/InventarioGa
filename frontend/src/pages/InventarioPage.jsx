@@ -237,7 +237,6 @@ function InventarioPage({ setLoading }) {
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Restaurante</th>
                   <th>Localidad</th>
                   <th>Ubicación</th>
@@ -256,7 +255,6 @@ function InventarioPage({ setLoading }) {
               <tbody>
                 {inventarioFiltrado.map((item) => (
                   <tr key={item.id}>
-                    <td>{item.id}</td>
                     <td>{item.UNIDAD}</td>
                     <td>{item.LOCALIDAD}</td>
                     <td>{item.UBICACION}</td>

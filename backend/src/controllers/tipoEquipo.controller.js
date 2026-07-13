@@ -72,9 +72,13 @@ const crearTipoEquipo = async (req, res) => {
     res.status(201).json({
       message: "Tipo de equipo creado correctamente"
     });
-
+//CATCH MENSAJE DE DUPLICADOS
   } catch (error) {
-
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message: "Ya existe un tipo de equipo con ese nombre"
+      });
+    }
     res.status(500).json({
       message: "Error creando tipo de equipo",
       error: error.message

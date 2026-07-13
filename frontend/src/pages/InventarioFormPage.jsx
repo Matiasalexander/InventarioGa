@@ -373,8 +373,9 @@ function InventarioFormPage({ setLoading }) {
   esTabletPOS ||
   esWorkstationpos ||
   esKDS ||
-  (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet" || formulario.CONEXION === "Serial" || formulario.CONEXION === "Serial y Ethernet");
+  (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet" || formulario.CONEXION === "Serial y Ethernet");
   {/*Herramientas en general*/}
+
 
   const mostrarAccesos = 
   esPantallaPOS ||
@@ -738,7 +739,7 @@ function InventarioFormPage({ setLoading }) {
                   </select>
                 </div>
 
-                {(formulario.CONEXION == "Ethernet" || formulario.CONEXION == "Serial y Ethernet") && (
+                {(formulario.CONEXION == "Serial y Ethernet"  || formulario.CONEXION == "Serial") && (
                 <div className="campo-form">
                   <label>Puerto</label>
                   <input
