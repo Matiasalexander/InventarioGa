@@ -1,0 +1,139 @@
+.sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: #1e293b;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    position:fixed;
+    left:0;
+    top:0;
+    z-index:1000;
+}
+
+
+.sidebar-header {
+    padding:20px 24px;
+    font-size:18px;
+    font-weight:bold;
+    border-bottom:1px solid #334155;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+
+.close-button,
+.menu-button {
+    display:none;
+}
+
+
+.usuario {
+    padding:16px 24px;
+    border-bottom:1px solid #334155;
+}
+
+
+.usuario small {
+    display:block;
+    color:#94a3b8;
+    margin-top:5px;
+}
+
+
+.menu {
+    padding:16px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+
+
+.link {
+    font-size: 15px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:8px;
+    text-decoration:none;
+    color:#94a3b8;
+}
+
+
+.link:hover {
+    background:#334155;
+    color:white;
+}
+
+
+.activo-link {
+    background:#4f46e5;
+    color:white;
+}
+
+
+.logout {
+    margin-top:auto;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #334155;
+    background:none;
+    color:#fca5a5;
+    display:flex;
+    gap:10px;
+    cursor:pointer;
+}
+
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+    .menu-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1200;
+        background: #1e293b;
+        color: white;
+        padding: 12px;
+    }
+
+    .sidebar-header {
+        padding-top: 60px;
+    }
+    .sidebar {
+
+        transform:translateX(-100%);
+        transition:.3s ease;
+    }
+
+
+    .sidebar.activo {
+        transform:translateX(0);
+    }
+
+
+    .close-button {
+
+        display:block;
+        border:none;
+        color:white;
+    }
+
+
+    .overlay {
+
+        position:fixed;
+        inset:0;
+        z-index:900;
+    }
+
+}

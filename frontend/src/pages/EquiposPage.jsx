@@ -24,8 +24,8 @@ function EquiposPage({ setLoading }) {
     </div>
     
     <div className="dashboard-grid">
-        <ModelosPage setLoading={setLoading}/>
         <ModespPage setLoading={setLoading}/>
+        <ModelosPage setLoading={setLoading}/>
     </div>
 
 </div>

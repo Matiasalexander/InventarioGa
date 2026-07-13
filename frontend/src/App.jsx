@@ -31,6 +31,7 @@ import DashboardPage from "./pages/DashboardPage";
 
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import "./App.css";
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -65,22 +66,10 @@ function App() {
             path="/*"
             element={
               <ProtectedRoute>
-                <div style={{ display: "flex", minHeight: "100vh" }}>
+                <div className="layout">
                   <Sidebar />
 
-                  <main
-                    style={{
-                      flex: 1,
-                      padding: "24px",
-                      overflow: "auto",
-                      background: `
-                        radial-gradient(
-                          circle at top left,
-                          rgba(37,99,235,.20) 0%,
-                          white 60%
-                        )
-                      `
-                    }}
+                  <main className="content"
                   >
                     <Routes>
                       <Route

@@ -1,11 +1,16 @@
 const { poolPromise } = require("../config/db");
 const bcrypt = require("bcryptjs");
 
+const enviarCorreoNuevoUsuario =
+  require("../helpers/enviarCorreoNuevoUsuario");
+
+
 const obtenerUsuarios = async (req, res) => {
   try {
     const pool = await poolPromise;
 
     const result = await pool.request().query(`
+      
       SELECT
         IdUsuario,
         Nombre,
@@ -83,10 +88,11 @@ const crearUsuario = async (req, res) => {
       });
     }
 
+    const correoNormalizado = Correo.trim().toLowerCase();
     const pool = await poolPromise;
 
     const existe = await pool.request()
-      .input("Correo", Correo)
+      .input("Correo", correoNormalizado)
       .query(`
         SELECT IdUsuario
         FROM Usuarios
@@ -99,15 +105,20 @@ const crearUsuario = async (req, res) => {
       });
     }
 
-    const PasswordHash = await bcrypt.hash(Password, 10);
+    // La contraseña original solamente se conserva para enviar el correo.
+    const passwordTemporal = Password;
+
+    // En la base de datos únicamente se almacena el hash.
+    const PasswordHash = await bcrypt.hash(passwordTemporal, 10);
 
     await pool.request()
-      .input("Nombre", Nombre)
-      .input("Correo", Correo)
+      .input("Nombre", Nombre.trim())
+      .input("Correo", correoNormalizado)
       .input("Telefono", Telefono || null)
       .input("PasswordHash", PasswordHash)
       .input("Rol", Rol)
       .input("Activo", Activo === false ? 0 : 1)
+      .input("DebeCambiarPassword", 1)
       .query(`
         INSERT INTO Usuarios (
           Nombre,
@@ -115,7 +126,8 @@ const crearUsuario = async (req, res) => {
           Telefono,
           PasswordHash,
           Rol,
-          Activo
+          Activo,
+          DebeCambiarPassword
         )
         VALUES (
           @Nombre,
@@ -123,15 +135,38 @@ const crearUsuario = async (req, res) => {
           @Telefono,
           @PasswordHash,
           @Rol,
-          @Activo
+          @Activo,
+          @DebeCambiarPassword
         )
       `);
 
-    res.status(201).json({
-      message: "Usuario creado correctamente"
+    let correoEnviado = true;
+
+    try {
+      await enviarCorreoNuevoUsuario({
+        correo: correoNormalizado,
+        nombre: Nombre,
+        passwordTemporal,
+        rol: Rol
+      });
+    } catch (correoError) {
+      correoEnviado = false;
+      console.error(
+        "Usuario creado, pero falló el envío del correo:",
+        correoError
+      );
+    }
+
+    return res.status(201).json({
+      message: correoEnviado
+        ? "Usuario creado y accesos enviados correctamente"
+        : "Usuario creado, pero no fue posible enviar el correo de accesos",
+      correoEnviado
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Error creando usuario:", error);
+
+    return res.status(500).json({
       message: "Error creando usuario",
       error: error.message
     });

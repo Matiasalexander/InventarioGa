@@ -31,3 +31,17 @@ export const eliminarInventario = async (id) => {
   const { data } = await api.delete(`${ENDPOINTS.INVENTARIO}/${id}`);
   return data;
 };
+export const exportarInventarioExcel = async (unidad = null) => {
+  const params = {};
+
+  if (unidad) {
+    params.unidad = unidad;
+  }
+
+  const response = await api.get(`${ENDPOINTS.INVENTARIO}/exportar-excel`, {
+    params,
+    responseType: "blob",
+  });
+
+  return response.data;
+};
