@@ -261,7 +261,6 @@ function UsuariosPage({ setLoading }) {
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Nombre</th>
                   <th>Correo</th>
                   <th>Teléfono</th>
@@ -279,7 +278,6 @@ function UsuariosPage({ setLoading }) {
                 ) : (
                   usuarios.map((usuario) => (
                     <tr key={usuario.IdUsuario}>
-                      <td>{usuario.IdUsuario}</td>
                       <td>{usuario.Nombre}</td>
                       <td>{usuario.Correo}</td>
                       <td>{usuario.Telefono}</td>

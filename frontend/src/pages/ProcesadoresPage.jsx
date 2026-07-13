@@ -131,7 +131,6 @@ function ProcesadoresPage({ setLoading }) {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Procesador</th>
                 <th>Acciones</th>
               </tr>
@@ -140,7 +139,6 @@ function ProcesadoresPage({ setLoading }) {
             <tbody>
               {procesadores.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
                   <td>{item.Nombre}</td>
                   <td>
                     <button type="button" onClick={() => editarProcesador(item)}>

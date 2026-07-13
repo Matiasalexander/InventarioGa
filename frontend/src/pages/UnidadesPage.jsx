@@ -184,7 +184,6 @@ function UnidadesPage({ setLoading }) {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Restaurante</th>
                 <th>Ubicación</th>
                 <th>Estado</th>
@@ -195,7 +194,6 @@ function UnidadesPage({ setLoading }) {
             <tbody>
               {unidades.slice(0,10).map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
                   <td>{item.Restaurante}</td>
                   <td>{item.Ubicacion}</td>
                   <td>{item.Estado}</td>

@@ -191,7 +191,6 @@ function ModelosProcesadorPage({ setLoading }) {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Procesador</th>
                 <th>Modelo</th>
                 <th>Acciones</th>
@@ -201,7 +200,6 @@ function ModelosProcesadorPage({ setLoading }) {
             <tbody>
               {modelosProcesadoresFiltrados.slice(0,7).map((item) => (
                 <tr key={item.Id}>
-                  <td>{item.Id}</td>
                   <td>{item.Nombre}</td>
                   <td>{item.Modelo}</td>
                   <td>

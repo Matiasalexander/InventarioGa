@@ -139,7 +139,6 @@ function DepartamentosPage({ setLoading }) {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Departamento</th>
                 <th>Acciones</th>
               </tr>
@@ -148,7 +147,6 @@ function DepartamentosPage({ setLoading }) {
             <tbody>
               {departamentos.map((item) => (
                 <tr key={item.Id}>
-                  <td>{item.Id}</td>
                   <td>{item.Nombre_departamento}</td>
                   <td>
                     <button
