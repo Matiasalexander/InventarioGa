@@ -215,7 +215,7 @@ function Responsiva({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="header-r">
         <h2>Nueva responsiva</h2>
 
         <button

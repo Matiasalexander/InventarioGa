@@ -156,19 +156,20 @@ function InventarioPage({ setLoading }) {
   return (
     <>
          <div className="header">
-          <div>
+
+
+    <div className="header-actions">
+        <div className="header-title">
             <h1>Inventario</h1>
             <p>Administración de equipos registrados.</p>
           </div>
-
-    <div className="header-actions">
           {puedeCrear && (
             <button type="button" onClick={irAgregar}>
               + Agregar equipo
             </button>
           )}
 
-              <button type="button" onClick={descargarExcel}>
+      <button type="button" onClick={descargarExcel}>
   📥 Exportar Excel
 </button>
 </div>

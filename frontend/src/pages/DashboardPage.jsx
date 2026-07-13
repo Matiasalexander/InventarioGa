@@ -38,7 +38,7 @@ function DashboardPage({ setLoading }) {
   return (
     <div className="contenedor">
       <div className="header">
-        <div>
+        <div className="header-title" >
           <h1>Inventario Grupo Anderson's</h1>
           <p>Resumen general del inventario y responsivas.</p>
         </div>
