@@ -256,24 +256,14 @@ const crearInventario = async (req, res) => {
       }
     }
 
-    let NOMBRE_EQUIPO = "NA";
 
-    if (await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD, ID_TIPO_EQUIPO)) {
-      NOMBRE_EQUIPO = await generarNombreEquipo(
-        pool,
-        ID_TIPO_EQUIPO,
-        SISTEMA_OPERATIVO,
-        FECHA_FABRICACION
-      );
-    }
-
-    await pool.request()
+    const insertResult = await pool.request()
       .input("ID_UNIDAD", ID_UNIDAD || null)
       .input("LOCALIDAD", LOCALIDAD || null)
       .input("UBICACION", UBICACION || null)
       .input("ID_TIPO_EQUIPO", ID_TIPO_EQUIPO || null)
       .input("TIPO_IMPRESORA", TIPO_IMPRESORA || null)
-      .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO)
+      .input("NOMBRE_EQUIPO", "NA")
       .input("ID_DEPARTAMENTO", ID_DEPARTAMENTO || null)
       .input("PUESTO", PUESTO || null)
       .input("SERIAL", SERIAL || null)
@@ -332,7 +322,7 @@ const crearInventario = async (req, res) => {
           ACCESO_ANYDESK,
           CONTRASEÑA_ANYDESK,
           COMENTARIO
-        )
+        ) OUTPUT INSERTED.id
         VALUES (
           @ID_UNIDAD,
           @LOCALIDAD,
@@ -368,6 +358,26 @@ const crearInventario = async (req, res) => {
         )
       `);
 
+      const idGenerado = insertResult.recordset[0].id;
+let NOMBRE_EQUIPO = "NA";
+const aplicaNombre = await debeGenerarNombreEquipo(pool, ID_UNIDAD, LOCALIDAD, ID_TIPO_EQUIPO);
+if (aplicaNombre) {
+  NOMBRE_EQUIPO = await generarNombreEquipo(
+    pool,
+    ID_TIPO_EQUIPO,
+    SISTEMA_OPERATIVO,
+    FECHA_FABRICACION
+  );
+
+  await pool.request()
+    .input("id", idGenerado)
+    .input("NOMBRE_EQUIPO", NOMBRE_EQUIPO)
+    .query(`
+      UPDATE INVENTARIO_M
+      SET NOMBRE_EQUIPO = @NOMBRE_EQUIPO
+      WHERE id = @id
+    `);
+}
     res.status(201).json({
       message: "Equipo agregado correctamente",
       NOMBRE_EQUIPO,

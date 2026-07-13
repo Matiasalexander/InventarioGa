@@ -37,29 +37,29 @@ const generarNombreEquipo = async (
     .toString()
     .slice(-2);
 
-  const prefijo = `${prefijoTipo}${prefijoSO}${anio}`;
+  const base = `${prefijoTipo}${anio}${prefijoSO}-`;
+    const countResult = await pool.request()
+    .query(`SELECT COUNT(*) AS total FROM INVENTARIO_M WHERE NOMBRE_EQUIPO <> 'NA'`);
 
-  const ultimoResult = await pool.request()
-    .input("Prefijo", `${prefijo}-%`)
-    .query(`
-      SELECT TOP 1 NOMBRE_EQUIPO
-      FROM INVENTARIO_M
-      WHERE NOMBRE_EQUIPO LIKE @Prefijo
-      ORDER BY NOMBRE_EQUIPO DESC
-    `);
+  let consecutivo = countResult.recordset[0].total + 1;
+  let nombreEquipo;
+  let existe = true;
 
-  let consecutivo = 1;
+  while (existe) {
+    nombreEquipo = `${base}${String(consecutivo).padStart(3, "0")}`;
 
-  if (ultimoResult.recordset.length > 0) {
-    const ultimoNombre = ultimoResult.recordset[0].NOMBRE_EQUIPO;
-    const ultimoNumero = parseInt(ultimoNombre.split("-")[1], 10);
+    const check = await pool.request()
+      .input("NOMBRE_EQUIPO", nombreEquipo)
+      .query(`SELECT id FROM INVENTARIO_M WHERE NOMBRE_EQUIPO = @NOMBRE_EQUIPO`);
 
-    consecutivo = ultimoNumero + 1;
+    if (check.recordset.length === 0) {
+      existe = false;
+    } else {
+      consecutivo++;
+    }
   }
 
-  const consecutivoFormateado = String(consecutivo).padStart(3, "0");
-
-  return `${prefijo}-${consecutivoFormateado}`;
+  return nombreEquipo;
 };
 
 module.exports = generarNombreEquipo;
