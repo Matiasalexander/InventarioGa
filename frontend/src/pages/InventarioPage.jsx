@@ -12,9 +12,19 @@ import InventarioTree from "../components/InventarioTree";
 
 function InventarioPage({ setLoading }) {
   const [inventario, setInventario] = useState([]);
-  const [busqueda, setBusqueda] = useState("");
-  const [unidadSeleccionada, setUnidadSeleccionada] = useState(null);
-  const [unidadNombreSeleccionada, setUnidadNombreSeleccionada] = useState("");
+  
+  const [busqueda, setBusqueda] = useState(
+  sessionStorage.getItem("inventario_busqueda") || ""
+);
+
+const [unidadSeleccionada, setUnidadSeleccionada] = useState(() => {
+  const unidadGuardada = sessionStorage.getItem("inventario_unidad_id");
+  return unidadGuardada ? Number(unidadGuardada) : null;
+});
+
+const [unidadNombreSeleccionada, setUnidadNombreSeleccionada] = useState(
+  sessionStorage.getItem("inventario_unidad_nombre") || ""
+);
 
   const navigate = useNavigate();
   const rol = getRol();
@@ -36,9 +46,9 @@ function InventarioPage({ setLoading }) {
     }
   };
 
-  useEffect(() => {
-    cargarInventario();
-  }, []);
+ useEffect(() => {
+  cargarInventario(unidadSeleccionada);
+}, []);
 
   const inventarioFiltrado = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
@@ -71,19 +81,29 @@ function InventarioPage({ setLoading }) {
   // Aquí faltaba esta función. El componente la usa en:
   // <InventarioTree onSeleccionarUnidad={handleSeleccionUnidad} />
   // Si no existe, React marca error porque la referencia está indefinida.
-  const handleSeleccionUnidad = async (idUnidad, nombreCompleto) => {
-    setUnidadSeleccionada(idUnidad);
-    setUnidadNombreSeleccionada(nombreCompleto);
-    setBusqueda("");
-    await cargarInventario(idUnidad);
-  };
+const handleSeleccionUnidad = async (idUnidad, nombreCompleto) => {
+  setUnidadSeleccionada(idUnidad);
+  setUnidadNombreSeleccionada(nombreCompleto);
+  setBusqueda("");
 
-  const mostrarTodos = async () => {
-    setUnidadSeleccionada(null);
-    setUnidadNombreSeleccionada("");
-    setBusqueda("");
-    await cargarInventario();
-  };
+  sessionStorage.setItem("inventario_unidad_id", String(idUnidad));
+  sessionStorage.setItem("inventario_unidad_nombre", nombreCompleto);
+  sessionStorage.removeItem("inventario_busqueda");
+
+  await cargarInventario(idUnidad);
+};
+
+const mostrarTodos = async () => {
+  setUnidadSeleccionada(null);
+  setUnidadNombreSeleccionada("");
+  setBusqueda("");
+
+  sessionStorage.removeItem("inventario_unidad_id");
+  sessionStorage.removeItem("inventario_unidad_nombre");
+  sessionStorage.removeItem("inventario_busqueda");
+
+  await cargarInventario();
+};
 
   const irDetalle = (id) => {
     navigate(`/inventario/detalle/${id}`);
@@ -230,7 +250,12 @@ function InventarioPage({ setLoading }) {
               className="search-input"
               placeholder="Buscar por equipo, serial, marca, IP, responsiva..."
               value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+              onChange={(e) => {
+  const valor = e.target.value;
+
+  setBusqueda(valor);
+  sessionStorage.setItem("inventario_busqueda", valor);
+}}
             />
           </div>
 
