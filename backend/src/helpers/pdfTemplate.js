@@ -62,12 +62,11 @@ const generarPdfBuffer = ({ responsiva, equipos = [] }) => {
       const rowHeight = 26;
 
       const columnWidths = {
-        descripcion: 180,
-        marca: 90,
-        modelo: 140,
-        serie: 130
+      descripcion: 165,
+      marca: 80,
+      modelo: 125,
+      serie: 125
       };
-
       const drawCell = (text, x, y, width, height, bold = false) => {
         doc.lineWidth(1).rect(x, y, width, height).stroke();
 
@@ -148,15 +147,34 @@ const generarPdfBuffer = ({ responsiva, equipos = [] }) => {
 
       doc.moveDown(0.5);
 
-      doc
-        .font("Helvetica-Bold")
-        .fontSize(11)
-        .text(responsiva.NombreReceptor || "NOMBRE", { align: "center" });
+      const textWidth = 300;
+      const textX = (doc.page.width - textWidth) / 2;
 
       doc
-        .font("Helvetica")
-        .fontSize(10)
-        .text(responsiva.Area || "AREA", { align: "center" });
+      .font("Helvetica-Bold")
+      .fontSize(11)
+      .text(
+      responsiva.NombreReceptor || "NOMBRE",
+      textX,
+      doc.y,
+      {
+        width: textWidth,
+        align: "center"
+      }
+    );
+
+      doc
+      .font("Helvetica")
+      .fontSize(10)
+      .text(
+      responsiva.Area || "AREA",
+      textX,
+      doc.y,
+        {
+          width: textWidth,
+          align: "center"
+        }
+    );
 
       doc.end();
     } catch (error) {

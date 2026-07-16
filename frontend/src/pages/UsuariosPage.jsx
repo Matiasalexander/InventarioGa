@@ -246,7 +246,7 @@ function UsuariosPage({ setLoading }) {
             {editandoId && (
               <button
                 type="button"
-                className="btn-secondary"
+                className="botones"
                 onClick={limpiarForm}
               >
                 Cancelar

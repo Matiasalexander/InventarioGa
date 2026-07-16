@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
@@ -9,6 +9,7 @@ import {
   descargarResponsivaPDF,
   reenviarResponsiva
 } from "../services/responsivaService";
+import ResponsivasAcciones from "../components/ResponsivasAcciones";
 
 function HistorialResponsivasPage({ setLoading }) {
   const navigate = useNavigate();
@@ -18,6 +19,36 @@ function HistorialResponsivasPage({ setLoading }) {
   const [responsivaSeleccionada, setResponsivaSeleccionada] = useState(null);
 
   const [editando, setEditando] = useState(null);
+  //BUSQUEDA DE RESPONSVIAS por FOLIO Y RECEPTOR
+  const [busqueda, setBusqueda] = useState("");
+  //Código para la búsqueda de responsivas
+  const responsivasFiltradas = useMemo(() => {
+  const texto = busqueda.toLowerCase().trim();
+
+  if (!texto) return responsivas;
+
+  return responsivas.filter((item) => {
+    const folio = (
+      item.Folio ||
+      `RESP-${String(item.IdResponsiva).padStart(5, "0")}`
+    ).toLowerCase();
+
+    const receptor = (item.NombreReceptor || "").toLowerCase();
+    const area = (item.Area || " ").toLowerCase();
+    const correo = (item.Correo).toLowerCase();
+    const puesto = (item.Puesto).toLowerCase();
+
+    return (
+      folio.includes(texto) ||
+      receptor.includes(texto) ||
+      area.includes(texto) ||
+      correo.includes(texto) ||
+      puesto.includes(texto) 
+    );
+  });
+}, [busqueda, responsivas]);
+  //FIN DEL CÓDIGO PARA BUSCAR POR FOLIO Y RECEPTOR
+
   const [formEditar, setFormEditar] = useState({
     Fecha: "",
     NombreReceptor: "",
@@ -172,6 +203,13 @@ function HistorialResponsivasPage({ setLoading }) {
         <button type="button" onClick={() => navigate("/responsiva")}>
           Crear Responsiva
         </button>
+
+        <input
+        className="search-input"
+        placeholder="Buscar responsiva por Folio/receptor..."
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      />
       </div>
 
       <div className="table-responsive">
@@ -195,7 +233,7 @@ function HistorialResponsivasPage({ setLoading }) {
                 <td colSpan="8">No hay responsivas registradas.</td>
               </tr>
             ) : (
-              responsivas.map((item) => {
+              responsivasFiltradas.map((item) => {
                 const folio =
                   item.Folio ||
                   `RESP-${String(item.IdResponsiva).padStart(5, "0")}`;
@@ -216,40 +254,14 @@ function HistorialResponsivasPage({ setLoading }) {
                     {item.Estado || "Sin estatus"}
                 </span></td>
                     <td>
-                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                        <button
-                          className="btn-primary"
-                          type="button"
-                          onClick={() => verDetalle(item.IdResponsiva)}
-                        >
-                          Ver detalle
-                        </button>
+<ResponsivasAcciones
+  item={item}
+  onDetalle={verDetalle}
+  onEditar={abrirEditar}
+  onPDF={(id) => descargarPDF(id, folio)}
+  onCorreo={reenviarCorreo}
+/>
 
-                        <button
-                          className="btn-secondary"
-                          type="button"
-                          onClick={() => abrirEditar(item)}
-                        >
-                          Editar
-                        </button>
-
-                        <button
-                          className="btn-secondary"
-                          type="button"
-                          onClick={() => descargarPDF(item.IdResponsiva, folio)}
-                        >
-                          PDF
-                        </button>
-
-                        <button
-                          className="btn-secondary"
-                          type="button"
-                          onClick={() => reenviarCorreo(item.IdResponsiva)}
-                          disabled={!item.Correo}
-                        >
-                          Correo
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 );
