@@ -929,9 +929,9 @@ const inventarioPaginado = inventarioFiltrado.slice(
                 <th>Serial</th>
                 <th>Marca</th>
                 <th>Modelo</th>
-                <th>IP</th>
+                {/* <th>IP</th> */}
                 <th>Estatus</th>
-                <th>Responsiva</th>
+                {/* <th>Responsiva</th> */}
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -947,7 +947,7 @@ const inventarioPaginado = inventarioFiltrado.slice(
                   <td>{item.SERIAL}</td>
                   <td>{item.MARCA}</td>
                   <td>{item.MODELO}</td>
-                  <td>{item.IP}</td>
+                  {/* <td>{item.IP}</td> */}
 
                   <td>
                     <span
@@ -960,7 +960,7 @@ const inventarioPaginado = inventarioFiltrado.slice(
                     </span>
                   </td>
 
-                  <td>
+              {/*    <td>
                     {item.RESPONSIVA_DIGITAL ? (
                       <span className="badge">
                         RESP-
@@ -973,7 +973,7 @@ const inventarioPaginado = inventarioFiltrado.slice(
                         Disponible
                       </span>
                     )}
-                  </td>
+                  </td>*/}
 
 <td>
   {/* NUEVO:
