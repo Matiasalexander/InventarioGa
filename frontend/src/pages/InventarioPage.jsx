@@ -550,7 +550,7 @@ const inventarioPaginado = inventarioFiltrado.slice(
                   style={{
                     border: "none",
                     background: "transparent",
-                    color: "#dc2626",
+                    color: "#48506a",
                     cursor: "pointer",
                     fontWeight: 600
                   }}

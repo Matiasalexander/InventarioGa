@@ -6,7 +6,7 @@ import {
   FileDown,
   Mail
 } from "lucide-react";
-import "../styles/GlobalModalMenu.css"
+import "../styles/InventarioPage.css"
 export default function ResponsivasAcciones({
   item,
   onDetalle,
@@ -63,7 +63,7 @@ export default function ResponsivasAcciones({
         aria-expanded={abierto}
         onClick={() => setAbierto((prev) => !prev)}
       >
-        <MoreVertical size={18} />
+        <MoreVertical size={18} color="white"/>
       </button>
 
       {abierto && (
@@ -80,7 +80,7 @@ export default function ResponsivasAcciones({
             className="acciones-menu-item"
             onClick={() => ejecutarAccion(() => onEditar(item))}
           >
-            <Pencil size={16} />
+            <Pencil className="icon-p" size={16} />
             Editar
           </button>
 
@@ -88,7 +88,7 @@ export default function ResponsivasAcciones({
             className="acciones-menu-item"
             onClick={() => ejecutarAccion(() => onPDF(item.IdResponsiva))}
           >
-            <FileDown size={16} />
+            <FileDown className="icon-file" size={16} />
             Descargar PDF
           </button>
 
@@ -97,7 +97,7 @@ export default function ResponsivasAcciones({
             disabled={!item.Correo}
             onClick={() => ejecutarAccion(() => onCorreo(item.IdResponsiva))}
           >
-            <Mail size={16} />
+            <Mail className="icon-mail" size={16} />
             Reenviar correo
           </button>
         </div>

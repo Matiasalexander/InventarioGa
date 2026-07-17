@@ -70,7 +70,7 @@ export default function InventarioAccionesMenu({
         aria-expanded={abierto}
         onClick={() => setAbierto((prev) => !prev)}
       >
-        <MoreVertical size={18} />
+        <MoreVertical className="icon-more"  size={18} color="white"/>
       </button>
 
       {abierto && (
@@ -82,7 +82,7 @@ export default function InventarioAccionesMenu({
               ejecutarAccion(() => onDetalle(item.id))
             }
           >
-            <Eye size={16} />
+            <Eye className="icon-menu" size={16}/>
             Ver detalles
           </button>
 
@@ -94,7 +94,7 @@ export default function InventarioAccionesMenu({
                 ejecutarAccion(() => onEditar(item.id))
               }
             >
-              <Pencil size={16} />
+              <Pencil className="icon-p" size={16}/>
               Editar
             </button>
           )}
@@ -110,7 +110,7 @@ export default function InventarioAccionesMenu({
                   ejecutarAccion(() => onEliminar(item.id))
                 }
               >
-                <Trash2 size={16} />
+                <Trash2 className="icon-trash" size={16} />
                 Eliminar
               </button>
             </>
