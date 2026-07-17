@@ -7,6 +7,7 @@ import {
   eliminarTipoEquipo
 } from "../services/tipoEquipoService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function TipoEquipoPage({ setLoading }) {
   const [tiposEquipo, setTiposEquipo] = useState([]);
@@ -158,13 +159,11 @@ function TipoEquipoPage({ setLoading }) {
                   <td>{item.id}</td>
                   <td>{item.tequipo}</td>
                   <td>
-                    <button type="button" onClick={() => editarTipoEquipo(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarTipoEquipo(item.id)}>
-                      Eliminar
-                    </button>
+                    <CatalogoActions
+                      item={item}
+                      onEditar={editarTipoEquipo}
+                      onEliminar={borrarTipoEquipo}
+                      />
                   </td>
                 </tr>
               ))}
