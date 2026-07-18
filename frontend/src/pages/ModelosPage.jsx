@@ -8,6 +8,7 @@ import {
 } from "../services/modelosService";
 import { obtenerCatalogos } from "../services/catalogosService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function ModelosPage({ setLoading }) {
   const [modelos, setModelos] = useState([]);
@@ -217,13 +218,11 @@ function ModelosPage({ setLoading }) {
                   <td>{item.Marca}</td>
                   <td>{item.Modelo}</td>
                   <td>
-                    <button type="button" onClick={() => editarModelo(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarModelo(item.id)}>
-                      Eliminar
-                    </button>
+                  <CatalogoActions
+                  item={item}
+                  onEditar={editarModelo}
+                  onEliminar={borrarModelo}
+                  />
                   </td>
                 </tr>
               ))}

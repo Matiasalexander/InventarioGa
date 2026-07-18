@@ -239,28 +239,61 @@ select:disabled {
 .toolbar{
     display:flex;
     flex-direction:column;
-    align-items:center;
-    justify-content:center;
+    gap:18px;
+    margin-bottom: 12px;
+}
+
+.toolbar-header{
     text-align:center;
-    gap:16px;
 }
 
-.toolbar h2 {
-  margin-bottom: 4px;
-  text-align: center;
-  width: 100%;
+.toolbar-search{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
 }
 
-.toolbar p {
-  margin: 0;
-  color: #6b7280;
-  font-size: 14px;
-  text-align: center;
-  width: 100%;
+.search-input{
+    width:420px;
+    max-width:100%;
 }
 
-.search-input {
-  max-width: 360px;
+.btn-filtros{
+    height:44px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:0 18px;
+    border:1px solid #cbd5e1;
+    border-radius:12px;
+    background:#eef2ff;
+    color:#4338ca;
+    font-weight:600;
+}
+
+.btn-filtros:hover{
+  background-color: #4f46e5;
+  color: white;
+}
+
+.btn-filtros.activo{
+    background:#eef2ff;
+    color:#4338ca;
+}
+
+.badge-filtros{
+    min-width:20px;
+    height:20px;
+    border-radius:999px;
+    background:#4f46e5;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:11px;
+    font-weight:700;
 }
 
 .badge {
@@ -501,17 +534,36 @@ td button{
   height: 32px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  background: white;
+  background: #4f46e5;
   cursor: pointer;
   font-size: 18px;
   line-height: 1;
 }
 
 .inventario-paginacion-controles button:hover:not(:disabled) {
-  background: #000000;
+  background:  #4f46e5;
 }
 
 .inventario-paginacion-controles button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+/*form-actions*/
+.form-actions{
+    display:flex;
+    gap:16px;
+    margin-top:20px;
+}
+
+.form-actions button{
+    flex:1;
+}
+
+.form-actions .btn-secondary{
+    background:#64748b;
+}
+
+.form-actions .btn-secondary:hover{
+    background:#475569;
 }

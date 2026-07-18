@@ -514,120 +514,45 @@ const inventarioPaginado = inventarioFiltrado.slice(
       </div>
 
       <div className="card">
-        <div className="toolbar">
-          <div>
-            <h2>Equipos</h2>
+<div className="toolbar">
 
-            <p>
-              {puedeEditar
-                ? "Consulta, actualiza o elimina registros del inventario."
-                : "Consulta de registros del inventario."}
-            </p>
+  <div className="toolbar-header">
+    <h2>Equipos</h2>
+    <p>
+      {puedeEditar
+        ? "Consulta, actualiza o elimina registros del inventario."
+        : "Consulta de registros del inventario."}
+    </p>
+  </div>
 
-            {(restauranteSeleccionado ||
-              unidadSeleccionada) && (
-              <div
-                style={{
-                  marginTop: 8,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  flexWrap: "wrap",
-                  fontSize: 13,
-                  color: "#4f46e5",
-                  fontWeight: 600
-                }}
-              >
-                <span>
-                  📍{" "}
-                  {unidadNombreSeleccionada ||
-                    restauranteActual?.nombre}
-                </span>
+  <div className="toolbar-search">
+    <input
+      className="search-input"
+      placeholder="Buscar por equipo, serial, marca, IP, responsiva..."
+      value={busqueda}
+      onChange={(event) => {
+        const valor = event.target.value;
+        setBusqueda(valor);
+        sessionStorage.setItem("inventario_busqueda", valor);
+      }}
+    />
 
-                <button
-                  type="button"
-                  onClick={mostrarTodos}
-                  style={{
-                    border: "none",
-                    background: "transparent",
-                    color: "#48506a",
-                    cursor: "pointer",
-                    fontWeight: 600
-                  }}
-                >
-                  Mostrar todos
-                </button>
-              </div>
-            )}
-          </div>
+    <button
+      type="button"
+      onClick={() => setMostrarFiltros(prev => !prev)}
+      className={`btn-filtros ${mostrarFiltros ? "activo" : ""}`}
+    >
+      Filtros
 
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              flexWrap: "wrap"
-            }}
-          >
-            <input
-              className="search-input"
-              placeholder="Buscar por equipo, serial, marca, IP, responsiva..."
-              value={busqueda}
-              onChange={(event) => {
-                const valor = event.target.value;
+      {cantidadFiltrosActivos > 0 && (
+        <span className="badge-filtros">
+          {cantidadFiltrosActivos}
+        </span>
+      )}
+    </button>
+  </div>
 
-                setBusqueda(valor);
-                sessionStorage.setItem(
-                  "inventario_busqueda",
-                  valor
-                );
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={() =>
-                setMostrarFiltros((prev) => !prev)
-              }
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "9px 14px",
-                borderRadius: 8,
-                border: "1px solid #cbd5e1",
-                background: mostrarFiltros
-                  ? "#eef2ff"
-                  : "white",
-                color: mostrarFiltros
-                  ? "#4338ca"
-                  : "#334155",
-                fontWeight: 600,
-                cursor: "pointer"
-              }}
-            >
-              Filtros
-
-              {cantidadFiltrosActivos > 0 && (
-                <span
-                  style={{
-                    minWidth: 20,
-                    height: 20,
-                    borderRadius: 999,
-                    background: "#4f46e5",
-                    color: "white",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 11
-                  }}
-                >
-                  {cantidadFiltrosActivos}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
+</div>
 
         {/* NUEVO:
             Restaurante y localidad ahora viven dentro del panel.
