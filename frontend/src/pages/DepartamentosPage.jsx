@@ -7,6 +7,7 @@ import {
   eliminarDepartamento
 } from "../services/departamentosService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function DepartamentosPage({ setLoading }) {
   const [departamentos, setDepartamentos] = useState([]);
@@ -149,19 +150,11 @@ function DepartamentosPage({ setLoading }) {
                 <tr key={item.Id}>
                   <td>{item.Nombre_departamento}</td>
                   <td>
-                    <button
-                      type="button"
-                      onClick={() => editarDepartamento(item)}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => borrarDepartamento(item.Id)}
-                    >
-                      Eliminar
-                    </button>
+                  <CatalogoActions
+                  item={item}
+                  onEditar={editarDepartamento}
+                  onEliminar={borrarDepartamento}
+                  />
                   </td>
                 </tr>
               ))}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { KeyRound, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import "../styles/InventarioPage.css";
 export default function CatalogoActions({
   item, onEditar, onEliminar

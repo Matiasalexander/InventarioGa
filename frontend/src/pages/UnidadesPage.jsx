@@ -8,6 +8,7 @@ import {
 } from "../services/unidadesService";
 import { obtenerRestaurantes } from "../services/restaurantesService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function UnidadesPage({ setLoading }) {
   const [unidades, setUnidades] = useState([]);
@@ -198,13 +199,11 @@ function UnidadesPage({ setLoading }) {
                   <td>{item.Ubicacion}</td>
                   <td>{item.Estado}</td>
                   <td>
-                    <button type="button" onClick={() => editarUnidad(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarUnidad(item.id)}>
-                      Eliminar
-                    </button>
+                    <CatalogoActions
+                      item={item}
+                      onEditar={editarUnidad}
+                      onEliminar={borrarUnidad}
+                    />
                   </td>
                 </tr>
               ))}

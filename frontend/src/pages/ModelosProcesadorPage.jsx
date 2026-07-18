@@ -8,6 +8,7 @@ import {
 } from "../services/modelosProcesadorService";
 import { obtenerProcesadores } from "../services/procesadoresService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function ModelosProcesadorPage({ setLoading }) {
   const [modelos, setModelos] = useState([]);
@@ -203,13 +204,11 @@ function ModelosProcesadorPage({ setLoading }) {
                   <td>{item.Nombre}</td>
                   <td>{item.Modelo}</td>
                   <td>
-                    <button type="button" onClick={() => editarModelo(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarModelo(item.Id)}>
-                      Eliminar
-                    </button>
+         <CatalogoActions
+         item={item}
+         onEditar={editarModelo}
+         onEliminar={borrarModelo}
+         />
                   </td>
                 </tr>
               ))}

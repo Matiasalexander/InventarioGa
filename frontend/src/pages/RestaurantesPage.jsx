@@ -7,6 +7,7 @@ import {
   eliminarRestaurante
 } from "../services/restaurantesService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function RestaurantesPage({ setLoading }) {
   const [restaurantes, setRestaurantes] = useState([]);
@@ -172,13 +173,11 @@ function RestaurantesPage({ setLoading }) {
                   <td>{item.Marca}</td>
                   <td>{item.Estado}</td>
                   <td>
-                    <button type="button" onClick={() => editarRestaurante(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarRestaurante(item.id_marca)}>
-                      Eliminar
-                    </button>
+                <CatalogoActions
+                item={item}
+                onEditar={editarRestaurante}
+                onEliminar={borrarRestaurante}
+                />
                   </td>
                 </tr>
               ))}
