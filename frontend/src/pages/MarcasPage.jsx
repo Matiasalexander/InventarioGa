@@ -7,6 +7,7 @@ import {
   eliminarMarca
 } from "../services/marcasService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function MarcasPage({ setLoading }) {
   const [marcas, setMarcas] = useState([]);
@@ -140,13 +141,11 @@ function MarcasPage({ setLoading }) {
                   <td>{item.id}</td>
                   <td>{item.Marca}</td>
                   <td>
-                    <button type="button" onClick={() => editarMarca(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarMarca(item.id)}>
-                      Eliminar
-                    </button>
+                  <CatalogoActions
+                    item={item}
+                    onEditar={editarMarca}
+                    onEliminar={borrarMarca}
+                  />
                   </td>
                 </tr>
               ))}

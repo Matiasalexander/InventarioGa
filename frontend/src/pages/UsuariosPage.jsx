@@ -8,6 +8,7 @@ import {
   cambiarPasswordUsuario,
   eliminarUsuario
 } from "../services/usuariosService";
+import UsuariosActions from "../components/UsuariosAction";
 
 function UsuariosPage({ setLoading }) {
   const [usuarios, setUsuarios] = useState([]);
@@ -246,7 +247,7 @@ function UsuariosPage({ setLoading }) {
             {editandoId && (
               <button
                 type="button"
-                className="btn-secondary"
+                className="botones"
                 onClick={limpiarForm}
               >
                 Cancelar
@@ -261,7 +262,6 @@ function UsuariosPage({ setLoading }) {
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Nombre</th>
                   <th>Correo</th>
                   <th>Teléfono</th>
@@ -279,35 +279,18 @@ function UsuariosPage({ setLoading }) {
                 ) : (
                   usuarios.map((usuario) => (
                     <tr key={usuario.IdUsuario}>
-                      <td>{usuario.IdUsuario}</td>
                       <td>{usuario.Nombre}</td>
                       <td>{usuario.Correo}</td>
                       <td>{usuario.Telefono}</td>
                       <td>{usuario.Rol}</td>
                       <td>{usuario.Activo ? "Sí" : "No"}</td>
                       <td>
-                        <button
-                          className="btn-primary"
-                          onClick={() => editarUsuario(usuario)}
-                        >
-                          Editar
-                        </button>
-
-                        <button
-                          className="btn-secondary"
-                          onClick={() => cambiarPassword(usuario.IdUsuario)}
-                        >
-                          Password
-                        </button>
-
-                        <button
-                          className="btn-secondary"
-                          onClick={() =>
-                            eliminarUsuarioClick(usuario.IdUsuario)
-                          }
-                        >
-                          Eliminar
-                        </button>
+                      <UsuariosActions
+                      usuario={usuario}
+                      onEditar={editarUsuario}
+                      onEliminar={eliminarUsuarioClick}
+                      onPassword={cambiarPassword}
+                      />
                       </td>
                     </tr>
                   ))

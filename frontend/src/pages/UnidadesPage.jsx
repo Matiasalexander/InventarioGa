@@ -8,6 +8,7 @@ import {
 } from "../services/unidadesService";
 import { obtenerRestaurantes } from "../services/restaurantesService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function UnidadesPage({ setLoading }) {
   const [unidades, setUnidades] = useState([]);
@@ -184,7 +185,6 @@ function UnidadesPage({ setLoading }) {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Restaurante</th>
                 <th>Ubicación</th>
                 <th>Estado</th>
@@ -195,18 +195,15 @@ function UnidadesPage({ setLoading }) {
             <tbody>
               {unidades.slice(0,10).map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
                   <td>{item.Restaurante}</td>
                   <td>{item.Ubicacion}</td>
                   <td>{item.Estado}</td>
                   <td>
-                    <button type="button" onClick={() => editarUnidad(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarUnidad(item.id)}>
-                      Eliminar
-                    </button>
+                    <CatalogoActions
+                      item={item}
+                      onEditar={editarUnidad}
+                      onEliminar={borrarUnidad}
+                    />
                   </td>
                 </tr>
               ))}

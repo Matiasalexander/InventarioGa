@@ -7,6 +7,7 @@ import {
   eliminarModesp
 } from "../services/modespService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function ModespPage({ setLoading }) {
   const [modelos, setModelos] = useState([]);
@@ -138,13 +139,11 @@ function ModespPage({ setLoading }) {
                   <td>{item.id}</td>
                   <td>{item.Mod_esp}</td>
                   <td>
-                    <button type="button" onClick={() => editarModelo(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarModelo(item.id)}>
-                      Eliminar
-                    </button>
+                  <CatalogoActions
+                  item={item}
+                  onEditar={editarModelo}
+                  onEliminar={borrarModelo}
+                  />
                   </td>
                 </tr>
               ))}

@@ -195,6 +195,9 @@ function Responsiva({ setLoading }) {
   };
 
   const inventarioFiltrado = inventario.filter((item) => {
+      if (item.ESTATUS?.toLowerCase() === "baja") {
+    return false;
+  }
     const texto = `
       ${item.TIPO_EQUIPO || ""}
       ${item.NOMBRE_EQUIPO || ""}

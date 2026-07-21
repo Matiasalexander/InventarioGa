@@ -1,0 +1,6 @@
+
+.btn-save:hover {
+    background-color: #898989; /* azul */
+    color: white;
+    cursor: pointer;
+}

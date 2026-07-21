@@ -81,8 +81,8 @@ function ForgotPasswordPage({ setLoading }) {
           boxShadow: "0 10px 30px rgba(0,0,0,.25)"
         }}
       >
-        <h2 style={{ marginBottom: "8px", textAlign: "center" }}>
-          Recuperar contraseña
+        <h2 style={{ marginBottom: "8px", textAlign: "center", color: "#1e293b"}}>
+          Cambiar contraseña
         </h2>
 
         <p

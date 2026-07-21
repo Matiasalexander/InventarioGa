@@ -24,6 +24,7 @@
 
 .botones {
   grid-column: 1/-1;
+  width: 100%;
 }
 
 .botones button {
@@ -51,4 +52,9 @@
   margin: 6px 0 0;
   color: #6b7280;
   font-size: 15px;
+}
+
+.btn-cancel {
+  background-color: #ff0606;
+  width: 100%;
 }

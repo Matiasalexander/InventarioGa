@@ -8,6 +8,7 @@ import {
 } from "../services/puestosService";
 import { obtenerDepartamentos } from "../services/departamentosService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 
 function PuestosPage({ setLoading }) {
@@ -174,7 +175,6 @@ function PuestosPage({ setLoading }) {
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Departamento</th>
                 <th>Puesto</th>
                 <th>Acciones</th>
@@ -184,17 +184,14 @@ function PuestosPage({ setLoading }) {
             <tbody>
               {puestos.map((item) => (
                 <tr key={item.Id}>
-                  <td>{item.Id}</td>
                   <td>{item.Nombre_departamento}</td>
                   <td>{item.Nombre_puesto}</td>
                   <td>
-                    <button type="button" onClick={() => editarPuesto(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarPuesto(item.Id)}>
-                      Eliminar
-                    </button>
+                  <CatalogoActions
+                  item={item}
+                  onEditar={editarPuesto}
+                  onEliminar={borrarPuesto}
+                  />
                   </td>
                 </tr>
               ))}

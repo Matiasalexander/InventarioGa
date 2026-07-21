@@ -7,6 +7,7 @@ import {
   eliminarTipoEquipo
 } from "../services/tipoEquipoService";
 import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
 
 function TipoEquipoPage({ setLoading }) {
   const [tiposEquipo, setTiposEquipo] = useState([]);
@@ -115,19 +116,21 @@ function TipoEquipoPage({ setLoading }) {
       <div className="card">
        <h2>{modoEdicion ? "Editar tipo de equipo" : "Agregar tipo de equipo"}</h2>
 
-        <form onSubmit={guardarTipoEquipo} className="form-grid">
+        <form onSubmit={guardarTipoEquipo}>
+          <div className="form-grid">
           <input
             placeholder="Tipo de equipo"
             value={tequipo}
             onChange={(e) => setTequipo(e.target.value)}
           />
         <input
-        className="search-input"
+        className="search-input-f"
         placeholder="Buscar tipo de equipo..."
         value={busqueda}
         onChange={(e)=>setBusqueda(e.target.value)}
       />
-
+      </div>
+        <div className="form-actions">
           <button type="submit">
             {modoEdicion ? "Actualizar tipo" : "Guardar tipo"}
           </button>
@@ -137,7 +140,12 @@ function TipoEquipoPage({ setLoading }) {
               Cancelar
             </button>
           )}
+          </div>
         </form>
+
+        <div className="toolbar-search">
+          
+        </div>
         
         <br></br>
         <h2>Listado de tipos de equipo</h2>
@@ -158,13 +166,11 @@ function TipoEquipoPage({ setLoading }) {
                   <td>{item.id}</td>
                   <td>{item.tequipo}</td>
                   <td>
-                    <button type="button" onClick={() => editarTipoEquipo(item)}>
-                      Editar
-                    </button>
-
-                    <button type="button" onClick={() => borrarTipoEquipo(item.id)} hidden>
-                      Eliminar
-                    </button>
+                    <CatalogoActions
+                      item={item}
+                      onEditar={editarTipoEquipo}
+                      onEliminar={borrarTipoEquipo}
+                      />
                   </td>
                 </tr>
               ))}

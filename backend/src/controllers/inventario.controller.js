@@ -628,47 +628,123 @@ const obtenerArbolUnidades = async (req, res) => {
 const exportarInventarioExcel = async (req, res) => {
   try {
     const pool = await poolPromise;
-
     const { unidad } = req.query;
 
     const request = pool.request();
-
     let where = "";
 
+    // NUEVO:
+    // Si llega una unidad, exporta únicamente esa unidad.
+    // Si no llega, exporta todo el inventario.
     if (unidad) {
-      request.input("unidad", sql.Int, Number(unidad));
+      const idUnidad = Number(unidad);
+
+      if (!Number.isInteger(idUnidad) || idUnidad <= 0) {
+        return res.status(400).json({
+          message: "La unidad enviada no es válida"
+        });
+      }
+
+      request.input("unidad", sql.Int, idUnidad);
       where = "WHERE i.ID_UNIDAD = @unidad";
     }
 
+    // CAMBIO:
+    // Esta consulta ahora incluye toda la información técnica del equipo,
+    // no solamente las columnas visibles en la tabla del frontend.
     const result = await request.query(`
       SELECT
         i.id,
+
+        i.ID_UNIDAD,
         r.Marca AS UNIDAD,
         i.LOCALIDAD,
         i.UBICACION,
+
+        i.ID_DEPARTAMENTO,
+        d.Nombre_departamento AS DEPARTAMENTO,
+        i.PUESTO,
+
+        i.ID_TIPO_EQUIPO,
         te.tequipo AS TIPO_EQUIPO,
+        i.TIPO_IMPRESORA,
         i.NOMBRE_EQUIPO,
+
         i.SERIAL,
+
+        i.FECHA_FABRICACION,
+        i.FECHA_GARANTIA,
+        i.FECHA_INICIO,
+        i.FECHA_REGISTRO,
+
+        i.DISCO_DURO,
+        i.RAM,
+
+        i.ID_PROCESADOR,
+        p.Nombre AS PROCESADOR,
+        i.MODELO_PROCESADOR,
+
+        i.SISTEMA_OPERATIVO,
+        i.LECTOR_DE_HUELLA,
+        i.CONEXION,
+
+        i.ID_MARCA,
         m.Marca AS MARCA,
         i.MODELO,
+
         i.IP,
+        i.PUERTO,
+
+        i.ID_ESTATUS,
         e.Estatus_equipo AS ESTATUS,
         i.ESTADO_FISICO,
+
         i.CORREO,
+
+        i.ACCESO_TEAM_VIEWER,
+        i.CONTRASEÑA_TEAM_VIEWER,
+        i.ACCESO_ANYDESK,
+        i.CONTRASEÑA_ANYDESK,
+
         i.COMENTARIO
+
       FROM INVENTARIO_M i
-      LEFT JOIN Unidades u ON i.ID_UNIDAD = u.id
-      LEFT JOIN Restaurantes r ON u.id_marca = r.id_marca
-      LEFT JOIN Tipo_equipo te ON i.ID_TIPO_EQUIPO = te.id
-      LEFT JOIN Marcas m ON i.ID_MARCA = m.id
-      LEFT JOIN Estatus e ON i.ID_ESTATUS = e.Id
+
+      LEFT JOIN Unidades u
+        ON i.ID_UNIDAD = u.id
+
+      LEFT JOIN Restaurantes r
+        ON u.id_marca = r.id_marca
+
+      LEFT JOIN Tipo_equipo te
+        ON i.ID_TIPO_EQUIPO = te.id
+
+      LEFT JOIN DEPARTAMENTOS d
+        ON i.ID_DEPARTAMENTO = d.Id
+
+      LEFT JOIN PROCESADORES p
+        ON i.ID_PROCESADOR = p.id
+
+      LEFT JOIN Marcas m
+        ON i.ID_MARCA = m.id
+
+      LEFT JOIN Estatus e
+        ON i.ID_ESTATUS = e.Id
 
       ${where}
 
-      ORDER BY r.Marca, i.LOCALIDAD, i.NOMBRE_EQUIPO
+      ORDER BY
+        r.Marca,
+        i.LOCALIDAD,
+        i.NOMBRE_EQUIPO,
+        i.id
     `);
 
-    const excel = await generarInventarioExcel(result.recordset);
+    // NUEVO:
+    // Calcula tiempo de uso y garantía restante antes de crear el Excel.
+    const inventario = result.recordset.map(aplicarCalculosInventario);
+
+    const excel = await generarInventarioExcel(inventario);
 
     res.setHeader(
       "Content-Type",
@@ -680,17 +756,14 @@ const exportarInventarioExcel = async (req, res) => {
       'attachment; filename="InventarioGA.xlsx"'
     );
 
-    res.send(excel);
-
+    return res.send(excel);
   } catch (error) {
+    console.error("Error exportando inventario a Excel:", error);
 
-    console.error(error);
-
-    res.status(500).json({
+    return res.status(500).json({
       message: "Error exportando Excel",
-      error: error.message,
+      error: error.message
     });
-
   }
 };
 module.exports = {
