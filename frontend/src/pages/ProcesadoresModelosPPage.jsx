@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import "../styles/Area.css";
 import ProcesadoresPage from "./ProcesadoresPage";
 import ModelosProcesadorPage from "./ModelosProcesadorPage";
+import RamPage from "./RamPage";
+import DiscoPage from "./DiscoPage";
 
 function ProcesadoresModelosPPage ({setLoading}) {
     return (
@@ -19,6 +21,14 @@ function ProcesadoresModelosPPage ({setLoading}) {
             <div className="detail-item">
                 <ModelosProcesadorPage setLoading={setLoading}></ModelosProcesadorPage>
             </div>
+           </div>
+
+           <div className="detail-item">
+            <DiscoPage setLoading={setLoading}></DiscoPage>
+           </div>
+
+           <div className="detail-item">
+            <RamPage setLoading={setLoading}></RamPage>
            </div>
         </div>
     </>
