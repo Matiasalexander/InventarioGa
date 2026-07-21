@@ -26,7 +26,9 @@ const ENDPOINTS = {
   PUESTOS: "/puestos",
   RESTAURANTES: "/restaurantes",
   TIPO_EQUIPO: "/tipo-equipo",
-  UNIDADES: "/unidades"
+  UNIDADES: "/unidades",
+  MEMORIA_RAM: "/memoria_ram",
+  DISCO_DURO: "/disco_duro"
 };
 
 export default ENDPOINTS;
