@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const upload = require("../middleware/upload");
 const {
   obtenerInventario,
   obtenerInventarioPorId,
@@ -16,8 +16,9 @@ router.get("/exportar-excel", exportarInventarioExcel);
 
 router.get("/", obtenerInventario);
 router.get("/:id", obtenerInventarioPorId);
-router.post("/", crearInventario);
-router.put("/:id", actualizarInventario);
 router.delete("/:id", eliminarInventario);
 
+//toCreate
+router.post("/", upload.single("FOTO"), crearInventario);
+router.put("/:id", upload.single("FOTO"), actualizarInventario);
 module.exports = router;

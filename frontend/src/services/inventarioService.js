@@ -16,15 +16,32 @@ export const obtenerInventarioPorId = async (id) => {
   const { data } = await api.get(`${ENDPOINTS.INVENTARIO}/${id}`);
   return data;
 };
+export const crearInventario = async (formData) => {
+    const { data } = await api.post(
+        "/inventario",
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }
+    );
 
-export const crearInventario = async (equipo) => {
-  const { data } = await api.post(ENDPOINTS.INVENTARIO, equipo);
-  return data;
+    return data;
 };
 
-export const actualizarInventario = async (id, equipo) => {
-  const { data } = await api.put(`${ENDPOINTS.INVENTARIO}/${id}`, equipo);
-  return data;
+export const actualizarInventario = async (id, formData) => {
+    const { data } = await api.put(
+        `/inventario/${id}`,
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        }
+    );
+
+    return data;
 };
 
 export const eliminarInventario = async (id) => {

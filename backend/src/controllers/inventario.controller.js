@@ -191,14 +191,22 @@ const obtenerInventarioPorId = async (req, res) => {
       `);
 
     if (result.recordset.length === 0) {
-      return res.status(404).json({ message: "Equipo no encontrado" });
+      return res.status(404).json({
+        message: "Equipo no encontrado"
+      });
     }
 
     const equipo = aplicarCalculosInventario(result.recordset[0]);
 
-    res.json(equipo);
+    // Convertir la imagen a Base64
+    if (equipo.FOTO) {
+      equipo.FOTO = equipo.FOTO.toString("base64");
+    }
+
+    return res.json(equipo);
+
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: "Error obteniendo equipo",
       error: error.message
     });
@@ -206,6 +214,8 @@ const obtenerInventarioPorId = async (req, res) => {
 };
 
 const crearInventario = async (req, res) => {
+    const FOTO = req.file ? req.file.buffer : null;
+  
   try {
     const {
       ID_UNIDAD,
@@ -290,6 +300,7 @@ const crearInventario = async (req, res) => {
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
       .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
+      .input("FOTO", sql.VarBinary(sql.MAX), FOTO)
       .input("COMENTARIO", COMENTARIO || null)
       .query(`
         INSERT INTO INVENTARIO_M (
@@ -323,6 +334,7 @@ const crearInventario = async (req, res) => {
           CONTRASEÑA_TEAM_VIEWER,
           ACCESO_ANYDESK,
           CONTRASEÑA_ANYDESK,
+          FOTO,
           COMENTARIO
         ) OUTPUT INSERTED.id
         VALUES (
@@ -356,6 +368,7 @@ const crearInventario = async (req, res) => {
           @CONTRASEÑA_TEAM_VIEWER,
           @ACCESO_ANYDESK,
           @CONTRASEÑA_ANYDESK,
+          @FOTO,
           @COMENTARIO
         )
       `);
@@ -396,6 +409,7 @@ if (aplicaNombre) {
 
 const actualizarInventario = async (req, res) => {
   try {
+    const FOTO = req.file ? req.file.buffer : null;
     const { id } = req.params;
 
     const {
@@ -490,6 +504,7 @@ const actualizarInventario = async (req, res) => {
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
       .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
+      .input("FOTO", sql.VarBinary(sql.MAX), FOTO)
       .input("COMENTARIO", COMENTARIO || null)
       .query(`
         UPDATE INVENTARIO_M
@@ -524,6 +539,7 @@ const actualizarInventario = async (req, res) => {
           CONTRASEÑA_TEAM_VIEWER = @CONTRASEÑA_TEAM_VIEWER,
           ACCESO_ANYDESK = @ACCESO_ANYDESK,
           CONTRASEÑA_ANYDESK = @CONTRASEÑA_ANYDESK,
+          FOTO = @FOTO,
           COMENTARIO = @COMENTARIO
         WHERE id = @id
       `);
@@ -709,6 +725,7 @@ const exportarInventarioExcel = async (req, res) => {
         i.CONTRASEÑA_TEAM_VIEWER,
         i.ACCESO_ANYDESK,
         i.CONTRASEÑA_ANYDESK,
+        i.FOTO,
 
         i.COMENTARIO
 
