@@ -27,6 +27,8 @@ function InventarioFormPage({ setLoading }) {
   const tiposConexiones = ["wifi", "Bluetooth", "Ethernet", "Serial", "Serial y Ethernet"];
 
   const [errorSerial, setErrorSerial] = useState("");
+  const [foto, setFoto] = useState(null);
+const [preview, setPreview] = useState("");
 
   const [catalogos, setCatalogos] = useState({
     restaurantes: [],
@@ -82,6 +84,7 @@ function InventarioFormPage({ setLoading }) {
     CONTRASEÑA_TEAM_VIEWER: "",
     ACCESO_ANYDESK: "",
     CONTRASEÑA_ANYDESK: "",
+    FOTO: null,
     COMENTARIO: ""
   });
 
@@ -117,6 +120,9 @@ function InventarioFormPage({ setLoading }) {
     if (!esEdicion) return;
 
     const equipo = await obtenerInventarioPorId(id);
+    if (equipo.FOTO) {
+  setPreview(`data:image/jpeg;base64,${equipo.FOTO}`);
+}
 
     const unidadSeleccionada = catalogosData.unidades.find(
       (item) => String(item.id) === String(equipo.ID_UNIDAD)
@@ -288,56 +294,71 @@ function InventarioFormPage({ setLoading }) {
     try {
       setLoading(true);
 
-      const payload = {
-        ID_UNIDAD: formulario.ID_UNIDAD,
-        LOCALIDAD: formulario.LOCALIDAD,
+const formData = new FormData();
 
-        UBICACION: esCorporativoCancun
-          ? "NA"
-          : formulario.UBICACION || "NA",
+Object.entries({
+    ID_UNIDAD: formulario.ID_UNIDAD,
+    LOCALIDAD: formulario.LOCALIDAD,
 
-        ID_TIPO_EQUIPO: formulario.ID_TIPO_EQUIPO,
+    UBICACION: esCorporativoCancun
+      ? "NA"
+      : formulario.UBICACION || "NA",
 
-        ID_DEPARTAMENTO: esCorporativoCancun
-          ? formulario.ID_DEPARTAMENTO || null
-          : null,
+    ID_TIPO_EQUIPO: formulario.ID_TIPO_EQUIPO,
 
-        PUESTO: esCorporativoCancun
-          ? formulario.PUESTO || "NA"
-          : "NA",
+    ID_DEPARTAMENTO: esCorporativoCancun
+      ? formulario.ID_DEPARTAMENTO || null
+      : null,
 
-        SERIAL: formulario.SERIAL,
-        FECHA_FABRICACION: formulario.FECHA_FABRICACION,
-        FECHA_GARANTIA: formulario.FECHA_GARANTIA,
-        FECHA_INICIO: formulario.FECHA_INICIO,
-        ID_DISCO: formulario.ID_DISCO,
-        ID_RAM: formulario.ID_RAM,
-        ID_PROCESADOR: formulario.ID_PROCESADOR,
-        MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
-        SISTEMA_OPERATIVO: formulario.SISTEMA_OPERATIVO,
-        TIPO_IMPRESORA: formulario.TIPO_IMPRESORA,
-        CONEXION: formulario.CONEXION,
-        ID_MARCA: formulario.ID_MARCA,
-        MODELO: formulario.MODELO,
-        IP: formulario.IP,
-        PUERTO: formulario.PUERTO,
-        ID_ESTATUS: formulario.ID_ESTATUS,
-        ESTADO_FISICO: formulario.ESTADO_FISICO,
-        CORREO: formulario.CORREO,
-        ACCESO_TEAM_VIEWER: formulario.ACCESO_TEAM_VIEWER,
-        CONTRASEÑA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
-        ACCESO_ANYDESK: formulario.ACCESO_ANYDESK,
-        CONTRASEÑA_ANYDESK: formulario.CONTRASEÑA_ANYDESK,
-        COMENTARIO: formulario.COMENTARIO
-      };
+    PUESTO: esCorporativoCancun
+      ? formulario.PUESTO || "NA"
+      : "NA",
 
-      if (esEdicion) {
-        await actualizarInventario(id, payload);
-        toast.success("Equipo actualizado correctamente");
-      } else {
-        const data = await crearInventario(payload);
-        toast.success(`Equipo agregado correctamente: ${data.NOMBRE_EQUIPO || ""}`);
-      }
+    SERIAL: formulario.SERIAL,
+    FECHA_FABRICACION: formulario.FECHA_FABRICACION,
+    FECHA_GARANTIA: formulario.FECHA_GARANTIA,
+    FECHA_INICIO: formulario.FECHA_INICIO,
+    ID_DISCO: formulario.ID_DISCO,
+    ID_RAM: formulario.ID_RAM,
+    ID_PROCESADOR: formulario.ID_PROCESADOR,
+    MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
+    SISTEMA_OPERATIVO: formulario.SISTEMA_OPERATIVO,
+    TIPO_IMPRESORA: formulario.TIPO_IMPRESORA,
+    CONEXION: formulario.CONEXION,
+    ID_MARCA: formulario.ID_MARCA,
+    MODELO: formulario.MODELO,
+    IP: formulario.IP,
+    PUERTO: formulario.PUERTO,
+    ID_ESTATUS: formulario.ID_ESTATUS,
+    ESTADO_FISICO: formulario.ESTADO_FISICO,
+    CORREO: formulario.CORREO,
+    ACCESO_TEAM_VIEWER: formulario.ACCESO_TEAM_VIEWER,
+    CONTRASEÑA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
+    ACCESO_ANYDESK: formulario.ACCESO_ANYDESK,
+    CONTRASEÑA_ANYDESK: formulario.CONTRASEÑA_ANYDESK,
+    COMENTARIO: formulario.COMENTARIO
+}).forEach(([key, value]) => {
+
+    if (value !== null && value !== undefined) {
+        formData.append(key, value);
+    }
+
+});
+
+if (foto) {
+    formData.append("FOTO", foto);
+} if (esEdicion) {
+  await actualizarInventario(id, formData);
+  toast.success("Equipo editado exitosamente");
+
+} else {
+  await crearInventario(formData);
+  toast.success("Equipo creado exitosamente");
+
+}
+
+      //imagen-test
+      //finimagen
 
       navigate("/inventario");
     } catch (error) {
@@ -906,6 +927,31 @@ function InventarioFormPage({ setLoading }) {
               />
             </div>
 
+            <div className="campo-form">
+  <label>Foto</label>
+<input
+    type="file"
+    accept="image/*"
+    capture="environment"
+    onChange={(e) => {
+        const archivo = e.target.files[0];
+
+        if (!archivo) return;
+
+        setFoto(archivo);
+        setPreview(URL.createObjectURL(archivo));
+    }}
+/>
+
+{preview && (
+    <img
+        src={preview}
+        alt="Vista previa"
+        width={250}
+        height={250}
+    />
+)}
+</div>
             <div className="campo-form">
               <label>Comentario</label>
               <input

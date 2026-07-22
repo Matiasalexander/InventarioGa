@@ -465,6 +465,19 @@ const discoDuro = discosDuros.find(
         </div>
 
         <div className="card">
+          <h2>Foto del equipo</h2>
+                    {equipo.FOTO && (
+            <img
+        src={`data:image/png;base64,${equipo.FOTO}`}
+        alt="Equipo"
+        width={250}
+        height={250}
+        className="foto-equipo"
+            />
+          )}
+        </div>
+        <div className="card">
+
           <h2>Comentarios</h2>
 
           <p className="comentario">
