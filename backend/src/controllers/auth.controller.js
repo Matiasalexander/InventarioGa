@@ -345,23 +345,26 @@ const resetPassword = async (req, res) => {
 
 const registrarUsuario = async (req, res) => {
   try {
+
     const {
       Nombre,
       Correo,
       Telefono,
       Password,
-      Rol
+      IdRol
     } = req.body;
 
-    if (!Nombre || !Correo || !Password) {
+    if (!Nombre || !Correo || !Password || !IdRol) {
       return res.status(400).json({
-        message: "Nombre, correo y contraseña son obligatorios"
+        message: "Nombre, correo, contraseña y rol son obligatorios"
       });
     }
 
     const correoNormalizado = Correo.trim().toLowerCase();
+
     const pool = await poolPromise;
 
+    // Verificar correo duplicado
     const existe = await pool.request()
       .input("Correo", correoNormalizado)
       .query(`
@@ -376,31 +379,64 @@ const registrarUsuario = async (req, res) => {
       });
     }
 
+    // Verificar que el rol exista
+    const rol = await pool.request()
+      .input("IdRol", IdRol)
+      .query(`
+        SELECT
+            ID_ROL,
+            NOMBRE
+        FROM Roles
+        WHERE ID_ROL = @IdRol
+          AND ACTIVO = 1
+      `);
+
+    if (rol.recordset.length === 0) {
+      return res.status(400).json({
+        message: "El rol seleccionado no existe"
+      });
+    }
+
+    const nombreRol = rol.recordset[0].NOMBRE;
+
     const hash = await bcrypt.hash(Password, 10);
 
     await pool.request()
+
       .input("Nombre", Nombre.trim())
+
       .input("Correo", correoNormalizado)
+
       .input("Telefono", Telefono || null)
+
       .input("PasswordHash", hash)
-      .input("Rol", Rol || "Usuario")
+
+      .input("Rol", nombreRol)
+
+      .input("IdRol", IdRol)
+
       .input("DebeCambiarPassword", 1)
+
       .query(`
-        INSERT INTO Usuarios (
-          Nombre,
-          Correo,
-          Telefono,
-          PasswordHash,
-          Rol,
-          DebeCambiarPassword
+        INSERT INTO Usuarios
+        (
+            Nombre,
+            Correo,
+            Telefono,
+            PasswordHash,
+            Rol,
+            IdRol,
+            DebeCambiarPassword
         )
-        VALUES (
-          @Nombre,
-          @Correo,
-          @Telefono,
-          @PasswordHash,
-          @Rol,
-          @DebeCambiarPassword
+        VALUES
+        (
+            @Nombre,
+            @Correo,
+            @Telefono,
+            @PasswordHash,
+            @Rol,
+            @IdRol,
+            @DebeCambiarPassword
         )
       `);
 
@@ -409,15 +445,16 @@ const registrarUsuario = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error creando usuario:", error);
+
+    console.error(error);
 
     return res.status(500).json({
       message: "Error creando usuario",
       error: error.message
     });
+
   }
 };
-
 module.exports = {
   login,
   registrarUsuario,
