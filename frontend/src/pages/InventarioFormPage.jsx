@@ -336,7 +336,7 @@ function InventarioFormPage({ setLoading }) {
       };
 
       //imagen-test
-      const formData = new FormData();
+   /*   const formData = new FormData();
       Object.entries(payload).forEach(([key, value])=>{formData,append(key, value ?? "")});
       if(foto){formData.append("foto", foto)}
 
@@ -347,7 +347,7 @@ function InventarioFormPage({ setLoading }) {
         const data = await crearInventario(payload);
         toast.success(`Equipo agregado correctamente: ${data.NOMBRE_EQUIPO || ""}`);
       }
-      //finimagen
+      //finimagen*/
 
       navigate("/inventario");
     } catch (error) {
@@ -915,6 +915,7 @@ function InventarioFormPage({ setLoading }) {
                 onChange={manejarCambio}
               />
             </div>
+            {/*
             <div className="campo-form">
               <label>Foto</label>
               <input
@@ -935,7 +936,7 @@ function InventarioFormPage({ setLoading }) {
                   width="200"
                 />
               )}
-            </div>
+            </div>*/}
             <div className="campo-form">
               <label>Comentario</label>
               <input
