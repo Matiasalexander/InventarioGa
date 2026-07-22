@@ -237,6 +237,7 @@ const crearInventario = async (req, res) => {
       CONTRASEÑA_TEAM_VIEWER,
       ACCESO_ANYDESK,
       CONTRASEÑA_ANYDESK,
+      FOTO,
       COMENTARIO
     } = req.body;
 
@@ -290,6 +291,7 @@ const crearInventario = async (req, res) => {
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
       .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
+      .input("FOTO", FOTO || null)
       .input("COMENTARIO", COMENTARIO || null)
       .query(`
         INSERT INTO INVENTARIO_M (
@@ -323,6 +325,7 @@ const crearInventario = async (req, res) => {
           CONTRASEÑA_TEAM_VIEWER,
           ACCESO_ANYDESK,
           CONTRASEÑA_ANYDESK,
+          FOTO,
           COMENTARIO
         ) OUTPUT INSERTED.id
         VALUES (
@@ -356,6 +359,7 @@ const crearInventario = async (req, res) => {
           @CONTRASEÑA_TEAM_VIEWER,
           @ACCESO_ANYDESK,
           @CONTRASEÑA_ANYDESK,
+          @FOTO,
           @COMENTARIO
         )
       `);
@@ -428,6 +432,7 @@ const actualizarInventario = async (req, res) => {
       CONTRASEÑA_TEAM_VIEWER,
       ACCESO_ANYDESK,
       CONTRASEÑA_ANYDESK,
+      FOTO,
       COMENTARIO
     } = req.body;
 
@@ -490,6 +495,7 @@ const actualizarInventario = async (req, res) => {
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
       .input("CONTRASEÑA_ANYDESK", CONTRASEÑA_ANYDESK || null)
+      .input("FOTO", FOTO || null)
       .input("COMENTARIO", COMENTARIO || null)
       .query(`
         UPDATE INVENTARIO_M
@@ -524,6 +530,7 @@ const actualizarInventario = async (req, res) => {
           CONTRASEÑA_TEAM_VIEWER = @CONTRASEÑA_TEAM_VIEWER,
           ACCESO_ANYDESK = @ACCESO_ANYDESK,
           CONTRASEÑA_ANYDESK = @CONTRASEÑA_ANYDESK,
+          FOTO = @FOTO,
           COMENTARIO = @COMENTARIO
         WHERE id = @id
       `);
@@ -709,6 +716,7 @@ const exportarInventarioExcel = async (req, res) => {
         i.CONTRASEÑA_TEAM_VIEWER,
         i.ACCESO_ANYDESK,
         i.CONTRASEÑA_ANYDESK,
+        i.FOTO,
 
         i.COMENTARIO
 

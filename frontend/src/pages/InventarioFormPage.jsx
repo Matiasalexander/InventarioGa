@@ -15,6 +15,10 @@ function InventarioFormPage({ setLoading }) {
 
   const esEdicion = Boolean(id);
 
+  //foto
+  const [foto, setFoto] = useState(null);
+  const [preview, setPreview] = useState(null);
+  //
   const estadosFisicos = ["Bueno", "Regular", "Dañado"];
   const tiposRam = ["4GB", "8GB", "16GB", "32GB", "64GB"];
   const tiposDisco = ["128G", "512G", "1TB", "2TB"];
@@ -331,6 +335,11 @@ function InventarioFormPage({ setLoading }) {
         COMENTARIO: formulario.COMENTARIO
       };
 
+      //imagen-test
+      const formData = new FormData();
+      Object.entries(payload).forEach(([key, value])=>{formData,append(key, value ?? "")});
+      if(foto){formData.append("foto", foto)}
+
       if (esEdicion) {
         await actualizarInventario(id, payload);
         toast.success("Equipo actualizado correctamente");
@@ -338,6 +347,7 @@ function InventarioFormPage({ setLoading }) {
         const data = await crearInventario(payload);
         toast.success(`Equipo agregado correctamente: ${data.NOMBRE_EQUIPO || ""}`);
       }
+      //finimagen
 
       navigate("/inventario");
     } catch (error) {
@@ -905,7 +915,27 @@ function InventarioFormPage({ setLoading }) {
                 onChange={manejarCambio}
               />
             </div>
+            <div className="campo-form">
+              <label>Foto</label>
+              <input
+                type="file"
+                accept="image/"
+                capture="environment"
+                onChange={(e)=>{
+                  const archivo = e.target.files[0];
+                  if (archivo) {
+                    setFoto(archivo);
+                    setPreview(URL.createObjectURL(archivo));
+                  }}}/>
 
+              {preview && (
+                <img
+                  src={preview}
+                  alt="Vista previa"
+                  width="200"
+                />
+              )}
+            </div>
             <div className="campo-form">
               <label>Comentario</label>
               <input
