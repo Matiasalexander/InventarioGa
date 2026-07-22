@@ -99,27 +99,37 @@ function App() {
                         element={<AreasCorporativas setLoading={setLoading} />}
                       />
 
+                 <Route path="/inventario"
+                  element={<ProtectedRoute permiso="inventario.ver"> 
+                 <InventarioPage setLoading={setLoading} /></ProtectedRoute>
+                  }
+/>
                       <Route
-                        path="/inventario"
-                        element={<InventarioPage setLoading={setLoading} />}
-                      />
+  path="/inventario/nuevo"
+  element={
+    <ProtectedRoute permiso="inventario.crear">
+      <InventarioFormPage setLoading={setLoading} />
+    </ProtectedRoute>
+  }
+/>
 
-                      <Route
-                        path="/inventario/nuevo"
-                        element={<InventarioFormPage setLoading={setLoading} />}
-                      />
+<Route
+  path="/inventario/editar/:id"
+  element={
+    <ProtectedRoute permiso="inventario.editar">
+      <InventarioFormPage setLoading={setLoading} />
+    </ProtectedRoute>
+  }
+/>
 
-                      <Route
-                        path="/inventario/editar/:id"
-                        element={<InventarioFormPage setLoading={setLoading} />}
-                      />
-
-                      <Route
-                        path="/inventario/detalle/:id"
-                        element={
-                          <InventarioDetallePage setLoading={setLoading} />
-                        }
-                      />
+<Route
+  path="/inventario/detalle/:id"
+  element={
+    <ProtectedRoute permiso="inventario.ver">
+      <InventarioDetallePage setLoading={setLoading} />
+    </ProtectedRoute>
+  }
+/>
 
                       <Route
                         path="/responsiva"
@@ -133,13 +143,21 @@ function App() {
                         }
                       />
 
-                      <Route
-                        path="/usuarios"
-                        element={<UsuariosPage setLoading={setLoading} />}
-                      />
-                      <Route
-                          path="/roles"
-                           element={ <RolesPage setLoading={setLoading} />  }
+                <Route
+  path="/usuarios"
+  element={
+    <ProtectedRoute permiso="usuarios.ver">
+      <UsuariosPage setLoading={setLoading} />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/roles"
+  element={
+    <ProtectedRoute permiso="roles.ver">
+      <RolesPage setLoading={setLoading} />
+    </ProtectedRoute>
+  }
 />
 
                       <Route
