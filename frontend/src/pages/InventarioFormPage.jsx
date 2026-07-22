@@ -927,7 +927,18 @@ if (foto) {
               />
             </div>
 
+
             <div className="campo-form">
+              <label>Comentario</label>
+              <input
+                name="COMENTARIO"
+                placeholder="Observaciones generales"
+                value={formulario.COMENTARIO}
+                onChange={manejarCambio}
+              />
+            </div>
+          </div>
+            <div className="campo-form campo-foto">
   <label>Foto</label>
 <input
     type="file"
@@ -944,25 +955,14 @@ if (foto) {
 />
 
 {preview && (
+  <div className="preview-foto">
     <img
         src={preview}
         alt="Vista previa"
-        width={250}
-        height={250}
     />
+    </div>
 )}
 </div>
-            <div className="campo-form">
-              <label>Comentario</label>
-              <input
-                name="COMENTARIO"
-                placeholder="Observaciones generales"
-                value={formulario.COMENTARIO}
-                onChange={manejarCambio}
-              />
-            </div>
-          </div>
-
           <br />
 
           <button type="submit">

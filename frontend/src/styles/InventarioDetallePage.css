@@ -36,3 +36,25 @@
     line-height:1.8;
     color:#555;
 }
+
+.card-foto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contenedor-foto-detalle {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 12px;  background: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.foto-equipo {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+}
