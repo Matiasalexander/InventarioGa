@@ -1,17 +1,22 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [usuario, setUsuario] = useState(null);
+  const obtenerUsuarioGuardado = () => {
+    try {
+      const usuarioGuardado = localStorage.getItem("usuario");
 
-  useEffect(() => {
-    const usuarioGuardado = localStorage.getItem("usuario");
-
-    if (usuarioGuardado) {
-      setUsuario(JSON.parse(usuarioGuardado));
+      return usuarioGuardado
+        ? JSON.parse(usuarioGuardado)
+        : null;
+    } catch (error) {
+      localStorage.removeItem("usuario");
+      return null;
     }
-  }, []);
+  };
+
+  const [usuario, setUsuario] = useState(obtenerUsuarioGuardado);
 
   const login = (token, usuario) => {
     localStorage.setItem("token", token);
@@ -30,7 +35,7 @@ export function AuthProvider({ children }) {
   const tienePermiso = (permiso) => {
     if (!usuario) return false;
 
-    return usuario.permisos?.includes(permiso);
+    return usuario.permisos?.includes(permiso) ?? false;
   };
 
   return (
