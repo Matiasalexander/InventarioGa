@@ -19,31 +19,27 @@ const router = express.Router();
 
 router.post("/login", login);
 
-router.post("/registro", registrarUsuario);
+router.post(
+  "/registro",
+  verificarToken,
+  verificarPermiso("usuarios.crear"),
+  registrarUsuario
+);
 
 router.post("/olvide-password", olvidePassword);
 
 router.post("/reset-password", resetPassword);
 
+/*
+  Ruta temporal para validar JWT.
+  La podemos eliminar cuando terminemos todas las pruebas.
+*/
 router.get(
   "/validar-token",
   verificarToken,
   (req, res) => {
     return res.json({
       message: "Token válido",
-      usuario: req.usuario
-    });
-  }
-);
-
-router.get(
-  "/validar-permiso",
-  verificarToken,
-  verificarPermiso("usuarios.crear"),
-  (req, res) => {
-    return res.json({
-      message: "Permiso válido",
-      permiso: "usuarios.crear",
       usuario: req.usuario
     });
   }
