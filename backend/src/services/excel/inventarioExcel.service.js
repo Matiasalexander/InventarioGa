@@ -36,7 +36,7 @@ const generarInventarioExcel = async (inventario = []) => {
       width: 25
     },
 
-    { header: "RAM", key: "RAM", width: 15 },
+    { header: "RAM", key: "MEMORIA_RAM", width: 15 },
     { header: "Disco duro", key: "DISCO_DURO", width: 18 },
     {
       header: "Sistema operativo",

@@ -134,8 +134,8 @@ const obtenerInventario = async (req, res) => {
         i.Grestante,
         i.Auso,
         i.FECHA_REGISTRO,
-        i.DISCO_DURO,
-        i.RAM,
+        i.ID_DISCO,
+        i.ID_RAM,
         i.ID_PROCESADOR,
         p.Nombre AS PROCESADOR,
         i.MODELO_PROCESADOR,
@@ -158,6 +158,8 @@ const obtenerInventario = async (req, res) => {
       LEFT JOIN Tipo_equipo te ON i.ID_TIPO_EQUIPO = te.id
       LEFT JOIN DEPARTAMENTOS d ON i.ID_DEPARTAMENTO = d.Id
       LEFT JOIN PROCESADORES p ON i.ID_PROCESADOR = p.id
+      LEFT JOIN MEMORIA_RAM mr ON i.ID_RAM = mr.id
+      LEFT JOIN DISCO_DURO dd on i.ID_DISCO = dd.id
       LEFT JOIN Marcas m ON i.ID_MARCA = m.id
       LEFT JOIN Estatus e ON i.ID_ESTATUS = e.Id
       ${where}
@@ -217,8 +219,8 @@ const crearInventario = async (req, res) => {
       FECHA_FABRICACION,
       FECHA_GARANTIA,
       FECHA_INICIO,
-      DISCO_DURO,
-      RAM,
+      ID_DISCO,
+      ID_RAM,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
       SISTEMA_OPERATIVO,
@@ -270,8 +272,8 @@ const crearInventario = async (req, res) => {
       .input("FECHA_FABRICACION", FECHA_FABRICACION || null)
       .input("FECHA_GARANTIA", FECHA_GARANTIA || null)
       .input("FECHA_INICIO", FECHA_INICIO || null)
-      .input("DISCO_DURO", DISCO_DURO || null)
-      .input("RAM", RAM || null)
+      .input("ID_DISCO", ID_DISCO || null)
+      .input("ID_RAM", ID_RAM || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
       .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
@@ -303,8 +305,8 @@ const crearInventario = async (req, res) => {
           FECHA_FABRICACION,
           FECHA_GARANTIA,
           FECHA_INICIO,
-          DISCO_DURO,
-          RAM,
+          ID_DISCO,
+          ID_RAM,
           ID_PROCESADOR,
           MODELO_PROCESADOR,
           SISTEMA_OPERATIVO,
@@ -336,8 +338,8 @@ const crearInventario = async (req, res) => {
           @FECHA_FABRICACION,
           @FECHA_GARANTIA,
           @FECHA_INICIO,
-          @DISCO_DURO,
-          @RAM,
+          @ID_DISCO,
+          @ID_RAM,
           @ID_PROCESADOR,
           @MODELO_PROCESADOR,
           @SISTEMA_OPERATIVO,
@@ -408,8 +410,8 @@ const actualizarInventario = async (req, res) => {
       FECHA_FABRICACION,
       FECHA_GARANTIA,
       FECHA_INICIO,
-      DISCO_DURO,
-      RAM,
+      ID_DISCO,
+      ID_RAM,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
       SISTEMA_OPERATIVO,
@@ -470,8 +472,8 @@ const actualizarInventario = async (req, res) => {
       .input("FECHA_FABRICACION", FECHA_FABRICACION || null)
       .input("FECHA_GARANTIA", FECHA_GARANTIA || null)
       .input("FECHA_INICIO", FECHA_INICIO || null)
-      .input("DISCO_DURO", DISCO_DURO || null)
-      .input("RAM", RAM || null)
+      .input("ID_DISCO", ID_DISCO || null)
+      .input("ID_RAM", ID_RAM || null)
       .input("ID_PROCESADOR", ID_PROCESADOR || null)
       .input("MODELO_PROCESADOR", MODELO_PROCESADOR || null)
       .input("SISTEMA_OPERATIVO", SISTEMA_OPERATIVO || null)
@@ -504,8 +506,8 @@ const actualizarInventario = async (req, res) => {
           FECHA_FABRICACION = @FECHA_FABRICACION,
           FECHA_GARANTIA = @FECHA_GARANTIA,
           FECHA_INICIO = @FECHA_INICIO,
-          DISCO_DURO = @DISCO_DURO,
-          RAM = @RAM,
+          ID_DISCO = @ID_DISCO,
+          ID_RAM = @ID_RAM,
           ID_PROCESADOR = @ID_PROCESADOR,
           MODELO_PROCESADOR = @MODELO_PROCESADOR,
           SISTEMA_OPERATIVO = @SISTEMA_OPERATIVO,
@@ -677,8 +679,10 @@ const exportarInventarioExcel = async (req, res) => {
         i.FECHA_INICIO,
         i.FECHA_REGISTRO,
 
-        i.DISCO_DURO,
-        i.RAM,
+        i.ID_DISCO,
+        CONCAT(dd.modelo_disco, ' ', dd.capacidad) AS DISCO_DURO,
+        i.ID_RAM,
+        mr.capacidad AS MEMORIA_RAM,
 
         i.ID_PROCESADOR,
         p.Nombre AS PROCESADOR,
@@ -724,6 +728,12 @@ const exportarInventarioExcel = async (req, res) => {
 
       LEFT JOIN PROCESADORES p
         ON i.ID_PROCESADOR = p.id
+
+      LEFT JOIN MEMORIA_RAM mr
+        ON i.ID_RAM = mr.id
+
+      LEFT JOIN DISCO_DURO dd
+        ON i.ID_DISCO = dd.id
 
       LEFT JOIN Marcas m
         ON i.ID_MARCA = m.id

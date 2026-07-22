@@ -106,7 +106,7 @@ const restaurantes = await pool.request().query(`
   ORDER BY Mod_esp
 `);
     const memoriasRam = await pool.request().query(
-      `SELECT id, modelo_ram, capacidad FROM MEMORIA_RAM ORDER BY modelo_ram`
+      `SELECT id, capacidad FROM MEMORIA_RAM ORDER BY capacidad`
     );
 
     const discoDuro = await pool.request().query(

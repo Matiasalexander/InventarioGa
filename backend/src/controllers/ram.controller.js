@@ -5,9 +5,9 @@ const obtenerRam = async (req, res) => {
     const pool = await poolPromise;
 
     const result = await pool.request().query(`
-      SELECT id, modelo_ram, capacidad
+      SELECT id, capacidad
       FROM MEMORIA_RAM
-      ORDER BY modelo_ram
+      ORDER BY capacidad
     `);
 
     res.json(result.recordset);
@@ -21,16 +21,15 @@ const obtenerRam = async (req, res) => {
 
 const crearRAM = async (req, res) => {
   try {
-    const { modelo_ram, capacidad } = req.body;
+    const { capacidad } = req.body;
 
     const pool = await poolPromise;
 
     await pool.request()
-      .input("modelo_ram", modelo_ram)
       .input("capacidad", capacidad)
       .query(`
-        INSERT INTO MEMORIA_RAM (modelo_ram, capacidad)
-        VALUES (@modelo_ram, @capacidad)
+        INSERT INTO MEMORIA_RAM (capacidad)
+        VALUES (@capacidad)
       `);
 
     res.status(201).json({
@@ -47,18 +46,16 @@ const crearRAM = async (req, res) => {
 const actualizarRAM = async (req, res) => {
   try {
     const { id } = req.params;
-    const { modelo_ram, capacidad } = req.body;
+    const { capacidad } = req.body;
 
     const pool = await poolPromise;
 
     await pool.request()
       .input("id", id)
-      .input("modelo_ram", modelo_ram)
       .input("capacidad", capacidad)
       .query(`
         UPDATE MEMORIA_RAM
         SET
-          modelo_ram = @modelo_ram,
           capacidad = @capacidad
         WHERE id = @id
       `);
