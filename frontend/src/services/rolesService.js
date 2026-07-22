@@ -1,22 +1,18 @@
 import api from "../api/axios";
-import ENDPOINTS from "../config/endpoints";
 
 export const obtenerRoles = async () => {
-  const { data } = await api.get(ENDPOINTS.ROLES);
+  const { data } = await api.get("/roles");
   return data;
 };
 
 export const obtenerPermisos = async () => {
-  const { data } = await api.get(
-    `${ENDPOINTS.ROLES}/permisos`
-  );
-
+  const { data } = await api.get("/roles/permisos");
   return data;
 };
 
 export const obtenerPermisosRol = async (idRol) => {
   const { data } = await api.get(
-    `${ENDPOINTS.ROLES}/${idRol}/permisos`
+    `/roles/${idRol}/permisos`
   );
 
   return data;
@@ -27,7 +23,7 @@ export const actualizarPermisosRol = async (
   permisos
 ) => {
   const { data } = await api.put(
-    `${ENDPOINTS.ROLES}/${idRol}/permisos`,
+    `/roles/${idRol}/permisos`,
     {
       permisos
     }

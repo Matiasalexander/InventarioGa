@@ -34,17 +34,18 @@ const obtenerPermisos = async (req, res) => {
       SELECT
         ID_PERMISO,
         CODIGO,
-        NOMBRE,
-        MODULO
+        DESCRIPCION AS NOMBRE,
+        MODULO,
+        ACCION
       FROM Permisos
       WHERE ACTIVO = 1
-      ORDER BY MODULO, NOMBRE
+      ORDER BY MODULO, ACCION
     `);
 
     return res.json(result.recordset);
 
   } catch (error) {
-    console.error(error);
+    console.error("Error obteniendo permisos:", error);
 
     return res.status(500).json({
       message: "Error obteniendo permisos",
@@ -52,13 +53,9 @@ const obtenerPermisos = async (req, res) => {
     });
   }
 };
-
 const obtenerPermisosRol = async (req, res) => {
-
   try {
-
     const { idRol } = req.params;
-
     const pool = await poolPromise;
 
     const result = await pool.request()
@@ -67,28 +64,30 @@ const obtenerPermisosRol = async (req, res) => {
         SELECT
           P.ID_PERMISO,
           P.CODIGO,
-          P.NOMBRE,
-          P.MODULO
+          P.DESCRIPCION AS NOMBRE,
+          P.MODULO,
+          P.ACCION
         FROM Roles_Permisos RP
         INNER JOIN Permisos P
           ON RP.ID_PERMISO = P.ID_PERMISO
         WHERE RP.ID_ROL = @IdRol
-        ORDER BY P.MODULO,P.NOMBRE
+          AND P.ACTIVO = 1
+        ORDER BY P.MODULO, P.ACCION
       `);
 
     return res.json(result.recordset);
 
   } catch (error) {
-
-    console.error(error);
+    console.error(
+      "Error obteniendo permisos del rol:",
+      error
+    );
 
     return res.status(500).json({
       message: "Error obteniendo permisos del rol",
       error: error.message
     });
-
   }
-
 };
 
 const actualizarPermisosRol = async (req, res) => {
