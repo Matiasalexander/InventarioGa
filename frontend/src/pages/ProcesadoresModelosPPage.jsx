@@ -21,14 +21,14 @@ function ProcesadoresModelosPPage ({setLoading}) {
             <div className="detail-item">
                 <ModelosProcesadorPage setLoading={setLoading}></ModelosProcesadorPage>
             </div>
-           </div>
 
-           <div className="detail-item">
+            <div className="detail-item">
             <DiscoPage setLoading={setLoading}></DiscoPage>
            </div>
-
+           
            <div className="detail-item">
             <RamPage setLoading={setLoading}></RamPage>
+           </div>
            </div>
         </div>
     </>
