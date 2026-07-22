@@ -106,6 +106,15 @@ const restaurantes = await pool.request().query(`
   ORDER BY Mod_esp
 `);
 
+const roles = await pool.request().query(`
+  SELECT
+    ID_ROL AS IdRol,
+    NOMBRE AS Rol
+  FROM Roles
+  WHERE ACTIVO = 1
+  ORDER BY NOMBRE
+`);
+
     res.json({
       unidades: unidades.recordset,
       restaurantes: restaurantes.recordset,
@@ -117,7 +126,8 @@ const restaurantes = await pool.request().query(`
       puestos: puestos.recordset,
       procesadores: procesadores.recordset,
       modelosProcesador: modelosProcesador.recordset,
-      modelosEspeciales: modelosEspeciales.recordset
+     modelosEspeciales: modelosEspeciales.recordset,
+roles: roles.recordset
     });
 
   } catch (error) {
