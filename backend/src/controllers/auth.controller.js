@@ -2,6 +2,9 @@ const { poolPromise } = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const transporter = require("../config/mailer");
+const {
+  obtenerPermisosPorUsuario
+} = require("../services/permisos.service");
 
 const login = async (req, res) => {
   try {
@@ -20,16 +23,21 @@ const login = async (req, res) => {
       .input("Correo", correoNormalizado)
       .query(`
         SELECT
-          IdUsuario,
-          Nombre,
-          Correo,
-          PasswordHash,
-          Rol,
-          Activo,
-          DebeCambiarPassword
-        FROM Usuarios
-        WHERE Correo = @Correo
-          AND Activo = 1
+          U.IdUsuario,
+          U.Nombre,
+          U.Correo,
+          U.PasswordHash,
+          U.Rol AS RolAnterior,
+          U.IdRol,
+          U.Activo,
+          U.DebeCambiarPassword,
+          R.NOMBRE AS Rol
+        FROM dbo.Usuarios U
+        LEFT JOIN dbo.Roles R
+          ON R.ID_ROL = U.IdRol
+         AND R.ACTIVO = 1
+        WHERE U.Correo = @Correo
+          AND U.Activo = 1;
       `);
 
     if (result.recordset.length === 0) {
@@ -51,17 +59,36 @@ const login = async (req, res) => {
       });
     }
 
-    const debeCambiarPassword =
-      Boolean(usuario.DebeCambiarPassword);
+    if (!usuario.IdRol || !usuario.Rol) {
+      return res.status(403).json({
+        message:
+          "El usuario no tiene un rol activo asignado"
+      });
+    }
+
+    const permisos = await obtenerPermisosPorUsuario(
+      usuario.IdUsuario
+    );
+
+    const debeCambiarPassword = Boolean(
+      usuario.DebeCambiarPassword
+    );
+
+    const payloadToken = {
+      IdUsuario: usuario.IdUsuario,
+      Nombre: usuario.Nombre,
+      Correo: usuario.Correo,
+
+      // Nueva relación profesional
+      IdRol: usuario.IdRol,
+      Rol: usuario.Rol,
+
+      // Se conserva para la lógica actual
+      DebeCambiarPassword: debeCambiarPassword
+    };
 
     const token = jwt.sign(
-      {
-        IdUsuario: usuario.IdUsuario,
-        Nombre: usuario.Nombre,
-        Correo: usuario.Correo,
-        Rol: usuario.Rol,
-        DebeCambiarPassword: debeCambiarPassword
-      },
+      payloadToken,
       process.env.JWT_SECRET || "InventarioGA2026",
       {
         expiresIn: "8h"
@@ -74,8 +101,10 @@ const login = async (req, res) => {
         IdUsuario: usuario.IdUsuario,
         Nombre: usuario.Nombre,
         Correo: usuario.Correo,
+        IdRol: usuario.IdRol,
         Rol: usuario.Rol,
-        DebeCambiarPassword: debeCambiarPassword
+        DebeCambiarPassword: debeCambiarPassword,
+        permisos
       }
     });
 
