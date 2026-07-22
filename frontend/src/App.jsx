@@ -25,9 +25,11 @@ import EquiposPage from "./pages/EquiposPage";
 import AreasUnidades from "./pages/AreasUnidades";
 import AreasCorporativas from "./pages/AreasCorporativas";
 import UsuariosPage from "./pages/UsuariosPage";
+import RolesPage from "./pages/RolesPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ProcesadoresModelosPPage from "./pages/ProcesadoresModelosPPage";
 import DashboardPage from "./pages/DashboardPage";
+
 
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./utils/ProtectedRoute";
@@ -135,6 +137,10 @@ function App() {
                         path="/usuarios"
                         element={<UsuariosPage setLoading={setLoading} />}
                       />
+                      <Route
+                          path="/roles"
+                           element={ <RolesPage setLoading={setLoading} />  }
+/>
 
                       <Route
                         path="/marcas"

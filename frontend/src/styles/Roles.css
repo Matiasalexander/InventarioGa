@@ -1,0 +1,140 @@
+.roles-page {
+  width: 100%;
+}
+
+.roles-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.roles-panel,
+.permisos-panel {
+  min-width: 0;
+}
+
+.rol-detalle {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.rol-detalle p {
+  margin: 8px 0;
+}
+
+.rol-detalle span {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.permisos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.permisos-header p {
+  margin: 4px 0 0;
+}
+
+.permisos-acciones {
+  display: flex;
+  gap: 10px;
+}
+
+.permisos-acciones button {
+  padding: 9px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+}
+
+.modulos-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(280px, 1fr)
+  );
+  gap: 18px;
+}
+
+.modulo-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modulo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modulo-header h3 {
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.permisos-lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.permiso-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.permiso-check:last-child {
+  border-bottom: none;
+}
+
+.permiso-check input {
+  width: 18px;
+  height: 18px;
+}
+
+.permiso-check div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.permiso-check small {
+  color: #64748b;
+}
+
+.permiso-todos {
+  padding: 0;
+  border: none;
+}
+
+.guardar-permisos {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .roles-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .permisos-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
