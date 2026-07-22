@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import "../styles/Login.css";
 import logo from "../img/gandersons-logo.png";
 import { login } from "../services/authService";
+import { useAuth } from "../context/AuthContext";
 
 function LoginPage({ setLoading }) {
   const navigate = useNavigate();
+  const { login: authLogin } = useAuth();
 
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
@@ -19,9 +21,7 @@ function LoginPage({ setLoading }) {
 
       const data = await login(correo, password);
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("usuario", JSON.stringify(data.usuario));
-
+    authLogin(data.token, data.usuario);
       toast.success("Bienvenido");
 
       navigate("/inventario");
