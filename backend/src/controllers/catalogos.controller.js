@@ -105,6 +105,13 @@ const restaurantes = await pool.request().query(`
   FROM modesp
   ORDER BY Mod_esp
 `);
+    const memoriasRam = await pool.request().query(
+      `SELECT id, capacidad FROM MEMORIA_RAM ORDER BY capacidad`
+    );
+
+    const discoDuro = await pool.request().query(
+      `SELECT id, modelo_disco, capacidad FROM DISCO_DURO ORDER BY modelo_disco`
+    );
 
 const roles = await pool.request().query(`
   SELECT
@@ -126,8 +133,10 @@ const roles = await pool.request().query(`
       puestos: puestos.recordset,
       procesadores: procesadores.recordset,
       modelosProcesador: modelosProcesador.recordset,
-     modelosEspeciales: modelosEspeciales.recordset,
-roles: roles.recordset
+roles: roles.recordset,
+      modelosEspeciales: modelosEspeciales.recordset,
+      memoriasRam: memoriasRam.recordset,
+      discoDuro: discoDuro.recordset
     });
 
   } catch (error) {

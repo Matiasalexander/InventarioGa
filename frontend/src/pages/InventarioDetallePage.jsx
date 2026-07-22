@@ -20,6 +20,8 @@ function InventarioDetallePage() {
   const [tiposEquipo, setTiposEquipo] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [estatus, setEstatus] = useState([]);
+  const [memoriasRam, setMemoriasRam] = useState([]);
+const [discosDuros, setDiscosDuros] = useState([]);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -34,6 +36,8 @@ function InventarioDetallePage() {
         setTiposEquipo(catalogos.tiposEquipo || []);
         setMarcas(catalogos.marcas || []);
         setEstatus(catalogos.estatus || []);
+        setMemoriasRam(catalogos.memoriasRam || []);
+        setDiscosDuros(catalogos.discoDuro || []);
 
         const dataResp = await obtenerHistorialResponsivasPorEquipo(id);
 
@@ -106,6 +110,13 @@ function InventarioDetallePage() {
   const estatusEquipo = estatus.find(
     (item) => Number(item.Id) === Number(equipo.ID_ESTATUS)
   );
+const memoriaRam = memoriasRam.find(
+  (item) => Number(item.id) === Number(equipo.ID_RAM)
+);
+
+const discoDuro = discosDuros.find(
+  (item) => Number(item.id) === Number(equipo.ID_DISCO)
+);
 
   {/*Telefono*/}
   const esTelefono = Number(equipo.ID_TIPO_EQUIPO) === 15;
@@ -326,15 +337,19 @@ function InventarioDetallePage() {
               <strong>{mostrar(equipo.MODELO_PROCESADOR)}</strong>
             </div>
 
-            <div className="detalle-item">
-              <span>RAM</span>
-              <strong>{mostrar(equipo.RAM)}</strong>
-            </div>
+<div className="detalle-item">
+  <span>RAM</span>
+  <strong>{memoriaRam?.capacidad || "N/A"}</strong>
+</div>
 
-            <div className="detalle-item">
-              <span>Disco duro</span>
-              <strong>{mostrar(equipo.DISCO_DURO)}</strong>
-            </div>
+<div className="detalle-item">
+  <span>Disco duro</span>
+  <strong>
+    {discoDuro
+      ? `${discoDuro.modelo_disco} ${discoDuro.capacidad}`
+      : "N/A"}
+  </strong>
+</div>
 
             <div className="detalle-item">
               <span>Lector de huella</span>

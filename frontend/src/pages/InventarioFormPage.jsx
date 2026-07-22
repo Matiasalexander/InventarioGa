@@ -37,12 +37,16 @@ function InventarioFormPage({ setLoading }) {
     estatus: [],
     departamentos: [],
     procesadores: [],
-    modelosProcesador: []
+    modelosProcesador: [],
+    memoriasRam: [],
+    discoDuro: []
   });
 
   const [modelosFiltrados, setModelosFiltrados] = useState([]);
   const [localidadesFiltradas, setLocalidadesFiltradas] = useState([]);
   const [modelosProcesadorFiltrados, setModelosProcesadorFiltrados] = useState([]);
+  const [modelosRamFiltrados, setModelosRamFiltrados] = useState([]);
+  const [modelosDiscoFiltrados, setModeloDiscoFiltrados] = useState([]);
 
   const [formulario, setFormulario] = useState({
     ID_RESTAURANTE: "",
@@ -60,8 +64,8 @@ function InventarioFormPage({ setLoading }) {
     FECHA_REGISTRO: "",
     Grestante: "",
     Auso: "",
-    DISCO_DURO: "",
-    RAM: "",
+    ID_DISCO: "",
+    ID_RAM: "",
     ID_PROCESADOR: "",
     MODELO_PROCESADOR: "",
     SISTEMA_OPERATIVO: "",
@@ -130,6 +134,11 @@ function InventarioFormPage({ setLoading }) {
       (item) => String(item.Id_procesador) === String(equipo.ID_PROCESADOR)
     );
 
+      /*
+    const modelosRam = catalogosData.modelosRam.filter(
+      (item)=>String(item.Id_disco)
+    );*/
+
     setLocalidadesFiltradas(localidades);
     setModelosFiltrados(modelos);
     setModelosProcesadorFiltrados(modelosProcesador);
@@ -150,8 +159,8 @@ function InventarioFormPage({ setLoading }) {
       FECHA_REGISTRO: formatearFecha(equipo.FECHA_REGISTRO),
       Grestante: equipo.Grestante ?? "",
       Auso: equipo.Auso ?? "",
-      DISCO_DURO: equipo.DISCO_DURO || "",
-      RAM: equipo.RAM || "",
+      ID_DISCO: equipo.ID_DISCO || "",
+      ID_RAM: equipo.ID_RAM || "",
       ID_PROCESADOR: equipo.ID_PROCESADOR || "",
       MODELO_PROCESADOR: equipo.MODELO_PROCESADOR || "",
       SISTEMA_OPERATIVO: equipo.SISTEMA_OPERATIVO || "",
@@ -301,8 +310,8 @@ function InventarioFormPage({ setLoading }) {
         FECHA_FABRICACION: formulario.FECHA_FABRICACION,
         FECHA_GARANTIA: formulario.FECHA_GARANTIA,
         FECHA_INICIO: formulario.FECHA_INICIO,
-        DISCO_DURO: formulario.DISCO_DURO,
-        RAM: formulario.RAM,
+        ID_DISCO: formulario.ID_DISCO,
+        ID_RAM: formulario.ID_RAM,
         ID_PROCESADOR: formulario.ID_PROCESADOR,
         MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
         SISTEMA_OPERATIVO: formulario.SISTEMA_OPERATIVO,
@@ -641,32 +650,32 @@ function InventarioFormPage({ setLoading }) {
                 <div className="campo-form">
                   <label>Memoria RAM</label>
                   <select
-                    name="RAM"
-                    value={formulario.RAM || ""}
+                    name="ID_RAM"
+                    value={formulario.ID_RAM}
                     onChange={manejarCambio}
                   >
                     <option value="">Selecciona RAM</option>
-                    {tiposRam.map((ram) => (
-                      <option key={ram} value={ram}>
-                        {ram}
-                      </option>
-                    ))}
+{catalogos.memoriasRam.map((item) => (
+    <option key={item.id} value={item.id}>
+        {item.capacidad}
+    </option>
+))}
                   </select>
                 </div>
 
                 <div className="campo-form">
                   <label>Disco duro</label>
                   <select
-                    name="DISCO_DURO"
-                    value={formulario.DISCO_DURO || ""}
+                    name="ID_DISCO"
+                    value={formulario.ID_DISCO}
                     onChange={manejarCambio}
                   >
                     <option value="">Selecciona disco duro</option>
-                    {tiposDisco.map((disco) => (
-                      <option key={disco} value={disco}>
-                        {disco}
-                      </option>
-                    ))}
+{catalogos.discoDuro.map((item) => (
+    <option key={item.id} value={item.id}>
+        {item.modelo_disco} - {item.capacidad}
+    </option>
+))}
                   </select>
                 </div>
 
