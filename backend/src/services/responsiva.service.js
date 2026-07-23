@@ -58,6 +58,8 @@ const crearResponsiva = async (payload) => {
     Area,
     Correo,
     FirmaBase64,
+    CorreoCreador,
+    IdUsuarioCreador,
     equipos
   } = payload;
 
@@ -72,6 +74,8 @@ const crearResponsiva = async (payload) => {
     .input("Area", Area || null)
     .input("Correo", Correo || null)
     .input("FirmaBase64", FirmaBase64 || null)
+    .input("CorreoCreador", CorreoCreador || null)
+    .input("IdUsuarioCreador", IdUsuarioCreador || null)
     .query(`
       INSERT INTO Responsivas (
         Fecha,
@@ -80,7 +84,9 @@ const crearResponsiva = async (payload) => {
         Area,
         Correo,
         FirmaBase64,
-        Estado
+        Estado,
+        CorreoCreador,
+        IdUsuarioCreador
       )
       OUTPUT INSERTED.IdResponsiva
       VALUES (
@@ -90,7 +96,9 @@ const crearResponsiva = async (payload) => {
         @Area,
         @Correo,
         @FirmaBase64,
-        'ACTIVA'
+        'ACTIVA',
+        @CorreoCreador,
+        @IdUsuarioCreador
       )
     `);
 
@@ -222,6 +230,7 @@ const obtenerResponsivas = async () => {
       Puesto,
       Area,
       Correo,
+      CorreoCreador,
       Estado,
       FechaCreacion
     FROM Responsivas

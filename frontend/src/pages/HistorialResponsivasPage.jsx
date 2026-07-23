@@ -386,6 +386,7 @@ function HistorialResponsivasPage({ setLoading }) {
             <tr>
               <th>Folio</th>
               <th>Fecha</th>
+              <th>Correo del emisor</th>
               <th>Receptor</th>
               <th>Puesto</th>
               <th>Área</th>
@@ -425,7 +426,7 @@ function HistorialResponsivasPage({ setLoading }) {
                           )
                         : ""}
                     </td>
-
+                    <td>{item.CorreoCreador}</td>
                     <td>
                       {item.NombreReceptor || ""}
                     </td>
