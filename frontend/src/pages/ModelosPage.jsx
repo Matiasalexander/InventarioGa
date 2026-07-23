@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerModelos,
@@ -27,6 +27,7 @@ function ModelosPage({ setLoading }) {
 
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
 
   const cargarDatos = async () => {
     try {
@@ -47,6 +48,19 @@ function ModelosPage({ setLoading }) {
   useEffect(() => {
     cargarDatos();
   }, []);
+
+      const modelosFiltrados = useMemo(()=> {
+      const texto = busqueda.toLocaleLowerCase().trim();
+      if(!texto) return modelos;
+  
+      return modelos.filter((item)=>
+        item.tequipo.toLocaleLowerCase().includes(texto) ||
+        item.Marca.toLocaleLowerCase().includes(texto) ||
+        item.Modelo.toLocaleLowerCase().includes(texto)  
+      );
+    }, [busqueda, modelos]
+  
+    );
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -194,15 +208,20 @@ function ModelosPage({ setLoading }) {
             </button>
           )}
         </form>
-        <br></br>
-
+        </div>
+        <div className="card">
+                 <input
+        className="search-input-f"
+        placeholder="Buscar modelo específico Ej. VOSTRO"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /> <br></br>
         <h2>Listado de modelos</h2>
 
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Tipo equipo</th>
                 <th>Marca</th>
                 <th>Modelo</th>
@@ -211,9 +230,8 @@ function ModelosPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {modelos.map((item) => (
+              {modelosFiltrados.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
                   <td>{item.tequipo}</td>
                   <td>{item.Marca}</td>
                   <td>{item.Modelo}</td>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerDepartamentos,
@@ -14,6 +14,8 @@ function DepartamentosPage({ setLoading }) {
   const [nombreDepartamento, setNombreDepartamento] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
+
 
   const cargarDepartamentos = async () => {
     try {
@@ -34,6 +36,17 @@ function DepartamentosPage({ setLoading }) {
   useEffect(() => {
     cargarDepartamentos();
   }, []);
+
+    const departamentosFitrados = useMemo(()=> {
+      const texto = busqueda.toLocaleLowerCase().trim();
+      if(!texto) return departamentos;
+  
+      return departamentos.filter((item)=>
+        item.Nombre_departamento.toLocaleLowerCase().includes(texto)
+      );
+    }, [busqueda, departamentos]
+  
+    );
 
   const limpiarFormulario = () => {
     setNombreDepartamento("");
@@ -134,6 +147,12 @@ function DepartamentosPage({ setLoading }) {
       </div>
 
       <div className="card">
+        <input
+        className="search-input-f"
+        placeholder="Buscar departamento ej. Contabilidad, marketing"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /><br></br>
         <h2>Listado de departamentos</h2>
 
         <div className="table-container">
@@ -146,7 +165,7 @@ function DepartamentosPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {departamentos.map((item) => (
+              {departamentosFitrados.map((item) => (
                 <tr key={item.Id}>
                   <td>{item.Nombre_departamento}</td>
                   <td>

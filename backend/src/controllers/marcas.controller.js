@@ -63,10 +63,16 @@ const crearMarca = async (req, res) => {
       message: "Marca creada correctamente"
     });
   } catch (error) {
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message: "Ya existe una marca con ese nombre"
+      });
+    }
     res.status(500).json({
       message: "Error creando marca",
       error: error.message
     });
+
   }
 };
 

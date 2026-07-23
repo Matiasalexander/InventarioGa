@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerRestaurantes,
@@ -18,6 +18,7 @@ function RestaurantesPage({ setLoading }) {
 
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+      const [busqueda, setBusqueda] = useState("");
 
   const cargarRestaurantes = async () => {
     try {
@@ -34,6 +35,18 @@ function RestaurantesPage({ setLoading }) {
   useEffect(() => {
     cargarRestaurantes();
   }, []);
+
+  
+const restaurantesFiltrados = useMemo(() => {
+  const texto = busqueda.toLowerCase().trim();
+
+  if (!texto) return restaurantes;
+
+  return restaurantes.filter((item) =>
+    item.Marca?.toLowerCase().includes(texto) ||
+    item.Estado?.toLowerCase().includes(texto)
+  );
+}, [busqueda, restaurantes]);
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -155,6 +168,12 @@ function RestaurantesPage({ setLoading }) {
       </div>
 
       <div className="card">
+         <input
+        className="search-input-f"
+        placeholder="Buscar restaurante ej. Mayan Monkey"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /><br></br>
         <h2>Listado de restaurantes</h2>
 
         <div className="table-container">
@@ -168,7 +187,7 @@ function RestaurantesPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {restaurantes.map((item) => (
+              {restaurantesFiltrados.map((item) => (
                 <tr key={item.id_marca}>
                   <td>{item.Marca}</td>
                   <td>{item.Estado}</td>

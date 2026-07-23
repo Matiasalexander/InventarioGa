@@ -166,12 +166,6 @@ function ModelosProcesadorPage({ setLoading }) {
             value={formulario.Modelo}
             onChange={manejarCambio}
           />
-               <input
-        className="search-input"
-        placeholder="Buscar modelo de procesador..."
-        value={busqueda}
-        onChange={(e)=>setBusqueda(e.target.value)}
-      />
 
           <button type="submit">
             {modoEdicion ? "Actualizar modelo" : "Guardar modelo"}
@@ -186,6 +180,12 @@ function ModelosProcesadorPage({ setLoading }) {
       </div>
 
       <div className="card">
+               <input
+        className="search-input"
+        placeholder="Buscar modelo de procesador Ej.Apple Silicon"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /> <br></br>
         <h2>Listado de modelos de procesador</h2>
 
         <div className="table-container">

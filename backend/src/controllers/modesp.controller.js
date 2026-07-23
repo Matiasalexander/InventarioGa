@@ -35,10 +35,16 @@ const crearModesp = async (req, res) => {
       message: "Modelo especial creado correctamente"
     });
   } catch (error) {
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message: "Ya existe un modelo con ese nombre"
+      });
+    }
     res.status(500).json({
-      message: "Error creando modelo especial",
+      message: "Error creando modelo",
       error: error.message
     });
+
   }
 };
 
