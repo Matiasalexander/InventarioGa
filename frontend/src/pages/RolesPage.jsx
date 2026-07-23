@@ -280,6 +280,7 @@ function RolesPage({ setLoading }) {
 
             <div className="permisos-acciones">
               <button
+              className="btn-permisos select-all"
                 type="button"
                 onClick={seleccionarTodos}
               >
@@ -287,6 +288,7 @@ function RolesPage({ setLoading }) {
               </button>
 
               <button
+              className="btn-permisos clear-all"
                 type="button"
                 onClick={limpiarTodos}
               >

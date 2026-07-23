@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerProcesadores,
@@ -15,6 +15,8 @@ function ProcesadoresPage({ setLoading }) {
   const [nombre, setNombre] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
+
 
   const cargarProcesadores = async () => {
     try {
@@ -31,6 +33,17 @@ function ProcesadoresPage({ setLoading }) {
   useEffect(() => {
     cargarProcesadores();
   }, []);
+
+  const procesadoresFiltrados = useMemo(()=> {
+    const texto = busqueda.toLocaleLowerCase().trim();
+    if(!texto) return procesadores;
+
+    return procesadores.filter((item)=>
+      item.Nombre.toLocaleLowerCase().includes(texto)
+    );
+  }, [busqueda, procesadores]
+
+  );
 
   const limpiarFormulario = () => {
     setNombre("");
@@ -126,6 +139,12 @@ function ProcesadoresPage({ setLoading }) {
       </div>
 
       <div className="card">
+               <input
+        className="search-input"
+        placeholder="Buscar procesador ej. AMD"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /> <br></br>
         <h2>Listado de procesadores</h2>
 
         <div className="table-container">
@@ -138,7 +157,7 @@ function ProcesadoresPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {procesadores.map((item) => (
+              {procesadoresFiltrados.map((item) => (
                 <tr key={item.id}>
                   <td>{item.Nombre}</td>
                   <td>

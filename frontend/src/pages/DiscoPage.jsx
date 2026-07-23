@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerDisco,
@@ -15,6 +15,8 @@ function DiscoPage({ setLoading }) {
   const [capacidad, setCapacidad] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
+
 
   const cargarDiscos = async () => {
     try {
@@ -35,6 +37,19 @@ function DiscoPage({ setLoading }) {
   useEffect(() => {
     cargarDiscos();
   }, []);
+
+  const discosFiltrados = useMemo(()=> {
+    const texto = busqueda.toLocaleLowerCase().trim();
+    if(!texto) return discos;
+
+    return discos.filter((item)=>
+      item.modelo_disco.toLocaleLowerCase().includes(texto) ||
+      item.capacidad.toLocaleLowerCase().includes(texto)
+
+    );
+  }, [busqueda, discos]
+
+  );
 
   const limpiarFormulario = () => {
     setModeloDisco("");
@@ -160,6 +175,12 @@ function DiscoPage({ setLoading }) {
       </div>
 
       <div className="card">
+               <input
+        className="search-input"
+        placeholder="Buscar disco duro ej. SSD 512GB"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /> <br></br>
         <h2>Listado de discos duros</h2>
 
         <div className="table-container">
@@ -174,7 +195,7 @@ function DiscoPage({ setLoading }) {
 
             <tbody>
 
-              {discos.map((item) => (
+              {discosFiltrados.map((item) => (
                 <tr key={item.id}>
                   <td>{item.modelo_disco}</td>
                   <td>{item.capacidad}</td>

@@ -35,10 +35,16 @@ const crearProcesador = async (req, res) => {
       message: "Procesador creado correctamente"
     });
   } catch (error) {
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message: "Ya existe un procesador"
+      });
+    }
     res.status(500).json({
       message: "Error creando procesador",
       error: error.message
     });
+
   }
 };
 

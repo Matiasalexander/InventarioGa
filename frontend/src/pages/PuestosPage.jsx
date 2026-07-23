@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerPuestos,
@@ -22,6 +22,8 @@ function PuestosPage({ setLoading }) {
 
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
+
 
   const cargarDatos = async () => {
     try {
@@ -42,6 +44,19 @@ function PuestosPage({ setLoading }) {
   useEffect(() => {
     cargarDatos();
   }, []);
+
+    const puestosFiltrados = useMemo(()=> {
+      const texto = busqueda.toLocaleLowerCase().trim();
+      if(!texto) return puestos;
+  
+      return puestos.filter((item)=>
+        item.Nombre_departamento.toLocaleLowerCase().includes(texto) ||
+              item.Nombre_puesto.toLocaleLowerCase().includes(texto)
+
+      );
+    }, [busqueda, puestos]
+  
+    );
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -169,6 +184,12 @@ function PuestosPage({ setLoading }) {
       </div>
 
       <div className="card">
+         <input
+        className="search-input-f"
+        placeholder="Buscar puesto ej. contabilidad, marketing."
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /><br></br>
         <h2>Listado de puestos</h2>
 
         <div className="table-container">
@@ -182,7 +203,7 @@ function PuestosPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {puestos.map((item) => (
+              {puestosFiltrados.map((item) => (
                 <tr key={item.Id}>
                   <td>{item.Nombre_departamento}</td>
                   <td>{item.Nombre_puesto}</td>

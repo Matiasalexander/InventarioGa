@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerRam,
@@ -14,6 +14,7 @@ function RamPage({ setLoading }) {
   const [capacidad, setCapacidad] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
 
   const cargarRam = async () => {
     try {
@@ -34,6 +35,18 @@ function RamPage({ setLoading }) {
   useEffect(() => {
     cargarRam();
   }, []);
+
+  const ramFiltrada = useMemo(()=> {
+    const texto = busqueda.toLocaleLowerCase().trim();
+    if(!texto) return ram;
+
+    return ram.filter((item)=>
+      item.capacidad.toLocaleLowerCase().includes(texto)
+
+    );
+  }, [busqueda, ram]
+
+  );
 
 const limpiarFormulario = () => {
   setCapacidad("");
@@ -134,6 +147,12 @@ const limpiarFormulario = () => {
       </div>
 
       <div className="card">
+               <input
+        className="search-input"
+        placeholder="Buscar disco ram Ej.64GB"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /> <br></br>
         <h2>Listado de memorias RAM</h2>
 
         <div className="table-container">
@@ -146,7 +165,7 @@ const limpiarFormulario = () => {
             </thead>
 
             <tbody>
-              {ram.map((item) => (
+              {ramFiltrada.map((item) => (
                 <tr key={item.id}>
                   <td>{item.capacidad}</td>
                   <td>

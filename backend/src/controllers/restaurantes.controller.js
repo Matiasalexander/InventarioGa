@@ -64,10 +64,16 @@ const crearRestaurante = async (req, res) => {
       message: "Restaurante creado correctamente"
     });
   } catch (error) {
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message: "Ya existe un restaurante con ese nombre"
+      });
+    }
     res.status(500).json({
       message: "Error creando restaurante",
       error: error.message
     });
+
   }
 };
 

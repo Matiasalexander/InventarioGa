@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerUnidades,
@@ -22,6 +22,8 @@ function UnidadesPage({ setLoading }) {
 
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+    const [busqueda, setBusqueda] = useState("");
+
 
   const cargarDatos = async () => {
     try {
@@ -41,6 +43,18 @@ function UnidadesPage({ setLoading }) {
   useEffect(() => {
     cargarDatos();
   }, []);
+
+const unidadesFiltradas = useMemo(() => {
+  const texto = busqueda.toLowerCase().trim();
+
+  if (!texto) return unidades;
+
+  return unidades.filter((item) =>
+    item.Restaurante?.toLowerCase().includes(texto) ||
+    item.Ubicacion?.toLowerCase().includes(texto) ||
+    item.Estado?.toLowerCase().includes(texto)
+  );
+}, [busqueda, unidades]);
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -179,6 +193,12 @@ function UnidadesPage({ setLoading }) {
       </div>
 
       <div className="card">
+         <input
+        className="search-input-f"
+        placeholder="Buscar unidad ej. Bahama Bay"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /><br></br>
         <h2>Listado de unidades</h2>
 
         <div className="table-container">
@@ -193,7 +213,7 @@ function UnidadesPage({ setLoading }) {
             </thead>
 
             <tbody>
-              {unidades.slice(0,10).map((item) => (
+              {unidadesFiltradas.slice(0,10).map((item) => (
                 <tr key={item.id}>
                   <td>{item.Restaurante}</td>
                   <td>{item.Ubicacion}</td>

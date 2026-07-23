@@ -23,7 +23,9 @@
 }
 
 .botones {
-  grid-column: 1/-1;
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
   width: 100%;
 }
 
