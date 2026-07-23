@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import logo from "../img/gandersons-logo.png";
 import "../styles/Responsiva.css";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   obtenerEquiposDisponibles,
   crearResponsiva,
@@ -12,6 +13,10 @@ import {
 
 function Responsiva({ setLoading }) {
   const navigate = useNavigate();
+  const { tienePermiso } = useAuth();
+
+const puedeCrear = tienePermiso("responsivas.crear");
+const puedePDF = tienePermiso("responsivas.pdf");
   const sigCanvas = useRef();
 
   const [fecha, setFecha] = useState("");
@@ -313,13 +318,15 @@ function Responsiva({ setLoading }) {
                     </span>
                     </td>
                     <td>
-                      <button
+                      {puedeCrear && (
+                       <button
                         className="btn-primary"
                         type="button"
                         onClick={() => agregarEquipoDesdeInventario(item)}
                       >
                         Agregar
                       </button>
+                   )}
                     </td>
                   </tr>
                 ))}
@@ -429,21 +436,24 @@ function Responsiva({ setLoading }) {
             Limpiar firma
           </button>
 
-          <button
-            className="btn-success"
-            type="button"
-            onClick={guardarResponsiva}
-          >
-            Guardar responsiva
-          </button>
+               {puedeCrear && (
+              <button
+               type="button"
+               className="btn-success"
+               onClick={guardarResponsiva}
+               >
+               </button>
+                )}
 
-          <button
-            className="btn-danger"
-            type="button"
-            onClick={generarPDF}
-          >
-            Descargar PDF
-          </button>
+                 {puedePDF && (
+                  <button
+                  className="btn-danger"
+                  type="button"
+                  onClick={generarPDF}
+                 >
+                  Descargar PDF
+                  </button>
+                 )}
         </div>
       </div>
     </div>
