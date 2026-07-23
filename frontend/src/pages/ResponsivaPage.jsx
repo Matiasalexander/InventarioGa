@@ -225,13 +225,22 @@ const puedePDF = tienePermiso("responsivas.pdf");
     <div className="contenedor">
       <div className="header">
         <h2>Nueva responsiva</h2>
-
+        
+        <div className="header-actions">
+        <button
+        className="btn-cancelar"
+          type="button"
+          onClick={()=>navigate("/responsivas/historial")}
+        >
+          Cancelar
+        </button>
         <button
           type="button"
           onClick={() => navigate("/responsivas/historial")}
         >
           Ver historial
         </button>
+        </div>
       </div>
 
       <div className="responsiva-grid">
