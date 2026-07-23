@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 
 import "../styles/Usuarios.css";
 
@@ -30,11 +31,17 @@ function UsuariosPage({ setLoading }) {
   };
 
   const [form, setForm] = useState(formularioInicial);
+const { tienePermiso } = useAuth();
 
-  useEffect(() => {
+const puedeVer = tienePermiso("usuarios.ver");
+const puedeCrear = tienePermiso("usuarios.crear");
+const puedeEditar = tienePermiso("usuarios.editar");
+
+useEffect(() => {
+  if (puedeVer) {
     cargarDatos();
-  }, []);
-
+  }
+}, [puedeVer]);
   const cargarDatos = async () => {
     try {
       setLoading(true);
@@ -224,6 +231,17 @@ function UsuariosPage({ setLoading }) {
     }
   };
 
+  if (!puedeVer) {
+  return (
+    <div className="detail-user">
+      <div className="card">
+        <h2>Acceso denegado</h2>
+        <p>No tienes permisos para visualizar usuarios.</p>
+      </div>
+    </div>
+  );
+}
+
   return (
     <div className="detail-user">
       <div className="header">
@@ -233,8 +251,10 @@ function UsuariosPage({ setLoading }) {
         </div>
       </div>
 
-      <div className="page-grid">
-        <div className="card">
+     <div className="page-grid">
+
+{(puedeCrear || (editandoId && puedeEditar)) && (
+  <div className="card">
           <h2>
             {editandoId
               ? "Editar usuario"
@@ -360,10 +380,15 @@ function UsuariosPage({ setLoading }) {
             </div>
 
             <div className="botones">
-              <button
-                className="btn-primary"
-                type="submit"
-              >
+            <button
+  className="btn-primary"
+  type="submit"
+  disabled={
+    editandoId
+      ? !puedeEditar
+      : !puedeCrear
+  }
+>
                 {editandoId
                   ? "Actualizar"
                   : "Crear usuario"}
@@ -378,8 +403,9 @@ function UsuariosPage({ setLoading }) {
                 </button>
               )}
             </div>
-          </form>
-        </div>
+       </form>
+</div>
+)}
 
         <div className="card">
           <div
