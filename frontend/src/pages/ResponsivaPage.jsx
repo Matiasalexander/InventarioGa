@@ -225,13 +225,22 @@ const puedePDF = tienePermiso("responsivas.pdf");
     <div className="contenedor">
       <div className="header">
         <h2>Nueva responsiva</h2>
-
+        
+        <div className="header-actions">
+        <button
+        className="btn-cancelar"
+          type="button"
+          onClick={()=>navigate("/responsivas/historial")}
+        >
+          Cancelar
+        </button>
         <button
           type="button"
           onClick={() => navigate("/responsivas/historial")}
         >
           Ver historial
         </button>
+        </div>
       </div>
 
       <div className="responsiva-grid">
@@ -359,7 +368,7 @@ const puedePDF = tienePermiso("responsivas.pdf");
             continuación se encuentra en calidad de préstamo a partir del día{" "}
             <strong>{fecha || "FECHA"}</strong> y que está bajo resguardo de{" "}
             <strong>{nombreReceptor || "NOMBRE RECEPTOR"}</strong>, quien se
-            desempeña en el puesto <strong>{puesto || "PUESTO"}</strong> en
+            desempeña en el puesto <strong>{puesto || "PUESTO"} </strong> en
             Grupo Andersons. Dicho(s) equipo(s) cumplirá(n) el uso para los
             fines que fueron acordados y se hace responsable de regresarlo en
             las mismas condiciones que se le fue entregado.
