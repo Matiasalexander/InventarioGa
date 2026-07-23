@@ -58,11 +58,10 @@ router.get(
   verificarPermiso("responsivas.pdf"),
   descargarResponsivaPdf
 );
-
 router.post(
   "/:id/enviar",
   verificarToken,
-  verificarPermiso("responsivas.pdf"),
+  verificarPermiso("responsivas.correo"),
   reenviarResponsivaCorreo
 );
 
