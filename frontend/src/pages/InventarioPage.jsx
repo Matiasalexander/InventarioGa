@@ -7,17 +7,22 @@ import {
 } from "../services/inventarioService";
 import { obtenerArbolUnidades } from "../services/inventarioTreeService";
 import { toast } from "react-toastify";
-import { getRol } from "../utils/roles";
+import { useAuth } from "../context/AuthContext";
 import "../styles/InventarioPage.css";
 import InventarioAccionesMenu from "../components/InventarioAccionesMenu";
 
 function InventarioPage({ setLoading }) {
   const navigate = useNavigate();
-  const rol = getRol();
+  const { tienePermiso } = useAuth();
 
-  const puedeCrear = rol === "Administrador" || rol === "Sistemas";
-  const puedeEditar = rol === "Administrador" || rol === "Sistemas";
-  const puedeEliminar = rol === "Administrador";
+const puedeCrear = tienePermiso("inventario.crear");
+const puedeEditar = tienePermiso("inventario.editar");
+const puedeEliminar = tienePermiso("inventario.eliminar");
+const puedeExportar = tienePermiso("inventario.exportar");
+
+
+
+
 
   const [inventario, setInventario] = useState([]);
   const [arbolUnidades, setArbolUnidades] = useState([]);
@@ -501,9 +506,14 @@ const inventarioPaginado = inventarioFiltrado.slice(
             flexWrap: "wrap"
           }}
         >
-          <button type="button" onClick={descargarExcel}>
-            📥 Exportar Excel
-          </button>
+       {puedeExportar && (
+    <button
+        type="button"
+        onClick={descargarExcel}
+    >
+        📥 Exportar Excel
+    </button>
+)}
 
           {puedeCrear && (
             <button type="button" onClick={irAgregar}>
