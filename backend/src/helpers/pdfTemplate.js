@@ -47,10 +47,10 @@ const generarPdfBuffer = ({ responsiva, equipos = [] }) => {
         .font("Helvetica")
         .text(", quien se desempeña en el puesto ", { continued: true })
         .font("Helvetica-Bold")
-        .text(responsiva.Puesto || "PUESTO", { continued: true })
+        .text(responsiva.Puesto || "PUESTO", { continued: true }) 
         .font("Helvetica")
         .text(
-          " en Grupo Andersons. Dicho(s) equipo(s) cumplirá(n) el uso para los fines que fueron acordados y se hace responsable de regresarlo en las mismas condiciones que se le fue entregado."
+          "  en Grupo Andersons. Dicho(s) equipo(s) cumplirá(n) el uso para los fines que fueron acordados y se hace responsable de regresarlo en las mismas condiciones que se le fue entregado."
         );
 
       doc.moveDown();

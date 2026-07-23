@@ -368,7 +368,7 @@ const puedePDF = tienePermiso("responsivas.pdf");
             continuación se encuentra en calidad de préstamo a partir del día{" "}
             <strong>{fecha || "FECHA"}</strong> y que está bajo resguardo de{" "}
             <strong>{nombreReceptor || "NOMBRE RECEPTOR"}</strong>, quien se
-            desempeña en el puesto <strong>{puesto || "PUESTO"}</strong> en
+            desempeña en el puesto <strong>{puesto || "PUESTO"} </strong> en
             Grupo Andersons. Dicho(s) equipo(s) cumplirá(n) el uso para los
             fines que fueron acordados y se hace responsable de regresarlo en
             las mismas condiciones que se le fue entregado.
