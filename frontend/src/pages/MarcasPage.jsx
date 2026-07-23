@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerMarcas,
@@ -14,6 +14,8 @@ function MarcasPage({ setLoading }) {
   const [marca, setMarca] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
+  const [busqueda, setBusqueda] = useState("");
+
 
   const cargarMarcas = async () => {
     try {
@@ -31,6 +33,18 @@ function MarcasPage({ setLoading }) {
   useEffect(() => {
     cargarMarcas();
   }, []);
+
+    const marcasFiltradas = useMemo(()=> {
+      const texto = busqueda.toLocaleLowerCase().trim();
+      if(!texto) return marcas;
+  
+      return marcas.filter((item)=>
+        item.Marca.toLocaleLowerCase().includes(texto)
+  
+      );
+    }, [busqueda, marcas]
+  
+    );
 
   const limpiarFormulario = () => {
     setMarca("");
@@ -121,24 +135,29 @@ function MarcasPage({ setLoading }) {
             </button>
           )}
         </form>
-        <br></br>
-
+  
+</div>
+<div className="card">
+                 <input
+        className="search-input-f"
+        placeholder="Buscar disco tipo de equipo Ej.APS"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /> <br></br>
         <h2>Listado de marcas</h2>
 
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Marca</th>
                 <th>Acciones</th>
               </tr>
             </thead>
 
             <tbody>
-              {marcas.map((item) => (
+              {marcasFiltradas.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
                   <td>{item.Marca}</td>
                   <td>
                   <CatalogoActions

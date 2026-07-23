@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import {
   obtenerModesp,
@@ -14,7 +14,8 @@ function ModespPage({ setLoading }) {
   const [modEsp, setModEsp] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
-
+  const [busqueda, setBusqueda] = useState("");
+ 
   const cargarModelos = async () => {
     try {
       setLoading?.(true);
@@ -31,6 +32,15 @@ function ModespPage({ setLoading }) {
     cargarModelos();
   }, []);
 
+const modespFiltrados = useMemo(() => {
+  const texto = busqueda.toLowerCase().trim();
+
+  if (!texto) return modelos;
+
+  return modelos.filter((item) =>
+    String(item.Mod_esp ?? "").toLowerCase().includes(texto)
+  );
+}, [busqueda, modelos]);
   const limpiarFormulario = () => {
     setModEsp("");
     setModoEdicion(false);
@@ -120,23 +130,28 @@ function ModespPage({ setLoading }) {
           )}
         </form>
         <br></br>
-
+</div>
+      <div className="card">
+                 <input
+        className="search-input-f"
+        placeholder="Buscar modelo específico Ej. LATTITUDE"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /> <br></br>
         <h2>Listado de modelos base</h2>
 
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Modelo</th>
                 <th>Acciones</th>
               </tr>
             </thead>
 
             <tbody>
-              {modelos.map((item) => (
+              {modespFiltrados.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
                   <td>{item.Mod_esp}</td>
                   <td>
                   <CatalogoActions

@@ -116,21 +116,12 @@ function TipoEquipoPage({ setLoading }) {
       <div className="card">
        <h2>{modoEdicion ? "Editar tipo de equipo" : "Agregar tipo de equipo"}</h2>
 
-        <form onSubmit={guardarTipoEquipo}>
-          <div className="form-grid">
+        <form onSubmit={guardarTipoEquipo} className="form-grid">
           <input
             placeholder="Tipo de equipo"
             value={tequipo}
             onChange={(e) => setTequipo(e.target.value)}
           />
-        <input
-        className="search-input-f"
-        placeholder="Buscar tipo de equipo..."
-        value={busqueda}
-        onChange={(e)=>setBusqueda(e.target.value)}
-      />
-      </div>
-        <div className="form-actions">
           <button type="submit">
             {modoEdicion ? "Actualizar tipo" : "Guardar tipo"}
           </button>
@@ -140,21 +131,21 @@ function TipoEquipoPage({ setLoading }) {
               Cancelar
             </button>
           )}
-          </div>
         </form>
-
-        <div className="toolbar-search">
-          
         </div>
-        
-        <br></br>
+<div className="card">
+               <input
+        className="search-input-f"
+        placeholder="Buscar disco tipo de equipo Ej.APS"
+        value={busqueda}
+        onChange={(e)=>setBusqueda(e.target.value)}
+      /> <br></br>
         <h2>Listado de tipos de equipo</h2>
 
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>ID</th>
                 <th>Tipo equipo</th>
                 <th>Acciones</th>
               </tr>
@@ -163,7 +154,6 @@ function TipoEquipoPage({ setLoading }) {
             <tbody>
               {tipoEquipoFiltrados.slice(0,6).map((item) => (
                 <tr key={item.id}>
-                  <td>{item.id}</td>
                   <td>{item.tequipo}</td>
                   <td>
                     <CatalogoActions
