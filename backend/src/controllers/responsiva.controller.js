@@ -9,7 +9,7 @@ const responderError = (res, error, mensaje) => {
 
 const crearResponsiva = async (req, res) => {
   try {
-    const data = await responsivaService.crearResponsiva(req.body);
+    const data = await responsivaService.crearResponsiva({...req.body, CorreoCreador: req.usuario.Correo, IdUsuarioCreador: req.usuario.IdUsuario});
 
     res.status(201).json({
       message: data.correoEnviado

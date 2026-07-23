@@ -151,3 +151,11 @@
     padding: 16px;
   }
 }
+
+.btn-cancelar {
+  background-color: red;
+}
+
+.btn-cancelar:hover{
+  background-color: #c00d0d;
+}

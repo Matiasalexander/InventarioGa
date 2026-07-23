@@ -7,7 +7,8 @@ const enviarCorreoResponsiva = async ({
   pdfBuffer
 }) => {
   if (!correo) return null;
-
+console.log("SMTP_USER:", process.env.SMTP_USER);
+console.log("SMTP_PASS:", process.env.SMTP_PASS ? "Existe" : "No existe");
   return transporter.sendMail({
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
     to: correo,
