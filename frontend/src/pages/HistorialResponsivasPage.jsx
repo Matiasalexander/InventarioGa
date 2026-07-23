@@ -1,6 +1,9 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+
+import { useAuth } from "../context/AuthContext";
+
 import {
   obtenerResponsivas,
   obtenerResponsivaPorId,
@@ -9,45 +12,24 @@ import {
   descargarResponsivaPDF,
   reenviarResponsiva
 } from "../services/responsivaService";
+
 import ResponsivasAcciones from "../components/ResponsivasAcciones";
 
 function HistorialResponsivasPage({ setLoading }) {
   const navigate = useNavigate();
+  const { tienePermiso } = useAuth();
+
+  const puedeCrear = tienePermiso("responsivas.crear");
+  const puedeEditar = tienePermiso("responsivas.editar");
+  const puedeDevolver = tienePermiso("responsivas.devolver");
 
   const [responsivas, setResponsivas] = useState([]);
   const [detalle, setDetalle] = useState([]);
-  const [responsivaSeleccionada, setResponsivaSeleccionada] = useState(null);
+  const [responsivaSeleccionada, setResponsivaSeleccionada] =
+    useState(null);
 
   const [editando, setEditando] = useState(null);
-  //BUSQUEDA DE RESPONSVIAS por FOLIO Y RECEPTOR
   const [busqueda, setBusqueda] = useState("");
-  //Código para la búsqueda de responsivas
-  const responsivasFiltradas = useMemo(() => {
-  const texto = busqueda.toLowerCase().trim();
-
-  if (!texto) return responsivas;
-
-  return responsivas.filter((item) => {
-    const folio = (
-      item.Folio ||
-      `RESP-${String(item.IdResponsiva).padStart(5, "0")}`
-    ).toLowerCase();
-
-    const receptor = (item.NombreReceptor || "").toLowerCase();
-    const area = (item.Area || " ").toLowerCase();
-    const correo = (item.Correo).toLowerCase();
-    const puesto = (item.Puesto).toLowerCase();
-
-    return (
-      folio.includes(texto) ||
-      receptor.includes(texto) ||
-      area.includes(texto) ||
-      correo.includes(texto) ||
-      puesto.includes(texto) 
-    );
-  });
-}, [busqueda, responsivas]);
-  //FIN DEL CÓDIGO PARA BUSCAR POR FOLIO Y RECEPTOR
 
   const [formEditar, setFormEditar] = useState({
     Fecha: "",
@@ -61,18 +43,61 @@ function HistorialResponsivasPage({ setLoading }) {
     cargarResponsivas();
   }, []);
 
+  const responsivasFiltradas = useMemo(() => {
+    const texto = busqueda.toLowerCase().trim();
+
+    if (!texto) {
+      return responsivas;
+    }
+
+    return responsivas.filter((item) => {
+      const folio = (
+        item.Folio ||
+        `RESP-${String(item.IdResponsiva).padStart(5, "0")}`
+      ).toLowerCase();
+
+      const receptor = String(
+        item.NombreReceptor || ""
+      ).toLowerCase();
+
+      const area = String(item.Area || "").toLowerCase();
+      const correo = String(item.Correo || "").toLowerCase();
+      const puesto = String(item.Puesto || "").toLowerCase();
+
+      return (
+        folio.includes(texto) ||
+        receptor.includes(texto) ||
+        area.includes(texto) ||
+        correo.includes(texto) ||
+        puesto.includes(texto)
+      );
+    });
+  }, [busqueda, responsivas]);
+
   const formatearFechaInput = (fecha) => {
     if (!fecha) return "";
+
     return String(fecha).split("T")[0];
   };
 
   const cargarResponsivas = async () => {
     try {
       setLoading(true);
+
       const data = await obtenerResponsivas();
-      setResponsivas(data);
+
+      setResponsivas(Array.isArray(data) ? data : []);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error cargando responsivas.");
+      console.error(
+        "Error cargando responsivas:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error cargando responsivas."
+      );
     } finally {
       setLoading(false);
     }
@@ -81,18 +106,37 @@ function HistorialResponsivasPage({ setLoading }) {
   const verDetalle = async (idResponsiva) => {
     try {
       setLoading(true);
+
       const data = await obtenerResponsivaPorId(idResponsiva);
+
       setResponsivaSeleccionada(data.responsiva);
       setDetalle(data.equipos || []);
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error obteniendo detalle.");
+      console.error(
+        "Error obteniendo detalle:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error obteniendo detalle."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const abrirEditar = (item) => {
+    if (!puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar responsivas."
+      );
+      return;
+    }
+
     setEditando(item);
+
     setFormEditar({
       Fecha: formatearFechaInput(item.Fecha),
       NombreReceptor: item.NombreReceptor || "",
@@ -104,6 +148,7 @@ function HistorialResponsivasPage({ setLoading }) {
 
   const cerrarEditar = () => {
     setEditando(null);
+
     setFormEditar({
       Fecha: "",
       NombreReceptor: "",
@@ -114,24 +159,69 @@ function HistorialResponsivasPage({ setLoading }) {
   };
 
   const guardarEdicion = async () => {
-    try {
-      if (!formEditar.Fecha || !formEditar.NombreReceptor || !formEditar.Puesto) {
-        toast.warning("Fecha, receptor y puesto son obligatorios.");
-        return;
-      }
+    if (!puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar responsivas."
+      );
+      return;
+    }
 
+    if (!editando?.IdResponsiva) {
+      toast.error("No se encontró la responsiva a editar.");
+      return;
+    }
+
+    if (
+      !formEditar.Fecha ||
+      !formEditar.NombreReceptor.trim() ||
+      !formEditar.Puesto.trim()
+    ) {
+      toast.warning(
+        "Fecha, receptor y puesto son obligatorios."
+      );
+      return;
+    }
+
+    if (
+      formEditar.Correo &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        formEditar.Correo
+      )
+    ) {
+      toast.warning("Ingresa un correo válido.");
+      return;
+    }
+
+    const idResponsiva = editando.IdResponsiva;
+
+    try {
       setLoading(true);
 
-      await actualizarResponsiva(editando.IdResponsiva, formEditar);
+      await actualizarResponsiva(
+        idResponsiva,
+        formEditar
+      );
 
-      toast.success("Responsiva actualizada correctamente.");
+      toast.success(
+        "Responsiva actualizada correctamente."
+      );
+
       cerrarEditar();
+
       await cargarResponsivas();
 
-      if (responsivaSeleccionada?.IdResponsiva === editando.IdResponsiva) {
-        await verDetalle(editando.IdResponsiva);
+      if (
+        responsivaSeleccionada?.IdResponsiva ===
+        idResponsiva
+      ) {
+        await verDetalle(idResponsiva);
       }
     } catch (error) {
+      console.error(
+        "Error actualizando responsiva:",
+        error.response?.data || error
+      );
+
       toast.error(
         error.response?.data?.message ||
           error.response?.data?.error ||
@@ -142,13 +232,32 @@ function HistorialResponsivasPage({ setLoading }) {
     }
   };
 
-  const descargarPDF = async (idResponsiva, folio) => {
+  const descargarPDF = async (
+    idResponsiva,
+    folio
+  ) => {
     try {
       setLoading(true);
-      await descargarResponsivaPDF(idResponsiva, folio);
-      toast.success("Responsiva descargada correctamente.");
+
+      await descargarResponsivaPDF(
+        idResponsiva,
+        folio
+      );
+
+      toast.success(
+        "Responsiva descargada correctamente."
+      );
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error descargando responsiva.");
+      console.error(
+        "Error descargando responsiva:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error descargando responsiva."
+      );
     } finally {
       setLoading(false);
     }
@@ -157,9 +266,18 @@ function HistorialResponsivasPage({ setLoading }) {
   const reenviarCorreo = async (idResponsiva) => {
     try {
       setLoading(true);
+
       await reenviarResponsiva(idResponsiva);
-      toast.success("Responsiva reenviada por correo.");
+
+      toast.success(
+        "Responsiva reenviada por correo."
+      );
     } catch (error) {
+      console.error(
+        "Error reenviando correo:",
+        error.response?.data || error
+      );
+
       toast.error(
         error.response?.data?.message ||
           error.response?.data?.error ||
@@ -171,45 +289,95 @@ function HistorialResponsivasPage({ setLoading }) {
   };
 
   const devolverEquipo = async (idDetalle) => {
+    if (!puedeDevolver) {
+      toast.warning(
+        "No tienes permiso para devolver equipos."
+      );
+      return;
+    }
+
+    const confirmar = window.confirm(
+      "¿Deseas marcar este equipo como devuelto?"
+    );
+
+    if (!confirmar) return;
+
     try {
       setLoading(true);
 
-      await marcarEquipoDevuelto(idDetalle, "Equipo devuelto correctamente");
+      await marcarEquipoDevuelto(
+        idDetalle,
+        "Equipo devuelto correctamente"
+      );
 
-      toast.success("Equipo marcado como devuelto.");
+      toast.success(
+        "Equipo marcado como devuelto."
+      );
 
       if (responsivaSeleccionada) {
-        await verDetalle(responsivaSeleccionada.IdResponsiva);
+        await verDetalle(
+          responsivaSeleccionada.IdResponsiva
+        );
       }
 
       await cargarResponsivas();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error devolviendo equipo.");
+      console.error(
+        "Error devolviendo equipo:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error devolviendo equipo."
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const estados = {
-    "ACTIVA":"badge badge-activa",
-    "INACTIVA":"badge badge-inactiva"
+    ACTIVA: "badge badge-activa",
+    INACTIVA: "badge badge-inactiva"
   };
 
   return (
     <div className="card">
       <div className="header">
-        <h2>Historial de Responsivas</h2>
+        <div>
+          <h2>Historial de Responsivas</h2>
+          <p>
+            Consulta, edita y administra las
+            responsivas registradas.
+          </p>
+        </div>
 
-        <button type="button" onClick={() => navigate("/responsiva")}>
-          Crear Responsiva
-        </button>
+        {puedeCrear && (
+          <button
+            type="button"
+            onClick={() =>
+              navigate("/responsiva")
+            }
+          >
+            Crear Responsiva
+          </button>
+        )}
+      </div>
 
+      <div
+        style={{
+          marginBottom: "16px"
+        }}
+      >
         <input
-        className="search-input"
-        placeholder="Buscar responsiva por Folio/receptor..."
-        value={busqueda}
-        onChange={(e)=>setBusqueda(e.target.value)}
-      />
+          className="search-input"
+          placeholder="Buscar por folio, receptor, puesto, área o correo..."
+          value={busqueda}
+          onChange={(event) =>
+            setBusqueda(event.target.value)
+          }
+        />
       </div>
 
       <div className="table-responsive">
@@ -228,40 +396,71 @@ function HistorialResponsivasPage({ setLoading }) {
           </thead>
 
           <tbody>
-            {responsivas.length === 0 ? (
+            {responsivasFiltradas.length === 0 ? (
               <tr>
-                <td colSpan="8">No hay responsivas registradas.</td>
+                <td colSpan="8">
+                  {responsivas.length === 0
+                    ? "No hay responsivas registradas."
+                    : "No se encontraron responsivas con esa búsqueda."}
+                </td>
               </tr>
             ) : (
               responsivasFiltradas.map((item) => {
                 const folio =
                   item.Folio ||
-                  `RESP-${String(item.IdResponsiva).padStart(5, "0")}`;
+                  `RESP-${String(
+                    item.IdResponsiva
+                  ).padStart(5, "0")}`;
 
                 return (
                   <tr key={item.IdResponsiva}>
                     <td>{folio}</td>
+
                     <td>
                       {item.Fecha
-                        ? new Date(item.Fecha).toLocaleDateString("es-MX")
+                        ? new Date(
+                            item.Fecha
+                          ).toLocaleDateString(
+                            "es-MX"
+                          )
                         : ""}
                     </td>
-                    <td>{item.NombreReceptor}</td>
-                    <td>{item.Puesto}</td>
-                    <td>{item.Area}</td>
-                    <td>{item.Correo || ""}</td>
-                    <td><span className={ estados[item.Estado] || "badge badge-default"} >
-                    {item.Estado || "Sin estatus"}
-                </span></td>
-                    <td>
-<ResponsivasAcciones
-  item={item}
-  onDetalle={verDetalle}
-  onEditar={abrirEditar}
-  onPDF={(id) => descargarPDF(id, folio)}
-  onCorreo={reenviarCorreo}
-/>
 
+                    <td>
+                      {item.NombreReceptor || ""}
+                    </td>
+
+                    <td>{item.Puesto || ""}</td>
+                    <td>{item.Area || ""}</td>
+                    <td>{item.Correo || ""}</td>
+
+                    <td>
+                      <span
+                        className={
+                          estados[item.Estado] ||
+                          "badge badge-default"
+                        }
+                      >
+                        {item.Estado ||
+                          "Sin estatus"}
+                      </span>
+                    </td>
+
+                    <td>
+                      <ResponsivasAcciones
+                        item={item}
+                        onDetalle={verDetalle}
+                        onEditar={abrirEditar}
+                        onPDF={(id) =>
+                          descargarPDF(
+                            id,
+                            folio
+                          )
+                        }
+                        onCorreo={
+                          reenviarCorreo
+                        }
+                      />
                     </td>
                   </tr>
                 );
@@ -271,66 +470,111 @@ function HistorialResponsivasPage({ setLoading }) {
         </table>
       </div>
 
-      {editando && (
-        <div className="card" style={{ marginTop: "25px" }}>
-          <h3>Editar responsiva {editando.Folio}</h3>
+      {editando && puedeEditar && (
+        <div
+          className="card"
+          style={{
+            marginTop: "25px"
+          }}
+        >
+          <h3>
+            Editar responsiva{" "}
+            {editando.Folio ||
+              `RESP-${String(
+                editando.IdResponsiva
+              ).padStart(5, "0")}`}
+          </h3>
 
           <div className="form-responsiva">
             <p>Fecha:</p>
+
             <input
               type="date"
               value={formEditar.Fecha}
-              onChange={(e) =>
-                setFormEditar({ ...formEditar, Fecha: e.target.value })
+              onChange={(event) =>
+                setFormEditar((prev) => ({
+                  ...prev,
+                  Fecha: event.target.value
+                }))
               }
             />
 
             <p>Nombre receptor:</p>
+
             <input
               type="text"
-              value={formEditar.NombreReceptor}
-              onChange={(e) =>
-                setFormEditar({
-                  ...formEditar,
-                  NombreReceptor: e.target.value
-                })
+              value={
+                formEditar.NombreReceptor
+              }
+              onChange={(event) =>
+                setFormEditar((prev) => ({
+                  ...prev,
+                  NombreReceptor:
+                    event.target.value
+                }))
               }
             />
 
             <p>Puesto:</p>
+
             <input
               type="text"
               value={formEditar.Puesto}
-              onChange={(e) =>
-                setFormEditar({ ...formEditar, Puesto: e.target.value })
+              onChange={(event) =>
+                setFormEditar((prev) => ({
+                  ...prev,
+                  Puesto: event.target.value
+                }))
               }
             />
 
             <p>Área:</p>
+
             <input
               type="text"
               value={formEditar.Area}
-              onChange={(e) =>
-                setFormEditar({ ...formEditar, Area: e.target.value })
+              onChange={(event) =>
+                setFormEditar((prev) => ({
+                  ...prev,
+                  Area: event.target.value
+                }))
               }
             />
 
             <p>Correo:</p>
+
             <input
               type="email"
               value={formEditar.Correo}
-              onChange={(e) =>
-                setFormEditar({ ...formEditar, Correo: e.target.value })
+              onChange={(event) =>
+                setFormEditar((prev) => ({
+                  ...prev,
+                  Correo: event.target.value
+                }))
               }
             />
           </div>
 
-          <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
-            <button className="btn-primary" type="button" onClick={guardarEdicion}>
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              marginTop: "15px"
+            }}
+          >
+            <button
+              className="btn-primary"
+              type="button"
+              onClick={guardarEdicion}
+            >
               Guardar cambios
             </button>
 
-            <button className="btn-secondary" type="button" onClick={cerrarEditar}>
+            <button
+              className="btn-secondary"
+              type="button"
+              onClick={cerrarEditar}
+            >
               Cancelar
             </button>
           </div>
@@ -339,14 +583,20 @@ function HistorialResponsivasPage({ setLoading }) {
 
       {responsivaSeleccionada && (
         <>
-          <h3 style={{ marginTop: "30px" }}>
+          <h3
+            style={{
+              marginTop: "30px"
+            }}
+          >
             Detalle de{" "}
             {responsivaSeleccionada.Folio ||
-              `RESP-${String(responsivaSeleccionada.IdResponsiva).padStart(
-                5,
-                "0"
-              )}`}{" "}
-            - {responsivaSeleccionada.NombreReceptor}
+              `RESP-${String(
+                responsivaSeleccionada.IdResponsiva
+              ).padStart(5, "0")}`}{" "}
+            -{" "}
+            {
+              responsivaSeleccionada.NombreReceptor
+            }
           </h3>
 
           <div className="table-responsive">
@@ -367,33 +617,59 @@ function HistorialResponsivasPage({ setLoading }) {
               <tbody>
                 {detalle.length === 0 ? (
                   <tr>
-                    <td colSpan="8">Sin equipos registrados.</td>
+                    <td colSpan="8">
+                      Sin equipos registrados.
+                    </td>
                   </tr>
                 ) : (
                   detalle.map((item) => (
                     <tr key={item.IdDetalle}>
-                      <td>{item.Descripcion}</td>
+                      <td>
+                        {item.Descripcion}
+                      </td>
+
                       <td>{item.Marca}</td>
                       <td>{item.Modelo}</td>
                       <td>{item.NoSerie}</td>
-                      <td>{item.Devuelto ? "Sí" : "No"}</td>
+
+                      <td>
+                        {item.Devuelto
+                          ? "Sí"
+                          : "No"}
+                      </td>
+
                       <td>
                         {item.FechaDevolucion
-                          ? new Date(item.FechaDevolucion).toLocaleString("es-MX")
+                          ? new Date(
+                              item.FechaDevolucion
+                            ).toLocaleString(
+                              "es-MX"
+                            )
                           : ""}
                       </td>
-                      <td>{item.ComentariosDevolucion || ""}</td>
+
                       <td>
-                        {!item.Devuelto ? (
+                        {item.ComentariosDevolucion ||
+                          ""}
+                      </td>
+
+                      <td>
+                        {item.Devuelto ? (
+                          "Devuelto"
+                        ) : puedeDevolver ? (
                           <button
                             className="btn-secondary"
                             type="button"
-                            onClick={() => devolverEquipo(item.IdDetalle)}
+                            onClick={() =>
+                              devolverEquipo(
+                                item.IdDetalle
+                              )
+                            }
                           >
                             Devolver
                           </button>
                         ) : (
-                          "Devuelto"
+                          "Pendiente"
                         )}
                       </td>
                     </tr>
