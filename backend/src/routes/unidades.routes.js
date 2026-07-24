@@ -8,9 +8,35 @@ const {
   eliminarUnidad
 } = require("../controllers/unidades.controller");
 
-router.get("/", obtenerUnidades);
-router.post("/", crearUnidad);
-router.put("/:id", actualizarUnidad);
-router.delete("/:id", eliminarUnidad);
+const { verificarToken } = require("../middleware/auth.middleware");
+const { verificarPermiso } = require("../middleware/permisos.middleware");
+
+router.get(
+  "/",
+  verificarToken,
+  verificarPermiso("unidades.ver"),
+  obtenerUnidades
+);
+
+router.post(
+  "/",
+  verificarToken,
+  verificarPermiso("unidades.crear"),
+  crearUnidad
+);
+
+router.put(
+  "/:id",
+  verificarToken,
+  verificarPermiso("unidades.editar"),
+  actualizarUnidad
+);
+
+router.delete(
+  "/:id",
+  verificarToken,
+  verificarPermiso("unidades.eliminar"),
+  eliminarUnidad
+);
 
 module.exports = router;
