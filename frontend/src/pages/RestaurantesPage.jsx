@@ -1,16 +1,21 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+
 import {
   obtenerRestaurantes,
   crearRestaurante,
   actualizarRestaurante,
   eliminarRestaurante
 } from "../services/restaurantesService";
+
+import { useAuth } from "../context/AuthContext";
+
 import "../styles/InventarioPage.css";
 import CatalogoActions from "../components/CatalogoActions";
 
 function RestaurantesPage({ setLoading }) {
   const [restaurantes, setRestaurantes] = useState([]);
+
   const [formulario, setFormulario] = useState({
     Marca: "",
     Estado: "Open"
@@ -18,35 +23,50 @@ function RestaurantesPage({ setLoading }) {
 
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
-      const [busqueda, setBusqueda] = useState("");
+  const [busqueda, setBusqueda] = useState("");
+
+  const { tienePermiso } = useAuth();
+
+  const puedeVer = tienePermiso("restaurantes.ver");
+  const puedeCrear = tienePermiso("restaurantes.crear");
+  const puedeEditar = tienePermiso("restaurantes.editar");
+  const puedeEliminar = tienePermiso("restaurantes.eliminar");
 
   const cargarRestaurantes = async () => {
     try {
       setLoading(true);
+
       const data = await obtenerRestaurantes();
-      setRestaurantes(data);
+
+      setRestaurantes(data || []);
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al cargar listado de restaurantes")
-    }finally{
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al cargar listado de restaurantes"
+      );
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    cargarRestaurantes();
-  }, []);
+    if (puedeVer) {
+      cargarRestaurantes();
+    }
+  }, [puedeVer]);
 
-  
-const restaurantesFiltrados = useMemo(() => {
-  const texto = busqueda.toLowerCase().trim();
+  const restaurantesFiltrados = useMemo(() => {
+    const texto = busqueda.toLowerCase().trim();
 
-  if (!texto) return restaurantes;
+    if (!texto) return restaurantes;
 
-  return restaurantes.filter((item) =>
-    item.Marca?.toLowerCase().includes(texto) ||
-    item.Estado?.toLowerCase().includes(texto)
-  );
-}, [busqueda, restaurantes]);
+    return restaurantes.filter(
+      (item) =>
+        item.Marca?.toLowerCase().includes(texto) ||
+        item.Estado?.toLowerCase().includes(texto)
+    );
+  }, [busqueda, restaurantes]);
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -70,13 +90,24 @@ const restaurantesFiltrados = useMemo(() => {
   const guardarRestaurante = async (e) => {
     e.preventDefault();
 
+    if (modoEdicion && !puedeEditar) {
+      toast.warning("No tienes permiso para editar restaurantes.");
+      return;
+    }
+
+    if (!modoEdicion && !puedeCrear) {
+      toast.warning("No tienes permiso para crear restaurantes.");
+      return;
+    }
+
     if (!formulario.Marca.trim()) {
-      toast.warning("Escribe el nombre del restaurante");
+      toast.warning("Escribe el nombre del restaurante.");
       return;
     }
 
     try {
       setLoading(true);
+
       const payload = {
         Marca: formulario.Marca.trim(),
         Estado: formulario.Estado
@@ -84,23 +115,33 @@ const restaurantesFiltrados = useMemo(() => {
 
       if (modoEdicion) {
         await actualizarRestaurante(idEditando, payload);
-        toast.success("Restaurante actualizado correctamente");
+        toast.success("Restaurante actualizado correctamente.");
       } else {
         await crearRestaurante(payload);
-        toast.success("Restaurante creado correctamente");
+        toast.success("Restaurante creado correctamente.");
       }
 
       limpiarFormulario();
       await cargarRestaurantes();
     } catch (error) {
-      console.error("Error guardando restaurante:", error.response?.data || error);
-      toast.error(error.response?.data?.error || "Error guardando restaurante");
-    }finally{
+      console.error(error);
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error guardando restaurante."
+      );
+    } finally {
       setLoading(false);
     }
   };
 
   const editarRestaurante = (item) => {
+    if (!puedeEditar) {
+      toast.warning("No tienes permiso para editar restaurantes.");
+      return;
+    }
+
     setFormulario({
       Marca: item.Marca || "",
       Estado: item.Estado || "Open"
@@ -111,20 +152,37 @@ const restaurantesFiltrados = useMemo(() => {
   };
 
   const borrarRestaurante = async (id) => {
+    if (!puedeEliminar) {
+      toast.warning("No tienes permiso para eliminar restaurantes.");
+      return;
+    }
+
     if (!window.confirm("¿Deseas eliminar este restaurante?")) return;
 
     try {
       setLoading(true);
+
       await eliminarRestaurante(id);
+
       await cargarRestaurantes();
-      toast.success("Restaurante eliminado correctamente");
+
+      toast.success("Restaurante eliminado correctamente.");
     } catch (error) {
-      console.error("Error eliminando restaurante:", error.response?.data || error);
-      toast.error(error.response?.data?.error || "Error eliminando restaurante");
-    }finally{
+      console.error(error);
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error eliminando restaurante."
+      );
+    } finally {
       setLoading(false);
     }
   };
+
+  if (!puedeVer) {
+    return null;
+  }
 
   return (
     <div className="contenedor">
@@ -135,45 +193,56 @@ const restaurantesFiltrados = useMemo(() => {
         </div>
       </div>
 
-      <div className="card">
-        <h2>{modoEdicion ? "Editar restaurante" : "Agregar restaurante"}</h2>
+      {(puedeCrear || (modoEdicion && puedeEditar)) && (
+        <div className="card">
+          <h2>
+            {modoEdicion
+              ? "Editar restaurante"
+              : "Agregar restaurante"}
+          </h2>
 
-        <form onSubmit={guardarRestaurante} className="form-grid">
-          <input
-            name="Marca"
-            placeholder="Nombre del restaurante"
-            value={formulario.Marca}
-            onChange={manejarCambio}
-          />
+          <form onSubmit={guardarRestaurante} className="form-grid">
+            <input
+              name="Marca"
+              placeholder="Nombre del restaurante"
+              value={formulario.Marca}
+              onChange={manejarCambio}
+            />
 
-          <select
-            name="Estado"
-            value={formulario.Estado}
-            onChange={manejarCambio}
-          >
-            <option value="Open">Open</option>
-            <option value="Closed">Closed</option>
-          </select>
+            <select
+              name="Estado"
+              value={formulario.Estado}
+              onChange={manejarCambio}
+            >
+              <option value="Open">Open</option>
+              <option value="Closed">Closed</option>
+            </select>
 
-          <button type="submit">
-            {modoEdicion ? "Actualizar restaurante" : "Guardar restaurante"}
-          </button>
-
-          {modoEdicion && (
-            <button type="button" onClick={limpiarFormulario}>
-              Cancelar
+            <button type="submit">
+              {modoEdicion
+                ? "Actualizar restaurante"
+                : "Guardar restaurante"}
             </button>
-          )}
-        </form>
-      </div>
+
+            {modoEdicion && (
+              <button type="button" onClick={limpiarFormulario}>
+                Cancelar
+              </button>
+            )}
+          </form>
+        </div>
+      )}
 
       <div className="card">
-         <input
-        className="search-input-f"
-        placeholder="Buscar restaurante ej. Mayan Monkey"
-        value={busqueda}
-        onChange={(e)=>setBusqueda(e.target.value)}
-      /><br></br>
+        <input
+          className="search-input-f"
+          placeholder="Buscar restaurante Ej. Mayan Monkey"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
+
+        <br />
+
         <h2>Listado de restaurantes</h2>
 
         <div className="table-container">
@@ -182,7 +251,10 @@ const restaurantesFiltrados = useMemo(() => {
               <tr>
                 <th>Restaurante</th>
                 <th>Estado</th>
-                <th>Acciones</th>
+
+                {(puedeEditar || puedeEliminar) && (
+                  <th>Acciones</th>
+                )}
               </tr>
             </thead>
 
@@ -191,19 +263,28 @@ const restaurantesFiltrados = useMemo(() => {
                 <tr key={item.id_marca}>
                   <td>{item.Marca}</td>
                   <td>{item.Estado}</td>
-                  <td>
-                <CatalogoActions
-                item={item}
-                onEditar={editarRestaurante}
-                onEliminar={borrarRestaurante}
-                />
-                  </td>
+
+                  {(puedeEditar || puedeEliminar) && (
+                    <td>
+                      <CatalogoActions
+                        item={item}
+                        onEditar={puedeEditar ? editarRestaurante : null}
+                        onEliminar={puedeEliminar ? borrarRestaurante : null}
+                      />
+                    </td>
+                  )}
                 </tr>
               ))}
 
-              {restaurantes.length === 0 && (
+              {restaurantesFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan="4">No hay restaurantes registrados.</td>
+                  <td
+                    colSpan={
+                      puedeEditar || puedeEliminar ? 3 : 2
+                    }
+                  >
+                    No hay restaurantes registrados.
+                  </td>
                 </tr>
               )}
             </tbody>
