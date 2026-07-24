@@ -1,11 +1,15 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+
 import {
   obtenerModesp,
   crearModesp,
   actualizarModesp,
   eliminarModesp
 } from "../services/modespService";
+
+import { useAuth } from "../context/AuthContext";
+
 import "../styles/InventarioPage.css";
 import CatalogoActions from "../components/CatalogoActions";
 
@@ -15,32 +19,52 @@ function ModespPage({ setLoading }) {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
   const [busqueda, setBusqueda] = useState("");
- 
+
+  const { tienePermiso } = useAuth();
+
+  const puedeVer = tienePermiso("catalogos.ver");
+  const puedeCrear = tienePermiso("catalogos.crear");
+  const puedeEditar = tienePermiso("catalogos.editar");
+  const puedeEliminar = tienePermiso("catalogos.eliminar");
+
   const cargarModelos = async () => {
     try {
       setLoading?.(true);
+
       const data = await obtenerModesp();
-      setModelos(data);
+
+      setModelos(data || []);
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al cargar modelos");
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al cargar modelos base"
+      );
     } finally {
       setLoading?.(false);
     }
   };
 
   useEffect(() => {
-    cargarModelos();
-  }, []);
+    if (puedeVer) {
+      cargarModelos();
+    }
+  }, [puedeVer]);
 
-const modespFiltrados = useMemo(() => {
-  const texto = busqueda.toLowerCase().trim();
+  const modespFiltrados = useMemo(() => {
+    const texto = busqueda.toLowerCase().trim();
 
-  if (!texto) return modelos;
+    if (!texto) {
+      return modelos;
+    }
 
-  return modelos.filter((item) =>
-    String(item.Mod_esp ?? "").toLowerCase().includes(texto)
-  );
-}, [busqueda, modelos]);
+    return modelos.filter((item) =>
+      String(item.Mod_esp ?? "")
+        .toLowerCase()
+        .includes(texto)
+    );
+  }, [busqueda, modelos]);
+
   const limpiarFormulario = () => {
     setModEsp("");
     setModoEdicion(false);
@@ -50,8 +74,22 @@ const modespFiltrados = useMemo(() => {
   const guardarModelo = async (e) => {
     e.preventDefault();
 
+    if (modoEdicion && !puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar modelos base."
+      );
+      return;
+    }
+
+    if (!modoEdicion && !puedeCrear) {
+      toast.warning(
+        "No tienes permiso para crear modelos base."
+      );
+      return;
+    }
+
     if (!modEsp.trim()) {
-      toast.warning("Escribe el modelo");
+      toast.warning("Escribe el modelo.");
       return;
     }
 
@@ -63,81 +101,151 @@ const modespFiltrados = useMemo(() => {
       };
 
       if (modoEdicion) {
-        await actualizarModesp(idEditando, payload);
-        toast.success("Modelo actualizado correctamente");
+        await actualizarModesp(
+          idEditando,
+          payload
+        );
+
+        toast.success(
+          "Modelo base actualizado correctamente."
+        );
       } else {
         await crearModesp(payload);
-        toast.success("Modelo creado correctamente");
+
+        toast.success(
+          "Modelo base creado correctamente."
+        );
       }
 
       limpiarFormulario();
       await cargarModelos();
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al guardar modelo");
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al guardar modelo base."
+      );
     } finally {
       setLoading?.(false);
     }
   };
 
   const editarModelo = (item) => {
+    if (!puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar modelos base."
+      );
+      return;
+    }
+
     setModEsp(item.Mod_esp);
     setModoEdicion(true);
     setIdEditando(item.id);
   };
 
   const borrarModelo = async (id) => {
-    if (!window.confirm("¿Deseas eliminar este modelo?")) return;
+    if (!puedeEliminar) {
+      toast.warning(
+        "No tienes permiso para eliminar modelos base."
+      );
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "¿Deseas eliminar este modelo base?"
+      )
+    ) {
+      return;
+    }
 
     try {
       setLoading?.(true);
+
       await eliminarModesp(id);
-      toast.success("Modelo eliminado correctamente");
+
+      toast.success(
+        "Modelo base eliminado correctamente."
+      );
+
       await cargarModelos();
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al eliminar modelo");
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al eliminar modelo base."
+      );
     } finally {
       setLoading?.(false);
     }
   };
+
+  if (!puedeVer) {
+    return null;
+  }
 
   return (
     <div className="contenedor">
       <div className="header">
         <div>
           <h1>Modelos base</h1>
-          <p>Catálogo base de modelos específicos.</p>
+
+          <p>
+            Catálogo base de modelos específicos.
+          </p>
         </div>
       </div>
 
-      <div className="card">
-        <h2>{modoEdicion ? "Editar modelo base" : "Agregar modelo base"}</h2>
+      {(puedeCrear || (modoEdicion && puedeEditar)) && (
+        <div className="card">
+          <h2>
+            {modoEdicion
+              ? "Editar modelo base"
+              : "Agregar modelo base"}
+          </h2>
 
-        <form onSubmit={guardarModelo} className="form-grid">
-          <input
-            placeholder="Modelo, ejemplo: LATITUDE 3440"
-            value={modEsp}
-            onChange={(e) => setModEsp(e.target.value)}
-          />
+          <form
+            onSubmit={guardarModelo}
+            className="form-grid"
+          >
+            <input
+              placeholder="Modelo, ejemplo: LATITUDE 3440"
+              value={modEsp}
+              onChange={(e) =>
+                setModEsp(e.target.value)
+              }
+            />
 
-          <button type="submit">
-            {modoEdicion ? "Actualizar modelo" : "Guardar modelo"}
-          </button>
-
-          {modoEdicion && (
-            <button type="button" onClick={limpiarFormulario}>
-              Cancelar
+            <button type="submit">
+              {modoEdicion
+                ? "Actualizar modelo"
+                : "Guardar modelo"}
             </button>
-          )}
-        </form>
-        <br></br>
-</div>
+
+            {modoEdicion && (
+              <button
+                type="button"
+                onClick={limpiarFormulario}
+              >
+                Cancelar
+              </button>
+            )}
+          </form>
+        </div>
+      )}
+
       <div className="card">
-                 <input
-        className="search-input-f"
-        placeholder="Buscar modelo específico Ej. LATTITUDE"
-        value={busqueda}
-        onChange={(e)=>setBusqueda(e.target.value)}
-      /> <br></br>
+        <input
+          className="search-input-f"
+          placeholder="Buscar modelo específico, Ej. LATITUDE"
+          value={busqueda}
+          onChange={(e) =>
+            setBusqueda(e.target.value)
+          }
+        />
+
+        <br />
+
         <h2>Listado de modelos base</h2>
 
         <div className="table-container">
@@ -145,7 +253,10 @@ const modespFiltrados = useMemo(() => {
             <thead>
               <tr>
                 <th>Modelo</th>
-                <th>Acciones</th>
+
+                {(puedeEditar || puedeEliminar) && (
+                  <th>Acciones</th>
+                )}
               </tr>
             </thead>
 
@@ -153,19 +264,39 @@ const modespFiltrados = useMemo(() => {
               {modespFiltrados.map((item) => (
                 <tr key={item.id}>
                   <td>{item.Mod_esp}</td>
-                  <td>
-                  <CatalogoActions
-                  item={item}
-                  onEditar={editarModelo}
-                  onEliminar={borrarModelo}
-                  />
-                  </td>
+
+                  {(puedeEditar ||
+                    puedeEliminar) && (
+                    <td>
+                      <CatalogoActions
+                        item={item}
+                        onEditar={
+                          puedeEditar
+                            ? editarModelo
+                            : null
+                        }
+                        onEliminar={
+                          puedeEliminar
+                            ? borrarModelo
+                            : null
+                        }
+                      />
+                    </td>
+                  )}
                 </tr>
               ))}
 
-              {modelos.length === 0 && (
+              {modespFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan="3">No hay modelos registrados.</td>
+                  <td
+                    colSpan={
+                      puedeEditar || puedeEliminar
+                        ? 2
+                        : 1
+                    }
+                  >
+                    No hay modelos registrados.
+                  </td>
                 </tr>
               )}
             </tbody>
