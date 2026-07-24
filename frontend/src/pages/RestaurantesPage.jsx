@@ -266,11 +266,12 @@ function RestaurantesPage({ setLoading }) {
 
                   {(puedeEditar || puedeEliminar) && (
                     <td>
-                      <CatalogoActions
-                        item={item}
-                        onEditar={puedeEditar ? editarRestaurante : null}
-                        onEliminar={puedeEliminar ? borrarRestaurante : null}
-                      />
+                   <CatalogoActions
+                   item={item}
+                   onEditar={puedeEditar ? editarRestaurante : null}
+                   onEliminar={puedeEliminar ? borrarRestaurante : null}
+                  getId={(item) => item.id_marca}
+                   />
                     </td>
                   )}
                 </tr>
