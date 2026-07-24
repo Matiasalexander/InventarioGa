@@ -1,37 +1,34 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-
-import { toast } from "react-toastify";
-
 import "../styles/EquiposPage.css";
+
+import { useAuth } from "../context/AuthContext";
+
 import TipoEquipoPage from "./TipoEquipoPage";
 import MarcasPage from "./MarcasPage";
 import ModelosPage from "./ModelosPage";
 import ModespPage from "./ModespPage";
 
-
 function EquiposPage({ setLoading }) {
+  const { tienePermiso } = useAuth();
 
-    return (
-        <>
-<div className="responsive">
+  const puedeVerCatalogos = tienePermiso("catalogos.ver");
 
-    <div className="dashboard-grid">
+  if (!puedeVerCatalogos) {
+    return null;
+  }
 
-        <TipoEquipoPage setLoading={setLoading}/>
+  return (
+    <div className="responsive">
+      <div className="dashboard-grid">
+        <TipoEquipoPage setLoading={setLoading} />
+        <MarcasPage setLoading={setLoading} />
+      </div>
 
-        <MarcasPage setLoading={setLoading}/>
+      <div className="dashboard-grid">
+        <ModespPage setLoading={setLoading} />
+        <ModelosPage setLoading={setLoading} />
+      </div>
     </div>
-    
-    <div className="dashboard-grid">
-        <ModespPage setLoading={setLoading}/>
-        <ModelosPage setLoading={setLoading}/>
-    </div>
-
-</div>
-        </>
-    );
-
+  );
 }
 
 export default EquiposPage;
