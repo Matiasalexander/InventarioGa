@@ -8,9 +8,35 @@ const {
   eliminarPuesto
 } = require("../controllers/puestos.controller");
 
-router.get("/", obtenerPuestos);
-router.post("/", crearPuesto);
-router.put("/:id", actualizarPuesto);
-router.delete("/:id", eliminarPuesto);
+const { verificarToken } = require("../middleware/auth.middleware");
+const { verificarPermiso } = require("../middleware/permisos.middleware");
+
+router.get(
+  "/",
+  verificarToken,
+  verificarPermiso("puestos.ver"),
+  obtenerPuestos
+);
+
+router.post(
+  "/",
+  verificarToken,
+  verificarPermiso("puestos.crear"),
+  crearPuesto
+);
+
+router.put(
+  "/:id",
+  verificarToken,
+  verificarPermiso("puestos.editar"),
+  actualizarPuesto
+);
+
+router.delete(
+  "/:id",
+  verificarToken,
+  verificarPermiso("puestos.eliminar"),
+  eliminarPuesto
+);
 
 module.exports = router;

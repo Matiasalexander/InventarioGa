@@ -8,9 +8,35 @@ const {
   eliminarProcesador
 } = require("../controllers/procesadores.controller");
 
-router.get("/", obtenerProcesadores);
-router.post("/", crearProcesador);
-router.put("/:id", actualizarProcesador);
-router.delete("/:id", eliminarProcesador);
+const { verificarToken } = require("../middleware/auth.middleware");
+const { verificarPermiso } = require("../middleware/permisos.middleware");
+
+router.get(
+  "/",
+  verificarToken,
+  verificarPermiso("procesadores.ver"),
+  obtenerProcesadores
+);
+
+router.post(
+  "/",
+  verificarToken,
+  verificarPermiso("procesadores.crear"),
+  crearProcesador
+);
+
+router.put(
+  "/:id",
+  verificarToken,
+  verificarPermiso("procesadores.editar"),
+  actualizarProcesador
+);
+
+router.delete(
+  "/:id",
+  verificarToken,
+  verificarPermiso("procesadores.eliminar"),
+  eliminarProcesador
+);
 
 module.exports = router;
