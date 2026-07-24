@@ -16,8 +16,6 @@ function InventarioFormPage({ setLoading }) {
   const esEdicion = Boolean(id);
 
   const estadosFisicos = ["Bueno", "Regular", "Dañado"];
-  const tiposRam = ["4GB", "8GB", "16GB", "32GB", "64GB"];
-  const tiposDisco = ["128G", "512G", "1TB", "2TB"];
   const tiposSistemas = ["Windows", "Android", "Linux"];
   const tiposImpresoras = [
     "Impresora térmica",
@@ -29,6 +27,10 @@ function InventarioFormPage({ setLoading }) {
   const [errorSerial, setErrorSerial] = useState("");
   const [foto, setFoto] = useState(null);
 const [preview, setPreview] = useState("");
+//setear el correo del usuario
+  const [correo, setCorreo] = useState("");
+
+  useEffect(()=>{const usuario = JSON.parse(localStorage.getItem("usuario")); setCorreo(usuario?.Correo || "");},[]);
 
   const [catalogos, setCatalogos] = useState({
     restaurantes: [],
@@ -920,9 +922,8 @@ if (foto) {
               <label>Correo</label>
               <input
               required
-                name="CORREO"
-                placeholder="Correo asignado o responsable"
-                value={formulario.CORREO}
+                value={correo}
+                readOnly
                 onChange={manejarCambio}
               />
             </div>

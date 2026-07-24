@@ -214,9 +214,11 @@ const obtenerInventarioPorId = async (req, res) => {
 };
 
 const crearInventario = async (req, res) => {
-    const FOTO = req.file ? req.file.buffer : null;
-  
+    const FOTO = req.file ? req.file.buffer : null;  
   try {
+    //esto toma el correo del usuario ->
+        const Correo = req.usuario.Correo;
+
     const {
       ID_UNIDAD,
       LOCALIDAD,
@@ -242,7 +244,6 @@ const crearInventario = async (req, res) => {
       PUERTO,
       ID_ESTATUS,
       ESTADO_FISICO,
-      CORREO,
       ACCESO_TEAM_VIEWER,
       CONTRASEÑA_TEAM_VIEWER,
       ACCESO_ANYDESK,
@@ -295,7 +296,7 @@ const crearInventario = async (req, res) => {
       .input("PUERTO", PUERTO || null)
       .input("ID_ESTATUS", ID_ESTATUS || null)
       .input("ESTADO_FISICO", ESTADO_FISICO || null)
-      .input("CORREO", CORREO || null)
+      .input("CORREO", Correo)
       .input("ACCESO_TEAM_VIEWER", ACCESO_TEAM_VIEWER || null)
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)
@@ -409,6 +410,8 @@ if (aplicaNombre) {
 
 const actualizarInventario = async (req, res) => {
   try {
+    const Correo = req.usuario.Correo;
+
     const FOTO = req.file ? req.file.buffer : null;
     const { id } = req.params;
 
@@ -437,7 +440,6 @@ const actualizarInventario = async (req, res) => {
       PUERTO,
       ID_ESTATUS,
       ESTADO_FISICO,
-      CORREO,
       ACCESO_TEAM_VIEWER,
       CONTRASEÑA_TEAM_VIEWER,
       ACCESO_ANYDESK,
@@ -499,7 +501,7 @@ const actualizarInventario = async (req, res) => {
       .input("PUERTO", PUERTO || null)
       .input("ID_ESTATUS", ID_ESTATUS || null)
       .input("ESTADO_FISICO", ESTADO_FISICO || null)
-      .input("CORREO", CORREO || null)
+      .input("CORREO", Correo)
       .input("ACCESO_TEAM_VIEWER", ACCESO_TEAM_VIEWER || null)
       .input("CONTRASEÑA_TEAM_VIEWER", CONTRASEÑA_TEAM_VIEWER || null)
       .input("ACCESO_ANYDESK", ACCESO_ANYDESK || null)

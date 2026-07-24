@@ -265,6 +265,15 @@ function RolesPage({ setLoading }) {
               </span>
             </div>
           )}
+
+
+{/*BTN QUE ACTIVA LA PÁGINA EN MANTENIMIENTO
+       <div className="modulo-card">
+          
+        </div>
+*/}
+ 
+
         </div>
 
         <div className="card permisos-panel">
