@@ -70,7 +70,7 @@ const crearRestaurante = async (req, res) => {
       });
     }
     res.status(500).json({
-      message: "Error creando restaurante",
+      message: "Ya existe un restaurante con ese nombre",
       error: error.message
     });
 

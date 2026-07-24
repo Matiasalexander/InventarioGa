@@ -49,10 +49,17 @@ const crearModeloProcesador = async (req, res) => {
       mensaje: "Modelo procesador creado correctamente"
     });
 
-  } catch (error) {
+ } catch (error) {
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message: "Ya existe un modelo con ese nombre"
+      });
+    }
     res.status(500).json({
+      message: "Ya existe un modelo con ese nombre",
       error: error.message
     });
+
   }
 };
 

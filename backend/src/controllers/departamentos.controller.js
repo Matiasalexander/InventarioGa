@@ -41,7 +41,7 @@ const crearDepartamento = async (req, res) => {
       });
     }
     res.status(500).json({
-      message: "Error creando departamento",
+      message: "Ya existe un departamento con ese nombre",
       error: error.message
     });
 

@@ -35,11 +35,17 @@ const crearRAM = async (req, res) => {
     res.status(201).json({
       message: "Memoria RAM creada exitosamente"
     });
-  } catch (error) {
+ } catch (error) {
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message: "Ya existe una memoria ram con esa capacidad"
+      });
+    }
     res.status(500).json({
-      message: "Error creando memoria RAM",
+      message: "Ya existe una memoria ram con esa capacidad",
       error: error.message
     });
+
   }
 };
 
