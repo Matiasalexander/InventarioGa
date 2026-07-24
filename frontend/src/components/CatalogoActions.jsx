@@ -10,7 +10,8 @@ import "../styles/InventarioPage.css";
 export default function CatalogoActions({
   item,
   onEditar,
-  onEliminar
+  onEliminar,
+  getId
 }) {
   const [abierto, setAbierto] = useState(false);
   const contenedorRef = useRef(null);
@@ -73,6 +74,14 @@ export default function CatalogoActions({
     }
   };
 
+  const obtenerIdItem = () => {
+    if (typeof getId === "function") {
+      return getId(item);
+    }
+
+    return item?.id;
+  };
+
   if (!tieneAcciones) {
     return null;
   }
@@ -113,7 +122,6 @@ export default function CatalogoActions({
                 className="icon-p"
                 size={16}
               />
-
               Editar
             </button>
           )}
@@ -128,7 +136,7 @@ export default function CatalogoActions({
               className="acciones-menu-item acciones-menu-item-danger"
               onClick={() =>
                 ejecutarAccion(() =>
-                  onEliminar(item.id)
+                  onEliminar(obtenerIdItem())
                 )
               }
             >
@@ -136,7 +144,6 @@ export default function CatalogoActions({
                 className="icon-trash"
                 size={16}
               />
-
               Eliminar
             </button>
           )}
