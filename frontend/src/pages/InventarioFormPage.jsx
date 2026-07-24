@@ -27,6 +27,7 @@ function InventarioFormPage({ setLoading }) {
   const [errorSerial, setErrorSerial] = useState("");
   const [foto, setFoto] = useState(null);
 const [preview, setPreview] = useState("");
+//setear el correo del usuario
   const [correo, setCorreo] = useState("");
 
   useEffect(()=>{const usuario = JSON.parse(localStorage.getItem("usuario")); setCorreo(usuario?.Correo || "");},[]);

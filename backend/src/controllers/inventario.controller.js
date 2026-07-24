@@ -216,6 +216,7 @@ const obtenerInventarioPorId = async (req, res) => {
 const crearInventario = async (req, res) => {
     const FOTO = req.file ? req.file.buffer : null;  
   try {
+    //esto toma el correo del usuario ->
         const Correo = req.usuario.Correo;
 
     const {
