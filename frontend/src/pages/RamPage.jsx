@@ -1,11 +1,15 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+
 import {
   obtenerRam,
   crearRAM,
   actualizarRAM,
   eliminarRAM
 } from "../services/ramService";
+
+import { useAuth } from "../context/AuthContext";
+
 import "../styles/InventarioPage.css";
 import CatalogoActions from "../components/CatalogoActions";
 
@@ -16,16 +20,29 @@ function RamPage({ setLoading }) {
   const [idEditando, setIdEditando] = useState(null);
   const [busqueda, setBusqueda] = useState("");
 
+  const { tienePermiso } = useAuth();
+
+  const puedeVer = tienePermiso("memoriaram.ver");
+  const puedeCrear = tienePermiso("memoriaram.crear");
+  const puedeEditar = tienePermiso("memoriaram.editar");
+  const puedeEliminar = tienePermiso("memoriaram.eliminar");
+
   const cargarRam = async () => {
     try {
-      setLoading(true);
+      setLoading?.(true);
 
       const data = await obtenerRam();
-      setRam(data);
+      setRam(data || []);
     } catch (error) {
+      console.error(
+        "Error cargando memorias RAM:",
+        error.response?.data || error
+      );
+
       toast.error(
-        error.response?.data?.error ||
-          "Error al cargar listado de memorias ram"
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al cargar listado de memorias RAM."
       );
     } finally {
       setLoading?.(false);
@@ -33,37 +50,51 @@ function RamPage({ setLoading }) {
   };
 
   useEffect(() => {
-    cargarRam();
-  }, []);
+    if (puedeVer) {
+      cargarRam();
+    }
+  }, [puedeVer]);
 
-  const ramFiltrada = useMemo(()=> {
-    const texto = busqueda.toLocaleLowerCase().trim();
-    if(!texto) return ram;
+  const ramFiltrada = useMemo(() => {
+    const texto = busqueda.toLowerCase().trim();
 
-    return ram.filter((item)=>
-      item.capacidad.toLocaleLowerCase().includes(texto)
+    if (!texto) return ram;
 
+    return ram.filter((item) =>
+      item.capacidad?.toLowerCase().includes(texto)
     );
-  }, [busqueda, ram]
+  }, [busqueda, ram]);
 
-  );
-
-const limpiarFormulario = () => {
-  setCapacidad("");
-  setModoEdicion(false);
-  setIdEditando(null);
-};
+  const limpiarFormulario = () => {
+    setCapacidad("");
+    setModoEdicion(false);
+    setIdEditando(null);
+  };
 
   const guardarRam = async (e) => {
     e.preventDefault();
 
-    if (!capacidad.trim) {
-        toast.warning("Escribe la capacidad");
-        return;
+    if (modoEdicion && !puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar memorias RAM."
+      );
+      return;
+    }
+
+    if (!modoEdicion && !puedeCrear) {
+      toast.warning(
+        "No tienes permiso para crear memorias RAM."
+      );
+      return;
+    }
+
+    if (!capacidad.trim()) {
+      toast.warning("Escribe la capacidad.");
+      return;
     }
 
     try {
-      setLoading(true);
+      setLoading?.(true);
 
       const payload = {
         capacidad: capacidad.trim()
@@ -71,96 +102,170 @@ const limpiarFormulario = () => {
 
       if (modoEdicion) {
         await actualizarRAM(idEditando, payload);
-        toast.success("Ram actualizada correctamente");
+
+        toast.success(
+          "Memoria RAM actualizada correctamente."
+        );
       } else {
         await crearRAM(payload);
-        toast.success("Ram creada correctamente");
+
+        toast.success(
+          "Memoria RAM creada correctamente."
+        );
       }
 
       limpiarFormulario();
       await cargarRam();
     } catch (error) {
+      console.error(
+        "Error guardando memoria RAM:",
+        error.response?.data || error
+      );
+
       toast.error(
-        error.response?.data?.error || "Error al guardar modelo de ram"
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al guardar memoria RAM."
       );
     } finally {
-      setLoading(false);
+      setLoading?.(false);
     }
   };
 
   const editarRam = (item) => {
-    setCapacidad(item.capacidad);
+    if (!puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar memorias RAM."
+      );
+      return;
+    }
+
+    setCapacidad(item.capacidad || "");
     setModoEdicion(true);
     setIdEditando(item.id);
   };
 
   const borrarRam = async (id) => {
-    if (!window.confirm("¿Deseas eliminar este modelo de ram?")) return;
+    if (!puedeEliminar) {
+      toast.warning(
+        "No tienes permiso para eliminar memorias RAM."
+      );
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "¿Deseas eliminar esta memoria RAM?"
+      )
+    ) {
+      return;
+    }
 
     try {
-      setLoading(true);
+      setLoading?.(true);
 
       await eliminarRAM(id);
-      toast.success("modelo de ram eliminado correctamente");
-
       await cargarRam();
+
+      toast.success(
+        "Memoria RAM eliminada correctamente."
+      );
     } catch (error) {
+      console.error(
+        "Error eliminando memoria RAM:",
+        error.response?.data || error
+      );
+
       toast.error(
-        error.response?.data?.error || "Error al eliminar modelo de ram"
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al eliminar memoria RAM."
       );
     } finally {
-      setLoading(false);
+      setLoading?.(false);
     }
   };
+
+  if (!puedeVer) {
+    return null;
+  }
+
+  const mostrarFormulario =
+    puedeCrear || (modoEdicion && puedeEditar);
+
+  const mostrarAcciones =
+    puedeEditar || puedeEliminar;
 
   return (
     <div className="contenedor">
       <div className="header">
         <div>
-          <h1>Memorias Ram</h1>
-          <p>Catálogo de modelos de memorias ram.</p>
+          <h1>Memorias RAM</h1>
+          <p>Catálogo de capacidades de memoria RAM.</p>
         </div>
       </div>
 
-      <div className="card">
-        <h2>
-          {modoEdicion ? "Editar modelo de ram" : "Agregar modelo de ram"}
-        </h2>
+      {mostrarFormulario && (
+        <div className="card">
+          <h2>
+            {modoEdicion
+              ? "Editar memoria RAM"
+              : "Agregar memoria RAM"}
+          </h2>
 
-        <form onSubmit={guardarRam} className="form-grid">
+          <form
+            onSubmit={guardarRam}
+            className="form-grid"
+          >
+            <input
+              placeholder="Capacidad de RAM (Ej. 8GB, 16GB, 32GB)"
+              value={capacidad}
+              onChange={(e) =>
+                setCapacidad(e.target.value)
+              }
+            />
+
+            <button type="submit">
+              {modoEdicion
+                ? "Actualizar memoria RAM"
+                : "Guardar memoria RAM"}
+            </button>
+
+            {modoEdicion && (
+              <button
+                type="button"
+                onClick={limpiarFormulario}
+              >
+                Cancelar
+              </button>
+            )}
+          </form>
+        </div>
+      )}
+
+      <div className="card">
         <input
-            placeholder="Capacidad de ram (Ej. 6GB, 8GB, 1TB)"
-            value={capacidad}
-            onChange={(e)=>setCapacidad(e.target.value)}
+          className="search-input"
+          placeholder="Buscar memoria RAM Ej. 64GB"
+          value={busqueda}
+          onChange={(e) =>
+            setBusqueda(e.target.value)
+          }
         />
 
-          <button type="submit">
-            {modoEdicion ? "Actualizar modelo de ram" : "Guardar modelo de ram"}
-          </button>
+        <br />
 
-          {modoEdicion && (
-            <button type="button" onClick={limpiarFormulario}>
-              Cancelar
-            </button>
-          )}
-        </form>
-      </div>
-
-      <div className="card">
-               <input
-        className="search-input"
-        placeholder="Buscar disco ram Ej.64GB"
-        value={busqueda}
-        onChange={(e)=>setBusqueda(e.target.value)}
-      /> <br></br>
         <h2>Listado de memorias RAM</h2>
 
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>capacidad</th>
-                <th>Acciones</th>
+                <th>Capacidad</th>
+
+                {mostrarAcciones && (
+                  <th>Acciones</th>
+                )}
               </tr>
             </thead>
 
@@ -168,19 +273,36 @@ const limpiarFormulario = () => {
               {ramFiltrada.map((item) => (
                 <tr key={item.id}>
                   <td>{item.capacidad}</td>
-                  <td>
-                  <CatalogoActions
-                  item={item}
-                  onEditar={editarRam}
-                  onEliminar={borrarRam}
-                  />
-                  </td>
+
+                  {mostrarAcciones && (
+                    <td>
+                      <CatalogoActions
+                        item={item}
+                        onEditar={
+                          puedeEditar
+                            ? editarRam
+                            : null
+                        }
+                        onEliminar={
+                          puedeEliminar
+                            ? borrarRam
+                            : null
+                        }
+                      />
+                    </td>
+                  )}
                 </tr>
               ))}
 
-              {ram.length === 0 && (
+              {ramFiltrada.length === 0 && (
                 <tr>
-                  <td colSpan="3">No hay memorias ram registradas.</td>
+                  <td
+                    colSpan={
+                      mostrarAcciones ? 2 : 1
+                    }
+                  >
+                    No hay memorias RAM registradas.
+                  </td>
                 </tr>
               )}
             </tbody>

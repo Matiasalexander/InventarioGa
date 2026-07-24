@@ -8,9 +8,35 @@ const {
   eliminarRAM
 } = require("../controllers/ram.controller");
 
-router.get("/", obtenerRam);
-router.post("/", crearRAM);
-router.put("/:id", actualizarRAM);
-router.delete("/:id", eliminarRAM);
+const { verificarToken } = require("../middleware/auth.middleware");
+const { verificarPermiso } = require("../middleware/permisos.middleware");
+
+router.get(
+  "/",
+  verificarToken,
+  verificarPermiso("memoriaram.ver"),
+  obtenerRam
+);
+
+router.post(
+  "/",
+  verificarToken,
+  verificarPermiso("memoriaram.crear"),
+  crearRAM
+);
+
+router.put(
+  "/:id",
+  verificarToken,
+  verificarPermiso("memoriaram.editar"),
+  actualizarRAM
+);
+
+router.delete(
+  "/:id",
+  verificarToken,
+  verificarPermiso("memoriaram.eliminar"),
+  eliminarRAM
+);
 
 module.exports = router;
