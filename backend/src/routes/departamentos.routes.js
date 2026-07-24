@@ -8,9 +8,35 @@ const {
   eliminarDepartamento
 } = require("../controllers/departamentos.controller");
 
-router.get("/", obtenerDepartamentos);
-router.post("/", crearDepartamento);
-router.put("/:id", actualizarDepartamento);
-router.delete("/:id", eliminarDepartamento);
+const { verificarToken } = require("../middleware/auth.middleware");
+const { verificarPermiso } = require("../middleware/permisos.middleware");
+
+router.get(
+  "/",
+  verificarToken,
+  verificarPermiso("departamentos.ver"),
+  obtenerDepartamentos
+);
+
+router.post(
+  "/",
+  verificarToken,
+  verificarPermiso("departamentos.crear"),
+  crearDepartamento
+);
+
+router.put(
+  "/:id",
+  verificarToken,
+  verificarPermiso("departamentos.editar"),
+  actualizarDepartamento
+);
+
+router.delete(
+  "/:id",
+  verificarToken,
+  verificarPermiso("departamentos.eliminar"),
+  eliminarDepartamento
+);
 
 module.exports = router;
