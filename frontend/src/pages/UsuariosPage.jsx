@@ -49,8 +49,9 @@ useEffect(() => {
       const [usuariosData, catalogosData] = await Promise.all([
         obtenerUsuarios(),
         obtenerCatalogos()
+        
       ]);
-
+console.log(catalogosData);
       setUsuarios(usuariosData || []);
       setRoles(catalogosData.roles || []);
     } catch (error) {

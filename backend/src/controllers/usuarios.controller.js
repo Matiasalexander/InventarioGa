@@ -1,30 +1,30 @@
 const { poolPromise } = require("../config/db");
+const sql = require("mssql");
 const bcrypt = require("bcryptjs");
-
 const enviarCorreoNuevoUsuario =
   require("../helpers/enviarCorreoNuevoUsuario");
 
 const obtenerUsuarios = async (req, res) => {
   try {
     const pool = await poolPromise;
-
-    const result = await pool.request().query(`
-      SELECT
-        U.IdUsuario,
-        U.Nombre,
-        U.Correo,
-        U.Telefono,
-        U.IdRol,
-        R.NOMBRE AS Rol,
-        U.Activo,
-        U.DebeCambiarPassword,
-        U.FechaCreacion,
-        U.FechaActualizacion
-      FROM Usuarios U
-      LEFT JOIN Roles R
-        ON R.ID_ROL = U.IdRol
-      ORDER BY U.IdUsuario DESC
-    `);
+const result = await pool.request().query(`
+  SELECT
+    U.IdUsuario,
+    U.Nombre,
+    U.Correo,
+    U.Telefono,
+    U.IdRol,
+    R.NOMBRE AS Rol,
+    U.Activo,
+    U.DebeCambiarPassword,
+    U.VerTodasUnidades,
+    U.FechaCreacion,
+    U.FechaActualizacion
+  FROM Usuarios U
+  LEFT JOIN Roles R
+    ON R.ID_ROL = U.IdRol
+  ORDER BY U.IdUsuario DESC
+`);
 
     return res.json(result.recordset);
 
@@ -43,25 +43,26 @@ const obtenerUsuarioPorId = async (req, res) => {
     const { id } = req.params;
     const pool = await poolPromise;
 
-    const result = await pool.request()
-      .input("IdUsuario", id)
-      .query(`
-        SELECT
-          U.IdUsuario,
-          U.Nombre,
-          U.Correo,
-          U.Telefono,
-          U.IdRol,
-          R.NOMBRE AS Rol,
-          U.Activo,
-          U.DebeCambiarPassword,
-          U.FechaCreacion,
-          U.FechaActualizacion
-        FROM Usuarios U
-        LEFT JOIN Roles R
-          ON R.ID_ROL = U.IdRol
-        WHERE U.IdUsuario = @IdUsuario
-      `);
+const result = await pool.request()
+  .input("IdUsuario", sql.Int, Number(id))
+  .query(`
+    SELECT
+      U.IdUsuario,
+      U.Nombre,
+      U.Correo,
+      U.Telefono,
+      U.IdRol,
+      R.NOMBRE AS Rol,
+      U.Activo,
+      U.DebeCambiarPassword,
+      U.VerTodasUnidades,
+      U.FechaCreacion,
+      U.FechaActualizacion
+    FROM Usuarios U
+    LEFT JOIN Roles R
+      ON R.ID_ROL = U.IdRol
+    WHERE U.IdUsuario = @IdUsuario
+  `);
 
     if (result.recordset.length === 0) {
       return res.status(404).json({
@@ -438,6 +439,255 @@ const eliminarUsuario = async (req, res) => {
     });
   }
 };
+const obtenerUnidadesUsuario = async (req, res) => {
+  try {
+    const idUsuario = Number(req.params.id);
+
+    if (!Number.isInteger(idUsuario) || idUsuario <= 0) {
+      return res.status(400).json({
+        message: "El usuario indicado no es válido"
+      });
+    }
+
+    const pool = await poolPromise;
+
+    const usuarioResult = await pool.request()
+      .input("IdUsuario", sql.Int, idUsuario)
+      .query(`
+        SELECT
+          IdUsuario,
+          Nombre,
+          Correo,
+          VerTodasUnidades
+        FROM Usuarios
+        WHERE IdUsuario = @IdUsuario
+      `);
+
+    if (usuarioResult.recordset.length === 0) {
+      return res.status(404).json({
+        message: "Usuario no encontrado"
+      });
+    }
+
+    const unidadesResult = await pool.request()
+      .input("IdUsuario", sql.Int, idUsuario)
+      .query(`
+        SELECT
+          UN.id,
+          UN.id_marca,
+          UN.Ubicacion,
+          UN.Estado,
+          UU.FechaAsignacion
+        FROM Usuario_Unidades UU
+        INNER JOIN Unidades UN
+          ON UN.id = UU.IdUnidad
+        WHERE UU.IdUsuario = @IdUsuario
+        ORDER BY
+          UN.Ubicacion,
+          UN.id_marca
+      `);
+
+    return res.json({
+      usuario: usuarioResult.recordset[0],
+      unidades: unidadesResult.recordset
+    });
+
+  } catch (error) {
+    console.error(
+      "Error obteniendo unidades del usuario:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Error obteniendo las unidades del usuario",
+      error: error.message
+    });
+  }
+};
+
+
+const actualizarUnidadesUsuario = async (req, res) => {
+  let transaction;
+
+  try {
+    const idUsuario = Number(req.params.id);
+
+    const {
+      VerTodasUnidades = false,
+      Unidades = []
+    } = req.body;
+
+    if (!Number.isInteger(idUsuario) || idUsuario <= 0) {
+      return res.status(400).json({
+        message: "El usuario indicado no es válido"
+      });
+    }
+
+    if (!Array.isArray(Unidades)) {
+      return res.status(400).json({
+        message: "Las unidades deben enviarse dentro de un arreglo"
+      });
+    }
+
+    /*
+      Convierte todo a número, elimina valores inválidos
+      y evita unidades repetidas.
+    */
+    const unidadesNormalizadas = [
+      ...new Set(
+        Unidades
+          .map((unidad) => Number(unidad))
+          .filter(
+            (unidad) =>
+              Number.isInteger(unidad) &&
+              unidad > 0
+          )
+      )
+    ];
+
+    const verTodas = VerTodasUnidades === true;
+
+    if (!verTodas && unidadesNormalizadas.length === 0) {
+      return res.status(400).json({
+        message:
+          "Selecciona por lo menos una unidad o activa la opción de ver todas las unidades"
+      });
+    }
+
+    const pool = await poolPromise;
+
+    const usuarioExiste = await pool.request()
+      .input("IdUsuario", sql.Int, idUsuario)
+      .query(`
+        SELECT IdUsuario
+        FROM Usuarios
+        WHERE IdUsuario = @IdUsuario
+      `);
+
+    if (usuarioExiste.recordset.length === 0) {
+      return res.status(404).json({
+        message: "Usuario no encontrado"
+      });
+    }
+
+    /*
+      Cuando no ve todas las unidades, validamos que cada ID
+      enviado realmente exista en la tabla Unidades.
+    */
+    if (!verTodas) {
+      const unidadesExistentes = await pool.request()
+        .query(`
+          SELECT id
+          FROM Unidades
+        `);
+
+      const idsExistentes = new Set(
+        unidadesExistentes.recordset.map(
+          (unidad) => Number(unidad.id)
+        )
+      );
+
+      const unidadesInvalidas = unidadesNormalizadas.filter(
+        (idUnidad) => !idsExistentes.has(idUnidad)
+      );
+
+      if (unidadesInvalidas.length > 0) {
+        return res.status(400).json({
+          message: "Una o más unidades seleccionadas no existen",
+          unidadesInvalidas
+        });
+      }
+    }
+
+    transaction = new sql.Transaction(pool);
+
+    await transaction.begin();
+
+    /*
+      Actualizar el indicador del usuario.
+    */
+    await new sql.Request(transaction)
+      .input("IdUsuario", sql.Int, idUsuario)
+      .input(
+        "VerTodasUnidades",
+        sql.Bit,
+        verTodas ? 1 : 0
+      )
+      .query(`
+        UPDATE Usuarios
+        SET
+          VerTodasUnidades = @VerTodasUnidades,
+          FechaActualizacion = GETDATE()
+        WHERE IdUsuario = @IdUsuario
+      `);
+
+    /*
+      Eliminamos las relaciones anteriores para reemplazarlas
+      completamente con la selección actual.
+    */
+    await new sql.Request(transaction)
+      .input("IdUsuario", sql.Int, idUsuario)
+      .query(`
+        DELETE FROM Usuario_Unidades
+        WHERE IdUsuario = @IdUsuario
+      `);
+
+    /*
+      Si el usuario ve todas las unidades, no necesitamos guardar
+      relaciones individuales.
+    */
+    if (!verTodas) {
+      for (const idUnidad of unidadesNormalizadas) {
+        await new sql.Request(transaction)
+          .input("IdUsuario", sql.Int, idUsuario)
+          .input("IdUnidad", sql.Int, idUnidad)
+          .query(`
+            INSERT INTO Usuario_Unidades (
+              IdUsuario,
+              IdUnidad
+            )
+            VALUES (
+              @IdUsuario,
+              @IdUnidad
+            )
+          `);
+      }
+    }
+
+    await transaction.commit();
+    transaction = null;
+
+    return res.json({
+      message: verTodas
+        ? "El usuario ahora puede ver todas las unidades"
+        : "Unidades del usuario actualizadas correctamente",
+      VerTodasUnidades: verTodas,
+      Unidades: verTodas ? [] : unidadesNormalizadas
+    });
+
+  } catch (error) {
+    if (transaction) {
+      try {
+        await transaction.rollback();
+      } catch (rollbackError) {
+        console.error(
+          "Error revirtiendo la asignación de unidades:",
+          rollbackError
+        );
+      }
+    }
+
+    console.error(
+      "Error actualizando unidades del usuario:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Error actualizando las unidades del usuario",
+      error: error.message
+    });
+  }
+};
 
 module.exports = {
   obtenerUsuarios,
@@ -445,5 +695,7 @@ module.exports = {
   crearUsuario,
   actualizarUsuario,
   cambiarPasswordUsuario,
-  eliminarUsuario
+  eliminarUsuario,
+  obtenerUnidadesUsuario,
+  actualizarUnidadesUsuario
 };
