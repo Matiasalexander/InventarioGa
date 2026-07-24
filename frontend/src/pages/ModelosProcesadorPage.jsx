@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
+
 import {
   obtenerModelosProcesador,
   crearModeloProcesador,
   actualizarModeloProcesador,
   eliminarModeloProcesador
 } from "../services/modelosProcesadorService";
+
 import { obtenerProcesadores } from "../services/procesadoresService";
+import { useAuth } from "../context/AuthContext";
+
 import "../styles/InventarioPage.css";
 import CatalogoActions from "../components/CatalogoActions";
 
@@ -23,36 +27,63 @@ function ModelosProcesadorPage({ setLoading }) {
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState(null);
 
+  const { tienePermiso } = useAuth();
+
+  const puedeVer = tienePermiso("modelosprocesador.ver");
+  const puedeCrear = tienePermiso("modelosprocesador.crear");
+  const puedeEditar = tienePermiso("modelosprocesador.editar");
+  const puedeEliminar = tienePermiso("modelosprocesador.eliminar");
+
+  const puedeConsultarProcesadores =
+    tienePermiso("procesadores.ver");
+
   const cargarDatos = async () => {
     try {
       setLoading?.(true);
 
-      const modelosData = await obtenerModelosProcesador();
-      const procesadoresData = await obtenerProcesadores();
+      const modelosData = puedeVer
+        ? await obtenerModelosProcesador()
+        : [];
 
-      setModelos(modelosData);
-      setProcesadores(procesadoresData);
+      const procesadoresData = puedeConsultarProcesadores
+        ? await obtenerProcesadores()
+        : [];
+
+      setModelos(modelosData || []);
+      setProcesadores(procesadoresData || []);
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al cargar modelos de procesador");
+      console.error(
+        "Error cargando modelos de procesador:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al cargar modelos de procesador."
+      );
     } finally {
       setLoading?.(false);
     }
   };
 
   useEffect(() => {
-    cargarDatos();
-  }, []);
+    if (puedeVer) {
+      cargarDatos();
+    }
+  }, [puedeVer, puedeConsultarProcesadores]);
 
- const modelosProcesadoresFiltrados = useMemo(() => {
-  const texto = busqueda.toLowerCase().trim();
+  const modelosProcesadoresFiltrados = useMemo(() => {
+    const texto = busqueda.toLowerCase().trim();
 
-  if (!texto) return modelos;
+    if (!texto) return modelos;
 
-  return modelos.filter((item) =>
-    (item.Modelo || "").toLowerCase().includes(texto)
-  );
-}, [busqueda, modelos]);
-
+    return modelos.filter(
+      (item) =>
+        item.Modelo?.toLowerCase().includes(texto) ||
+        item.Nombre?.toLowerCase().includes(texto)
+    );
+  }, [busqueda, modelos]);
 
   const manejarCambio = (e) => {
     const { name, value } = e.target;
@@ -76,8 +107,34 @@ function ModelosProcesadorPage({ setLoading }) {
   const guardarModelo = async (e) => {
     e.preventDefault();
 
-    if (!formulario.Id_procesador || !formulario.Modelo.trim()) {
-      toast.warning("Selecciona procesador y escribe el modelo");
+    if (modoEdicion && !puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar modelos de procesador."
+      );
+      return;
+    }
+
+    if (!modoEdicion && !puedeCrear) {
+      toast.warning(
+        "No tienes permiso para crear modelos de procesador."
+      );
+      return;
+    }
+
+    if (!puedeConsultarProcesadores) {
+      toast.warning(
+        "No tienes permiso para consultar procesadores."
+      );
+      return;
+    }
+
+    if (
+      !formulario.Id_procesador ||
+      !formulario.Modelo.trim()
+    ) {
+      toast.warning(
+        "Selecciona un procesador y escribe el modelo."
+      );
       return;
     }
 
@@ -90,23 +147,48 @@ function ModelosProcesadorPage({ setLoading }) {
       };
 
       if (modoEdicion) {
-        await actualizarModeloProcesador(idEditando, payload);
-        toast.success("Modelo actualizado correctamente");
+        await actualizarModeloProcesador(
+          idEditando,
+          payload
+        );
+
+        toast.success(
+          "Modelo actualizado correctamente."
+        );
       } else {
         await crearModeloProcesador(payload);
-        toast.success("Modelo creado correctamente");
+
+        toast.success(
+          "Modelo creado correctamente."
+        );
       }
 
       limpiarFormulario();
       await cargarDatos();
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al guardar modelo");
+      console.error(
+        "Error guardando modelo de procesador:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al guardar modelo."
+      );
     } finally {
       setLoading?.(false);
     }
   };
 
   const editarModelo = (item) => {
+    if (!puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar modelos de procesador."
+      );
+      return;
+    }
+
     setFormulario({
       Id_procesador: item.Id_procesador || "",
       Modelo: item.Modelo || ""
@@ -117,75 +199,145 @@ function ModelosProcesadorPage({ setLoading }) {
   };
 
   const borrarModelo = async (id) => {
-    if (!window.confirm("¿Deseas eliminar este modelo de procesador?")) return;
+    if (!puedeEliminar) {
+      toast.warning(
+        "No tienes permiso para eliminar modelos de procesador."
+      );
+      return;
+    }
+
+    if (
+      !window.confirm(
+        "¿Deseas eliminar este modelo de procesador?"
+      )
+    ) {
+      return;
+    }
 
     try {
       setLoading?.(true);
 
       await eliminarModeloProcesador(id);
-      toast.success("Modelo eliminado correctamente");
-
       await cargarDatos();
+
+      toast.success(
+        "Modelo eliminado correctamente."
+      );
     } catch (error) {
-      toast.error(error.response?.data?.error || "Error al eliminar modelo");
+      console.error(
+        "Error eliminando modelo de procesador:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al eliminar modelo."
+      );
     } finally {
       setLoading?.(false);
     }
   };
+
+  if (!puedeVer) {
+    return null;
+  }
+
+  const mostrarFormulario =
+    puedeCrear || (modoEdicion && puedeEditar);
+
+  const mostrarAcciones =
+    puedeEditar || puedeEliminar;
 
   return (
     <div className="detail-item">
       <div className="header">
         <div>
           <h1>Modelos de Procesador</h1>
-          <p>Catálogo de modelos asociados a cada procesador.</p>
+          <p>
+            Catálogo de modelos asociados a cada procesador.
+          </p>
         </div>
       </div>
 
-      <div className="card">
-        <h2>{modoEdicion ? "Editar modelo de procesador" : "Agregar modelo de procesador"}</h2>
+      {mostrarFormulario && (
+        <div className="card">
+          <h2>
+            {modoEdicion
+              ? "Editar modelo de procesador"
+              : "Agregar modelo de procesador"}
+          </h2>
 
-        <form onSubmit={guardarModelo} className="form-grid">
-          <select
-            name="Id_procesador"
-            value={formulario.Id_procesador}
-            onChange={manejarCambio}
-          >
-            <option value="">Selecciona procesador</option>
-
-            {procesadores.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.Nombre}
-              </option>
-            ))}
-          </select>
-
-          <input
-            name="Modelo"
-            placeholder="Modelo, ejemplo: Ryzen 7"
-            value={formulario.Modelo}
-            onChange={manejarCambio}
-          />
-
-          <button type="submit">
-            {modoEdicion ? "Actualizar modelo" : "Guardar modelo"}
-          </button>
-
-          {modoEdicion && (
-            <button type="button" onClick={limpiarFormulario}>
-              Cancelar
-            </button>
+          {!puedeConsultarProcesadores && (
+            <p>
+              No tienes permiso para consultar procesadores.
+            </p>
           )}
-        </form>
-      </div>
+
+          <form
+            onSubmit={guardarModelo}
+            className="form-grid"
+          >
+            <select
+              name="Id_procesador"
+              value={formulario.Id_procesador}
+              onChange={manejarCambio}
+              disabled={!puedeConsultarProcesadores}
+            >
+              <option value="">
+                Selecciona procesador
+              </option>
+
+              {procesadores.map((item) => (
+                <option
+                  key={item.id}
+                  value={item.id}
+                >
+                  {item.Nombre}
+                </option>
+              ))}
+            </select>
+
+            <input
+              name="Modelo"
+              placeholder="Modelo, ejemplo: Ryzen 7"
+              value={formulario.Modelo}
+              onChange={manejarCambio}
+            />
+
+            <button
+              type="submit"
+              disabled={!puedeConsultarProcesadores}
+            >
+              {modoEdicion
+                ? "Actualizar modelo"
+                : "Guardar modelo"}
+            </button>
+
+            {modoEdicion && (
+              <button
+                type="button"
+                onClick={limpiarFormulario}
+              >
+                Cancelar
+              </button>
+            )}
+          </form>
+        </div>
+      )}
 
       <div className="card">
-               <input
-        className="search-input"
-        placeholder="Buscar modelo de procesador Ej.Apple Silicon"
-        value={busqueda}
-        onChange={(e)=>setBusqueda(e.target.value)}
-      /> <br></br>
+        <input
+          className="search-input"
+          placeholder="Buscar procesador o modelo Ej. AMD, Ryzen 7"
+          value={busqueda}
+          onChange={(e) =>
+            setBusqueda(e.target.value)
+          }
+        />
+
+        <br />
+
         <h2>Listado de modelos de procesador</h2>
 
         <div className="table-container">
@@ -194,28 +346,49 @@ function ModelosProcesadorPage({ setLoading }) {
               <tr>
                 <th>Procesador</th>
                 <th>Modelo</th>
-                <th>Acciones</th>
+
+                {mostrarAcciones && (
+                  <th>Acciones</th>
+                )}
               </tr>
             </thead>
 
             <tbody>
-              {modelosProcesadoresFiltrados.slice(0,7).map((item) => (
+              {modelosProcesadoresFiltrados.map((item) => (
                 <tr key={item.Id}>
                   <td>{item.Nombre}</td>
                   <td>{item.Modelo}</td>
-                  <td>
-         <CatalogoActions
-         item={item}
-         onEditar={editarModelo}
-         onEliminar={borrarModelo}
-         />
-                  </td>
+
+                  {mostrarAcciones && (
+                    <td>
+                      <CatalogoActions
+                        item={item}
+                        onEditar={
+                          puedeEditar
+                            ? editarModelo
+                            : null
+                        }
+                        onEliminar={
+                          puedeEliminar
+                            ? borrarModelo
+                            : null
+                        }
+                        getId={(item) => item.Id}
+                      />
+                    </td>
+                  )}
                 </tr>
               ))}
 
               {modelosProcesadoresFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan="4">No hay modelos de procesador registrados.</td>
+                  <td
+                    colSpan={
+                      mostrarAcciones ? 3 : 2
+                    }
+                  >
+                    No hay modelos de procesador registrados.
+                  </td>
                 </tr>
               )}
             </tbody>
