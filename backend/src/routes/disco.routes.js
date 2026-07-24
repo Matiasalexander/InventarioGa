@@ -8,9 +8,35 @@ const {
   eliminarDisco
 } = require("../controllers/disco.controller");
 
-router.get("/", obtenerDisco);
-router.post("/", crearDisco);
-router.put("/:id", actualizarDisco);
-router.delete("/:id", eliminarDisco);
+const { verificarToken } = require("../middleware/auth.middleware");
+const { verificarPermiso } = require("../middleware/permisos.middleware");
+
+router.get(
+  "/",
+  verificarToken,
+  verificarPermiso("discosduros.ver"),
+  obtenerDisco
+);
+
+router.post(
+  "/",
+  verificarToken,
+  verificarPermiso("discosduros.crear"),
+  crearDisco
+);
+
+router.put(
+  "/:id",
+  verificarToken,
+  verificarPermiso("discosduros.editar"),
+  actualizarDisco
+);
+
+router.delete(
+  "/:id",
+  verificarToken,
+  verificarPermiso("discosduros.eliminar"),
+  eliminarDisco
+);
 
 module.exports = router;
