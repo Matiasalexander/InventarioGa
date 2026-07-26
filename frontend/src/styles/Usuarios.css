@@ -60,3 +60,87 @@
   background-color: #ff0606;
   width: 100%;
 }
+
+/*CHECKBOx*/
+
+.mensaje-unidades {
+  text-align: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-unidades {
+  background: #fff;
+  width: 650px;
+  max-width: 90%;
+  max-height: 80vh;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.modal-header button {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.lista-unidades {
+  padding: 20px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.unidad-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-unidades {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.x-button {
+  color: #111827;
+
+}
+
+input[type="checkbox"]{
+    width:18px;
+    height:18px;
+    margin:50;
+    transform:none;
+    accent-color:#2563eb;
+    cursor:pointer;
+}

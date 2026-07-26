@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
+import { createPortal } from "react-dom";
 
 import "../styles/Usuarios.css";
 
@@ -35,7 +36,7 @@ function UsuariosPage({ setLoading }) {
   const [unidades, setUnidades] = useState([]);
   const [editandoId, setEditandoId] = useState(null);
   const [form, setForm] = useState(formularioInicial);
-
+  const [MostrarModalUnidades, setMostrarModalUnidades] = useState(false);
   const { tienePermiso } = useAuth();
 
   const puedeVer = tienePermiso("usuarios.ver");
@@ -531,7 +532,7 @@ function UsuariosPage({ setLoading }) {
               </div>
 
               <div className="campo campo-checkbox">
-                <p>Acceso al inventario</p>
+                <p>Acceso al inventario</p><br></br>
 
                 <label>
                   <input
@@ -552,56 +553,94 @@ function UsuariosPage({ setLoading }) {
                 </label>
               </div>
 
-              <div className="campo campo-unidades">
-                <p>Unidades permitidas</p>
+          <div className="campo campo-unidades">
+            <p>Unidades permitidas</p><br></br>
+            <button
+            type="button"
+            className="btn-unidades"
+            onClick={()=>setMostrarModalUnidades(true)}
+            >
+              Unidades
+              {!form.VerTodasUnidades && ` (${form.Unidades.length}) seleccionadas`}
+            </button>
 
-                {form.VerTodasUnidades ? (
-                  <div className="mensaje-unidades">
-                    Este usuario podrá ver todas
-                    las unidades.
+            {
+              form.VerTodasUnidades && (
+                <div className="mensaje-unidades">
+                  Este usuario podrá ver todas las unidades
                   </div>
-                ) : (
-                  <div className="lista-unidades">
-                    {unidades.length === 0 ? (
-                      <p>
-                        No hay unidades
-                        disponibles.
-                      </p>
-                    ) : (
-                      unidades.map((unidad) => {
-                        const idUnidad = Number(
-                          unidad.id
-                        );
+              )}
+          </div>
 
-                        return (
-                          <label
-                            key={idUnidad}
-                            className="unidad-checkbox"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={form.Unidades.includes(
-                                idUnidad
-                              )}
-                              onChange={() =>
-                                cambiarUnidadSeleccionada(
-                                  idUnidad
-                                )
-                              }
-                            />
+  {MostrarModalUnidades && createPortal (
+  <div
+    className="modal-overlay"
+    onClick={() => setMostrarModalUnidades(false)}
+  >
+    <div
+      className="modal-unidades"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="modal-header">
+        <h3>Seleccionar unidades</h3>
 
-                            <span>
-                              {unidad.unidad} -{" "}
-                              {unidad.localidad}
-                            </span>
-                          </label>
-                        );
-                      })
-                    )}
-                  </div>
-                )}
-              </div>
+        <button
+          type="button"
+          className="x-button"
+          onClick={() => setMostrarModalUnidades(false)}
+        >
+          ✕
+        </button>
+      </div>
 
+      {form.VerTodasUnidades ? (
+        <div className="mensaje-unidades">
+          Este usuario podrá ver todas las unidades.
+        </div>
+      ) : (
+        <div className="lista-unidades">
+          {unidades.length === 0 ? (
+            <p>No hay unidades disponibles.</p>
+          ) : (
+            unidades.map((unidad) => {
+              const idUnidad = Number(unidad.id);
+
+              return (
+                <label
+                  key={idUnidad}
+                  className="unidad-checkbox"
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.Unidades.includes(idUnidad)}
+                    onChange={() =>
+                      cambiarUnidadSeleccionada(idUnidad)
+                    }
+                  />
+
+                  <span>
+                    {unidad.unidad} - {unidad.localidad}
+                  </span>
+                </label>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={() => setMostrarModalUnidades(false)}
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>,
+  document.body
+)}
               <div className="botones">
                 <button
                   className="btn-primary"

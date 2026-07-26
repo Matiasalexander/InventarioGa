@@ -12,6 +12,7 @@ import {
   descargarResponsivaPDF,
   reenviarResponsiva
 } from "../services/responsivaService";
+import "../styles/historialResponsivas.css";
 
 import ResponsivasAcciones from "../components/ResponsivasAcciones";
 
