@@ -11,6 +11,7 @@ import { useAuth } from "../context/AuthContext";
 import "../styles/InventarioPage.css";
 import InventarioAccionesMenu from "../components/InventarioAccionesMenu";
 import { FileUp } from "lucide-react";
+import { Search } from "lucide-react";
 
 function InventarioPage({ setLoading }) {
   const navigate = useNavigate();
@@ -549,7 +550,8 @@ const inventarioPaginado = inventarioFiltrado.slice(
         setBusqueda(valor);
         sessionStorage.setItem("inventario_busqueda", valor);
       }}
-    />
+
+    />    
 
     <button
       type="button"

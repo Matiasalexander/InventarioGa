@@ -247,6 +247,8 @@ function UsuariosPage({ setLoading }) {
     }
   };
 
+      useEffect(()=>{if(form.VerTodasUnidades) {toast.info("Este usuario puede ver todas las unidades")}},[form.VerTodasUnidades]);
+
   const editarUsuario = async (usuario) => {
     try {
       setLoading(true);
@@ -558,9 +560,9 @@ function UsuariosPage({ setLoading }) {
                       )
                     }
                   />
-
+<br></br>
                   <span>
-                    Ver todas las unidades
+                    Todas las unidades
                   </span>
                 </label>
               </div>
@@ -579,7 +581,6 @@ function UsuariosPage({ setLoading }) {
             {
               form.VerTodasUnidades && (
                 <div className="mensaje-unidades">
-                  Este usuario podrá ver todas las unidades
                   </div>
               )}
           </div>
