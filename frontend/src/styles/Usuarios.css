@@ -151,3 +151,9 @@ input[type="checkbox"]{
 }
 
 /*hovers*/
+.table-container thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #171a4d;
+}

@@ -5,3 +5,11 @@
 .badge-default {
     background-color: rgb(243, 255, 15);
 }
+
+
+.table-responsive thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #171a4d;
+}
