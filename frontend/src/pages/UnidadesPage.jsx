@@ -367,7 +367,6 @@ function UnidadesPage({ setLoading }) {
 
             <tbody>
               {unidadesFiltradas
-                .slice(0, 10)
                 .map((item) => (
                   <tr key={item.id}>
                     <td>{item.Restaurante}</td>

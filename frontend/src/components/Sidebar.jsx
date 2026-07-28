@@ -50,7 +50,7 @@ export default function Sidebar() {
     },
     {
       to: "/ProcesadoresModelosP",
-      label: "Procesadores",
+      label: "Componentes",
       icon: Cpu,
       permiso: "catalogos.ver"
     },

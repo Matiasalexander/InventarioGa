@@ -5,6 +5,7 @@ import "../styles/Login.css";
 import logo from "../img/gandersons-logo.png";
 import { login } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
+import { Eye, EyeClosed } from "lucide-react";
 
 function LoginPage({ setLoading }) {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function LoginPage({ setLoading }) {
 
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
+  const [mostrar, setMostrar] = useState(false);
 
   const iniciarSesion = async (e) => {
     e.preventDefault();
@@ -53,14 +55,24 @@ function LoginPage({ setLoading }) {
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
           />
-
+        <div className="password-input">
           <input
             className="password"
-            type="password"
+            type={mostrar? "text" : "password"}
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+             
+          <button
+              type="button"
+              className="mostrar-password"
+              onClick={() => setMostrar(!mostrar)}
+            >
+              <Eye className="eye-icon"/>
+              {mostrar}
+            </button>
+            </div>
 
           <button className="sesionI" type="submit">
             Iniciar sesión

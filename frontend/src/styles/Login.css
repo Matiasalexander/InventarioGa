@@ -41,3 +41,25 @@ padding: 12px;
     cursor: pointer;
 
 }
+
+/*grid del input*/
+
+.password-input {
+    display: flex;
+    gap: 10px;
+}
+
+.mostrar-password {
+    padding: 0;
+    width: auto;
+    background-color: white;
+}
+
+.mostrar-password:hover{
+    background-color: white;
+    box-shadow: none;
+}
+
+.eye-icon {
+    color: #0f172a;
+}

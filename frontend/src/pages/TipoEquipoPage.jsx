@@ -271,7 +271,6 @@ function TipoEquipoPage({ setLoading }) {
 
             <tbody>
               {tiposEquipoFiltrados
-                .slice(0, 6)
                 .map((item) => (
                   <tr key={item.id}>
                     <td>{item.tequipo}</td>

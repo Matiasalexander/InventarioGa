@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import { createPortal } from "react-dom";
+import { Eye } from "lucide-react";
 
 import "../styles/Usuarios.css";
 
@@ -38,6 +39,8 @@ function UsuariosPage({ setLoading }) {
   const [form, setForm] = useState(formularioInicial);
   const [MostrarModalUnidades, setMostrarModalUnidades] = useState(false);
   const { tienePermiso } = useAuth();
+  const [mostrar, setMostrar] = useState(false);
+
 
   const puedeVer = tienePermiso("usuarios.ver");
   const puedeCrear = tienePermiso("usuarios.crear");
@@ -463,9 +466,9 @@ function UsuariosPage({ setLoading }) {
               {!editandoId && (
                 <div className="campo">
                   <p>Contraseña</p>
-
+<div className="password-input">
                   <input
-                    type="password"
+            type={mostrar? "text" : "password"}
                     placeholder="Contraseña"
                     value={form.Password}
                     onChange={(e) =>
@@ -476,6 +479,15 @@ function UsuariosPage({ setLoading }) {
                     }
                     required
                   />
+                   <button
+              type="button"
+              className="mostrar-password"
+              onClick={() => setMostrar(!mostrar)}
+            >
+              <Eye className="eye-icon"/>
+              {mostrar}
+            </button>
+                </div>
                 </div>
               )}
 
