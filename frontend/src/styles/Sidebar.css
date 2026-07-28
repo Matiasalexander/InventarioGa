@@ -115,11 +115,15 @@
     .sidebar-header {
         padding-top: 60px;
     }
-    .sidebar {
-
-        transform:translateX(-100%);
-        transition:.3s ease;
-    }
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
 
 
     .sidebar.activo {
