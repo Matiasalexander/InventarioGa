@@ -100,13 +100,32 @@ input:focus, select:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
+/*iconos*/
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* separación entre ícono y texto */
+
+  padding: 12px 24px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;}
+.file-icon {
+  margin-right: 12px;
+  flex-shrink: 0;
+  width: 20px;
+  
+}
+
 
 button {
   height: 44px;
   padding: 0 18px;
   border: none;
   border-radius: 12px;
-  background: #2563eb;
+  background: #4f46e5;
   color: white;
   font-size: 14px;
   font-weight: 700;
@@ -115,9 +134,8 @@ button {
 }
 
 button:hover {
-  background: #1d4ed8;
+  background: #1b207c;
   transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.24);
 }
 
 button:active {
@@ -407,9 +425,9 @@ td button{
 .acciones-menu-trigger {
   width: 50px;
   height: 34px;
-  border: 1px solid #2563eb;
+  border: 1px solid #4f46e5;
   border-radius: 8px;
-  background: #2563eb;
+  background: #4f46e5;
   color: white;
 ;
   color: #475569;
@@ -421,8 +439,8 @@ td button{
 }
 
 .acciones-menu-trigger:hover {
-  background: #275aca;
-  border-color: #275aca;
+  background: #1b207c;;
+  border-color:#1b207c;;
   color: #0f172a;
 }
 
@@ -438,6 +456,10 @@ td button{
   background: white;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
   z-index: 1000;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 /* NUEVO: opciones del menú */

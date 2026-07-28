@@ -3,9 +3,19 @@ import {
   Menu,
   Monitor,
   Cpu,
+  Laptop,
   Book,
   AreaChart,
-  LogOut
+  LayoutDashboard,
+  LogOut,
+  Paperclip,
+  PackageCheck,
+  Utensils,
+  LampDesk,
+  MonitorCog,
+  Signature,
+  UsersRound,
+  SlidersHorizontal
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -21,55 +31,55 @@ export default function Sidebar() {
     {
       to: "/dashboard",
       label: "Dashboard",
-      icon: AreaChart,
+      icon: LayoutDashboard,
       permiso: "dashboard.ver"
     },
     {
       to: "/inventario",
       label: "Inventario",
-      icon: Monitor,
+      icon: PackageCheck,
       permiso: "inventario.ver"
     },
     {
       to: "/Equipo",
       label: "Equipo",
-      icon: Monitor,
+      icon: Laptop,
       permiso: "inventario.ver"
     },
     {
       to: "/Areas",
       label: "Restaurantes/Unidades",
-      icon: AreaChart,
+      icon: Utensils,
       permiso: "catalogos.ver"
     },
     {
       to: "/AreasCorporativas",
       label: "Áreas Corporativas",
-      icon: AreaChart,
+      icon: LampDesk,
       permiso: "catalogos.ver"
     },
     {
       to: "/ProcesadoresModelosP",
       label: "Componentes",
-      icon: Cpu,
+      icon: MonitorCog,
       permiso: "catalogos.ver"
     },
     {
       to: "/responsivas/historial",
       label: "Historial Responsivas",
-      icon: Book,
+      icon: Signature,
       permiso: "responsivas.ver"
     },
     {
       to: "/usuarios",
       label: "Usuarios",
-      icon: Book,
+      icon: UsersRound,
       permiso: "usuarios.ver"
     },
     {
       to: "/roles",
       label: "Roles",
-      icon: Book,
+      icon: SlidersHorizontal,
       permiso: "roles.ver"
     }
   ];
@@ -123,7 +133,6 @@ export default function Sidebar() {
               {label}
             </NavLink>
           ))}
-
           <button
             className="logout"
             onClick={cerrarSesion}

@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import "../styles/InventarioPage.css";
 import InventarioAccionesMenu from "../components/InventarioAccionesMenu";
+import { FileUp } from "lucide-react";
 
 function InventarioPage({ setLoading }) {
   const navigate = useNavigate();
@@ -507,11 +508,14 @@ const inventarioPaginado = inventarioFiltrado.slice(
           }}
         >
        {puedeExportar && (
+  
     <button
         type="button"
+        className="btn-export"
         onClick={descargarExcel}
     >
-        📥 Exportar Excel
+      <FileUp className="file-icon"/>
+       Exportar Excel
     </button>
 )}
 

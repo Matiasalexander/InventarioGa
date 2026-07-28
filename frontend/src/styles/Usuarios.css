@@ -125,9 +125,14 @@
 }
 
 .btn-unidades {
-  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* separación entre ícono y texto */
+
+  padding: 12px 24px;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
 }
 
