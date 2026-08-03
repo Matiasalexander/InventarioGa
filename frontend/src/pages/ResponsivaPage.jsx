@@ -451,6 +451,7 @@ const puedePDF = tienePermiso("responsivas.pdf");
                className="btn-success"
                onClick={guardarResponsiva}
                >
+                Guardar responsiva
                </button>
                 )}
 
