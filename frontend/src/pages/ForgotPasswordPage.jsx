@@ -144,7 +144,7 @@ function ForgotPasswordPage({ setLoading }) {
           style={{
             width: "100%",
             padding: "12px",
-            background: "#4f46e5",
+            background: "#032870",
             color: "white",
             border: "none",
             borderRadius: "8px",
@@ -163,7 +163,7 @@ function ForgotPasswordPage({ setLoading }) {
             marginTop: "10px",
             background: "transparent",
             border: "none",
-            color: "#4f46e5",
+            color: "#032870",
             cursor: "pointer"
           }}
         >
