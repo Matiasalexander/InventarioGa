@@ -30,7 +30,13 @@ function HistorialResponsivasPage({ setLoading }) {
     useState(null);
 
   const [editando, setEditando] = useState(null);
+  //modal
+  const [MostrarModalResponsivas, setMostrarModalResponsivas] = useState(false);
+
   const [busqueda, setBusqueda] = useState("");
+  // NUEVO: paginación de la tabla
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
 
   const [formEditar, setFormEditar] = useState({
     Fecha: "",
@@ -43,6 +49,9 @@ function HistorialResponsivasPage({ setLoading }) {
   useEffect(() => {
     cargarResponsivas();
   }, []);
+
+  //carga la paginación con el useeffect
+  useEffect(()=> {setPaginaActual(1);}, [busqueda, registrosPorPagina]);
 
   const responsivasFiltradas = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
@@ -74,6 +83,12 @@ function HistorialResponsivasPage({ setLoading }) {
       );
     });
   }, [busqueda, responsivas]);
+  //calculos de la paginación.
+  const totalRegistros = responsivasFiltradas.length;
+  const totalPaginas = Math.max(1, Math.ceil(totalRegistros / registrosPorPagina));
+  const indiceInicial = (paginaActual - 1) * registrosPorPagina;
+  const indiceFinal = indiceInicial + registrosPorPagina;
+  const responsivasPaginadas = responsivasFiltradas.slice(indiceInicial, indiceFinal);
 
   const formatearFechaInput = (fecha) => {
     if (!fecha) return "";
@@ -145,9 +160,11 @@ function HistorialResponsivasPage({ setLoading }) {
       Area: item.Area || "",
       Correo: item.Correo || ""
     });
+    setMostrarModalResponsivas(true);
   };
 
   const cerrarEditar = () => {
+    setMostrarModalResponsivas(false);
     setEditando(null);
 
     setFormEditar({
@@ -407,7 +424,7 @@ function HistorialResponsivasPage({ setLoading }) {
                 </td>
               </tr>
             ) : (
-              responsivasFiltradas.map((item) => {
+              responsivasPaginadas.map((item) => {
                 const folio =
                   item.Folio ||
                   `RESP-${String(
@@ -471,117 +488,166 @@ function HistorialResponsivasPage({ setLoading }) {
           </tbody>
         </table>
       </div>
+      {/*paginación*/}
+<div className="inventario-paginacion">
+  <div className="inventario-paginacion-info">
+    {totalRegistros === 0
+      ? "0 registros"
+      : `${indiceInicial + 1}-${Math.min(
+          indiceFinal,
+          totalRegistros
+        )} de ${totalRegistros}`}
+  </div>
 
-      {editando && puedeEditar && (
-        <div
-          className="card"
-          style={{
-            marginTop: "25px"
-          }}
+  <div className="inventario-paginacion-controles">
+    <label>
+      Registros por página:
+    </label>
+
+    <select
+      value={registrosPorPagina}
+      onChange={(e) =>
+        setRegistrosPorPagina(Number(e.target.value))
+      }
+    >
+      <option value={15}>15</option>
+      <option value={20}>20</option>
+      <option value={50}>50</option>
+      <option value={100}>100</option>
+    </select>
+
+    <button
+      type="button"
+      onClick={() =>
+        setPaginaActual((prev) =>
+          Math.max(1, prev - 1)
+        )
+      }
+      disabled={paginaActual === 1}
+    >
+      ‹
+    </button>
+
+    <span>
+      Página {paginaActual} de {totalPaginas}
+    </span>
+
+    <button
+      type="button"
+      onClick={() =>
+        setPaginaActual((prev) =>
+          Math.min(totalPaginas, prev + 1)
+        )
+      }
+      disabled={paginaActual === totalPaginas}
+    >
+      ›
+    </button>
+  </div>
+</div>      
+      {/*FIN PAGINACIÓN*/ }
+{MostrarModalResponsivas && editando && (
+  <div className="modal-overlay">
+    <div className="modal">
+
+      <div className="modal-header">
+        <h3>
+          Editar Responsiva{" "}
+          {editando.Folio ||
+            `RESP-${String(editando.IdResponsiva).padStart(5, "0")}`}
+        </h3>
+
+        <button
+          className="btn-close"
+          onClick={cerrarEditar}
         >
-          <h3>
-            Editar responsiva{" "}
-            {editando.Folio ||
-              `RESP-${String(
-                editando.IdResponsiva
-              ).padStart(5, "0")}`}
-          </h3>
+          ✕
+        </button>
+      </div>
 
-          <div className="form-responsiva">
-            <p>Fecha:</p>
+      <div className="form-responsiva">
 
-            <input
-              type="date"
-              value={formEditar.Fecha}
-              onChange={(event) =>
-                setFormEditar((prev) => ({
-                  ...prev,
-                  Fecha: event.target.value
-                }))
-              }
-            />
+        <p>Fecha</p>
+        <input
+          type="date"
+          value={formEditar.Fecha}
+          onChange={(e) =>
+            setFormEditar({
+              ...formEditar,
+              Fecha: e.target.value
+            })
+          }
+        />
 
-            <p>Nombre receptor:</p>
+        <p>Nombre receptor</p>
+        <input
+          type="text"
+          value={formEditar.NombreReceptor}
+          onChange={(e) =>
+            setFormEditar({
+              ...formEditar,
+              NombreReceptor: e.target.value
+            })
+          }
+        />
 
-            <input
-              type="text"
-              value={
-                formEditar.NombreReceptor
-              }
-              onChange={(event) =>
-                setFormEditar((prev) => ({
-                  ...prev,
-                  NombreReceptor:
-                    event.target.value
-                }))
-              }
-            />
+        <p>Puesto</p>
+        <input
+          type="text"
+          value={formEditar.Puesto}
+          onChange={(e) =>
+            setFormEditar({
+              ...formEditar,
+              Puesto: e.target.value
+            })
+          }
+        />
 
-            <p>Puesto:</p>
+        <p>Área</p>
+        <input
+          type="text"
+          value={formEditar.Area}
+          onChange={(e) =>
+            setFormEditar({
+              ...formEditar,
+              Area: e.target.value
+            })
+          }
+        />
 
-            <input
-              type="text"
-              value={formEditar.Puesto}
-              onChange={(event) =>
-                setFormEditar((prev) => ({
-                  ...prev,
-                  Puesto: event.target.value
-                }))
-              }
-            />
+        <p>Correo</p>
+        <input
+          type="email"
+          value={formEditar.Correo}
+          onChange={(e) =>
+            setFormEditar({
+              ...formEditar,
+              Correo: e.target.value
+            })
+          }
+        />
 
-            <p>Área:</p>
+      </div>
 
-            <input
-              type="text"
-              value={formEditar.Area}
-              onChange={(event) =>
-                setFormEditar((prev) => ({
-                  ...prev,
-                  Area: event.target.value
-                }))
-              }
-            />
+      <div className="modal-footer">
+        <button
+          className="btn-primary"
+          onClick={guardarEdicion}
+        >
+          Guardar cambios
+        </button>
 
-            <p>Correo:</p>
+        <button
+          className="btn-secondary"
+          onClick={cerrarEditar}
+        >
+          Cancelar
+        </button>
+      </div>
 
-            <input
-              type="email"
-              value={formEditar.Correo}
-              onChange={(event) =>
-                setFormEditar((prev) => ({
-                  ...prev,
-                  Correo: event.target.value
-                }))
-              }
-            />
-          </div>
-
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              marginTop: "15px"
-            }}
-          >
-            <button
-              className="btn-primary"
-              type="button"
-              onClick={guardarEdicion}
-            >
-              Guardar cambios
-            </button>
-
-            <button
-              className="btn-secondary"
-              type="button"
-              onClick={cerrarEditar}
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
-      )}
+    </div>
+  </div>
+)}
 
       {responsivaSeleccionada && (
         <>

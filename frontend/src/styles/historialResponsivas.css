@@ -13,3 +13,44 @@
   z-index: 5;
   background: #171a4d;
 }
+
+.modal-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+}
+
+.modal{
+    width:650px;
+    max-width:95%;
+    background:#fff;
+    border-radius:10px;
+    padding:24px;
+    box-shadow:0 8px 30px rgba(0,0,0,.25);
+}
+
+.modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.modal-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+}
+
+.btn-close{
+    color: black;
+    border:none;
+    background:none;
+    font-size:22px;
+    cursor:pointer;
+}
