@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { createPortal } from "react-dom";
 
 import { useAuth } from "../context/AuthContext";
 
@@ -30,9 +31,10 @@ function HistorialResponsivasPage({ setLoading }) {
     useState(null);
 
   const [editando, setEditando] = useState(null);
-  //modal
-  const [MostrarModalResponsivas, setMostrarModalResponsivas] = useState(false);
-
+  //Modo modal
+  const [modoModal, setModoModal] = useState(null); // "ver" | "editar"
+  const [mostrarModal, setMostrarModal] = useState(false);  
+  //fin del modo modal
   const [busqueda, setBusqueda] = useState("");
   // NUEVO: paginación de la tabla
   const [paginaActual, setPaginaActual] = useState(1);
@@ -127,6 +129,9 @@ function HistorialResponsivasPage({ setLoading }) {
 
       setResponsivaSeleccionada(data.responsiva);
       setDetalle(data.equipos || []);
+      setModoModal("ver");
+      setMostrarModal(true);
+
     } catch (error) {
       console.error(
         "Error obteniendo detalle:",
@@ -160,22 +165,27 @@ function HistorialResponsivasPage({ setLoading }) {
       Area: item.Area || "",
       Correo: item.Correo || ""
     });
-    setMostrarModalResponsivas(true);
+    setModoModal("editar");
+    setMostrarModal(true);
+
   };
 
-  const cerrarEditar = () => {
-    setMostrarModalResponsivas(false);
-    setEditando(null);
+const cerrarEditar = () => {
+  setMostrarModal(false);
+  setModoModal(null);
 
-    setFormEditar({
-      Fecha: "",
-      NombreReceptor: "",
-      Puesto: "",
-      Area: "",
-      Correo: ""
-    });
-  };
+  setEditando(null);
+  setResponsivaSeleccionada(null);
+  setDetalle([]);
 
+  setFormEditar({
+    Fecha: "",
+    NombreReceptor: "",
+    Puesto: "",
+    Area: "",
+    Correo: ""
+  });
+};
   const guardarEdicion = async () => {
     if (!puedeEditar) {
       toast.warning(
@@ -546,24 +556,26 @@ function HistorialResponsivasPage({ setLoading }) {
   </div>
 </div>      
       {/*FIN PAGINACIÓN*/ }
-{MostrarModalResponsivas && editando && (
+{mostrarModal && createPortal (
   <div className="modal-overlay">
     <div className="modal">
 
-      <div className="modal-header">
-        <h3>
-          Editar Responsiva{" "}
-          {editando.Folio ||
-            `RESP-${String(editando.IdResponsiva).padStart(5, "0")}`}
-        </h3>
+      {modoModal === "editar" ? (
+        <>
+          <div className="modal-header">
+            <h3>
+              Editar Responsiva{" "}
+              {editando?.Folio ||
+                `RESP-${String(editando?.IdResponsiva).padStart(5, "0")}`}
+            </h3>
 
-        <button
-          className="btn-close"
-          onClick={cerrarEditar}
-        >
-          ✕
-        </button>
-      </div>
+            <button
+              className="btn-close"
+              onClick={cerrarEditar}
+            >
+              ✕
+            </button>
+          </div>
 
       <div className="form-responsiva">
 
@@ -629,43 +641,39 @@ function HistorialResponsivasPage({ setLoading }) {
 
       </div>
 
-      <div className="modal-footer">
-        <button
-          className="btn-primary"
-          onClick={guardarEdicion}
-        >
-          Guardar cambios
-        </button>
+          <div className="modal-footer">
+            <button
+              className="btn-primary"
+              onClick={guardarEdicion}
+            >
+              Guardar cambios
+            </button>
 
-        <button
-          className="btn-secondary"
-          onClick={cerrarEditar}
-        >
-          Cancelar
-        </button>
-      </div>
-
-    </div>
-  </div>
-)}
-
-      {responsivaSeleccionada && (
+            <button
+              className="btn-secondary"
+              onClick={cerrarEditar}
+            >
+              Cancelar
+            </button>
+          </div>
+        </>
+      ) : (
         <>
-          <h3
-            style={{
-              marginTop: "30px"
-            }}
-          >
-            Detalle de{" "}
-            {responsivaSeleccionada.Folio ||
-              `RESP-${String(
-                responsivaSeleccionada.IdResponsiva
-              ).padStart(5, "0")}`}{" "}
-            -{" "}
-            {
-              responsivaSeleccionada.NombreReceptor
-            }
-          </h3>
+          <div className="modal-header">
+            <h3>
+              {responsivaSeleccionada?.Folio ||
+                `RESP-${String(
+                  responsivaSeleccionada?.IdResponsiva
+                ).padStart(5, "0")}`}
+            </h3>
+
+            <button
+              className="btn-close"
+              onClick={cerrarEditar}
+            >
+              ✕
+            </button>
+          </div>
 
           <div className="table-responsive">
             <table>
@@ -748,6 +756,13 @@ function HistorialResponsivasPage({ setLoading }) {
           </div>
         </>
       )}
+
+    </div>
+  </div>, document.body
+)}
+
+
+
     </div>
   );
 }
