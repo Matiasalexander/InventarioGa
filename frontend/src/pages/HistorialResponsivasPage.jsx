@@ -92,6 +92,19 @@ function HistorialResponsivasPage({ setLoading }) {
   const indiceFinal = indiceInicial + registrosPorPagina;
   const responsivasPaginadas = responsivasFiltradas.slice(indiceInicial, indiceFinal);
 
+  //esto lo mostrará como dd/mm/yy
+  const formatearFecha = (fecha) => {
+  if (!fecha) return "";
+
+  const fechaTexto = String(fecha).split("T")[0];
+  const [anio, mes, dia] = fechaTexto.split("-");
+
+  if (!anio || !mes || !dia) return fechaTexto;
+
+  return `${dia}/${mes}/${anio}`;
+};
+
+  //este código es correcto ya que hace el formato de fecha en input
   const formatearFechaInput = (fecha) => {
     if (!fecha) return "";
 
@@ -444,16 +457,11 @@ const cerrarEditar = () => {
                 return (
                   <tr key={item.IdResponsiva}>
                     <td>{folio}</td>
-
-                    <td>
-                      {item.Fecha
-                        ? new Date(
-                            item.Fecha
-                          ).toLocaleDateString(
-                            "es-MX"
-                          )
-                        : ""}
-                    </td>
+                  
+                  {/*Manda a llamar la función de formateo de fecha*/}
+                  <td>
+                  {formatearFecha(item.Fecha)}
+                  </td>
                     <td>{item.CorreoCreador}</td>
                     <td>
                       {item.NombreReceptor || ""}
