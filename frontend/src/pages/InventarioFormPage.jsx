@@ -16,7 +16,7 @@ function InventarioFormPage({ setLoading }) {
   const esEdicion = Boolean(id);
 
   const estadosFisicos = ["Bueno", "Regular", "Dañado"];
-  const tiposSistemas = ["Windows", "Android", "Linux"];
+  const tiposSistemas = ["Windows", "Android", "Linux", "iOS"];
   const tiposImpresoras = [
     "Impresora térmica",
     "Impresora de impacto",
