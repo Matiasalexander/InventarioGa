@@ -415,29 +415,44 @@ const obtenerEquiposDisponibles = async () => {
       i.NOMBRE_EQUIPO,
       i.SERIAL,
       i.MODELO,
-      i.SISTEMA_OPERATIVO,
+
+      i.id_sistema_operativo AS ID_SISTEMA_OPERATIVO,
+      so.Nombre AS SISTEMA_OPERATIVO,
+      so.N_Version AS VERSION_SISTEMA_OPERATIVO,
+
       i.ID_TIPO_EQUIPO,
       te.tequipo AS TIPO_EQUIPO,
       i.ID_MARCA,
       m.Marca AS MARCA,
       i.ID_ESTATUS,
       e.Estatus_equipo AS ESTATUS
+
     FROM INVENTARIO_M i
-    LEFT JOIN Tipo_equipo te ON i.ID_TIPO_EQUIPO = te.id
-    LEFT JOIN Marcas m ON i.ID_MARCA = m.id
-    LEFT JOIN Estatus e ON i.ID_ESTATUS = e.Id
+
+    LEFT JOIN SISTEMAS_OPERATIVOS so
+      ON i.id_sistema_operativo = so.id
+
+    LEFT JOIN Tipo_equipo te
+      ON i.ID_TIPO_EQUIPO = te.id
+
+    LEFT JOIN Marcas m
+      ON i.ID_MARCA = m.id
+
+    LEFT JOIN Estatus e
+      ON i.ID_ESTATUS = e.Id
+
     WHERE NOT EXISTS (
       SELECT 1
       FROM Responsiva_Detalle rd
       WHERE rd.IdInventario = i.id
         AND ISNULL(rd.Devuelto, 0) = 0
     )
+
     ORDER BY i.id DESC
   `);
 
   return result.recordset;
 };
-
 const eliminarResponsiva = async (id) => {
   const pool = await poolPromise;
 
