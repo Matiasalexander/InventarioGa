@@ -1,5 +1,5 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
 
 import {
   obtenerSistemasOperativos,
@@ -8,301 +8,351 @@ import {
   eliminarSistemaOperativo
 } from "../services/sistemasOperativos";
 
-const SistemasOperativosPage = () => {
+import { useAuth } from "../context/AuthContext";
+
+import "../styles/InventarioPage.css";
+import CatalogoActions from "../components/CatalogoActions";
+
+function SistemasOperativosPage({ setLoading }) {
   const [sistemasOperativos, setSistemasOperativos] = useState([]);
 
-  const [formulario, setFormulario] = useState({
-    Nombre: "",
-    N_Version: ""
-  });
+  const [nombre, setNombre] = useState("");
+  const [version, setVersion] = useState("");
 
-  const [editando, setEditando] = useState(null);
-  const [cargando, setCargando] = useState(true);
-  const [guardando, setGuardando] = useState(false);
-  const [mensaje, setMensaje] = useState("");
-  const [error, setError] = useState("");
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [idEditando, setIdEditando] = useState(null);
+
+  const [busqueda, setBusqueda] = useState("");
+
+  const { tienePermiso } = useAuth();
+
+  const puedeVer = tienePermiso("sistemasoperativos.ver");
+  const puedeCrear = tienePermiso("sistemasoperativos.crear");
+  const puedeEditar = tienePermiso("sistemasoperativos.editar");
+  const puedeEliminar = tienePermiso("sistemasoperativos.eliminar");
 
   const cargarSistemasOperativos = async () => {
     try {
-      setCargando(true);
-      setError("");
+      setLoading?.(true);
 
-      const datos = await obtenerSistemasOperativos();
+      const data = await obtenerSistemasOperativos();
 
-      setSistemasOperativos(datos);
+      setSistemasOperativos(data || []);
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Error cargando sistemas operativos:",
+        error.response?.data || error
+      );
 
-      setError(
+      toast.error(
         error.response?.data?.message ||
-        "Error obteniendo sistemas operativos"
+          error.response?.data?.error ||
+          "Error al cargar listado de sistemas operativos."
       );
     } finally {
-      setCargando(false);
+      setLoading?.(false);
     }
   };
 
   useEffect(() => {
-    cargarSistemasOperativos();
-  }, []);
+    if (puedeVer) {
+      cargarSistemasOperativos();
+    }
+  }, [puedeVer]);
 
-  const manejarCambio = (e) => {
-    const { name, value } = e.target;
+  const sistemasOperativosFiltrados = useMemo(() => {
+    const texto = busqueda.toLowerCase().trim();
 
-    setFormulario((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+    if (!texto) {
+      return sistemasOperativos;
+    }
+
+    return sistemasOperativos.filter((item) =>
+      `${item.Nombre || ""} ${item.N_Version || ""}`
+        .toLowerCase()
+        .includes(texto)
+    );
+  }, [busqueda, sistemasOperativos]);
 
   const limpiarFormulario = () => {
-    setFormulario({
-      Nombre: "",
-      N_Version: ""
-    });
-
-    setEditando(null);
-    setError("");
+    setNombre("");
+    setVersion("");
+    setModoEdicion(false);
+    setIdEditando(null);
   };
 
-  const manejarGuardar = async (e) => {
+  const guardarSistemaOperativo = async (e) => {
     e.preventDefault();
 
-    if (!formulario.Nombre.trim()) {
-      setError("El nombre del sistema operativo es obligatorio");
+    if (modoEdicion && !puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar sistemas operativos."
+      );
+      return;
+    }
+
+    if (!modoEdicion && !puedeCrear) {
+      toast.warning(
+        "No tienes permiso para crear sistemas operativos."
+      );
+      return;
+    }
+
+    if (!nombre.trim()) {
+      toast.warning("Escribe el nombre del sistema operativo.");
       return;
     }
 
     try {
-      setGuardando(true);
-      setError("");
-      setMensaje("");
+      setLoading?.(true);
 
-      if (editando) {
-        await actualizarSistemaOperativo(editando, formulario);
+      const payload = {
+        Nombre: nombre.trim(),
+        N_Version: version.trim()
+      };
 
-        setMensaje("Sistema operativo actualizado correctamente");
+      if (modoEdicion) {
+        await actualizarSistemaOperativo(idEditando, payload);
+
+        toast.success(
+          "Sistema operativo actualizado correctamente."
+        );
       } else {
-        await crearSistemaOperativo(formulario);
+        await crearSistemaOperativo(payload);
 
-        setMensaje("Sistema operativo creado exitosamente");
+        toast.success(
+          "Sistema operativo creado correctamente."
+        );
       }
 
       limpiarFormulario();
+
       await cargarSistemasOperativos();
-
     } catch (error) {
-      console.error(error);
+      console.error(
+        "Error guardando sistema operativo:",
+        error.response?.data || error
+      );
 
-      setError(
+      toast.error(
         error.response?.data?.message ||
-        "Error guardando sistema operativo"
+          error.response?.data?.error ||
+          "Error al guardar sistema operativo."
       );
     } finally {
-      setGuardando(false);
+      setLoading?.(false);
     }
   };
 
-  const manejarEditar = (sistemaOperativo) => {
-    setEditando(sistemaOperativo.id);
+  const editarSistemaOperativo = (item) => {
+    if (!puedeEditar) {
+      toast.warning(
+        "No tienes permiso para editar sistemas operativos."
+      );
+      return;
+    }
 
-    setFormulario({
-      Nombre: sistemaOperativo.Nombre || "",
-      N_Version: sistemaOperativo.N_Version || ""
-    });
+    setNombre(item.Nombre || "");
+    setVersion(item.N_Version || "");
 
-    setMensaje("");
-    setError("");
+    setModoEdicion(true);
+    setIdEditando(item.id);
   };
 
-  const manejarEliminar = async (id) => {
-    const confirmar = window.confirm(
-      "¿Estás seguro de eliminar este sistema operativo?"
-    );
+  const borrarSistemaOperativo = async (id) => {
+    if (!puedeEliminar) {
+      toast.warning(
+        "No tienes permiso para eliminar sistemas operativos."
+      );
+      return;
+    }
 
-    if (!confirmar) {
+    if (
+      !window.confirm(
+        "¿Deseas eliminar este sistema operativo?"
+      )
+    ) {
       return;
     }
 
     try {
-      setError("");
-      setMensaje("");
+      setLoading?.(true);
 
       await eliminarSistemaOperativo(id);
 
-      setMensaje("Sistema operativo eliminado correctamente");
-
       await cargarSistemasOperativos();
 
-    } catch (error) {
-      console.error(error);
-
-      setError(
-        error.response?.data?.message ||
-        "Error eliminando sistema operativo"
+      toast.success(
+        "Sistema operativo eliminado correctamente."
       );
+    } catch (error) {
+      console.error(
+        "Error eliminando sistema operativo:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Error al eliminar sistema operativo."
+      );
+    } finally {
+      setLoading?.(false);
     }
   };
 
+  if (!puedeVer) {
+    return null;
+  }
+
+  const mostrarFormulario =
+    puedeCrear || (modoEdicion && puedeEditar);
+
+  const mostrarAcciones =
+    puedeEditar || puedeEliminar;
+
   return (
-    <div className="catalogo-page">
+    <div className="contenedor">
 
-      <div className="catalogo-header">
-        <h1>Sistemas Operativos</h1>
+      <div className="header">
+        <div>
+          <h1>Sistemas Operativos</h1>
 
-        <p>
-          Administración de sistemas operativos y sus versiones.
-        </p>
+          <p>
+            Catálogo de sistemas operativos y sus versiones.
+          </p>
+        </div>
       </div>
 
-      <div className="catalogo-content">
-
-        <div className="catalogo-form">
+      {mostrarFormulario && (
+        <div className="card">
 
           <h2>
-            {editando
+            {modoEdicion
               ? "Editar sistema operativo"
-              : "Nuevo sistema operativo"}
+              : "Agregar sistema operativo"}
           </h2>
 
-          <form onSubmit={manejarGuardar}>
+          <form
+            onSubmit={guardarSistemaOperativo}
+            className="form-grid"
+          >
 
-            <div className="form-group">
-              <label htmlFor="Nombre">
-                Nombre
-              </label>
+            <input
+              placeholder="Nombre del sistema operativo (Ej. Windows)"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              maxLength={150}
+            />
 
-              <input
-                id="Nombre"
-                name="Nombre"
-                type="text"
-                value={formulario.Nombre}
-                onChange={manejarCambio}
-                placeholder="Ej. Windows"
-                maxLength={150}
-              />
-            </div>
+            <input
+              placeholder="Versión (Ej. 11)"
+              value={version}
+              onChange={(e) => setVersion(e.target.value)}
+              maxLength={150}
+            />
 
-            <div className="form-group">
-              <label htmlFor="N_Version">
-                Versión
-              </label>
+            <button type="submit">
+              {modoEdicion
+                ? "Actualizar sistema operativo"
+                : "Guardar sistema operativo"}
+            </button>
 
-              <input
-                id="N_Version"
-                name="N_Version"
-                type="text"
-                value={formulario.N_Version}
-                onChange={manejarCambio}
-                placeholder="Ej. 11"
-                maxLength={150}
-              />
-            </div>
-
-            <div className="form-actions">
-
+            {modoEdicion && (
               <button
-                type="submit"
-                disabled={guardando}
+                type="button"
+                onClick={limpiarFormulario}
               >
-                {guardando
-                  ? "Guardando..."
-                  : editando
-                    ? "Actualizar"
-                    : "Guardar"}
+                Cancelar
               </button>
-
-              {editando && (
-                <button
-                  type="button"
-                  onClick={limpiarFormulario}
-                >
-                  Cancelar
-                </button>
-              )}
-
-            </div>
+            )}
 
           </form>
-
-          {mensaje && (
-            <div className="mensaje-exito">
-              {mensaje}
-            </div>
-          )}
-
-          {error && (
-            <div className="mensaje-error">
-              {error}
-            </div>
-          )}
-
         </div>
+      )}
 
-        <div className="catalogo-lista">
+      <div className="card">
 
-          <h2>Listado de sistemas operativos</h2>
+        <input
+          className="search-input"
+          placeholder="Buscar sistema operativo Ej. Windows 11"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+        />
 
-          {cargando ? (
-            <p>Cargando sistemas operativos...</p>
-          ) : sistemasOperativos.length === 0 ? (
-            <p>
-              No hay sistemas operativos registrados.
-            </p>
-          ) : (
-            <table>
+        <br />
 
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Versión</th>
+        <h2>
+          Listado de sistemas operativos
+        </h2>
+
+        <div className="table-container">
+
+          <table>
+
+            <thead>
+              <tr>
+
+                <th>Nombre</th>
+
+                <th>Versión</th>
+
+                {mostrarAcciones && (
                   <th>Acciones</th>
+                )}
+
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {sistemasOperativosFiltrados.map((item) => (
+                <tr key={item.id}>
+
+                  <td>
+                    {item.Nombre}
+                  </td>
+
+                  <td>
+                    {item.N_Version || "—"}
+                  </td>
+
+                  {mostrarAcciones && (
+                    <td>
+                      <CatalogoActions
+                        item={item}
+                        onEditar={
+                          puedeEditar
+                            ? editarSistemaOperativo
+                            : null
+                        }
+                        onEliminar={
+                          puedeEliminar
+                            ? borrarSistemaOperativo
+                            : null
+                        }
+                      />
+                    </td>
+                  )}
+
                 </tr>
-              </thead>
+              ))}
 
-              <tbody>
+              {sistemasOperativosFiltrados.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={
+                      mostrarAcciones ? 3 : 2
+                    }
+                  >
+                    No hay sistemas operativos registrados.
+                  </td>
+                </tr>
+              )}
 
-                {sistemasOperativos.map((sistema) => (
-                  <tr key={sistema.id}>
+            </tbody>
 
-                    <td>
-                      {sistema.id}
-                    </td>
-
-                    <td>
-                      {sistema.Nombre}
-                    </td>
-
-                    <td>
-                      {sistema.N_Version || "—"}
-                    </td>
-
-                    <td>
-
-                      <button
-                        type="button"
-                        onClick={() => manejarEditar(sistema)}
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => manejarEliminar(sistema.id)}
-                      >
-                        Eliminar
-                      </button>
-
-                    </td>
-
-                  </tr>
-                ))}
-
-              </tbody>
-
-            </table>
-          )}
+          </table>
 
         </div>
 
@@ -310,7 +360,6 @@ const SistemasOperativosPage = () => {
 
     </div>
   );
-};
+}
 
 export default SistemasOperativosPage;
-

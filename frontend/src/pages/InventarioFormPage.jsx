@@ -296,6 +296,117 @@ const [preview, setPreview] = useState("");
     try {
       setLoading(true);
 
+  //función que valida que todo esté lleno
+const formularioCompleto = () => {
+  // Campos obligatorios generales
+  const camposBase = [
+    formulario.ID_RESTAURANTE,
+    formulario.ID_UNIDAD,
+    formulario.ID_TIPO_EQUIPO,
+    formulario.SERIAL,
+    formulario.FECHA_FABRICACION,
+    formulario.FECHA_GARANTIA,
+    formulario.ID_MARCA,
+    formulario.MODELO,
+    formulario.ID_ESTATUS,
+    formulario.ESTADO_FISICO,
+    correo
+  ];
+
+  // Si alguno de los campos base está vacío
+  if (camposBase.some((campo) => !String(campo ?? "").trim())) {
+    return false;
+  }
+
+  // Corporativo Cancún
+  if (esCorporativoCancun) {
+    if (!formulario.ID_DEPARTAMENTO || !formulario.PUESTO.trim()) {
+      return false;
+    }
+  } else {
+    if (!formulario.UBICACION.trim()) {
+      return false;
+    }
+  }
+
+  // Equipos con sistema operativo, RAM, disco y procesador
+  if (
+    esLaptop ||
+    esDesktop ||
+    esTablet ||
+    esTelefono ||
+    esTabletPOS ||
+    esWorkstationpos
+  ) {
+    if (
+      !formulario.SISTEMA_OPERATIVO ||
+      !formulario.ID_RAM ||
+      !formulario.ID_DISCO ||
+      !formulario.ID_PROCESADOR ||
+      !formulario.MODELO_PROCESADOR
+    ) {
+      return false;
+    }
+  }
+
+  // Impresoras
+  if (esImpresora) {
+    if (!formulario.TIPO_IMPRESORA || !formulario.CONEXION) {
+      return false;
+    }
+
+    // Si la conexión requiere puerto
+    if (
+      formulario.CONEXION === "Serial" ||
+      formulario.CONEXION === "Serial y Ethernet"
+    ) {
+      if (!formulario.PUERTO.trim()) {
+        return false;
+      }
+    }
+
+    // Si la impresora usa IP
+    if (
+      formulario.CONEXION === "wifi" ||
+      formulario.CONEXION === "Ethernet" ||
+      formulario.CONEXION === "Serial y Ethernet"
+    ) {
+      if (!formulario.IP.trim()) {
+        return false;
+      }
+    }
+  }
+
+  // Equipos que requieren IP
+  if (
+    esSwitch ||
+    esAPS ||
+    esCCTV ||
+    esTabletPOS ||
+    esWorkstationpos ||
+    esKDS
+  ) {
+    if (!formulario.IP.trim()) {
+      return false;
+    }
+  }
+
+  // Equipos que requieren accesos
+  if (mostrarAccesos) {
+    if (
+      !formulario.ACCESO_TEAM_VIEWER ||
+      !formulario.CONTRASEÑA_TEAM_VIEWER.trim() ||
+      !formulario.ACCESO_ANYDESK ||
+      !formulario.CONTRASEÑA_ANYDESK.trim()
+    ) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
+
 const formData = new FormData();
 
 Object.entries({
@@ -416,7 +527,7 @@ if (foto) {
   esKDS;
   {/*Perifericos*/}
 
-    //función que valida que todo esté lleno
+   //función que valida que todo esté lleno
 const formularioCompleto = () => {
   // Campos obligatorios generales
   const camposBase = [
