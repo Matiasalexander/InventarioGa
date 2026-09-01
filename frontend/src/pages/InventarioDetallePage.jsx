@@ -21,7 +21,7 @@ function InventarioDetallePage() {
   const [marcas, setMarcas] = useState([]);
   const [estatus, setEstatus] = useState([]);
   const [memoriasRam, setMemoriasRam] = useState([]);
-const [discosDuros, setDiscosDuros] = useState([]);
+  const [discosDuros, setDiscosDuros] = useState([]);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -110,43 +110,43 @@ const [discosDuros, setDiscosDuros] = useState([]);
   const estatusEquipo = estatus.find(
     (item) => Number(item.Id) === Number(equipo.ID_ESTATUS)
   );
-const memoriaRam = memoriasRam.find(
-  (item) => Number(item.id) === Number(equipo.ID_RAM)
-);
+  const memoriaRam = memoriasRam.find(
+    (item) => Number(item.id) === Number(equipo.ID_RAM)
+  );
 
-const discoDuro = discosDuros.find(
-  (item) => Number(item.id) === Number(equipo.ID_DISCO)
-);
+  const discoDuro = discosDuros.find(
+    (item) => Number(item.id) === Number(equipo.ID_DISCO)
+  );
 
-  {/*Telefono*/}
+  {/*Telefono*/ }
   const esTelefono = Number(equipo.ID_TIPO_EQUIPO) === 15;
-  {/*Equipos con SO*/}
+  {/*Equipos con SO*/ }
   const esLaptop = Number(equipo.ID_TIPO_EQUIPO) === 1;
   const esDesktop = Number(equipo.ID_TIPO_EQUIPO) === 2;
-  const esTablet = Number(equipo.ID_TIPO_EQUIPO) === 14;  
+  const esTablet = Number(equipo.ID_TIPO_EQUIPO) === 14;
 
-  {/*Equipos POS*/}
+  {/*Equipos POS*/ }
   const esPantallaPOS = Number(equipo.ID_TIPO_EQUIPO) === 4;
   const esWorkstationpos = Number(equipo.ID_TIPO_EQUIPO) === 7;
   const esTabletPOS = Number(equipo.ID_TIPO_EQUIPO) === 13;
 
-  {/*Equipos que llevan IP*/}
-  const  esSwitch = Number(equipo.ID_TIPO_EQUIPO) === 17;
+  {/*Equipos que llevan IP*/ }
+  const esSwitch = Number(equipo.ID_TIPO_EQUIPO) === 17;
   const esAPS = Number(equipo.ID_TIPO_EQUIPO) === 19;
   const esCCTV = Number(equipo.ID_TIPO_EQUIPO) === 20;
 
-    {/*IMPRESORAS*/}
+  {/*IMPRESORAS*/ }
   const esImpresora = Number(equipo.ID_TIPO_EQUIPO) === 3;
 
-  {/*CONST PARA ANEXAR EQUIPOS CON IP*/}
-    const mostrarIP =
-  esSwitch ||
-  esAPS ||
-  esCCTV ||
-  esTabletPOS ||
-  esWorkstationpos ||
-  (esImpresora && equipo.CONEXION === "wifi");
-  {/*Herramientas en general*/}
+  {/*CONST PARA ANEXAR EQUIPOS CON IP*/ }
+  const mostrarIP =
+    esSwitch ||
+    esAPS ||
+    esCCTV ||
+    esTabletPOS ||
+    esWorkstationpos ||
+    (esImpresora && equipo.CONEXION === "wifi");
+  {/*Herramientas en general*/ }
 
   return (
     <div className="contenedor">
@@ -155,7 +155,7 @@ const discoDuro = discosDuros.find(
           {
             equipo.NOMBRE_EQUIPO == "NA" ? (
               <h1>{equipo.UBICACION}</h1>
-            ):(
+            ) : (
               <h1>{equipo.NOMBRE_EQUIPO}</h1>
             )
           }
@@ -277,7 +277,14 @@ const discoDuro = discosDuros.find(
 
           <div className="detalle-item">
             <span>Sistema operativo</span>
-            <strong>{mostrar(equipo.SISTEMA_OPERATIVO)}</strong>
+            <strong>
+              {equipo.SISTEMA_OPERATIVO
+                ? `${equipo.SISTEMA_OPERATIVO}${equipo.VERSION_SISTEMA_OPERATIVO
+                  ? ` - ${equipo.VERSION_SISTEMA_OPERATIVO}`
+                  : ""
+                }`
+                : "N/A"}
+            </strong>
           </div>
         </div>
 
@@ -337,19 +344,19 @@ const discoDuro = discosDuros.find(
               <strong>{mostrar(equipo.MODELO_PROCESADOR)}</strong>
             </div>
 
-<div className="detalle-item">
-  <span>RAM</span>
-  <strong>{memoriaRam?.capacidad || "N/A"}</strong>
-</div>
+            <div className="detalle-item">
+              <span>RAM</span>
+              <strong>{memoriaRam?.capacidad || "N/A"}</strong>
+            </div>
 
-<div className="detalle-item">
-  <span>Disco duro</span>
-  <strong>
-    {discoDuro
-      ? `${discoDuro.modelo_disco} ${discoDuro.capacidad}`
-      : "N/A"}
-  </strong>
-</div>
+            <div className="detalle-item">
+              <span>Disco duro</span>
+              <strong>
+                {discoDuro
+                  ? `${discoDuro.modelo_disco} ${discoDuro.capacidad}`
+                  : "N/A"}
+              </strong>
+            </div>
 
             <div className="detalle-item">
               <span>Lector de huella</span>
@@ -362,11 +369,11 @@ const discoDuro = discosDuros.find(
           <div className="card">
 
             {
-             equipo.tipoEquipo === "Impresora" ?(
-              <h2>Impresora</h2>
-             ) : (
-              <h2>Red</h2>
-             )
+              equipo.tipoEquipo === "Impresora" ? (
+                <h2>Impresora</h2>
+              ) : (
+                <h2>Red</h2>
+              )
             }
             <div className="detalle-item">
               <span>Tipo impresora</span>
@@ -390,7 +397,7 @@ const discoDuro = discosDuros.find(
           </div>
         )}
 
-        {(esPantallaPOS || esWorkstationpos || esTabletPOS)  && (
+        {(esPantallaPOS || esWorkstationpos || esTabletPOS) && (
           <div className="card">
             <h2>Accesos remotos</h2>
 
@@ -466,15 +473,15 @@ const discoDuro = discosDuros.find(
 
         <div className="card card-foto">
           <h2>Foto del equipo</h2>
-                    {equipo.FOTO && (
-        <div className="contenedor-foto-detalle">
-            <img
-        src={`data:image/png;base64,${equipo.FOTO}`}
-        alt="Equipo"
-        width={250}
-        height={250}
-        className="foto-equipo"
-            />
+          {equipo.FOTO && (
+            <div className="contenedor-foto-detalle">
+              <img
+                src={`data:image/png;base64,${equipo.FOTO}`}
+                alt="Equipo"
+                width={250}
+                height={250}
+                className="foto-equipo"
+              />
             </div>
           )}
         </div>

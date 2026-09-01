@@ -113,6 +113,15 @@ const restaurantes = await pool.request().query(`
       `SELECT id, modelo_disco, capacidad FROM DISCO_DURO ORDER BY modelo_disco`
     );
 
+    const sistemasOperativos = await pool.request().query(`
+  SELECT
+    id,
+    Nombre,
+    N_Version
+  FROM SISTEMAS_OPERATIVOS
+  ORDER BY Nombre, N_Version
+`);
+
 const roles = await pool.request().query(`
   SELECT
     ID_ROL AS IdRol,
@@ -136,7 +145,8 @@ const roles = await pool.request().query(`
 roles: roles.recordset,
       modelosEspeciales: modelosEspeciales.recordset,
       memoriasRam: memoriasRam.recordset,
-      discoDuro: discoDuro.recordset
+      discoDuro: discoDuro.recordset,
+      sistemasOperativos: sistemasOperativos.recordset
     });
 
   } catch (error) {

@@ -168,17 +168,6 @@ const puedeAccederUnidad = (
     .includes(unidadNumerica);
 };
 
-/**
- * Agrega parámetros SQL correspondientes a las
- * unidades autorizadas.
- *
- * Devuelve una condición SQL como:
- *
- * i.ID_UNIDAD IN (
- *   @UnidadPermitida0,
- *   @UnidadPermitida1
- * )
- */
 const crearFiltroUnidades = ({
   request,
   permisos,
@@ -390,7 +379,11 @@ const obtenerInventario = async (
         i.ID_PROCESADOR,
         p.Nombre AS PROCESADOR,
         i.MODELO_PROCESADOR,
-        i.SISTEMA_OPERATIVO,
+
+        i.id_sistema_operativo AS ID_SISTEMA_OPERATIVO,
+        so.Nombre AS SISTEMA_OPERATIVO,
+        so.N_Version AS VERSION_SISTEMA_OPERATIVO,
+
         i.LECTOR_DE_HUELLA,
         i.CONEXION,
         i.ID_MARCA,
@@ -403,26 +396,41 @@ const obtenerInventario = async (
         i.ESTADO_FISICO,
         i.CORREO,
         i.COMENTARIO
+
       FROM INVENTARIO_M i
+
       LEFT JOIN Unidades u
         ON i.ID_UNIDAD = u.id
+
       LEFT JOIN Restaurantes r
         ON u.id_marca = r.id_marca
+
       LEFT JOIN Tipo_equipo te
         ON i.ID_TIPO_EQUIPO = te.id
+
       LEFT JOIN DEPARTAMENTOS d
         ON i.ID_DEPARTAMENTO = d.Id
+
       LEFT JOIN PROCESADORES p
         ON i.ID_PROCESADOR = p.id
+
       LEFT JOIN MEMORIA_RAM mr
         ON i.ID_RAM = mr.id
+
       LEFT JOIN DISCO_DURO dd
         ON i.ID_DISCO = dd.id
+
+      LEFT JOIN SISTEMAS_OPERATIVOS so
+        ON i.id_sistema_operativo = so.id
+
       LEFT JOIN Marcas m
         ON i.ID_MARCA = m.id
+
       LEFT JOIN Estatus e
         ON i.ID_ESTATUS = e.Id
+
       ${where}
+
       ORDER BY i.id DESC
     `);
 
@@ -496,8 +504,17 @@ const obtenerInventarioPorId = async (
     }
 
     const result = await request.query(`
-      SELECT i.*
+      SELECT
+        i.*,
+
+        so.Nombre AS SISTEMA_OPERATIVO,
+        so.N_Version AS VERSION_SISTEMA_OPERATIVO
+
       FROM INVENTARIO_M i
+
+      LEFT JOIN SISTEMAS_OPERATIVOS so
+        ON i.id_sistema_operativo = so.id
+
       WHERE ${condiciones.join(" AND ")}
     `);
 
@@ -563,7 +580,7 @@ const crearInventario = async (
       ID_RAM,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
-      SISTEMA_OPERATIVO,
+      ID_SISTEMA_OPERATIVO,
       LECTOR_DE_HUELLA,
       CONEXION,
       ID_MARCA,
@@ -606,6 +623,46 @@ const crearInventario = async (
 
     const pool = await poolPromise;
 
+    /* =====================================================
+       VALIDAR SISTEMA OPERATIVO
+    ===================================================== */
+
+    let nombreSistemaOperativo = null;
+
+    if (ID_SISTEMA_OPERATIVO) {
+      const sistemaResult = await pool
+        .request()
+        .input(
+          "ID_SISTEMA_OPERATIVO",
+          sql.Int,
+          Number(ID_SISTEMA_OPERATIVO)
+        )
+        .query(`
+          SELECT
+            id,
+            Nombre,
+            N_Version
+          FROM SISTEMAS_OPERATIVOS
+          WHERE id = @ID_SISTEMA_OPERATIVO
+        `);
+
+      if (
+        sistemaResult.recordset.length === 0
+      ) {
+        return res.status(400).json({
+          message:
+            "El sistema operativo seleccionado no existe."
+        });
+      }
+
+      nombreSistemaOperativo =
+        sistemaResult.recordset[0].Nombre;
+    }
+
+    /* =====================================================
+       VALIDAR SERIAL
+    ===================================================== */
+
     if (SERIAL) {
       const serialExiste = await pool
         .request()
@@ -629,6 +686,10 @@ const crearInventario = async (
         });
       }
     }
+
+    /* =====================================================
+       INSERTAR INVENTARIO
+    ===================================================== */
 
     const insertResult = await pool
       .request()
@@ -698,8 +759,10 @@ const crearInventario = async (
         MODELO_PROCESADOR || null
       )
       .input(
-        "SISTEMA_OPERATIVO",
-        SISTEMA_OPERATIVO || null
+        "ID_SISTEMA_OPERATIVO",
+        ID_SISTEMA_OPERATIVO
+          ? Number(ID_SISTEMA_OPERATIVO)
+          : null
       )
       .input(
         "LECTOR_DE_HUELLA",
@@ -780,7 +843,7 @@ const crearInventario = async (
           ID_RAM,
           ID_PROCESADOR,
           MODELO_PROCESADOR,
-          SISTEMA_OPERATIVO,
+          id_sistema_operativo,
           LECTOR_DE_HUELLA,
           CONEXION,
           ID_MARCA,
@@ -815,7 +878,7 @@ const crearInventario = async (
           @ID_RAM,
           @ID_PROCESADOR,
           @MODELO_PROCESADOR,
-          @SISTEMA_OPERATIVO,
+          @ID_SISTEMA_OPERATIVO,
           @LECTOR_DE_HUELLA,
           @CONEXION,
           @ID_MARCA,
@@ -837,6 +900,10 @@ const crearInventario = async (
     const idGenerado =
       insertResult.recordset[0].id;
 
+    /* =====================================================
+       GENERAR NOMBRE DEL EQUIPO
+    ===================================================== */
+
     let NOMBRE_EQUIPO = "NA";
 
     const aplicaNombre =
@@ -848,11 +915,23 @@ const crearInventario = async (
       );
 
     if (aplicaNombre) {
+
+      if (
+        !ID_SISTEMA_OPERATIVO ||
+        !nombreSistemaOperativo ||
+        !FECHA_FABRICACION
+      ) {
+        return res.status(400).json({
+          message:
+            "El sistema operativo y la fecha de fabricación son obligatorios para generar el nombre del equipo."
+        });
+      }
+
       NOMBRE_EQUIPO =
         await generarNombreEquipo(
           pool,
           ID_TIPO_EQUIPO,
-          SISTEMA_OPERATIVO,
+          nombreSistemaOperativo,
           FECHA_FABRICACION
         );
 
@@ -888,6 +967,7 @@ const crearInventario = async (
           FECHA_GARANTIA
         )
     });
+
   } catch (error) {
     console.error(
       "Error creando inventario:",
@@ -944,7 +1024,7 @@ const actualizarInventario = async (
       ID_RAM,
       ID_PROCESADOR,
       MODELO_PROCESADOR,
-      SISTEMA_OPERATIVO,
+      ID_SISTEMA_OPERATIVO,
       LECTOR_DE_HUELLA,
       CONEXION,
       ID_MARCA,
@@ -986,6 +1066,46 @@ const actualizarInventario = async (
     }
 
     const pool = await poolPromise;
+
+    /* =====================================================
+       VALIDAR SISTEMA OPERATIVO
+    ===================================================== */
+
+    let nombreSistemaOperativo = null;
+
+    if (ID_SISTEMA_OPERATIVO) {
+      const sistemaResult = await pool
+        .request()
+        .input(
+          "ID_SISTEMA_OPERATIVO",
+          sql.Int,
+          Number(ID_SISTEMA_OPERATIVO)
+        )
+        .query(`
+          SELECT
+            id,
+            Nombre,
+            N_Version
+          FROM SISTEMAS_OPERATIVOS
+          WHERE id = @ID_SISTEMA_OPERATIVO
+        `);
+
+      if (
+        sistemaResult.recordset.length === 0
+      ) {
+        return res.status(400).json({
+          message:
+            "El sistema operativo seleccionado no existe."
+        });
+      }
+
+      nombreSistemaOperativo =
+        sistemaResult.recordset[0].Nombre;
+    }
+
+    /* =====================================================
+       EQUIPO ACTUAL
+    ===================================================== */
 
     const requestEquipo = pool
       .request()
@@ -1035,6 +1155,10 @@ const actualizarInventario = async (
       });
     }
 
+    /* =====================================================
+       VALIDAR SERIAL
+    ===================================================== */
+
     if (SERIAL) {
       const serialExiste = await pool
         .request()
@@ -1065,6 +1189,10 @@ const actualizarInventario = async (
       }
     }
 
+    /* =====================================================
+       GENERAR NOMBRE
+    ===================================================== */
+
     let NOMBRE_EQUIPO =
       equipoActual.recordset[0]
         .NOMBRE_EQUIPO || "NA";
@@ -1081,11 +1209,41 @@ const actualizarInventario = async (
       NOMBRE_EQUIPO = "NA";
     }
 
+    if (aplicaNombre) {
+
+      if (
+        !ID_SISTEMA_OPERATIVO ||
+        !nombreSistemaOperativo ||
+        !FECHA_FABRICACION
+      ) {
+        return res.status(400).json({
+          message:
+            "El sistema operativo y la fecha de fabricación son obligatorios para generar el nombre del equipo."
+        });
+      }
+
+      NOMBRE_EQUIPO =
+        await generarNombreEquipo(
+          pool,
+          ID_TIPO_EQUIPO,
+          nombreSistemaOperativo,
+          FECHA_FABRICACION
+        );
+    }
+
+    /* =====================================================
+       FOTO
+    ===================================================== */
+
     const fotoActual =
       equipoActual.recordset[0].FOTO;
 
     const fotoGuardada =
       FOTO || fotoActual || null;
+
+    /* =====================================================
+       ACTUALIZAR INVENTARIO
+    ===================================================== */
 
     await pool
       .request()
@@ -1160,8 +1318,10 @@ const actualizarInventario = async (
         MODELO_PROCESADOR || null
       )
       .input(
-        "SISTEMA_OPERATIVO",
-        SISTEMA_OPERATIVO || null
+        "ID_SISTEMA_OPERATIVO",
+        ID_SISTEMA_OPERATIVO
+          ? Number(ID_SISTEMA_OPERATIVO)
+          : null
       )
       .input(
         "LECTOR_DE_HUELLA",
@@ -1252,8 +1412,8 @@ const actualizarInventario = async (
             @ID_PROCESADOR,
           MODELO_PROCESADOR =
             @MODELO_PROCESADOR,
-          SISTEMA_OPERATIVO =
-            @SISTEMA_OPERATIVO,
+          id_sistema_operativo =
+            @ID_SISTEMA_OPERATIVO,
           LECTOR_DE_HUELLA =
             @LECTOR_DE_HUELLA,
           CONEXION = @CONEXION,
@@ -1290,6 +1450,7 @@ const actualizarInventario = async (
           FECHA_GARANTIA
         )
     });
+
   } catch (error) {
     console.error(
       "Error actualizando inventario:",
@@ -1607,7 +1768,10 @@ const exportarInventarioExcel = async (
         p.Nombre AS PROCESADOR,
         i.MODELO_PROCESADOR,
 
-        i.SISTEMA_OPERATIVO,
+        i.id_sistema_operativo AS ID_SISTEMA_OPERATIVO,
+        so.Nombre AS SISTEMA_OPERATIVO,
+        so.N_Version AS VERSION_SISTEMA_OPERATIVO,
+
         i.LECTOR_DE_HUELLA,
         i.CONEXION,
 
@@ -1655,6 +1819,9 @@ const exportarInventarioExcel = async (
       LEFT JOIN DISCO_DURO dd
         ON i.ID_DISCO = dd.id
 
+      LEFT JOIN SISTEMAS_OPERATIVOS so
+        ON i.id_sistema_operativo = so.id
+
       LEFT JOIN Marcas m
         ON i.ID_MARCA = m.id
 
@@ -1691,6 +1858,7 @@ const exportarInventarioExcel = async (
     );
 
     return res.send(excel);
+
   } catch (error) {
     console.error(
       "Error exportando inventario a Excel:",

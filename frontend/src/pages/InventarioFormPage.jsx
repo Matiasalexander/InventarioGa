@@ -16,7 +16,6 @@ function InventarioFormPage({ setLoading }) {
   const esEdicion = Boolean(id);
 
   const estadosFisicos = ["Bueno", "Regular", "Dañado"];
-  const tiposSistemas = ["Windows", "Android", "Linux", "iOS"];
   const tiposImpresoras = [
     "Impresora térmica",
     "Impresora de impacto",
@@ -26,11 +25,11 @@ function InventarioFormPage({ setLoading }) {
 
   const [errorSerial, setErrorSerial] = useState("");
   const [foto, setFoto] = useState(null);
-const [preview, setPreview] = useState("");
-//setear el correo del usuario
+  const [preview, setPreview] = useState("");
+  //setear el correo del usuario
   const [correo, setCorreo] = useState("");
 
-  useEffect(()=>{const usuario = JSON.parse(localStorage.getItem("usuario")); setCorreo(usuario?.Correo || "");},[]);
+  useEffect(() => { const usuario = JSON.parse(localStorage.getItem("usuario")); setCorreo(usuario?.Correo || ""); }, []);
 
   const [catalogos, setCatalogos] = useState({
     restaurantes: [],
@@ -43,7 +42,8 @@ const [preview, setPreview] = useState("");
     procesadores: [],
     modelosProcesador: [],
     memoriasRam: [],
-    discoDuro: []
+    discoDuro: [],
+    sistemasOperativos: []
   });
 
   const [modelosFiltrados, setModelosFiltrados] = useState([]);
@@ -72,7 +72,7 @@ const [preview, setPreview] = useState("");
     ID_RAM: "",
     ID_PROCESADOR: "",
     MODELO_PROCESADOR: "",
-    SISTEMA_OPERATIVO: "",
+    ID_SISTEMA_OPERATIVO: "",
     TIPO_IMPRESORA: "",
     CONEXION: "",
     ID_MARCA: "",
@@ -123,8 +123,8 @@ const [preview, setPreview] = useState("");
 
     const equipo = await obtenerInventarioPorId(id);
     if (equipo.FOTO) {
-  setPreview(`data:image/jpeg;base64,${equipo.FOTO}`);
-}
+      setPreview(`data:image/jpeg;base64,${equipo.FOTO}`);
+    }
 
     const unidadSeleccionada = catalogosData.unidades.find(
       (item) => String(item.id) === String(equipo.ID_UNIDAD)
@@ -142,10 +142,10 @@ const [preview, setPreview] = useState("");
       (item) => String(item.Id_procesador) === String(equipo.ID_PROCESADOR)
     );
 
-      /*
-    const modelosRam = catalogosData.modelosRam.filter(
-      (item)=>String(item.Id_disco)
-    );*/
+    /*
+  const modelosRam = catalogosData.modelosRam.filter(
+    (item)=>String(item.Id_disco)
+  );*/
 
     setLocalidadesFiltradas(localidades);
     setModelosFiltrados(modelos);
@@ -171,7 +171,7 @@ const [preview, setPreview] = useState("");
       ID_RAM: equipo.ID_RAM || "",
       ID_PROCESADOR: equipo.ID_PROCESADOR || "",
       MODELO_PROCESADOR: equipo.MODELO_PROCESADOR || "",
-      SISTEMA_OPERATIVO: equipo.SISTEMA_OPERATIVO || "",
+      ID_SISTEMA_OPERATIVO: equipo.ID_SISTEMA_OPERATIVO ?? equipo.id_sistema_operativo ?? "",
       TIPO_IMPRESORA: equipo.TIPO_IMPRESORA || "",
       CONEXION: equipo.CONEXION || "",
       ID_MARCA: equipo.ID_MARCA || "",
@@ -296,179 +296,178 @@ const [preview, setPreview] = useState("");
     try {
       setLoading(true);
 
-  //función que valida que todo esté lleno
-const formularioCompleto = () => {
-  // Campos obligatorios generales
-  const camposBase = [
-    formulario.ID_RESTAURANTE,
-    formulario.ID_UNIDAD,
-    formulario.ID_TIPO_EQUIPO,
-    formulario.SERIAL,
-    formulario.FECHA_FABRICACION,
-    formulario.FECHA_GARANTIA,
-    formulario.ID_MARCA,
-    formulario.MODELO,
-    formulario.ID_ESTATUS,
-    formulario.ESTADO_FISICO,
-    correo
-  ];
+      //función que valida que todo esté lleno
+      const formularioCompleto = () => {
+        // Campos obligatorios generales
+        const camposBase = [
+          formulario.ID_RESTAURANTE,
+          formulario.ID_UNIDAD,
+          formulario.ID_TIPO_EQUIPO,
+          formulario.SERIAL,
+          formulario.FECHA_FABRICACION,
+          formulario.FECHA_GARANTIA,
+          formulario.ID_MARCA,
+          formulario.MODELO,
+          formulario.ID_ESTATUS,
+          formulario.ESTADO_FISICO
+        ];
 
-  // Si alguno de los campos base está vacío
-  if (camposBase.some((campo) => !String(campo ?? "").trim())) {
-    return false;
-  }
+        // Si alguno de los campos base está vacío
+        if (camposBase.some((campo) => !String(campo ?? "").trim())) {
+          return false;
+        }
 
-  // Corporativo Cancún
-  if (esCorporativoCancun) {
-    if (!formulario.ID_DEPARTAMENTO || !formulario.PUESTO.trim()) {
-      return false;
-    }
-  } else {
-    if (!formulario.UBICACION.trim()) {
-      return false;
-    }
-  }
+        // Corporativo Cancún
+        if (esCorporativoCancun) {
+          if (!formulario.ID_DEPARTAMENTO || !formulario.PUESTO.trim()) {
+            return false;
+          }
+        } else {
+          if (!formulario.UBICACION.trim()) {
+            return false;
+          }
+        }
 
-  // Equipos con sistema operativo, RAM, disco y procesador
-  if (
-    esLaptop ||
-    esDesktop ||
-    esTablet ||
-    esTelefono ||
-    esTabletPOS ||
-    esWorkstationpos
-  ) {
-    if (
-      !formulario.SISTEMA_OPERATIVO ||
-      !formulario.ID_RAM ||
-      !formulario.ID_DISCO ||
-      !formulario.ID_PROCESADOR ||
-      !formulario.MODELO_PROCESADOR
-    ) {
-      return false;
-    }
-  }
+        // Equipos con sistema operativo, RAM, disco y procesador
+        if (
+          esLaptop ||
+          esDesktop ||
+          esTablet ||
+          esTelefono ||
+          esTabletPOS ||
+          esWorkstationpos
+        ) {
+          if (
+            !formulario.ID_SISTEMA_OPERATIVO ||
+            !formulario.ID_RAM ||
+            !formulario.ID_DISCO ||
+            !formulario.ID_PROCESADOR ||
+            !formulario.MODELO_PROCESADOR
+          ) {
+            return false;
+          }
+        }
 
-  // Impresoras
-  if (esImpresora) {
-    if (!formulario.TIPO_IMPRESORA || !formulario.CONEXION) {
-      return false;
-    }
+        // Impresoras
+        if (esImpresora) {
+          if (!formulario.TIPO_IMPRESORA || !formulario.CONEXION) {
+            return false;
+          }
 
-    // Si la conexión requiere puerto
-    if (
-      formulario.CONEXION === "Serial" ||
-      formulario.CONEXION === "Serial y Ethernet"
-    ) {
-      if (!formulario.PUERTO.trim()) {
-        return false;
+          // Si la conexión requiere puerto
+          if (
+            formulario.CONEXION === "Serial" ||
+            formulario.CONEXION === "Serial y Ethernet"
+          ) {
+            if (!formulario.PUERTO.trim()) {
+              return false;
+            }
+          }
+
+          // Si la impresora usa IP
+          if (
+            formulario.CONEXION === "wifi" ||
+            formulario.CONEXION === "Ethernet" ||
+            formulario.CONEXION === "Serial y Ethernet"
+          ) {
+            if (!formulario.IP.trim()) {
+              return false;
+            }
+          }
+        }
+
+        // Equipos que requieren IP
+        if (
+          esSwitch ||
+          esAPS ||
+          esCCTV ||
+          esTabletPOS ||
+          esWorkstationpos ||
+          esKDS
+        ) {
+          if (!formulario.IP.trim()) {
+            return false;
+          }
+        }
+
+        // Equipos que requieren accesos
+        if (mostrarAccesos) {
+          if (
+            !formulario.ACCESO_TEAM_VIEWER ||
+            !formulario.CONTRASEÑA_TEAM_VIEWER.trim() ||
+            !formulario.ACCESO_ANYDESK ||
+            !formulario.CONTRASEÑA_ANYDESK.trim()
+          ) {
+            return false;
+          }
+        }
+
+        return true;
+      };
+
+
+      const formData = new FormData();
+
+      Object.entries({
+        ID_UNIDAD: formulario.ID_UNIDAD,
+        LOCALIDAD: formulario.LOCALIDAD,
+
+        UBICACION: esCorporativoCancun
+          ? "NA"
+          : formulario.UBICACION || "NA",
+
+        ID_TIPO_EQUIPO: formulario.ID_TIPO_EQUIPO,
+
+        ID_DEPARTAMENTO: esCorporativoCancun
+          ? formulario.ID_DEPARTAMENTO || null
+          : null,
+
+        PUESTO: esCorporativoCancun
+          ? formulario.PUESTO || "NA"
+          : "NA",
+
+        SERIAL: formulario.SERIAL,
+        FECHA_FABRICACION: formulario.FECHA_FABRICACION,
+        FECHA_GARANTIA: formulario.FECHA_GARANTIA,
+        FECHA_INICIO: formulario.FECHA_INICIO,
+        ID_DISCO: formulario.ID_DISCO,
+        ID_RAM: formulario.ID_RAM,
+        ID_PROCESADOR: formulario.ID_PROCESADOR,
+        MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
+        ID_SISTEMA_OPERATIVO: formulario.ID_SISTEMA_OPERATIVO,
+        TIPO_IMPRESORA: formulario.TIPO_IMPRESORA,
+        CONEXION: formulario.CONEXION,
+        ID_MARCA: formulario.ID_MARCA,
+        MODELO: formulario.MODELO,
+        IP: formulario.IP,
+        PUERTO: formulario.PUERTO,
+        ID_ESTATUS: formulario.ID_ESTATUS,
+        ESTADO_FISICO: formulario.ESTADO_FISICO,
+        CORREO: formulario.CORREO,
+        ACCESO_TEAM_VIEWER: formulario.ACCESO_TEAM_VIEWER,
+        CONTRASEÑA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
+        ACCESO_ANYDESK: formulario.ACCESO_ANYDESK,
+        CONTRASEÑA_ANYDESK: formulario.CONTRASEÑA_ANYDESK,
+        COMENTARIO: formulario.COMENTARIO
+      }).forEach(([key, value]) => {
+
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+
+      });
+
+      if (foto) {
+        formData.append("FOTO", foto);
+      } if (esEdicion) {
+        await actualizarInventario(id, formData);
+        toast.success("Equipo editado exitosamente");
+
+      } else {
+        await crearInventario(formData);
+        toast.success("Equipo creado exitosamente");
+
       }
-    }
-
-    // Si la impresora usa IP
-    if (
-      formulario.CONEXION === "wifi" ||
-      formulario.CONEXION === "Ethernet" ||
-      formulario.CONEXION === "Serial y Ethernet"
-    ) {
-      if (!formulario.IP.trim()) {
-        return false;
-      }
-    }
-  }
-
-  // Equipos que requieren IP
-  if (
-    esSwitch ||
-    esAPS ||
-    esCCTV ||
-    esTabletPOS ||
-    esWorkstationpos ||
-    esKDS
-  ) {
-    if (!formulario.IP.trim()) {
-      return false;
-    }
-  }
-
-  // Equipos que requieren accesos
-  if (mostrarAccesos) {
-    if (
-      !formulario.ACCESO_TEAM_VIEWER ||
-      !formulario.CONTRASEÑA_TEAM_VIEWER.trim() ||
-      !formulario.ACCESO_ANYDESK ||
-      !formulario.CONTRASEÑA_ANYDESK.trim()
-    ) {
-      return false;
-    }
-  }
-
-  return true;
-};
-
-
-const formData = new FormData();
-
-Object.entries({
-    ID_UNIDAD: formulario.ID_UNIDAD,
-    LOCALIDAD: formulario.LOCALIDAD,
-
-    UBICACION: esCorporativoCancun
-      ? "NA"
-      : formulario.UBICACION || "NA",
-
-    ID_TIPO_EQUIPO: formulario.ID_TIPO_EQUIPO,
-
-    ID_DEPARTAMENTO: esCorporativoCancun
-      ? formulario.ID_DEPARTAMENTO || null
-      : null,
-
-    PUESTO: esCorporativoCancun
-      ? formulario.PUESTO || "NA"
-      : "NA",
-
-    SERIAL: formulario.SERIAL,
-    FECHA_FABRICACION: formulario.FECHA_FABRICACION,
-    FECHA_GARANTIA: formulario.FECHA_GARANTIA,
-    FECHA_INICIO: formulario.FECHA_INICIO,
-    ID_DISCO: formulario.ID_DISCO,
-    ID_RAM: formulario.ID_RAM,
-    ID_PROCESADOR: formulario.ID_PROCESADOR,
-    MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
-    SISTEMA_OPERATIVO: formulario.SISTEMA_OPERATIVO,
-    TIPO_IMPRESORA: formulario.TIPO_IMPRESORA,
-    CONEXION: formulario.CONEXION,
-    ID_MARCA: formulario.ID_MARCA,
-    MODELO: formulario.MODELO,
-    IP: formulario.IP,
-    PUERTO: formulario.PUERTO,
-    ID_ESTATUS: formulario.ID_ESTATUS,
-    ESTADO_FISICO: formulario.ESTADO_FISICO,
-    CORREO: formulario.CORREO,
-    ACCESO_TEAM_VIEWER: formulario.ACCESO_TEAM_VIEWER,
-    CONTRASEÑA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
-    ACCESO_ANYDESK: formulario.ACCESO_ANYDESK,
-    CONTRASEÑA_ANYDESK: formulario.CONTRASEÑA_ANYDESK,
-    COMENTARIO: formulario.COMENTARIO
-}).forEach(([key, value]) => {
-
-    if (value !== null && value !== undefined) {
-        formData.append(key, value);
-    }
-
-});
-
-if (foto) {
-    formData.append("FOTO", foto);
-} if (esEdicion) {
-  await actualizarInventario(id, formData);
-  toast.success("Equipo editado exitosamente");
-
-} else {
-  await crearInventario(formData);
-  toast.success("Equipo creado exitosamente");
-
-}
 
       //imagen-test
       //finimagen
@@ -488,154 +487,154 @@ if (foto) {
     }
   };
 
-  {/*Telefono*/}
+  {/*Telefono*/ }
   const esTelefono = Number(formulario.ID_TIPO_EQUIPO) === 15;
-  {/*Equipos con SO*/}
+  {/*Equipos con SO*/ }
   const esLaptop = Number(formulario.ID_TIPO_EQUIPO) === 1;
   const esDesktop = Number(formulario.ID_TIPO_EQUIPO) === 2;
-  const esTablet = Number(formulario.ID_TIPO_EQUIPO) === 14;  
+  const esTablet = Number(formulario.ID_TIPO_EQUIPO) === 14;
 
-  {/*Equipos POS*/}
+  {/*Equipos POS*/ }
   const esPantallaPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
   const esWorkstationpos = Number(formulario.ID_TIPO_EQUIPO) === 7;
   const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 13;
   const esKDS = Number(formulario.ID_TIPO_EQUIPO) === 21;
 
-  {/*Equipos que llevan IP*/}
-  const  esSwitch = Number(formulario.ID_TIPO_EQUIPO) === 17;
+  {/*Equipos que llevan IP*/ }
+  const esSwitch = Number(formulario.ID_TIPO_EQUIPO) === 17;
   const esAPS = Number(formulario.ID_TIPO_EQUIPO) === 19;
   const esCCTV = Number(formulario.ID_TIPO_EQUIPO) === 20;
 
-    {/*IMPRESORAS*/}
+  {/*IMPRESORAS*/ }
   const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
-  
+
   const mostrarIP =
-  esSwitch ||
-  esAPS ||
-  esCCTV ||
-  esTabletPOS ||
-  esWorkstationpos ||
-  esKDS ||
-  (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet" || formulario.CONEXION === "Serial y Ethernet");
-  {/*Herramientas en general*/}
-
-
-  const mostrarAccesos = 
-  esPantallaPOS ||
-  esWorkstationpos ||
-  esTabletPOS ||
-  esKDS;
-  {/*Perifericos*/}
-
-   //función que valida que todo esté lleno
-const formularioCompleto = () => {
-  // Campos obligatorios generales
-  const camposBase = [
-    formulario.ID_RESTAURANTE,
-    formulario.ID_UNIDAD,
-    formulario.ID_TIPO_EQUIPO,
-    formulario.SERIAL,
-    formulario.FECHA_FABRICACION,
-    formulario.FECHA_GARANTIA,
-    formulario.ID_MARCA,
-    formulario.MODELO,
-    formulario.ID_ESTATUS,
-    formulario.ESTADO_FISICO,
-    correo
-  ];
-
-  // Si alguno de los campos base está vacío
-  if (camposBase.some((campo) => !String(campo ?? "").trim())) {
-    return false;
-  }
-
-  // Corporativo Cancún
-  if (esCorporativoCancun) {
-    if (!formulario.ID_DEPARTAMENTO || !formulario.PUESTO.trim()) {
-      return false;
-    }
-  } else {
-    if (!formulario.UBICACION.trim()) {
-      return false;
-    }
-  }
-
-  // Equipos con sistema operativo, RAM, disco y procesador
-  if (
-    esLaptop ||
-    esDesktop ||
-    esTablet ||
-    esTelefono ||
-    esTabletPOS ||
-    esWorkstationpos
-  ) {
-    if (
-      !formulario.SISTEMA_OPERATIVO ||
-      !formulario.ID_RAM ||
-      !formulario.ID_DISCO ||
-      !formulario.ID_PROCESADOR ||
-      !formulario.MODELO_PROCESADOR
-    ) {
-      return false;
-    }
-  }
-
-  // Impresoras
-  if (esImpresora) {
-    if (!formulario.TIPO_IMPRESORA || !formulario.CONEXION) {
-      return false;
-    }
-
-    // Si la conexión requiere puerto
-    if (
-      formulario.CONEXION === "Serial" ||
-      formulario.CONEXION === "Serial y Ethernet"
-    ) {
-      if (!formulario.PUERTO.trim()) {
-        return false;
-      }
-    }
-
-    // Si la impresora usa IP
-    if (
-      formulario.CONEXION === "wifi" ||
-      formulario.CONEXION === "Ethernet" ||
-      formulario.CONEXION === "Serial y Ethernet"
-    ) {
-      if (!formulario.IP.trim()) {
-        return false;
-      }
-    }
-  }
-
-  // Equipos que requieren IP
-  if (
     esSwitch ||
     esAPS ||
     esCCTV ||
     esTabletPOS ||
     esWorkstationpos ||
-    esKDS
-  ) {
-    if (!formulario.IP.trim()) {
+    esKDS ||
+    (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet" || formulario.CONEXION === "Serial y Ethernet");
+  {/*Herramientas en general*/ }
+
+
+  const mostrarAccesos =
+    esPantallaPOS ||
+    esWorkstationpos ||
+    esTabletPOS ||
+    esKDS;
+  {/*Perifericos*/ }
+
+  //función que valida que todo esté lleno
+  const formularioCompleto = () => {
+    // Campos obligatorios generales
+    const camposBase = [
+      formulario.ID_RESTAURANTE,
+      formulario.ID_UNIDAD,
+      formulario.ID_TIPO_EQUIPO,
+      formulario.SERIAL,
+      formulario.FECHA_FABRICACION,
+      formulario.FECHA_GARANTIA,
+      formulario.ID_MARCA,
+      formulario.MODELO,
+      formulario.ID_ESTATUS,
+      formulario.ESTADO_FISICO,
+      correo
+    ];
+
+    // Si alguno de los campos base está vacío
+    if (camposBase.some((campo) => !String(campo ?? "").trim())) {
       return false;
     }
-  }
 
-  // Equipos que requieren accesos
-  if (mostrarAccesos) {
+    // Corporativo Cancún
+    if (esCorporativoCancun) {
+      if (!formulario.ID_DEPARTAMENTO || !formulario.PUESTO.trim()) {
+        return false;
+      }
+    } else {
+      if (!formulario.UBICACION.trim()) {
+        return false;
+      }
+    }
+
+    // Equipos con sistema operativo, RAM, disco y procesador
     if (
-      !formulario.ACCESO_TEAM_VIEWER ||
-      !formulario.CONTRASEÑA_TEAM_VIEWER.trim() ||
-      !formulario.ACCESO_ANYDESK ||
-      !formulario.CONTRASEÑA_ANYDESK.trim()
+      esLaptop ||
+      esDesktop ||
+      esTablet ||
+      esTelefono ||
+      esTabletPOS ||
+      esWorkstationpos
     ) {
-      return false;
+      if (
+        !formulario.ID_SISTEMA_OPERATIVO ||
+        !formulario.ID_RAM ||
+        !formulario.ID_DISCO ||
+        !formulario.ID_PROCESADOR ||
+        !formulario.MODELO_PROCESADOR
+      ) {
+        return false;
+      }
     }
-  }
 
-  return true;
-};
+    // Impresoras
+    if (esImpresora) {
+      if (!formulario.TIPO_IMPRESORA || !formulario.CONEXION) {
+        return false;
+      }
+
+      // Si la conexión requiere puerto
+      if (
+        formulario.CONEXION === "Serial" ||
+        formulario.CONEXION === "Serial y Ethernet"
+      ) {
+        if (!formulario.PUERTO.trim()) {
+          return false;
+        }
+      }
+
+      // Si la impresora usa IP
+      if (
+        formulario.CONEXION === "wifi" ||
+        formulario.CONEXION === "Ethernet" ||
+        formulario.CONEXION === "Serial y Ethernet"
+      ) {
+        if (!formulario.IP.trim()) {
+          return false;
+        }
+      }
+    }
+
+    // Equipos que requieren IP
+    if (
+      esSwitch ||
+      esAPS ||
+      esCCTV ||
+      esTabletPOS ||
+      esWorkstationpos ||
+      esKDS
+    ) {
+      if (!formulario.IP.trim()) {
+        return false;
+      }
+    }
+
+    // Equipos que requieren accesos
+    if (mostrarAccesos) {
+      if (
+        !formulario.ACCESO_TEAM_VIEWER ||
+        !formulario.CONTRASEÑA_TEAM_VIEWER.trim() ||
+        !formulario.ACCESO_ANYDESK ||
+        !formulario.CONTRASEÑA_ANYDESK.trim()
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   return (
     <div className="contenedor-responsive">
@@ -874,22 +873,25 @@ const formularioCompleto = () => {
 
             {(esLaptop || esDesktop || esTablet || esTelefono || esTabletPOS || esWorkstationpos) && (
               <>
-              
-            <div className="campo-form">
-              <label>Sistema operativo</label>
-              <select
-                name="SISTEMA_OPERATIVO"
-                value={formulario.SISTEMA_OPERATIVO || ""}
-                onChange={manejarCambio}
-              >
-                <option value="">Selecciona sistema operativo</option>
-                {tiposSistemas.map((sistema) => (
-                  <option key={sistema} value={sistema}>
-                    {sistema}
-                  </option>
-                ))}
-              </select>
-            </div>
+
+        <div className="campo-form">
+  <label>Sistema operativo</label>
+
+  <select
+    name="ID_SISTEMA_OPERATIVO"
+    value={formulario.ID_SISTEMA_OPERATIVO || ""}
+    onChange={manejarCambio}
+  >
+    <option value="">Selecciona sistema operativo</option>
+
+    {(catalogos.sistemasOperativos || []).map((item) => (
+      <option key={item.id} value={item.id}>
+        {item.Nombre}
+        {item.N_Version ? ` - ${item.N_Version}` : ""}
+      </option>
+    ))}
+  </select>
+</div>
 
                 <div className="campo-form">
                   <label>Memoria RAM</label>
@@ -899,11 +901,11 @@ const formularioCompleto = () => {
                     onChange={manejarCambio}
                   >
                     <option value="">Selecciona RAM</option>
-{catalogos.memoriasRam.map((item) => (
-    <option key={item.id} value={item.id}>
-        {item.capacidad}
-    </option>
-))}
+                    {catalogos.memoriasRam.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.capacidad}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -915,11 +917,11 @@ const formularioCompleto = () => {
                     onChange={manejarCambio}
                   >
                     <option value="">Selecciona disco duro</option>
-{catalogos.discoDuro.map((item) => (
-    <option key={item.id} value={item.id}>
-        {item.modelo_disco} - {item.capacidad}
-    </option>
-))}
+                    {catalogos.discoDuro.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.modelo_disco} - {item.capacidad}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -957,7 +959,7 @@ const formularioCompleto = () => {
                 </div>
               </>
             )}
-{/*en este bloque se muestran los campos específicos para impresoras y tablets POS, dependiendo del tipo de equipo seleccionado.*/}
+            {/*en este bloque se muestran los campos específicos para impresoras y tablets POS, dependiendo del tipo de equipo seleccionado.*/}
             {esImpresora && (
               <>
                 <div className="campo-form">
@@ -992,34 +994,34 @@ const formularioCompleto = () => {
                   </select>
                 </div>
 
-                {(formulario.CONEXION == "Serial y Ethernet"  || formulario.CONEXION == "Serial") && (
-                <div className="campo-form">
-                  <label>Puerto</label>
-                  <input
-                    name="PUERTO"
-                    placeholder="Puerto"
-                    value={formulario.PUERTO}
-                    onChange={manejarCambio}
-                  />
-                </div>
+                {(formulario.CONEXION == "Serial y Ethernet" || formulario.CONEXION == "Serial") && (
+                  <div className="campo-form">
+                    <label>Puerto</label>
+                    <input
+                      name="PUERTO"
+                      placeholder="Puerto"
+                      value={formulario.PUERTO}
+                      onChange={manejarCambio}
+                    />
+                  </div>
                 )}
 
               </>
             )}
 
-            { mostrarIP &&(
-                <div className="campo-form">
-                  <label>IP</label>
-                  <input
-                    name="IP"
-                    placeholder="000.000.0.0"
-                    value={formulario.IP}
-                    onChange={manejarCambio}
-                  />
-                </div>
-                )}
-{/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo selecionado.*/}
-            { mostrarAccesos && (
+            {mostrarIP && (
+              <div className="campo-form">
+                <label>IP</label>
+                <input
+                  name="IP"
+                  placeholder="000.000.0.0"
+                  value={formulario.IP}
+                  onChange={manejarCambio}
+                />
+              </div>
+            )}
+            {/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo selecionado.*/}
+            {mostrarAccesos && (
               <>
 
                 <div className="campo-form">
@@ -1067,7 +1069,7 @@ const formularioCompleto = () => {
                 </div>
               </>
             )}
-{/*aqui se muestran los campos de marca y modelo, que son comunes para todos los tipos de equipo.*/}
+            {/*aqui se muestran los campos de marca y modelo, que son comunes para todos los tipos de equipo.*/}
 
 
             <div className="campo-form">
@@ -1142,7 +1144,7 @@ const formularioCompleto = () => {
             <div className="campo-form">
               <label>Correo</label>
               <input
-              required
+                required
                 value={correo}
                 readOnly
                 onChange={manejarCambio}
@@ -1160,34 +1162,34 @@ const formularioCompleto = () => {
               />
             </div>
           </div>
-            <div className="campo-form campo-foto">
-  <label>Foto</label>
-<input
-    type="file"
-    accept="image/*"
-    capture="environment"
-    onChange={(e) => {
-        const archivo = e.target.files[0];
+          <div className="campo-form campo-foto">
+            <label>Foto</label>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={(e) => {
+                const archivo = e.target.files[0];
 
-        if (!archivo) return;
+                if (!archivo) return;
 
-        setFoto(archivo);
-        setPreview(URL.createObjectURL(archivo));
-    }}
-/>
+                setFoto(archivo);
+                setPreview(URL.createObjectURL(archivo));
+              }}
+            />
 
-{preview && (
-  <div className="preview-foto">
-    <img
-        src={preview}
-        alt="Vista previa"
-    />
-    </div>
-)}
-</div>
+            {preview && (
+              <div className="preview-foto">
+                <img
+                  src={preview}
+                  alt="Vista previa"
+                />
+              </div>
+            )}
+          </div>
           <br />
 
-          <button type="submit" disabled = {!formularioCompleto()}>
+          <button type="submit" disabled={!formularioCompleto()}>
             {esEdicion ? "Actualizar equipo" : "Guardar equipo"}
           </button>
         </form>
