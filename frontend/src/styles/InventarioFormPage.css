@@ -66,3 +66,10 @@ select:disabled {
   object-fit: cover;
   border-radius: 10px;
 }
+
+/*button de guardar formulario*/
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

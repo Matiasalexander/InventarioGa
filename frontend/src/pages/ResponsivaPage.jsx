@@ -141,9 +141,12 @@ const puedePDF = tienePermiso("responsivas.pdf");
           : "Responsiva guardada correctamente."
       );
 
+      navigate("/responsivas/historial");
+
       limpiarFormulario();
 
       await cargarInventarioDisponible();
+
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
