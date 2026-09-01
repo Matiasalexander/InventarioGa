@@ -21,6 +21,7 @@ const dashboardRoutes = require("./routes/dashboard.routes");
 const modelosProcesadorRoutes = require("./routes/modelosProcesador.routes");
 const memoriasRamRoutes = require("./routes/ram.routes");
 const discosDurosRoutes = require("./routes/disco.routes");
+const sistemasOperativosRoutes = require("./routes/sistemasOperativos.routes");
 const rolesRoutes = require("./routes/roles.routes");
 
 require("./config/db");
@@ -78,6 +79,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/modelos-procesador", modelosProcesadorRoutes);
 app.use("/api/memoria_ram", memoriasRamRoutes);
 app.use("/api/disco_duro", discosDurosRoutes);
+app.use("/api/sistemas-operativos", sistemasOperativosRoutes);
 app.use("/api/roles", rolesRoutes);
 
 const PORT = process.env.PORT || 3001;

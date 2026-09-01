@@ -8,6 +8,7 @@ import ProcesadoresPage from "./ProcesadoresPage";
 import ModelosProcesadorPage from "./ModelosProcesadorPage";
 import RamPage from "./RamPage";
 import DiscoPage from "./DiscoPage";
+import SistemasOperativosPage from "./SistemasOperativosPage";
 
 function ProcesadoresModelosPPage ({setLoading}) {
     return (
@@ -29,6 +30,11 @@ function ProcesadoresModelosPPage ({setLoading}) {
            <div className="detail-item">
             <RamPage setLoading={setLoading}></RamPage>
            </div>
+
+            <div className="detail-item">
+                <SistemasOperativosPage setLoading={setLoading}></SistemasOperativosPage>
+            </div>
+
            </div>
         </div>
     </>

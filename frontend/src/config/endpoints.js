@@ -28,7 +28,8 @@ const ENDPOINTS = {
   TIPO_EQUIPO: "/tipo-equipo",
   UNIDADES: "/unidades",
   MEMORIA_RAM: "/memoria_ram",
-  DISCO_DURO: "/disco_duro"
+  DISCO_DURO: "/disco_duro",
+  SISTEMAS_OPERATIVOS: "/sistemas-operativos"
 };
 
 export default ENDPOINTS;
