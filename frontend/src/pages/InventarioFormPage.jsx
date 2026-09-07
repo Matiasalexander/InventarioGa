@@ -549,15 +549,11 @@ function InventarioFormPage({ setLoading }) {
     }
 
     // Corporativo Cancún
-    if (esCorporativoCancun) {
-      if (!formulario.ID_DEPARTAMENTO || !formulario.PUESTO.trim()) {
-        return false;
-      }
-    } else {
-      if (!formulario.UBICACION.trim()) {
-        return false;
-      }
+  if (!esCorporativoCancun) {
+    if (!formulario.UBICACION.trim()) {
+    return false;
     }
+  }
 
     // Equipos con sistema operativo, RAM, disco y procesador
     if (
