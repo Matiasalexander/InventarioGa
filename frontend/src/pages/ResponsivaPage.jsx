@@ -203,7 +203,7 @@ const puedePDF = tienePermiso("responsivas.pdf");
   };
 
   const inventarioFiltrado = inventario.filter((item) => {
-      if (item.ESTATUS?.toLowerCase() != "disponible") {
+      if (item.ESTATUS?.toLowerCase() != "en uso") {
     return false;
   }
     const texto = `
