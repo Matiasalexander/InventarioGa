@@ -440,6 +440,7 @@ const obtenerInventario = async (
       );
 
     return res.json(inventario);
+
   } catch (error) {
     console.error(
       "Error obteniendo inventario:",
@@ -634,14 +635,16 @@ const crearInventario = async (
       PUERTO,
       ID_ESTATUS,
       ESTADO_FISICO,
+
       ACCESO_TEAM_VIEWER,
-      CONTRASEÑA_TEAM_VIEWER,
+      CONTRASENA_TEAM_VIEWER,
+
       ACCESO_ANYDESK,
-      CONTRASEÑA_ANYDESK,
+      CONTRASENA_ANYDESK,
+
       COMENTARIO
     } = req.body;
 
-    
     const idUnidad =
       convertirIdUnidad(ID_UNIDAD);
 
@@ -846,22 +849,25 @@ const crearInventario = async (
         "CORREO",
         Correo
       )
+
+      // Parámetros SIN Ñ
       .input(
         "ACCESO_TEAM_VIEWER",
         ACCESO_TEAM_VIEWER || null
       )
       .input(
-        "CONTRASEÑA_TEAM_VIEWER",
-        CONTRASEÑA_TEAM_VIEWER || null
+        "CONTRASENA_TEAM_VIEWER",
+        CONTRASENA_TEAM_VIEWER || null
       )
       .input(
         "ACCESO_ANYDESK",
         ACCESO_ANYDESK || null
       )
       .input(
-        "CONTRASEÑA_ANYDESK",
-        CONTRASEÑA_ANYDESK || null
+        "CONTRASENA_ANYDESK",
+        CONTRASENA_ANYDESK || null
       )
+
       .input(
         "FOTO",
         sql.VarBinary(sql.MAX),
@@ -899,10 +905,13 @@ const crearInventario = async (
           ID_ESTATUS,
           ESTADO_FISICO,
           CORREO,
+
           ACCESO_TEAM_VIEWER,
           CONTRASEÑA_TEAM_VIEWER,
+
           ACCESO_ANYDESK,
           CONTRASEÑA_ANYDESK,
+
           FOTO,
           COMENTARIO
         )
@@ -934,10 +943,13 @@ const crearInventario = async (
           @ID_ESTATUS,
           @ESTADO_FISICO,
           @CORREO,
+
           @ACCESO_TEAM_VIEWER,
-          @CONTRASEÑA_TEAM_VIEWER,
+          @CONTRASENA_TEAM_VIEWER,
+
           @ACCESO_ANYDESK,
-          @CONTRASEÑA_ANYDESK,
+          @CONTRASENA_ANYDESK,
+
           @FOTO,
           @COMENTARIO
         )
@@ -1079,10 +1091,13 @@ const actualizarInventario = async (
       PUERTO,
       ID_ESTATUS,
       ESTADO_FISICO,
+
       ACCESO_TEAM_VIEWER,
-      CONTRASEÑA_TEAM_VIEWER,
+      CONTRASENA_TEAM_VIEWER,
+
       ACCESO_ANYDESK,
-      CONTRASEÑA_ANYDESK,
+      CONTRASENA_ANYDESK,
+
       COMENTARIO
     } = req.body;
 
@@ -1405,22 +1420,25 @@ const actualizarInventario = async (
         "CORREO",
         Correo
       )
+
+      // Parámetros SIN Ñ
       .input(
         "ACCESO_TEAM_VIEWER",
         ACCESO_TEAM_VIEWER || null
       )
       .input(
-        "CONTRASEÑA_TEAM_VIEWER",
-        CONTRASEÑA_TEAM_VIEWER || null
+        "CONTRASENA_TEAM_VIEWER",
+        CONTRASENA_TEAM_VIEWER || null
       )
       .input(
         "ACCESO_ANYDESK",
         ACCESO_ANYDESK || null
       )
       .input(
-        "CONTRASEÑA_ANYDESK",
-        CONTRASEÑA_ANYDESK || null
+        "CONTRASENA_ANYDESK",
+        CONTRASENA_ANYDESK || null
       )
+
       .input(
         "FOTO",
         sql.VarBinary(sql.MAX),
@@ -1433,64 +1451,116 @@ const actualizarInventario = async (
       .query(`
         UPDATE INVENTARIO_M
         SET
-          ID_UNIDAD = @ID_UNIDAD,
-          LOCALIDAD = @LOCALIDAD,
-          UBICACION = @UBICACION,
+          ID_UNIDAD =
+            @ID_UNIDAD,
+
+          LOCALIDAD =
+            @LOCALIDAD,
+
+          UBICACION =
+            @UBICACION,
+
           ID_TIPO_EQUIPO =
             @ID_TIPO_EQUIPO,
+
           TIPO_IMPRESORA =
             @TIPO_IMPRESORA,
+
           NOMBRE_EQUIPO =
             @NOMBRE_EQUIPO,
+
           ID_DEPARTAMENTO =
             @ID_DEPARTAMENTO,
-          PUESTO = @PUESTO,
-          SERIAL = @SERIAL,
+
+          PUESTO =
+            @PUESTO,
+
+          SERIAL =
+            @SERIAL,
+
           FECHA_FABRICACION =
             @FECHA_FABRICACION,
+
           FECHA_GARANTIA =
             @FECHA_GARANTIA,
+
           FECHA_INICIO =
             @FECHA_INICIO,
-          ID_DISCO = @ID_DISCO,
-          ID_RAM = @ID_RAM,
+
+          ID_DISCO =
+            @ID_DISCO,
+
+          ID_RAM =
+            @ID_RAM,
+
           ID_PROCESADOR =
             @ID_PROCESADOR,
+
           MODELO_PROCESADOR =
             @MODELO_PROCESADOR,
+
           id_sistema_operativo =
             @ID_SISTEMA_OPERATIVO,
+
           LECTOR_DE_HUELLA =
             @LECTOR_DE_HUELLA,
-          CONEXION = @CONEXION,
-          ID_MARCA = @ID_MARCA,
-          MODELO = @MODELO,
-          IP = @IP,
-          PUERTO = @PUERTO,
-          ID_ESTATUS = @ID_ESTATUS,
+
+          CONEXION =
+            @CONEXION,
+
+          ID_MARCA =
+            @ID_MARCA,
+
+          MODELO =
+            @MODELO,
+
+          IP =
+            @IP,
+
+          PUERTO =
+            @PUERTO,
+
+          ID_ESTATUS =
+            @ID_ESTATUS,
+
           ESTADO_FISICO =
             @ESTADO_FISICO,
-          CORREO = @CORREO,
+
+          CORREO =
+            @CORREO,
+
           ACCESO_TEAM_VIEWER =
             @ACCESO_TEAM_VIEWER,
+
           CONTRASEÑA_TEAM_VIEWER =
-            @CONTRASEÑA_TEAM_VIEWER,
+            @CONTRASENA_TEAM_VIEWER,
+
           ACCESO_ANYDESK =
             @ACCESO_ANYDESK,
+
           CONTRASEÑA_ANYDESK =
-            @CONTRASEÑA_ANYDESK,
-          FOTO = @FOTO,
-          COMENTARIO = @COMENTARIO
+            @CONTRASENA_ANYDESK,
+
+          FOTO =
+            @FOTO,
+
+          COMENTARIO =
+            @COMENTARIO
+
         WHERE id = @id
       `);
 
     return res.json({
       message:
         "Equipo actualizado correctamente",
+
       NOMBRE_EQUIPO,
-      Auso: formatearTiempoUso(
-        FECHA_FABRICACION
-      ),
+
+      Auso:
+        formatearTiempoUso(
+          FECHA_FABRICACION
+        ),
+
       Grestante:
         formatearGarantiaRestante(
           FECHA_GARANTIA
@@ -1580,6 +1650,7 @@ const eliminarInventario = async (
       message:
         "Equipo eliminado correctamente"
     });
+
   } catch (error) {
     console.error(
       "Error eliminando inventario:",
@@ -1637,17 +1708,23 @@ const obtenerArbolUnidades = async (
         u.id AS idUnidad,
         u.Ubicacion,
         COUNT(i.id) AS total
+
       FROM Unidades u
+
       INNER JOIN Restaurantes r
         ON u.id_marca = r.id_marca
+
       LEFT JOIN INVENTARIO_M i
         ON i.ID_UNIDAD = u.id
+
       ${where}
+
       GROUP BY
         r.id_marca,
         r.Marca,
         u.id,
         u.Ubicacion
+
       ORDER BY
         r.Marca,
         u.Ubicacion
@@ -1685,6 +1762,7 @@ const obtenerArbolUnidades = async (
     });
 
     return res.json(arbol);
+
   } catch (error) {
     console.error(
       "Error obteniendo árbol de unidades:",
@@ -1836,8 +1914,10 @@ const exportarInventarioExcel = async (
 
         i.ACCESO_TEAM_VIEWER,
         i.CONTRASEÑA_TEAM_VIEWER,
+
         i.ACCESO_ANYDESK,
         i.CONTRASEÑA_ANYDESK,
+
         i.FOTO,
 
         i.COMENTARIO
@@ -1931,3 +2011,4 @@ module.exports = {
   obtenerArbolUnidades,
   exportarInventarioExcel
 };
+

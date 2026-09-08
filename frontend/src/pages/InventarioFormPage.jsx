@@ -446,9 +446,9 @@ function InventarioFormPage({ setLoading }) {
         ESTADO_FISICO: formulario.ESTADO_FISICO,
         CORREO: formulario.CORREO,
         ACCESO_TEAM_VIEWER: formulario.ACCESO_TEAM_VIEWER,
-        CONTRASEÑA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
+        CONTRASENA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
         ACCESO_ANYDESK: formulario.ACCESO_ANYDESK,
-        CONTRASEÑA_ANYDESK: formulario.CONTRASEÑA_ANYDESK,
+        CONTRASENA_ANYDESK: formulario.CONTRASEÑA_ANYDESK,
         COMENTARIO: formulario.COMENTARIO
       }).forEach(([key, value]) => {
 
