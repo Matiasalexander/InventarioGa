@@ -24,6 +24,13 @@ router.get(
   obtenerResponsivas
 );
 
+router.get(
+  "/equipo/:idInventario/historial",
+  verificarToken,
+  verificarPermiso("responsivas.historial"),
+  obtenerResponsivasPorEquipo
+);
+
 router.post(
   "/",
   verificarToken,

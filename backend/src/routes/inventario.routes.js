@@ -39,13 +39,14 @@ router.get(
   verificarPermiso("inventario.ver"),
   obtenerInventario
 );
-
+/*detalles del equipo*/
 router.get(
   "/:id",
   verificarToken,
-  verificarPermiso("inventario.ver"),
+  verificarPermiso("inventario.detalle"),
   obtenerInventarioPorId
 );
+
 
 router.post(
   "/",

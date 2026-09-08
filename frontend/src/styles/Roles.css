@@ -90,10 +90,10 @@
 }
 
 .permiso-check {
-  display: flex;
+  
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  margin: 12px;
   cursor: pointer;
   border-bottom: 1px solid #f1f5f9;
 }

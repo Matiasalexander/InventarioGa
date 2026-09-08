@@ -507,13 +507,57 @@ const obtenerInventarioPorId = async (
       SELECT
         i.*,
 
+        r.Marca AS UNIDAD,
+
+        te.tequipo AS TIPO_EQUIPO,
+
+        d.Nombre_departamento AS DEPARTAMENTO,
+
+        p.Nombre AS PROCESADOR,
+
+        mr.capacidad AS MEMORIA_RAM,
+
+        dd.modelo_disco AS MODELO_DISCO,
+        dd.capacidad AS CAPACIDAD_DISCO,
+
         so.Nombre AS SISTEMA_OPERATIVO,
-        so.N_Version AS VERSION_SISTEMA_OPERATIVO
+        so.N_Version AS VERSION_SISTEMA_OPERATIVO,
+
+        m.Marca AS MARCA,
+
+        e.Estatus_equipo AS ESTATUS
 
       FROM INVENTARIO_M i
 
+      LEFT JOIN Unidades u
+        ON i.ID_UNIDAD = u.id
+
+      LEFT JOIN Restaurantes r
+        ON u.id_marca = r.id_marca
+
+      LEFT JOIN Tipo_equipo te
+        ON i.ID_TIPO_EQUIPO = te.id
+
+      LEFT JOIN DEPARTAMENTOS d
+        ON i.ID_DEPARTAMENTO = d.Id
+
+      LEFT JOIN PROCESADORES p
+        ON i.ID_PROCESADOR = p.id
+
+      LEFT JOIN MEMORIA_RAM mr
+        ON i.ID_RAM = mr.id
+
+      LEFT JOIN DISCO_DURO dd
+        ON i.ID_DISCO = dd.id
+
       LEFT JOIN SISTEMAS_OPERATIVOS so
         ON i.id_sistema_operativo = so.id
+
+      LEFT JOIN Marcas m
+        ON i.ID_MARCA = m.id
+
+      LEFT JOIN Estatus e
+        ON i.ID_ESTATUS = e.Id
 
       WHERE ${condiciones.join(" AND ")}
     `);
@@ -536,6 +580,7 @@ const obtenerInventarioPorId = async (
     }
 
     return res.json(equipo);
+
   } catch (error) {
     console.error(
       "Error obteniendo equipo:",
@@ -596,6 +641,7 @@ const crearInventario = async (
       COMENTARIO
     } = req.body;
 
+    
     const idUnidad =
       convertirIdUnidad(ID_UNIDAD);
 

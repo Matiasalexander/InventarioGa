@@ -122,6 +122,7 @@ function InventarioFormPage({ setLoading }) {
     if (!esEdicion) return;
 
     const equipo = await obtenerInventarioPorId(id);
+    
     if (equipo.FOTO) {
       setPreview(`data:image/jpeg;base64,${equipo.FOTO}`);
     }
