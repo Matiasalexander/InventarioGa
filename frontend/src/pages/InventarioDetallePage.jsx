@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { obtenerInventarioPorId, obtenerPosComplementos } from "../services/inventarioService";
+import { obtenerInventarioPorId, obtenerPosComplementos, actualizarPosComplemento, crearComplementoPOS } from "../services/inventarioService";
 import { obtenerHistorialResponsivasPorEquipo } from "../services/responsivaService";
 
 
@@ -20,7 +20,13 @@ function InventarioDetallePage() {
   const [complementosPOS, setComplementosPOS] = useState([]);
   const [cargandoComplementosPOS, setCargandoComplementosPOS] = useState(false);
   const [complementosCargados, setComplementosCargados] = useState(false);
+  //estados del modal
+  const [mostrarModalComplemento, setMostrarModalComplemento] = useState(false);
+  const [complementoSeleccionado, setComplementoSeleccionado] = useState(null);
+  const [guardandoComplemento, setGuardandoComplemento] = useState(false);
 
+  //mdos
+  const [modoComplemento, setModoComplemento] = useState("editar");
   const [responsivasEquipo, setResponsivasEquipo] = useState({
     activa: null,
     historial: []
@@ -222,7 +228,160 @@ function InventarioDetallePage() {
         setCargandoComplementosPOS(false);
       }
     }
+  };
+
+  const abrirNuevoComplemento = () => {
+  setComplementoSeleccionado({
+    ID_INVENTARIO: equipo.id,
+    TERMINAL_YCS: "",
+    INSTALACION_NOBREAK: "",
+    IP_YCS: "",
+    NUMERO_SERIE: "",
+    CODIGO_ACTIVACION: "",
+    ESTADO: "Asignada",
+    COMENTARIOS: ""
+  });
+
+  setModoComplemento("crear");
+  setMostrarModalComplemento(true);
+};
+  // ==========================================
+  // MODAL DE EDICIÓN DE COMPLEMENTO POS
+  // ==========================================
+
+  const abrirModalComplemento = (complemento) => {
+    setComplementoSeleccionado({
+      ...complemento
+    });
+
+    setMostrarModalComplemento(true);
+    setModoComplemento("editar");
+  };
+
+  const cerrarModalComplemento = () => {
+    if (guardandoComplemento) return;
+
+    setMostrarModalComplemento(false);
+    setComplementoSeleccionado(null);
+  };
+
+  const manejarCambioComplemento = (e) => {
+    const { name, value } = e.target;
+
+    setComplementoSeleccionado((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+const guardarComplemento = async () => {
+  if (!complementoSeleccionado) return;
+
+  try {
+    setGuardandoComplemento(true);
+
+    if (modoComplemento === "crear") {
+
+      await crearComplementoPOS({
+        ID_INVENTARIO: equipo.id,
+
+        TERMINAL_YCS:
+          complementoSeleccionado.TERMINAL_YCS || null,
+
+        INSTALACION_NOBREAK:
+          complementoSeleccionado.INSTALACION_NOBREAK || null,
+
+        IP_YCS:
+          complementoSeleccionado.IP_YCS || null,
+
+        NUMERO_SERIE:
+          complementoSeleccionado.NUMERO_SERIE || null,
+
+        CODIGO_ACTIVACION:
+          complementoSeleccionado.CODIGO_ACTIVACION || null,
+
+        ESTADO: "Asignada",
+
+        COMENTARIOS:
+          complementoSeleccionado.COMENTARIOS || null
+      });
+
+      // Volver a consultar los complementos reales
+      // después de crear uno nuevo
+      const dataActualizada =
+        await obtenerPosComplementos(equipo.id);
+
+      setComplementosPOS(
+        Array.isArray(dataActualizada)
+          ? dataActualizada.filter(Boolean)
+          : []
+      );
+
+      setComplementosCargados(true);
+
+    } else {
+
+      await actualizarPosComplemento(
+        complementoSeleccionado.ID_COMPLEMENTO,
+        {
+          TERMINAL_YCS:
+            complementoSeleccionado.TERMINAL_YCS || null,
+
+          INSTALACION_NOBREAK:
+            complementoSeleccionado.INSTALACION_NOBREAK || null,
+
+          IP_YCS:
+            complementoSeleccionado.IP_YCS || null,
+
+          NUMERO_SERIE:
+            complementoSeleccionado.NUMERO_SERIE || null,
+
+          CODIGO_ACTIVACION:
+            complementoSeleccionado.CODIGO_ACTIVACION || null,
+
+          ESTADO:
+            complementoSeleccionado.ESTADO,
+
+          COMENTARIOS:
+            complementoSeleccionado.COMENTARIOS || null
+        }
+      );
+
+      // Volver a consultar después de editar
+      const dataActualizada =
+        await obtenerPosComplementos(equipo.id);
+
+      setComplementosPOS(
+        Array.isArray(dataActualizada)
+          ? dataActualizada.filter(Boolean)
+          : []
+      );
+
+      setComplementosCargados(true);
+    }
+
+    setMostrarModalComplemento(false);
+    setComplementoSeleccionado(null);
+
+  } catch (error) {
+
+    console.error(
+      "Error guardando complemento POS:",
+      error
+    );
+
+    alert(
+      error.response?.data?.message ||
+      "No fue posible guardar el complemento POS."
+    );
+
+  } finally {
+
+    setGuardandoComplemento(false);
   }
+};
+  //modal de edición
+
 
   return (
 
@@ -546,6 +705,16 @@ function InventarioDetallePage() {
               {mostrarComplementosPOS && (
                 <div className="pos-complementos-content">
 
+                  <div className="pos-complementos-toolbar">
+                    <button
+                      type="button"
+                      className="pos-complemento-agregar-btn"
+                      onClick={abrirNuevoComplemento}
+                    >
+                      + Agregar complemento
+                    </button>
+                  </div>
+
                   {cargandoComplementosPOS ? (
 
                     <p className="comentario">
@@ -636,6 +805,14 @@ function InventarioDetallePage() {
                             {mostrar(complemento.COMENTARIOS)}
                           </strong>
                         </div>
+
+                        <button
+                          type="button"
+                          className="pos-complemento-editar"
+                          onClick={() => abrirModalComplemento(complemento)}
+                        >
+                          Editar complemento
+                        </button>
 
                       </div>
 
@@ -1130,6 +1307,182 @@ function InventarioDetallePage() {
 
 
       </div>
+      {mostrarModalComplemento &&
+        complementoSeleccionado && (
+
+          <div className="pos-modal-overlay">
+
+            <div className="pos-modal">
+
+              <div className="pos-modal-header">
+
+                <h2>
+                  {modoComplemento === "crear"
+                    ? "Agregar complemento POS"
+                    : "Editar complemento POS"}
+                </h2>
+
+                <button
+                  type="button"
+                  className="pos-modal-close"
+                  onClick={cerrarModalComplemento}
+                  disabled={guardandoComplemento}
+                >
+                  ×
+                </button>
+
+              </div>
+
+              <div className="pos-modal-body">
+
+                <div className="detalle-item">
+                  <label>
+                    Terminal YCS
+                  </label>
+
+                  <input
+                    type="text"
+                    name="TERMINAL_YCS"
+                    value={
+                      complementoSeleccionado.TERMINAL_YCS || ""
+                    }
+                    onChange={manejarCambioComplemento}
+                  />
+                </div>
+
+                <div className="detalle-item">
+                  <label>
+                    Instalación NoBreak
+                  </label>
+
+                  <input
+                    type="text"
+                    name="INSTALACION_NOBREAK"
+                    value={
+                      complementoSeleccionado.INSTALACION_NOBREAK || ""
+                    }
+                    onChange={manejarCambioComplemento}
+                  />
+                </div>
+
+                <div className="detalle-item">
+                  <label>
+                    IP YCS
+                  </label>
+
+                  <input
+                    type="text"
+                    name="IP_YCS"
+                    value={
+                      complementoSeleccionado.IP_YCS || ""
+                    }
+                    onChange={manejarCambioComplemento}
+                  />
+                </div>
+
+                <div className="detalle-item">
+                  <label>
+                    Número de serie
+                  </label>
+
+                  <input
+                    type="text"
+                    name="NUMERO_SERIE"
+                    value={
+                      complementoSeleccionado.NUMERO_SERIE || ""
+                    }
+                    onChange={manejarCambioComplemento}
+                  />
+                </div>
+
+                <div className="detalle-item">
+                  <label>
+                    Código de activación
+                  </label>
+
+                  <input
+                    type="text"
+                    name="CODIGO_ACTIVACION"
+                    value={
+                      complementoSeleccionado.CODIGO_ACTIVACION || ""
+                    }
+                    onChange={manejarCambioComplemento}
+                  />
+                </div>
+
+                <div className="detalle-item">
+                  <label>
+                    Estado
+                  </label>
+
+                  <select
+                    name="ESTADO"
+                    value={
+                      complementoSeleccionado.ESTADO || "Nueva"
+                    }
+                    onChange={manejarCambioComplemento}
+                  >
+                    <option value="Nueva">
+                      Nueva
+                    </option>
+
+                    <option value="Asignada">
+                      Asignada
+                    </option>
+
+                    <option value="Dañada">
+                      Dañada
+                    </option>
+                  </select>
+                </div>
+
+                <div className="detalle-item">
+                  <label>
+                    Comentarios
+                  </label>
+
+                  <textarea
+                    name="COMENTARIOS"
+                    rows="4"
+                    value={
+                      complementoSeleccionado.COMENTARIOS || ""
+                    }
+                    onChange={manejarCambioComplemento}
+                  />
+                </div>
+
+              </div>
+
+              <div className="pos-modal-footer">
+
+                <button
+                  type="button"
+                  onClick={cerrarModalComplemento}
+                  disabled={guardandoComplemento}
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  className="pos-modal-guardar"
+                  onClick={guardarComplemento}
+                  disabled={guardandoComplemento}
+                >
+                  {guardandoComplemento
+                    ? "Guardando..."
+                    : modoComplemento === "crear"
+                      ? "Agregar complemento"
+                      : "Guardar cambios"}
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )}
 
     </div>
 

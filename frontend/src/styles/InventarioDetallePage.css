@@ -99,3 +99,164 @@
   padding-top: 20px;
   border-top: 1px solid #ddd;
 }
+
+/*modal complemento*/
+/* ==========================================
+   MODAL COMPLEMENTO POS
+========================================== */
+
+.pos-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 9999;
+}
+
+.pos-modal {
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+
+  background: #ffffff;
+
+  border-radius: 12px;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.pos-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 18px 22px;
+
+  border-bottom: 1px solid #ddd;
+}
+
+.pos-modal-header h2 {
+  margin: 0;
+  color: #222;
+}
+
+.pos-modal-close {
+  border: none;
+  background: transparent;
+
+  font-size: 28px;
+
+  cursor: pointer;
+}
+
+.pos-modal-body {
+  padding: 22px;
+
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+}
+
+.pos-modal-body .detalle-item {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.pos-modal-body label {
+  font-weight: 600;
+}
+
+.pos-modal-body input,
+.pos-modal-body select,
+.pos-modal-body textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border: 1px solid #ccc;
+  border-radius: 6px;
+
+  font-size: 14px;
+}
+
+.pos-modal-body textarea {
+  resize: vertical;
+}
+
+.pos-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  padding: 18px 22px;
+
+  border-top: 1px solid #ddd;
+}
+
+.pos-modal-footer button {
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+.pos-modal-guardar {
+  font-weight: 600;
+}
+
+.pos-complemento-editar {
+  width: 100%;
+
+  margin-top: 12px;
+
+  padding: 10px 14px;
+
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+
+  .pos-modal-overlay {
+    padding: 10px;
+  }
+
+  .pos-modal {
+    max-height: 95vh;
+  }
+
+  .pos-modal-footer {
+    flex-direction: column;
+  }
+
+  .pos-modal-footer button {
+    width: 100%;
+  }
+
+}
