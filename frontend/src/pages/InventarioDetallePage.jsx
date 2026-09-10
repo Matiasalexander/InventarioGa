@@ -205,24 +205,24 @@ function InventarioDetallePage() {
     esWorkstationpos ||
     (esImpresora && equipo.CONEXION === "wifi");
 
-    const  esPOS = String(equipo.TIPO_EQUIPO || "").trim().toUpperCase()==="POS";
-    //function para abrir complementosPOS
-    const manejarToggleComplementosPOS = async () => {
-      const nuevoEstado = !mostrarComplementosPOS;
-      setMostrarComplementosPOS(nuevoEstado);
-      if (nuevoEstado && !complementosCargados) {
-        try {
-          setCargandoComplementosPOS(true);
-          const data = await obtenerPosComplementos(equipo.id);
-          setComplementosPOS(data);
-          setComplementosCargados(true);
-        } catch (error) {
-          console.error("error obteniendo complementos de pos", error);
-        } finally {
-          setCargandoComplementosPOS(false);
-        }
+  const esPOS = String(equipo.TIPO_EQUIPO || "").trim().toUpperCase() === "POS";
+  //function para abrir complementosPOS
+  const manejarToggleComplementosPOS = async () => {
+    const nuevoEstado = !mostrarComplementosPOS;
+    setMostrarComplementosPOS(nuevoEstado);
+    if (nuevoEstado && !complementosCargados) {
+      try {
+        setCargandoComplementosPOS(true);
+        const data = await obtenerPosComplementos(equipo.id);
+        setComplementosPOS(data);
+        setComplementosCargados(true);
+      } catch (error) {
+        console.error("error obteniendo complementos de pos", error);
+      } finally {
+        setCargandoComplementosPOS(false);
       }
     }
+  }
 
   return (
 
@@ -511,11 +511,10 @@ function InventarioDetallePage() {
 
               {equipo.SISTEMA_OPERATIVO
 
-                ? `${equipo.SISTEMA_OPERATIVO}${
-                    equipo.VERSION_SISTEMA_OPERATIVO
-                      ? ` - ${equipo.VERSION_SISTEMA_OPERATIVO}`
-                      : ""
-                  }`
+                ? `${equipo.SISTEMA_OPERATIVO}${equipo.VERSION_SISTEMA_OPERATIVO
+                  ? ` - ${equipo.VERSION_SISTEMA_OPERATIVO}`
+                  : ""
+                }`
 
                 : "N/A"
 
@@ -529,126 +528,126 @@ function InventarioDetallePage() {
     COMPLEMENTOS DE POS
 ====================================== */}
 
-{esPOS && (
-  <div className="card pos-complementos-card">
+          {esPOS && (
+            <div className="card pos-complementos-card">
 
-    <button
-      type="button"
-      className="pos-complementos-header"
-      onClick={manejarToggleComplementosPOS}
-    >
-      <h2>Complementos de POS</h2>
+              <button
+                type="button"
+                className="pos-complementos-header"
+                onClick={manejarToggleComplementosPOS}
+              >
+                <h2>Complementos de POS</h2>
 
-      <span>
-        {mostrarComplementosPOS ? "▲" : "▼"}
-      </span>
-    </button>
+                <span>
+                  {mostrarComplementosPOS ? "▲" : "▼"}
+                </span>
+              </button>
 
-    {mostrarComplementosPOS && (
-      <div className="pos-complementos-content">
+              {mostrarComplementosPOS && (
+                <div className="pos-complementos-content">
 
-        {cargandoComplementosPOS ? (
+                  {cargandoComplementosPOS ? (
 
-          <p className="comentario">
-            Cargando complementos...
-          </p>
+                    <p className="comentario">
+                      Cargando complementos...
+                    </p>
 
-        ) : complementosPOS.length === 0 ? (
+                  ) : complementosPOS.length === 0 ? (
 
-          <p className="comentario">
-            No hay complementos registrados para este POS.
-          </p>
+                    <p className="comentario">
+                      No hay complementos registrados para este POS.
+                    </p>
 
-        ) : (
+                  ) : (
 
-          complementosPOS.map((complemento) => (
+                    complementosPOS.map((complemento) => (
 
-            <div
-              className="pos-complemento"
-              key={complemento.ID_COMPLEMENTO}
-            >
+                      <div
+                        className="pos-complemento"
+                        key={complemento.ID_COMPLEMENTO}
+                      >
 
-              <div className="detalle-item">
-                <span>Terminal YCS</span>
-                <strong>
-                  {mostrar(complemento.TERMINAL_YCS)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Terminal YCS</span>
+                          <strong>
+                            {mostrar(complemento.TERMINAL_YCS)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>Instalación NoBreak</span>
-                <strong>
-                  {mostrar(complemento.INSTALACION_NOBREAK)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Instalación NoBreak</span>
+                          <strong>
+                            {mostrar(complemento.INSTALACION_NOBREAK)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>IP YCS</span>
-                <strong>
-                  {mostrar(complemento.IP_YCS)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>IP YCS</span>
+                          <strong>
+                            {mostrar(complemento.IP_YCS)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>Número de serie</span>
-                <strong>
-                  {mostrar(complemento.NUMERO_SERIE)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Número de serie</span>
+                          <strong>
+                            {mostrar(complemento.NUMERO_SERIE)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>Código de activación</span>
-                <strong>
-                  {mostrar(complemento.CODIGO_ACTIVACION)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Código de activación</span>
+                          <strong>
+                            {mostrar(complemento.CODIGO_ACTIVACION)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>Estado</span>
-                <strong>
-                  {mostrar(complemento.ESTADO)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Estado</span>
+                          <strong>
+                            {mostrar(complemento.ESTADO)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>Fecha de registro</span>
-                <strong>
-                  {formatearFecha(complemento.FECHA_REGISTRO)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Fecha de registro</span>
+                          <strong>
+                            {formatearFecha(complemento.FECHA_REGISTRO)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>Fecha asignación</span>
-                <strong>
-                  {formatearFecha(complemento.FECHA_ASIGNACION)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Fecha asignación</span>
+                          <strong>
+                            {formatearFecha(complemento.FECHA_ASIGNACION)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>Fecha baja</span>
-                <strong>
-                  {formatearFecha(complemento.FECHA_BAJA)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Fecha baja</span>
+                          <strong>
+                            {formatearFecha(complemento.FECHA_BAJA)}
+                          </strong>
+                        </div>
 
-              <div className="detalle-item">
-                <span>Comentarios</span>
-                <strong>
-                  {mostrar(complemento.COMENTARIOS)}
-                </strong>
-              </div>
+                        <div className="detalle-item">
+                          <span>Comentarios</span>
+                          <strong>
+                            {mostrar(complemento.COMENTARIOS)}
+                          </strong>
+                        </div>
+
+                      </div>
+
+                    ))
+
+                  )}
+
+                </div>
+              )}
 
             </div>
-
-          ))
-
-        )}
-
-      </div>
-    )}
-
-  </div>
-)}
+          )}
 
         </div>
 
@@ -721,7 +720,7 @@ function InventarioDetallePage() {
             <strong>
 
               {equipo.Auso !== null &&
-              equipo.Auso !== undefined
+                equipo.Auso !== undefined
 
                 ? `${equipo.Auso} días`
 
@@ -741,7 +740,7 @@ function InventarioDetallePage() {
             <strong>
 
               {equipo.Grestante !== null &&
-              equipo.Grestante !== undefined
+                equipo.Grestante !== undefined
 
                 ? `${equipo.Grestante} días`
 
@@ -903,65 +902,65 @@ function InventarioDetallePage() {
           esWorkstationpos ||
           esTabletPOS) && (
 
-          <div className="card">
+            <div className="card">
 
-            <h2>Accesos remotos</h2>
+              <h2>Accesos remotos</h2>
 
 
-            <div className="detalle-item">
+              <div className="detalle-item">
 
-              <span>Acceso TeamViewer</span>
+                <span>Acceso TeamViewer</span>
 
-              <strong>
-                {mostrar(
-                  equipo.ACCESO_TEAM_VIEWER
-                )}
-              </strong>
+                <strong>
+                  {mostrar(
+                    equipo.ACCESO_TEAM_VIEWER
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div className="detalle-item">
+
+                <span>Contraseña TeamViewer</span>
+
+                <strong>
+                  {mostrar(
+                    equipo.CONTRASEÑA_TEAM_VIEWER
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div className="detalle-item">
+
+                <span>Acceso AnyDesk</span>
+
+                <strong>
+                  {mostrar(
+                    equipo.ACCESO_ANYDESK
+                  )}
+                </strong>
+
+              </div>
+
+
+              <div className="detalle-item">
+
+                <span>Contraseña AnyDesk</span>
+
+                <strong>
+                  {mostrar(
+                    equipo.CONTRASEÑA_ANYDESK
+                  )}
+                </strong>
+
+              </div>
 
             </div>
 
-
-            <div className="detalle-item">
-
-              <span>Contraseña TeamViewer</span>
-
-              <strong>
-                {mostrar(
-                  equipo.CONTRASEÑA_TEAM_VIEWER
-                )}
-              </strong>
-
-            </div>
-
-
-            <div className="detalle-item">
-
-              <span>Acceso AnyDesk</span>
-
-              <strong>
-                {mostrar(
-                  equipo.ACCESO_ANYDESK
-                )}
-              </strong>
-
-            </div>
-
-
-            <div className="detalle-item">
-
-              <span>Contraseña AnyDesk</span>
-
-              <strong>
-                {mostrar(
-                  equipo.CONTRASEÑA_ANYDESK
-                )}
-              </strong>
-
-            </div>
-
-          </div>
-
-        )}
+          )}
 
 
         {/* ======================================
@@ -1017,8 +1016,8 @@ function InventarioDetallePage() {
               {equipo.NUM_RESPONSIVA
 
                 ? `RESP-${String(
-                    equipo.NUM_RESPONSIVA
-                  ).padStart(5, "0")}`
+                  equipo.NUM_RESPONSIVA
+                ).padStart(5, "0")}`
 
                 : "N/A"
 

@@ -18,31 +18,23 @@ export const obtenerInventarioPorId = async (id) => {
   return data;
 };
 export const crearInventario = async (formData) => {
-    const { data } = await api.post(
-        "/inventario",
-        formData,
-        {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        }
-    );
+  const { data } = await api.post("/inventario", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
-    return data;
+  return data;
 };
 
 export const actualizarInventario = async (id, formData) => {
-    const { data } = await api.put(
-        `/inventario/${id}`,
-        formData,
-        {
-            headers: {
-                "Content-Type": "multipart/form-data"
-            }
-        }
-    );
+  const { data } = await api.put(`/inventario/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
-    return data;
+  return data;
 };
 
 export const eliminarInventario = async (id) => {
@@ -68,14 +60,22 @@ const BASE_POS_COMPLEMENTOS = "/pos-complementos";
 
 export const obtenerPosComplementos = async (idInventario) => {
   const { data } = await api.get(
-    `${BASE_POS_COMPLEMENTOS}/inventario/${idInventario}`
+    `${BASE_POS_COMPLEMENTOS}/inventario/${idInventario}`,
   );
 
   return data;
 };
 
-export const crearComplementoPOS = async(data) => {
-  const {data: response} = await api.post(BASE_POS_COMPLEMENTOS, data);
+export const crearComplementoPOS = async (data) => {
+  const { data: response } = await api.post(BASE_POS_COMPLEMENTOS, data);
 
   return response;
-}
+};
+
+export const actualizarPosComplemento = async (idComplemento, data) => {
+  const { data: response } = await api.put(
+    `${BASE_POS_COMPLEMENTOS}/${idComplemento}`,
+    data,
+  );
+  return response;
+};
