@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import {
   crearInventario,
   actualizarInventario,
-  obtenerInventarioPorId
+  obtenerInventarioPorId, crearComplementoPOS
 } from "../services/inventarioService";
 import { obtenerCatalogos } from "../services/catalogosService";
 import "../styles/InventarioFormPage.css";
@@ -26,6 +26,16 @@ function InventarioFormPage({ setLoading }) {
   const [errorSerial, setErrorSerial] = useState("");
   const [foto, setFoto] = useState(null);
   const [preview, setPreview] = useState("");
+  //despliegue de complementos POS
+  const [complementoPOS, setComplementoPOS] = useState({
+  TERMINAL_YCS: "",
+  INSTALACION_NOBREAK: "",
+  IP_YCS: "",
+  NUMERO_SERIE: "",
+  CODIGO_ACTIVACION: "",
+  ESTADO: "Asignada",
+  COMENTARIOS: ""
+});
   //setear el correo del usuario
   const [correo, setCorreo] = useState("");
 
@@ -465,9 +475,16 @@ function InventarioFormPage({ setLoading }) {
         toast.success("Equipo editado exitosamente");
 
       } else {
-        await crearInventario(formData);
-        toast.success("Equipo creado exitosamente");
-
+        const respuesta = await crearInventario(formData);
+        //si hay equipo pos se crea complemento
+        if (esPOS) {
+          await crearComplementoPOS({
+            ID_INVENTARIO: respuesta.id,
+            ...complementoPOS,
+            ESTADO: "Asignada"
+          });
+        }
+        toast.success("Equipo creado correctamente");
       }
 
       //imagen-test
@@ -500,6 +517,9 @@ function InventarioFormPage({ setLoading }) {
   const esWorkstationpos = Number(formulario.ID_TIPO_EQUIPO) === 7;
   const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 13;
   const esKDS = Number(formulario.ID_TIPO_EQUIPO) === 21;
+  //es POS
+  const tipoEquipoSeleccionado = catalogos.tiposEquipo.find((item)=>String(item.id)===String(formulario.ID_TIPO_EQUIPO));
+  const esPOS = String(tipoEquipoSeleccionado?.tequipo || "").trim().toUpperCase() === "POS";
 
   {/*Equipos que llevan IP*/ }
   const esSwitch = Number(formulario.ID_TIPO_EQUIPO) === 17;
@@ -1102,6 +1122,106 @@ function InventarioFormPage({ setLoading }) {
               </select>
             </div>
           </div>
+          {esPOS && (
+  <div className="formulario-card pos-complementos-form">
+
+    <h2>Complementos de POS</h2>
+
+    <div className="campo-form">
+      <label>Terminal YCS</label>
+      <input
+        name="TERMINAL_YCS"
+        placeholder="Terminal YCS"
+        value={complementoPOS.TERMINAL_YCS}
+        onChange={(e) =>
+          setComplementoPOS((prev) => ({
+            ...prev,
+            TERMINAL_YCS: e.target.value
+          }))
+        }
+      />
+    </div>
+
+    <div className="campo-form">
+      <label>Instalación NoBreak</label>
+      <select
+        name="INSTALACION_NOBREAK"
+        value={complementoPOS.INSTALACION_NOBREAK}
+        onChange={(e) =>
+          setComplementoPOS((prev) => ({
+            ...prev,
+            INSTALACION_NOBREAK: e.target.value
+          }))
+        }
+      >
+        <option value="">Selecciona una opción</option>
+        <option value="Sí">Sí</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+
+    <div className="campo-form">
+      <label>IP YCS</label>
+      <input
+        name="IP_YCS"
+        placeholder="000.000.0.0"
+        value={complementoPOS.IP_YCS}
+        onChange={(e) =>
+          setComplementoPOS((prev) => ({
+            ...prev,
+            IP_YCS: e.target.value
+          }))
+        }
+      />
+    </div>
+
+    <div className="campo-form">
+      <label>Número de serie</label>
+      <input
+        name="NUMERO_SERIE"
+        placeholder="Número de serie del complemento"
+        value={complementoPOS.NUMERO_SERIE}
+        onChange={(e) =>
+          setComplementoPOS((prev) => ({
+            ...prev,
+            NUMERO_SERIE: e.target.value
+          }))
+        }
+      />
+    </div>
+
+    <div className="campo-form">
+      <label>Código de activación</label>
+      <input
+        name="CODIGO_ACTIVACION"
+        placeholder="Código de activación"
+        value={complementoPOS.CODIGO_ACTIVACION}
+        onChange={(e) =>
+          setComplementoPOS((prev) => ({
+            ...prev,
+            CODIGO_ACTIVACION: e.target.value
+          }))
+        }
+      />
+    </div>
+
+    <div className="campo-form">
+      <label>Comentarios</label>
+      <input
+        name="COMENTARIOS"
+        placeholder="Observaciones del complemento"
+        value={complementoPOS.COMENTARIOS}
+        onChange={(e) =>
+          setComplementoPOS((prev) => ({
+            ...prev,
+            COMENTARIOS: e.target.value
+          }))
+        }
+      />
+    </div>
+
+  </div>
+)}
 
           <div className="formulario-card">
             <h2>Estado / estatus del equipo</h2>

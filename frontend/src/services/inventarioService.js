@@ -1,3 +1,4 @@
+import { data } from "react-router-dom";
 import api from "../api/axios";
 import ENDPOINTS from "../config/endpoints";
 
@@ -62,3 +63,19 @@ export const exportarInventarioExcel = async (unidad = null) => {
 
   return response.data;
 };
+
+const BASE_POS_COMPLEMENTOS = "/pos-complementos";
+
+export const obtenerPosComplementos = async (idInventario) => {
+  const { data } = await api.get(
+    `${BASE_POS_COMPLEMENTOS}/inventario/${idInventario}`
+  );
+
+  return data;
+};
+
+export const crearComplementoPOS = async(data) => {
+  const {data: response} = await api.post(BASE_POS_COMPLEMENTOS, data);
+
+  return response;
+}

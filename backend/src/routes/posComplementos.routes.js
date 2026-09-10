@@ -11,7 +11,7 @@ const {
 } = require("../middleware/permisos.middleware");
 
 const {
-  obtenerComplementosPorInventario
+  obtenerComplementosPorInventario, crearComplementoPOS
 } = require("../controllers/posComplementos.controller");
 
 
@@ -21,6 +21,8 @@ router.get(
   verificarPermiso("inventario.detalle"),
   obtenerComplementosPorInventario
 );
+
+router.post("/", verificarToken, verificarPermiso("inventario.crear"), crearComplementoPOS);
 
 
 module.exports = router;

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { obtenerInventarioPorId } from "../services/inventarioService";
+import { obtenerInventarioPorId, obtenerPosComplementos } from "../services/inventarioService";
 import { obtenerHistorialResponsivasPorEquipo } from "../services/responsivaService";
+
 
 import "../styles/InventarioDetallePage.css";
 
@@ -13,6 +14,12 @@ function InventarioDetallePage() {
   const navigate = useNavigate();
 
   const [equipo, setEquipo] = useState(null);
+
+  //estados para POS
+  const [mostrarComplementosPOS, setMostrarComplementosPOS] = useState(false);
+  const [complementosPOS, setComplementosPOS] = useState([]);
+  const [cargandoComplementosPOS, setCargandoComplementosPOS] = useState(false);
+  const [complementosCargados, setComplementosCargados] = useState(false);
 
   const [responsivasEquipo, setResponsivasEquipo] = useState({
     activa: null,
@@ -198,6 +205,24 @@ function InventarioDetallePage() {
     esWorkstationpos ||
     (esImpresora && equipo.CONEXION === "wifi");
 
+    const  esPOS = String(equipo.TIPO_EQUIPO || "").trim().toUpperCase()==="POS";
+    //function para abrir complementosPOS
+    const manejarToggleComplementosPOS = async () => {
+      const nuevoEstado = !mostrarComplementosPOS;
+      setMostrarComplementosPOS(nuevoEstado);
+      if (nuevoEstado && !complementosCargados) {
+        try {
+          setCargandoComplementosPOS(true);
+          const data = await obtenerPosComplementos(equipo.id);
+          setComplementosPOS(data);
+          setComplementosCargados(true);
+        } catch (error) {
+          console.error("error obteniendo complementos de pos", error);
+        } finally {
+          setCargandoComplementosPOS(false);
+        }
+      }
+    }
 
   return (
 
@@ -499,6 +524,131 @@ function InventarioDetallePage() {
             </strong>
 
           </div>
+
+          {/* ======================================
+    COMPLEMENTOS DE POS
+====================================== */}
+
+{esPOS && (
+  <div className="card pos-complementos-card">
+
+    <button
+      type="button"
+      className="pos-complementos-header"
+      onClick={manejarToggleComplementosPOS}
+    >
+      <h2>Complementos de POS</h2>
+
+      <span>
+        {mostrarComplementosPOS ? "▲" : "▼"}
+      </span>
+    </button>
+
+    {mostrarComplementosPOS && (
+      <div className="pos-complementos-content">
+
+        {cargandoComplementosPOS ? (
+
+          <p className="comentario">
+            Cargando complementos...
+          </p>
+
+        ) : complementosPOS.length === 0 ? (
+
+          <p className="comentario">
+            No hay complementos registrados para este POS.
+          </p>
+
+        ) : (
+
+          complementosPOS.map((complemento) => (
+
+            <div
+              className="pos-complemento"
+              key={complemento.ID_COMPLEMENTO}
+            >
+
+              <div className="detalle-item">
+                <span>Terminal YCS</span>
+                <strong>
+                  {mostrar(complemento.TERMINAL_YCS)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Instalación NoBreak</span>
+                <strong>
+                  {mostrar(complemento.INSTALACION_NOBREAK)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>IP YCS</span>
+                <strong>
+                  {mostrar(complemento.IP_YCS)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Número de serie</span>
+                <strong>
+                  {mostrar(complemento.NUMERO_SERIE)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Código de activación</span>
+                <strong>
+                  {mostrar(complemento.CODIGO_ACTIVACION)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Estado</span>
+                <strong>
+                  {mostrar(complemento.ESTADO)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Fecha de registro</span>
+                <strong>
+                  {formatearFecha(complemento.FECHA_REGISTRO)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Fecha asignación</span>
+                <strong>
+                  {formatearFecha(complemento.FECHA_ASIGNACION)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Fecha baja</span>
+                <strong>
+                  {formatearFecha(complemento.FECHA_BAJA)}
+                </strong>
+              </div>
+
+              <div className="detalle-item">
+                <span>Comentarios</span>
+                <strong>
+                  {mostrar(complemento.COMENTARIOS)}
+                </strong>
+              </div>
+
+            </div>
+
+          ))
+
+        )}
+
+      </div>
+    )}
+
+  </div>
+)}
 
         </div>
 
