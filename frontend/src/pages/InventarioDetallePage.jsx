@@ -573,7 +573,7 @@ function InventarioDetallePage() {
               {equipo.Auso !== null &&
               equipo.Auso !== undefined
 
-                ? `${equipo.Auso} días`
+                ? `${equipo.Auso}`
 
                 : "N/A"
 
@@ -593,7 +593,7 @@ function InventarioDetallePage() {
               {equipo.Grestante !== null &&
               equipo.Grestante !== undefined
 
-                ? `${equipo.Grestante} días`
+                ? `${equipo.Grestante}`
 
                 : "N/A"
 
@@ -655,7 +655,7 @@ function InventarioDetallePage() {
               <span>Disco duro</span>
 
               <strong>
-                {mostrar(equipo.DISCO_DURO)}
+                {mostrar(equipo.CAPACIDAD_DISCO)}
               </strong>
 
             </div>
