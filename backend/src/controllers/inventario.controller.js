@@ -29,55 +29,81 @@ const normalizarTexto = (valor) => {
     .toUpperCase();
 };
 
-const formatearDiasComoAniosYDias = (
-  diasTotales
-) => {
-  const años = Math.floor(diasTotales / 365);
-  const dias = diasTotales % 365;
+const formatearAniosMesesDias = (fechaInicio, fechaFin) => {
+  if (!fechaInicio || !fechaFin) return "";
 
-  if (años === 0) {
-    return `${dias} ${
-      dias === 1 ? "día" : "días"
-    }`;
-  }
+  const inicio = new Date(fechaInicio);
+  const fin = new Date(fechaFin);
 
-  return `${años} ${
-    años === 1 ? "año" : "años"
-  } y ${dias} ${
-    dias === 1 ? "día" : "días"
-  }`;
-};
-
-const formatearTiempoUso = (
-  fechaFabricacion
-) => {
-  if (!fechaFabricacion) return "";
-
-  const inicio = new Date(fechaFabricacion);
-  const hoy = new Date();
-
-  if (Number.isNaN(inicio.getTime())) {
+  if (
+    Number.isNaN(inicio.getTime()) ||
+    Number.isNaN(fin.getTime())
+  ) {
     return "";
   }
 
-  const diferenciaMs = hoy - inicio;
-
-  const diasTotales = Math.floor(
-    diferenciaMs / (1000 * 60 * 60 * 24)
-  );
-
-  if (diasTotales < 0) {
+  if (fin < inicio) {
     return "0 días";
   }
 
-  return formatearDiasComoAniosYDias(
-    diasTotales
+  let anios = fin.getFullYear() - inicio.getFullYear();
+  let meses = fin.getMonth() - inicio.getMonth();
+  let dias = fin.getDate() - inicio.getDate();
+
+  if (dias < 0) {
+    meses--;
+
+    const diasMesAnterior = new Date(
+      fin.getFullYear(),
+      fin.getMonth(),
+      0
+    ).getDate();
+
+    dias += diasMesAnterior;
+  }
+
+  if (meses < 0) {
+    anios--;
+    meses += 12;
+  }
+
+  const partes = [];
+
+  if (anios > 0) {
+    partes.push(
+      `${anios} ${anios === 1 ? "año" : "años"}`
+    );
+  }
+
+  if (meses > 0) {
+    partes.push(
+      `${meses} ${meses === 1 ? "mes" : "meses"}`
+    );
+  }
+
+  if (dias > 0 || partes.length === 0) {
+    partes.push(
+      `${dias} ${dias === 1 ? "día" : "días"}`
+    );
+  }
+
+  return partes.join(", ");
+};
+
+
+const formatearTiempoUso = (fechaFabricacion) => {
+  if (!fechaFabricacion) return "";
+
+  const hoy = new Date();
+
+  return formatearAniosMesesDias(
+    fechaFabricacion,
+    hoy
   );
 };
 
-const formatearGarantiaRestante = (
-  fechaGarantia
-) => {
+
+const formatearGarantiaRestante = (fechaGarantia) => {
   if (!fechaGarantia) return "";
 
   const fin = new Date(fechaGarantia);
@@ -87,18 +113,13 @@ const formatearGarantiaRestante = (
     return "";
   }
 
-  const diferenciaMs = fin - hoy;
-
-  const diasTotales = Math.floor(
-    diferenciaMs / (1000 * 60 * 60 * 24)
-  );
-
-  if (diasTotales < 0) {
+  if (fin < hoy) {
     return "Garantía vencida";
   }
 
-  return formatearDiasComoAniosYDias(
-    diasTotales
+  return formatearAniosMesesDias(
+    hoy,
+    fin
   );
 };
 

@@ -660,17 +660,6 @@ function InventarioDetallePage() {
 
             </div>
 
-
-            <div className="detalle-item">
-
-              <span>Lector de huella</span>
-
-              <strong>
-                {mostrar(equipo.LECTOR_DE_HUELLA)}
-              </strong>
-
-            </div>
-
           </div>
 
         )}
