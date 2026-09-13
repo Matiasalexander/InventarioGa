@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import "../styles/InventarioPage.css";
 import InventarioAccionesMenu from "../components/InventarioAccionesMenu";
+import FiltrosModal from "../components/FiltrosModal";
 import { FileUp } from "lucide-react";
 import { Search } from "lucide-react";
 
@@ -96,13 +97,10 @@ const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
     }
   };
 
-  useEffect(() => {
-    cargarArbolUnidades();
-
-    // NUEVO:
-    // Si había una localidad guardada, vuelve a cargar esa localidad.
-    cargarInventario(unidadSeleccionada);
-  }, []);
+useEffect(() => {
+  cargarArbolUnidades();
+  cargarInventario();
+}, []);
 
   useEffect(() => {
     sessionStorage.setItem(
@@ -134,6 +132,7 @@ const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
   // NUEVO:
   // Las localidades dependen del restaurante seleccionado.
   const localidadesDisponibles = restauranteActual?.children || [];
+  const localidadSeleccionada = useMemo(()=>localidadesDisponibles.find((unidad)=>Number(unidad.id) === Number(unidadSeleccionada)), [localidadesDisponibles, unidadSeleccionada]);
 
   const inventarioFiltrado = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
@@ -165,6 +164,10 @@ const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
       const coincideRestaurante =
         !restauranteActual?.nombre ||
         item.UNIDAD === restauranteActual.nombre;
+        const coincideLocalidad =
+  !localidadSeleccionada?.nombre ||
+  String(item.LOCALIDAD || "").trim().toLowerCase() ===
+    String(localidadSeleccionada.nombre || "").trim().toLowerCase();
 
       const coincideTipo =
         !filtros.tipoEquipo ||
@@ -191,6 +194,7 @@ const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
       return (
         coincideBusqueda &&
         coincideRestaurante &&
+        coincideLocalidad &&
         coincideTipo &&
         coincideMarca &&
         coincideEstatus &&
@@ -202,7 +206,8 @@ const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
     busqueda,
     inventario,
     filtros,
-    restauranteActual
+    restauranteActual,
+    localidadSeleccionada
   ]);
 // NUEVO: cálculos de paginación
 const totalRegistros = inventarioFiltrado.length;
@@ -272,7 +277,7 @@ const inventarioPaginado = inventarioFiltrado.slice(
 
   // NUEVO:
   // Selección del restaurante desde el panel.
-  const handleRestauranteChange = async (event) => {
+  const handleRestauranteChange =  (event) => {
     const idRestaurante = event.target.value;
 
     setRestauranteSeleccionado(idRestaurante);
@@ -294,50 +299,73 @@ const inventarioPaginado = inventarioFiltrado.slice(
     sessionStorage.removeItem("inventario_busqueda");
 
     // Carga el inventario general y el useMemo filtra por restaurante.
-    await cargarInventario();
   };
 
   // NUEVO:
   // Selección de la localidad/unidad.
-  const handleLocalidadChange = async (event) => {
-    const idUnidad = event.target.value;
+const handleLocalidadChange = (event) => {
+  const idUnidad = event.target.value;
 
-    if (!idUnidad) {
-      setUnidadSeleccionada(null);
-      setUnidadNombreSeleccionada("");
+  if (!idUnidad) {
+    setUnidadSeleccionada(null);
+    setUnidadNombreSeleccionada("");
 
-      sessionStorage.removeItem("inventario_unidad_id");
-      sessionStorage.removeItem("inventario_unidad_nombre");
+    sessionStorage.removeItem("inventario_unidad_id");
+    sessionStorage.removeItem("inventario_unidad_nombre");
 
-      await cargarInventario();
-      return;
-    }
+    return;
+  }
 
-    const unidad = localidadesDisponibles.find(
-      (item) => String(item.id) === String(idUnidad)
-    );
+  const unidad = localidadesDisponibles.find(
+    (item) => String(item.id) === String(idUnidad)
+  );
 
-    const nombreCompleto = unidad
-      ? `${restauranteActual?.nombre || ""} / ${unidad.nombre}`
-      : "";
+  const nombreCompleto = unidad
+    ? `${restauranteActual?.nombre || ""} / ${unidad.nombre}`
+    : "";
 
-    setUnidadSeleccionada(Number(idUnidad));
-    setUnidadNombreSeleccionada(nombreCompleto);
-    setBusqueda("");
+  setUnidadSeleccionada(Number(idUnidad));
+  setUnidadNombreSeleccionada(nombreCompleto);
+  setBusqueda("");
 
-    sessionStorage.setItem("inventario_unidad_id", idUnidad);
-    sessionStorage.setItem(
-      "inventario_unidad_nombre",
-      nombreCompleto
-    );
-    sessionStorage.removeItem("inventario_busqueda");
+  sessionStorage.setItem(
+    "inventario_unidad_id",
+    idUnidad
+  );
 
-    await cargarInventario(Number(idUnidad));
-  };
+  sessionStorage.setItem(
+    "inventario_unidad_nombre",
+    nombreCompleto
+  );
 
+  sessionStorage.removeItem("inventario_busqueda");
+};
   // NUEVO:
   // Limpia solamente los filtros secundarios.
-  const limpiarFiltros = () => {
+const limpiarFiltros = () => {
+  setRestauranteSeleccionado("");
+  setUnidadSeleccionada(null);
+  setUnidadNombreSeleccionada("");
+  setBusqueda("");
+
+  setFiltros({
+    tipoEquipo: "",
+    marca: "",
+    estatus: "",
+    estadoFisico: "",
+    responsiva: ""
+  });
+
+  sessionStorage.removeItem("inventario_restaurante_id");
+  sessionStorage.removeItem("inventario_unidad_id");
+  sessionStorage.removeItem("inventario_unidad_nombre");
+  sessionStorage.removeItem("inventario_busqueda");
+  sessionStorage.removeItem("inventario_filtros");
+
+  setPaginaActual(1);
+};
+
+  const limpiarFiltrosSecundarios = () => {
     const filtrosVacios = {
       tipoEquipo: "",
       marca: "",
@@ -352,7 +380,7 @@ const inventarioPaginado = inventarioFiltrado.slice(
 
   // NUEVO:
   // Limpia restaurante, localidad, búsqueda y filtros.
-  const mostrarTodos = async () => {
+  const mostrarTodos = () => {
     setRestauranteSeleccionado("");
     setUnidadSeleccionada(null);
     setUnidadNombreSeleccionada("");
@@ -372,7 +400,6 @@ const inventarioPaginado = inventarioFiltrado.slice(
     sessionStorage.removeItem("inventario_busqueda");
     sessionStorage.removeItem("inventario_filtros");
 
-    await cargarInventario();
   };
 
   const irDetalle = (id) => {
@@ -466,25 +493,6 @@ const inventarioPaginado = inventarioFiltrado.slice(
     Baja: "badge badge-baja"
   };
 
-  const labelFiltroStyle = {
-    display: "block",
-    marginBottom: 6,
-    fontSize: 12,
-    fontWeight: 600,
-    color: "#475569"
-  };
-
-  const selectFiltroStyle = {
-    width: "100%",
-    padding: "9px 10px",
-    border: "1px solid #cbd5e1",
-    borderRadius: 8,
-    background: "white",
-    color: "#0f172a",
-    fontSize: 13,
-    outline: "none"
-  };
-
   // NUEVO:
   // Cuenta también restaurante y localidad como filtros activos.
   const cantidadFiltrosActivos =
@@ -573,291 +581,32 @@ const inventarioPaginado = inventarioFiltrado.slice(
         {/* NUEVO:
             Restaurante y localidad ahora viven dentro del panel.
             Ya no se renderiza InventarioTree ni tree-panel. */}
-        {mostrarFiltros && (
-          <div
-            style={{
-              margin: "0 16px 16px",
-              padding: 18,
-              border: "1px solid #e2e8f0",
-              borderRadius: 12,
-              background: "white",
-              boxShadow:
-                "0 8px 24px rgba(15, 23, 42, 0.08)"
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 12,
-                marginBottom: 16
-              }}
-            >
-              <div>
-                <h3
-                  style={{
-                    margin: 0,
-                    fontSize: 16
-                  }}
-                >
-                  Filtros de inventario
-                </h3>
+<FiltrosModal
+  abierto={mostrarFiltros}
+  onCerrar={() => setMostrarFiltros(false)}
 
-                <p
-                  style={{
-                    margin: "4px 0 0",
-                    fontSize: 12,
-                    color: "#64748b"
-                  }}
-                >
-                  Selecciona una unidad y refina los equipos
-                  mostrados.
-                </p>
-              </div>
+  onMostrarTodos={mostrarTodos}
+  onLimpiarFiltros={limpiarFiltros}
+  onLimpiarFiltrosSecundarios = {limpiarFiltrosSecundarios}
 
-              <button
-                type="button"
-                onClick={mostrarTodos}
-                style={{
-                  border: "none",
-                  background: "transparent",
-                  color: "#dc2626",
-                  fontWeight: 600,
-                  cursor: "pointer"
-                }}
-              >
-                Limpiar todo
-              </button>
-            </div>
+  arbolUnidades={arbolUnidades}
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(auto-fit, minmax(180px, 1fr))",
-                gap: 14
-              }}
-            >
-              {/* NUEVO: filtro Restaurante */}
-              <div>
-                <label style={labelFiltroStyle}>
-                  Restaurante
-                </label>
+  restauranteSeleccionado={restauranteSeleccionado}
+  unidadSeleccionada={unidadSeleccionada}
 
-                <select
-                  value={restauranteSeleccionado}
-                  onChange={handleRestauranteChange}
-                  style={selectFiltroStyle}
-                >
-                  <option value="">
-                    Todos los restaurantes
-                  </option>
+  localidadesDisponibles={localidadesDisponibles}
 
-                  {arbolUnidades.map((restaurante) => (
-                    <option
-                      key={restaurante.id}
-                      value={restaurante.id}
-                    >
-                      {restaurante.nombre} (
-                      {restaurante.total || 0})
-                    </option>
-                  ))}
-                </select>
-              </div>
+  filtros={filtros}
+  setFiltros={setFiltros}
 
-              {/* NUEVO: filtro Localidad dependiente */}
-              <div>
-                <label style={labelFiltroStyle}>
-                  Localidad
-                </label>
+  tiposEquipo={tiposEquipo}
+  marcas={marcas}
+  estatusDisponibles={estatusDisponibles}
+  estadosFisicos={estadosFisicos}
 
-                <select
-                  value={unidadSeleccionada || ""}
-                  onChange={handleLocalidadChange}
-                  disabled={!restauranteSeleccionado}
-                  style={{
-                    ...selectFiltroStyle,
-                    opacity: restauranteSeleccionado
-                      ? 1
-                      : 0.55,
-                    cursor: restauranteSeleccionado
-                      ? "pointer"
-                      : "not-allowed"
-                  }}
-                >
-                  <option value="">
-                    {restauranteSeleccionado
-                      ? "Todas las localidades"
-                      : "Selecciona un restaurante"}
-                  </option>
-
-                  {localidadesDisponibles.map((unidad) => (
-                    <option
-                      key={unidad.id}
-                      value={unidad.id}
-                    >
-                      {unidad.nombre} ({unidad.total || 0})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={labelFiltroStyle}>
-                  Tipo de equipo
-                </label>
-
-                <select
-                  value={filtros.tipoEquipo}
-                  onChange={(event) =>
-                    setFiltros((prev) => ({
-                      ...prev,
-                      tipoEquipo: event.target.value
-                    }))
-                  }
-                  style={selectFiltroStyle}
-                >
-                  <option value="">Todos</option>
-
-                  {tiposEquipo.map((tipo) => (
-                    <option key={tipo} value={tipo}>
-                      {tipo}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={labelFiltroStyle}>
-                  Marca
-                </label>
-
-                <select
-                  value={filtros.marca}
-                  onChange={(event) =>
-                    setFiltros((prev) => ({
-                      ...prev,
-                      marca: event.target.value
-                    }))
-                  }
-                  style={selectFiltroStyle}
-                >
-                  <option value="">Todas</option>
-
-                  {marcas.map((marca) => (
-                    <option key={marca} value={marca}>
-                      {marca}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={labelFiltroStyle}>
-                  Estatus
-                </label>
-
-                <select
-                  value={filtros.estatus}
-                  onChange={(event) =>
-                    setFiltros((prev) => ({
-                      ...prev,
-                      estatus: event.target.value
-                    }))
-                  }
-                  style={selectFiltroStyle}
-                >
-                  <option value="">Todos</option>
-
-                  {estatusDisponibles.map((estatus) => (
-                    <option
-                      key={estatus}
-                      value={estatus}
-                    >
-                      {estatus}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={labelFiltroStyle}>
-                  Estado físico
-                </label>
-
-                <select
-                  value={filtros.estadoFisico}
-                  onChange={(event) =>
-                    setFiltros((prev) => ({
-                      ...prev,
-                      estadoFisico: event.target.value
-                    }))
-                  }
-                  style={selectFiltroStyle}
-                >
-                  <option value="">Todos</option>
-
-                  {estadosFisicos.map((estado) => (
-                    <option key={estado} value={estado}>
-                      {estado}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={labelFiltroStyle}>
-                  Responsiva
-                </label>
-
-                <select
-                  value={filtros.responsiva}
-                  onChange={(event) =>
-                    setFiltros((prev) => ({
-                      ...prev,
-                      responsiva: event.target.value
-                    }))
-                  }
-                  style={selectFiltroStyle}
-                >
-                  <option value="">Todas</option>
-                  <option value="asignado">
-                    Con responsiva
-                  </option>
-                  <option value="disponible">
-                    Sin responsiva
-                  </option>
-                </select>
-              </div>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "flex-end",
-                marginTop: 14
-              }}
-            >
-              <button
-                type="button"
-                onClick={limpiarFiltros}
-                style={{
-                  border: "1px solid #cbd5e1",
-                  background: "white",
-                  color: "#475569",
-                  borderRadius: 8,
-                  padding: "8px 12px",
-                  cursor: "pointer",
-                  fontWeight: 600
-                }}
-              >
-                Limpiar filtros secundarios
-              </button>
-            </div>
-          </div>
-        )}
-
+  handleRestauranteChange={handleRestauranteChange}
+  handleLocalidadChange={handleLocalidadChange}
+/>
         <div className="table-container">
           <table>
             <thead>

@@ -1,0 +1,429 @@
+/* =========================================================
+   DASHBOARD PAGE
+   ========================================================= */
+
+.dashboard-page {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.dashboard-header {
+    width: 100%;
+    margin-bottom: 24px;
+
+    background: #102246;
+    border-radius: 14px;
+
+    padding: 22px 24px;
+
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+.dashboard-header-title {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.dashboard-header-title h1 {
+    margin: 0;
+
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+
+    color: #ffffff;
+}
+
+.dashboard-header-title p {
+    margin: 0;
+
+    font-size: 14px;
+
+    color: #cbd5e1;
+}
+
+
+/* =========================================================
+   ESTADÍSTICAS
+   ========================================================= */
+
+.dashboard-stats-grid {
+    display: grid;
+
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+}
+
+
+/* =========================================================
+   TARJETA INDIVIDUAL
+   ========================================================= */
+
+.dashboard-stat-card {
+    min-height: 110px;
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    gap: 8px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.dashboard-stat-card:hover {
+    transform: translateY(-2px);
+
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.09);
+}
+
+
+/* =========================================================
+   TEXTO DE LA ESTADÍSTICA
+   ========================================================= */
+
+.dashboard-stat-card span {
+    font-size: 12px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    color: #64748b;
+}
+
+.dashboard-stat-card strong {
+    font-size: 28px;
+    font-weight: 800;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   COLORES DE CADA ESTADÍSTICA
+   ========================================================= */
+
+.dashboard-stat-total strong {
+    color: #2563eb;
+}
+
+.dashboard-stat-disponibles strong {
+    color: #16a34a;
+}
+
+.dashboard-stat-asignados strong {
+    color: #0284c7;
+}
+
+.dashboard-stat-danados strong {
+    color: #dc2626;
+}
+
+.dashboard-stat-garantias strong {
+    color: #ea580c;
+}
+
+.dashboard-stat-vencidas strong {
+    color: #b91c1c;
+}
+
+
+/* =========================================================
+   SECCIÓN DE DETALLES
+   ========================================================= */
+
+.dashboard-details-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    gap: 20px;
+}
+
+
+/* =========================================================
+   TARJETAS DE INFORMACIÓN
+   ========================================================= */
+
+.dashboard-card {
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+
+/* =========================================================
+   TÍTULO DE CADA TARJETA
+   ========================================================= */
+
+.dashboard-card h2 {
+    margin: 0;
+
+    padding: 15px 20px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    color: #ffffff;
+
+    background: #102246;
+
+    border-bottom: 1px solid #102246;
+}
+
+
+/* ICONOS DE LOS ENCABEZADOS */
+
+.dashboard-card h2 svg {
+    flex-shrink: 0;
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   TABLAS
+   ========================================================= */
+
+.dashboard-table-container {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.dashboard-table {
+    width: 100%;
+
+    min-width: 350px;
+
+    border-collapse: collapse;
+}
+
+
+/* =========================================================
+   ENCABEZADO DE TABLA
+   ========================================================= */
+
+.dashboard-table thead {
+    background: #ffffff;
+}
+
+.dashboard-table th {
+    padding: 11px 20px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-align: left;
+
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    color: #64748b;
+
+    border-bottom: 1px solid #e2e8f0;
+}
+
+
+/* =========================================================
+   CELDAS
+   ========================================================= */
+
+.dashboard-table td {
+    padding: 13px 20px;
+
+    font-size: 14px;
+
+    color: #334155;
+
+    border-bottom: 1px solid #f1f5f9;
+}
+
+
+/* =========================================================
+   HOVER
+   ========================================================= */
+
+.dashboard-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.dashboard-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+
+/* =========================================================
+   ÚLTIMA FILA
+   ========================================================= */
+
+.dashboard-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   COLUMNA DE TOTAL
+   ========================================================= */
+
+.dashboard-table th:last-child,
+.dashboard-table td:last-child {
+    width: 100px;
+
+    text-align: right;
+}
+
+.dashboard-table td:last-child {
+    font-weight: 700;
+
+    color: #1e293b;
+}
+
+
+/* =========================================================
+   TARJETAS ESPECÍFICAS
+   ========================================================= */
+
+/*
+   El fondo de la tarjeta permanece blanco.
+   El color oscuro #102246 se aplica únicamente
+   al encabezado mediante .dashboard-card h2.
+*/
+
+.dashboard-card-tipo,
+.dashboard-card-restaurante,
+.dashboard-card-estatus {
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .dashboard-stats-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET PEQUEÑA
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    .dashboard-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MÓVIL
+   ========================================================= */
+
+@media (max-width: 650px) {
+
+    .dashboard-page {
+        padding: 0;
+    }
+
+    .dashboard-header {
+        padding: 20px;
+    }
+
+    .dashboard-header-title h1 {
+        font-size: 22px;
+    }
+
+    .dashboard-header-title p {
+        font-size: 13px;
+    }
+
+    .dashboard-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        gap: 12px;
+    }
+
+    .dashboard-stat-card {
+        min-height: 95px;
+
+        padding: 16px;
+    }
+
+    .dashboard-stat-card strong {
+        font-size: 24px;
+    }
+
+}
+
+
+/* =========================================================
+   MÓVIL PEQUEÑO
+   ========================================================= */
+
+@media (max-width: 450px) {
+
+    .dashboard-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-stat-card {
+        min-height: 85px;
+    }
+
+    .dashboard-card h2 {
+        padding: 15px 16px;
+
+        font-size: 15px;
+    }
+
+    .dashboard-table th {
+        padding: 10px 16px;
+    }
+
+    .dashboard-table td {
+        padding: 12px 16px;
+    }
+
+}

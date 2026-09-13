@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import "../styles/InventarioPage.css";
+import "../styles/DashboardPage.css";
 import { obtenerDashboard } from "../services/dashboardService";
+import { Laptop, Utensils, ClipboardCheck } from "lucide-react";
 
 function DashboardPage({ setLoading }) {
   const [dashboard, setDashboard] = useState({
@@ -36,52 +37,63 @@ function DashboardPage({ setLoading }) {
   const resumen = dashboard.resumen || {};
 
   return (
-    <div className="contenedor">
-      <div className="header">
-        <div className="header-title" >
+    <div className="dashboard-page">
+
+      {/* ENCABEZADO */}
+      <div className="dashboard-header">
+        <div className="dashboard-header-title">
           <h1>Inventario Grupo Anderson's</h1>
           <p>Resumen general del inventario y responsivas.</p>
         </div>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
+      {/* ESTADÍSTICAS */}
+      <div className="dashboard-stats-grid">
+
+        <div className="dashboard-stat-card dashboard-stat-total">
           <span>Total equipos</span>
           <strong>{resumen.TotalEquipos || 0}</strong>
         </div>
 
-        <div className="stat-card">
+        <div className="dashboard-stat-card dashboard-stat-disponibles">
           <span>Disponibles</span>
           <strong>{resumen.EquiposDisponibles || 0}</strong>
         </div>
 
-        <div className="stat-card">
+        <div className="dashboard-stat-card dashboard-stat-asignados">
           <span>Asignados</span>
           <strong>{resumen.EquiposAsignados || 0}</strong>
         </div>
 
-        <div className="stat-card">
+        <div className="dashboard-stat-card dashboard-stat-danados">
           <span>Dañados</span>
           <strong>{resumen.EquiposDanados || 0}</strong>
         </div>
 
-        <div className="stat-card">
+        <div className="dashboard-stat-card dashboard-stat-garantias">
           <span>Garantías por vencer</span>
           <strong>{resumen.GarantiasPorVencer || 0}</strong>
         </div>
 
-        <div className="stat-card">
+        <div className="dashboard-stat-card dashboard-stat-vencidas">
           <span>Garantías vencidas</span>
           <strong>{resumen.GarantiasVencidas || 0}</strong>
         </div>
+
       </div>
 
-      <div className="detalle-grid">
-        <div className="card">
-          <h2>Equipos por tipo</h2>
+      {/* DETALLES */}
+      <div className="dashboard-details-grid">
 
-          <div className="table-container">
-            <table>
+        {/* EQUIPOS POR TIPO */}
+        <div className="dashboard-card dashboard-card-tipo">
+          <h2>
+            <Laptop size={20} strokeWidth={2.2} />
+            <span>Equipos por tipo</span>
+          </h2>
+
+          <div className="dashboard-table-container">
+            <table className="dashboard-table">
               <thead>
                 <tr>
                   <th>Tipo</th>
@@ -101,11 +113,15 @@ function DashboardPage({ setLoading }) {
           </div>
         </div>
 
-        <div className="card">
-          <h2>Equipos por restaurante</h2>
+        {/* EQUIPOS POR RESTAURANTE */}
+        <div className="dashboard-card dashboard-card-restaurante">
+          <h2>
+            <Utensils size={20} strokeWidth={2.2} />
+            <span>Equipos por restaurante</span>
+          </h2>
 
-          <div className="table-container">
-            <table>
+          <div className="dashboard-table-container">
+            <table className="dashboard-table">
               <thead>
                 <tr>
                   <th>Restaurante</th>
@@ -125,11 +141,15 @@ function DashboardPage({ setLoading }) {
           </div>
         </div>
 
-        <div className="card">
-          <h2>Equipos por estatus</h2>
+        {/* EQUIPOS POR ESTATUS */}
+        <div className="dashboard-card dashboard-card-estatus">
+          <h2>
+            <ClipboardCheck size={20} strokeWidth={2.2} />
+            <span>Equipos por estatus</span>
+          </h2>
 
-          <div className="table-container">
-            <table>
+          <div className="dashboard-table-container">
+            <table className="dashboard-table">
               <thead>
                 <tr>
                   <th>Estatus</th>
@@ -148,6 +168,7 @@ function DashboardPage({ setLoading }) {
             </table>
           </div>
         </div>
+
       </div>
     </div>
   );

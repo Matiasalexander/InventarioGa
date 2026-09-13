@@ -1,152 +1,436 @@
-.sidebar {
-    width: 240px;
-    min-height: 100vh;
-    background: #102246;
-    color:white;
-    display:flex;
-    flex-direction:column;
-    position:fixed;
-    left:0;
-    top:0;
-    z-index:1000;
+
+/* =========================================
+   RESET
+========================================= */
+
+* {
+    box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background: var(--background);
+    color: var(--text-primary);
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+
+/* =========================================
+   SIDEBAR
+========================================= */
+
+.sidebar {
+    position: fixed;
+
+    top: 0;
+    left: 0;
+    bottom: 0;
+
+    width: var(--sidebar-width, 240px);
+
+    display: flex;
+    flex-direction: column;
+
+    background:
+        linear-gradient(
+            180deg,
+            var(--sidebar-bg, #102246),
+            var(--sidebar-bg-dark, #08162f)
+        );
+
+    color: var(--sidebar-text, #e0e5eb);
+
+    z-index: 1000;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
 
 .sidebar-header {
-    padding:20px 24px;
-    font-size:18px;
-    font-weight:bold;
-    border-bottom:1px solid #032870;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    height: 82px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 20px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.08);
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 700;
 }
 
+
+/* =========================================
+   BOTONES MOBILE
+========================================= */
 
 .close-button,
 .menu-button {
-    display:none;
+    display: none;
 }
 
+
+/* =========================================
+   USUARIO
+========================================= */
 
 .usuario {
-    padding:16px 24px;
-    border-bottom:1px solid #032870;
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 16px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.08);
 }
 
+
+/* Si el usuario tiene información */
+
+.usuario-info {
+    min-width: 0;
+}
+
+.usuario strong {
+    display: block;
+
+    color: white;
+
+    font-size: 13px;
+}
 
 .usuario small {
-    display:block;
-    color:#94a3b8;
-    margin-top:5px;
+    display: block;
+
+    margin-top: 2px;
+
+    color: var(--sidebar-text-muted, #94a3b8);
+
+    font-size: 11px;
 }
 
+
+/* =========================================
+   MENÚ
+========================================= */
 
 .menu {
-    padding:16px 12px;
-    display:flex;
-    flex-direction:column;
-    gap:5px;
+    flex: 1;
+
+    padding: 18px 12px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+
+    overflow-y: auto;
 }
 
+
+/* =========================================
+   LINKS
+========================================= */
 
 .link {
-    font-size: 15px;
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px 12px;
-    border-radius:8px;
-    text-decoration:none;
-    color:#e0e5eb;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 11px;
+
+    padding: 12px 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: var(--sidebar-text, #e0e5eb);
+
+    font-size: 14px;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease;
 }
 
+
+/* =========================================
+   HOVER
+========================================= */
 
 .link:hover {
-    background:rgb(15, 57, 141);
-    color:white;
+    color: white;
+
+    background:
+        rgba(255, 255, 255, 0.08);
 }
 
+
+/* =========================================
+   LINK ACTIVO
+========================================= */
 
 .activo-link {
-    background:#032870;
-    color:white;
+    color: white;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            #2475e5
+        );
 }
 
+
+/* =========================================
+   ICONOS
+========================================= */
+
+.link svg,
+.link-icon {
+    width: 20px;
+
+    display: inline-flex;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   LOGOUT
+========================================= */
 
 .logout {
-    margin-top:auto;
-    padding:10px;
-    border-radius:8px;
-    border:1px solid rgb(212, 61, 61);
-    background:none;
-    color:rgb(212, 61, 61);
-    display:flex;
-    gap:10px;
-    cursor:pointer;
-    box-shadow: red;
+    width: calc(100% - 20px);
+
+    margin: 10px;
+
+    padding: 10px 12px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    border: 1px solid rgba(248, 113, 113, 0.65);
+
+    border-radius: 8px;
+
+    background: transparent;
+
+    color: #f87171;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease;
 }
+
+
+/* =========================================
+   LOGOUT HOVER
+========================================= */
 
 .logout:hover {
-    background-color: rgb(116, 18, 18);
+    background:
+        rgba(239, 68, 68, 0.18);
+
     color: white;
+
+    border-color:
+        rgba(248, 113, 113, 0.8);
 }
 
 
-/* MOBILE */
+/* =========================================
+   MOBILE
+========================================= */
 
-@media(max-width:768px){
+@media (max-width: 768px) {
+
+    /* -------------------------
+       BOTÓN MENÚ
+    ------------------------- */
 
     .menu-button {
         display: flex;
+
         align-items: center;
         justify-content: center;
+
         width: 44px;
         height: 44px;
+
         position: fixed;
+
         top: 15px;
         left: 15px;
+
         z-index: 1200;
-        background: #032870;
-        color: white;
+
         padding: 12px;
+
+        border: none;
+        border-radius: 8px;
+
+        background: var(--primary);
+
+        color: white;
+
+        cursor: pointer;
     }
 
-    .sidebar-header {
-        padding-top: 60px;
-    }
+
+    /* -------------------------
+       SIDEBAR
+    ------------------------- */
+
     .sidebar {
+        width: 260px;
 
-        transform:translateX(-100%);
-        transition:.3s ease;
-         position: fixed;
-  top: 0;
-  left: 0;
-  width: 260px;
-  height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+        height: 100vh;
+
+        top: 0;
+        left: 0;
+
+        bottom: auto;
+
+        transform: translateX(-100%);
+
+        transition:
+            transform 0.3s ease;
+
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
+
+    /* -------------------------
+       SIDEBAR ACTIVO
+    ------------------------- */
 
     .sidebar.activo {
-        transform:translateX(0);
+        transform: translateX(0);
     }
 
+
+    /* -------------------------
+       HEADER MOBILE
+    ------------------------- */
+
+    .sidebar-header {
+        height: auto;
+
+        min-height: 82px;
+
+        padding:
+            60px
+            20px
+            20px;
+    }
+
+
+    /* -------------------------
+       BOTÓN CERRAR
+    ------------------------- */
 
     .close-button {
+        display: flex;
 
-        display:block;
-        border:none;
-        color:white;
+        align-items: center;
+        justify-content: center;
+
+        width: 34px;
+        height: 34px;
+
+        border: none;
+
+        border-radius: 8px;
+
+        background:
+            rgba(255, 255, 255, 0.08);
+
+        color: white;
+
+        cursor: pointer;
     }
 
+
+    /* -------------------------
+       MENÚ MOBILE
+    ------------------------- */
+
+    .menu {
+        padding: 18px 12px;
+    }
+
+
+    /* -------------------------
+       LINKS MOBILE
+    ------------------------- */
+
+    .link {
+        padding: 12px 14px;
+
+        font-size: 14px;
+    }
+
+
+    /* -------------------------
+       OVERLAY
+    ------------------------- */
 
     .overlay {
+        position: fixed;
 
-        position:fixed;
-        inset:0;
-        z-index:900;
+        inset: 0;
+
+        z-index: 900;
+
+        background:
+            rgba(15, 23, 42, 0.45);
     }
-
 }
+
