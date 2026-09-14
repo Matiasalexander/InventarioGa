@@ -206,7 +206,8 @@ function RolesPage({ setLoading }) {
 
   return (
     <div className="roles-page">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Roles y permisos</h1>
 
@@ -216,6 +217,7 @@ function RolesPage({ setLoading }) {
           </p>
         </div>
       </div>
+      </div><br></br>
 
       <div className="roles-layout">
         <div className="card roles-panel">

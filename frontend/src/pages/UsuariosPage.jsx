@@ -486,7 +486,7 @@ function UsuariosPage({ setLoading }) {
           HEADER
       =================================================== */}
   <div className="card-user">
-      <div className="header">
+      <div className="header-user">
 
         <div>
           <h1>Usuarios</h1>
