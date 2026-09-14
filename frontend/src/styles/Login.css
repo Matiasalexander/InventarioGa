@@ -27,7 +27,7 @@ padding: 12px;
     margin-bottom: 30px;
 
 }
-.password {
+.passwords {
     margin-bottom: 30px;
 }
 
@@ -44,22 +44,22 @@ padding: 12px;
 
 /*grid del input*/
 
-.password-input {
+.password-inputs {
     display: flex;
     gap: 10px;
 }
 
-.mostrar-password {
+.mostrar-passwords {
     padding: 0;
     width: auto;
     background-color: white;
 }
 
-.mostrar-password:hover{
+.mostrar-passwords:hover{
     background-color: white;
     box-shadow: none;
 }
 
-.eye-icon {
+.eye-icons {
     color: #0f172a;
 }

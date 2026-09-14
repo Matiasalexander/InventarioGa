@@ -139,6 +139,7 @@ const UsuarioModal = ({
             onClick={cerrar}
             aria-label="Cerrar"
           >
+            
             <X size={20} />
           </button>
         </div>
@@ -331,16 +332,16 @@ const UsuarioModal = ({
                   ` (${form.Unidades.length}) seleccionadas`}
               </button>
 
-              {form.VerTodasUnidades && (
+           
+            </div>
+
+          </div>
+   {form.VerTodasUnidades && (
                 <div className="mensaje-unidades">
                   Este usuario puede ver todas las
                   unidades.
                 </div>
               )}
-            </div>
-
-          </div>
-
           <div className="usuario-modal-footer">
             <button
               type="button"
@@ -390,7 +391,7 @@ const UsuarioModal = ({
                       )
                     }
                   >
-                    ✕
+                  
                   </button>
                 </div>
 

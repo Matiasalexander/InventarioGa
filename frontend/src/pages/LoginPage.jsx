@@ -55,9 +55,9 @@ function LoginPage({ setLoading }) {
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
           />
-        <div className="password-input">
+        <div className="password-inputs">
           <input
-            className="password"
+            className="passwords"
             type={mostrar? "text" : "password"}
             placeholder="Contraseña"
             value={password}
@@ -66,10 +66,10 @@ function LoginPage({ setLoading }) {
              
           <button
               type="button"
-              className="mostrar-password"
+              className="mostrar-passwords"
               onClick={() => setMostrar(!mostrar)}
             >
-              <Eye className="eye-icon"/>
+              <Eye className="eye-icons"/>
               {mostrar}
             </button>
             </div>

@@ -39,19 +39,34 @@
 }
 
 .usuario-modal-close {
+  width: 38px;
+  height: 38px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+
+  flex-shrink: 0;
+
+  padding: 0;
+
   border: none;
-  border-radius: 8px;
-  background: transparent;
+  border-radius: 10px;
+
+  background: #f1f5f9;
+  color: #475569;
+
   cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+  
 }
 
 .usuario-modal-close:hover {
-  background: #f3f4f6;
+  background: #e2e8f0;
+  color: #0f172a;
 }
 
 .usuario-modal-form {
@@ -133,6 +148,7 @@
   background: #f0fdf4;
   color: #166534;
   font-size: 14px;
+  width: 100%;
 }
 
 .usuario-modal-footer {
