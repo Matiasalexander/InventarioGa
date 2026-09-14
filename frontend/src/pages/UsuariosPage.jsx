@@ -485,7 +485,7 @@ function UsuariosPage({ setLoading }) {
       {/* ===================================================
           HEADER
       =================================================== */}
-
+  <div className="card-user">
       <div className="header">
 
         <div>
@@ -507,6 +507,7 @@ function UsuariosPage({ setLoading }) {
         )}
 
       </div>
+      </div><br></br>
 
       {/* ===================================================
           CONTENIDO
