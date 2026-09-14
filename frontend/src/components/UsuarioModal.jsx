@@ -384,14 +384,14 @@ const UsuarioModal = ({
 
                   <button
                     type="button"
-                    className="x-button"
+                    className="usuario-modal-close"
                     onClick={() =>
                       setMostrarModalUnidades(
                         false
                       )
                     }
                   >
-                  
+                    x
                   </button>
                 </div>
 
