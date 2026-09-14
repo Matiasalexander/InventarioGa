@@ -3,6 +3,8 @@ import { toast } from "react-toastify";
 import "../styles/DashboardPage.css";
 import { obtenerDashboard } from "../services/dashboardService";
 import { Laptop, Utensils, ClipboardCheck } from "lucide-react";
+import logo from "../img/gandersons-logo.png";
+
 
 function DashboardPage({ setLoading }) {
   const [dashboard, setDashboard] = useState({
@@ -41,6 +43,7 @@ function DashboardPage({ setLoading }) {
 
       {/* ENCABEZADO */}
       <div className="dashboard-header">
+    
         <div className="dashboard-header-title">
           <h1>Inventario Grupo Anderson's</h1>
           <p>Resumen general del inventario y responsivas.</p>

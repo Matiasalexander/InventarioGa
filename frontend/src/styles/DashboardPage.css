@@ -18,7 +18,7 @@
     width: 100%;
     margin-bottom: 24px;
 
-    background: #102246;
+    background: white;
     border-radius: 14px;
 
     padding: 22px 24px;
@@ -39,7 +39,7 @@
     font-weight: 700;
     line-height: 1.2;
 
-    color: #ffffff;
+    color: #111827;
 }
 
 .dashboard-header-title p {
@@ -47,9 +47,11 @@
 
     font-size: 14px;
 
-    color: #cbd5e1;
+    color: #111827;
 }
-
+.logoGA {
+    width: 200px;
+}
 
 /* =========================================================
    ESTADÍSTICAS

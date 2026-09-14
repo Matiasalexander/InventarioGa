@@ -20,6 +20,8 @@ import {
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../styles/Sidebar.css";
+import logo from "../img/gandersons-wlogo.png";
+
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -111,7 +113,8 @@ export default function Sidebar() {
 
       <aside className={`sidebar ${abierto ? "activo" : ""}`}>
         <div className="sidebar-header">
-          <span>Inventario Grupo Anderson&apos;s</span>
+        <img className="logoGA2" src={logo} alt="logo" />
+          
         </div>
 
         <div className="usuario">

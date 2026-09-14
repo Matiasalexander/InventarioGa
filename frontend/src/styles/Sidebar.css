@@ -62,6 +62,10 @@ textarea {
 
     z-index: 1000;
 }
+.logoGA2 {
+    width: 250px;
+    height: 80px;
+}
 
 
 /* =========================================
@@ -69,7 +73,7 @@ textarea {
 ========================================= */
 
 .sidebar-header {
-    height: 82px;
+    height: 100px;
 
     display: flex;
     align-items: center;
