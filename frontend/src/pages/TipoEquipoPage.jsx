@@ -256,7 +256,7 @@ function TipoEquipoPage({ setLoading }) {
         <br />
 
         <h2>Listado de tipos de equipo</h2>
-
+          
         <div className="table-container">
           <table>
             <thead>
