@@ -33,7 +33,7 @@ function HistorialResponsivasPage({ setLoading }) {
   const [editando, setEditando] = useState(null);
   //Modo modal
   const [modoModal, setModoModal] = useState(null); // "ver" | "editar"
-  const [mostrarModal, setMostrarModal] = useState(false);  
+  const [mostrarModal, setMostrarModal] = useState(false);
   //fin del modo modal
   const [busqueda, setBusqueda] = useState("");
   // NUEVO: paginación de la tabla
@@ -53,7 +53,7 @@ function HistorialResponsivasPage({ setLoading }) {
   }, []);
 
   //carga la paginación con el useeffect
-  useEffect(()=> {setPaginaActual(1);}, [busqueda, registrosPorPagina]);
+  useEffect(() => { setPaginaActual(1); }, [busqueda, registrosPorPagina]);
 
   const responsivasFiltradas = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
@@ -94,15 +94,15 @@ function HistorialResponsivasPage({ setLoading }) {
 
   //esto lo mostrará como dd/mm/yy
   const formatearFecha = (fecha) => {
-  if (!fecha) return "";
+    if (!fecha) return "";
 
-  const fechaTexto = String(fecha).split("T")[0];
-  const [anio, mes, dia] = fechaTexto.split("-");
+    const fechaTexto = String(fecha).split("T")[0];
+    const [anio, mes, dia] = fechaTexto.split("-");
 
-  if (!anio || !mes || !dia) return fechaTexto;
+    if (!anio || !mes || !dia) return fechaTexto;
 
-  return `${dia}/${mes}/${anio}`;
-};
+    return `${dia}/${mes}/${anio}`;
+  };
 
   //este código es correcto ya que hace el formato de fecha en input
   const formatearFechaInput = (fecha) => {
@@ -126,8 +126,8 @@ function HistorialResponsivasPage({ setLoading }) {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error cargando responsivas."
+        error.response?.data?.error ||
+        "Error cargando responsivas."
       );
     } finally {
       setLoading(false);
@@ -153,8 +153,8 @@ function HistorialResponsivasPage({ setLoading }) {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error obteniendo detalle."
+        error.response?.data?.error ||
+        "Error obteniendo detalle."
       );
     } finally {
       setLoading(false);
@@ -183,22 +183,22 @@ function HistorialResponsivasPage({ setLoading }) {
 
   };
 
-const cerrarEditar = () => {
-  setMostrarModal(false);
-  setModoModal(null);
+  const cerrarEditar = () => {
+    setMostrarModal(false);
+    setModoModal(null);
 
-  setEditando(null);
-  setResponsivaSeleccionada(null);
-  setDetalle([]);
+    setEditando(null);
+    setResponsivaSeleccionada(null);
+    setDetalle([]);
 
-  setFormEditar({
-    Fecha: "",
-    NombreReceptor: "",
-    Puesto: "",
-    Area: "",
-    Correo: ""
-  });
-};
+    setFormEditar({
+      Fecha: "",
+      NombreReceptor: "",
+      Puesto: "",
+      Area: "",
+      Correo: ""
+    });
+  };
   const guardarEdicion = async () => {
     if (!puedeEditar) {
       toast.warning(
@@ -265,8 +265,8 @@ const cerrarEditar = () => {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error actualizando responsiva."
+        error.response?.data?.error ||
+        "Error actualizando responsiva."
       );
     } finally {
       setLoading(false);
@@ -296,8 +296,8 @@ const cerrarEditar = () => {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error descargando responsiva."
+        error.response?.data?.error ||
+        "Error descargando responsiva."
       );
     } finally {
       setLoading(false);
@@ -321,8 +321,8 @@ const cerrarEditar = () => {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error reenviando correo."
+        error.response?.data?.error ||
+        "Error reenviando correo."
       );
     } finally {
       setLoading(false);
@@ -370,8 +370,8 @@ const cerrarEditar = () => {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error devolviendo equipo."
+        error.response?.data?.error ||
+        "Error devolviendo equipo."
       );
     } finally {
       setLoading(false);
@@ -457,11 +457,11 @@ const cerrarEditar = () => {
                 return (
                   <tr key={item.IdResponsiva}>
                     <td>{folio}</td>
-                  
-                  {/*Manda a llamar la función de formateo de fecha*/}
-                  <td>
-                  {formatearFecha(item.Fecha)}
-                  </td>
+
+                    {/*Manda a llamar la función de formateo de fecha*/}
+                    <td>
+                      {formatearFecha(item.Fecha)}
+                    </td>
                     <td>{item.CorreoCreador}</td>
                     <td>
                       {item.NombreReceptor || ""}
@@ -507,267 +507,267 @@ const cerrarEditar = () => {
         </table>
       </div>
       {/*paginación*/}
-<div className="inventario-paginacion">
-  <div className="inventario-paginacion-info">
-    {totalRegistros === 0
-      ? "0 registros"
-      : `${indiceInicial + 1}-${Math.min(
-          indiceFinal,
-          totalRegistros
-        )} de ${totalRegistros}`}
-  </div>
+      <div className="inventario-paginacion">
+        <div className="inventario-paginacion-info">
+          {totalRegistros === 0
+            ? "0 registros"
+            : `${indiceInicial + 1}-${Math.min(
+              indiceFinal,
+              totalRegistros
+            )} de ${totalRegistros}`}
+        </div>
 
-  <div className="inventario-paginacion-controles">
-    <label>
-      Registros por página:
-    </label>
+        <div className="inventario-paginacion-controles">
+          <label>
+            Registros por página:
+          </label>
 
-    <select
-      value={registrosPorPagina}
-      onChange={(e) =>
-        setRegistrosPorPagina(Number(e.target.value))
-      }
-    >
-      <option value={15}>15</option>
-      <option value={20}>20</option>
-      <option value={50}>50</option>
-      <option value={100}>100</option>
-    </select>
+          <select
+            value={registrosPorPagina}
+            onChange={(e) =>
+              setRegistrosPorPagina(Number(e.target.value))
+            }
+          >
+            <option value={15}>15</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
 
-    <button
-      type="button"
-      onClick={() =>
-        setPaginaActual((prev) =>
-          Math.max(1, prev - 1)
-        )
-      }
-      disabled={paginaActual === 1}
-    >
-      ‹
-    </button>
+          <button
+            type="button"
+            onClick={() =>
+              setPaginaActual((prev) =>
+                Math.max(1, prev - 1)
+              )
+            }
+            disabled={paginaActual === 1}
+          >
+            ‹
+          </button>
 
-    <span>
-      Página {paginaActual} de {totalPaginas}
-    </span>
+          <span>
+            Página {paginaActual} de {totalPaginas}
+          </span>
 
-    <button
-      type="button"
-      onClick={() =>
-        setPaginaActual((prev) =>
-          Math.min(totalPaginas, prev + 1)
-        )
-      }
-      disabled={paginaActual === totalPaginas}
-    >
-      ›
-    </button>
-  </div>
-</div>      
-      {/*FIN PAGINACIÓN*/ }
-{mostrarModal && createPortal (
-  <div className="modal-overlay">
-    <div className="modal">
-
-      {modoModal === "editar" ? (
-        <>
-          <div className="modal-header">
-            <h3>
-              Editar Responsiva{" "}
-              {editando?.Folio ||
-                `RESP-${String(editando?.IdResponsiva).padStart(5, "0")}`}
-            </h3>
-
-            <button
-              className="btn-close"
-              onClick={cerrarEditar}
-            >
-              ✕
-            </button>
-          </div>
-
-      <div className="form-responsiva">
-
-        <p>Fecha</p>
-        <input
-          type="date"
-          value={formEditar.Fecha}
-          onChange={(e) =>
-            setFormEditar({
-              ...formEditar,
-              Fecha: e.target.value
-            })
-          }
-        />
-
-        <p>Nombre receptor</p>
-        <input
-          type="text"
-          value={formEditar.NombreReceptor}
-          onChange={(e) =>
-            setFormEditar({
-              ...formEditar,
-              NombreReceptor: e.target.value
-            })
-          }
-        />
-
-        <p>Puesto</p>
-        <input
-          type="text"
-          value={formEditar.Puesto}
-          onChange={(e) =>
-            setFormEditar({
-              ...formEditar,
-              Puesto: e.target.value
-            })
-          }
-        />
-
-        <p>Área</p>
-        <input
-          type="text"
-          value={formEditar.Area}
-          onChange={(e) =>
-            setFormEditar({
-              ...formEditar,
-              Area: e.target.value
-            })
-          }
-        />
-
-        <p>Correo</p>
-        <input
-          type="email"
-          value={formEditar.Correo}
-          onChange={(e) =>
-            setFormEditar({
-              ...formEditar,
-              Correo: e.target.value
-            })
-          }
-        />
-
+          <button
+            type="button"
+            onClick={() =>
+              setPaginaActual((prev) =>
+                Math.min(totalPaginas, prev + 1)
+              )
+            }
+            disabled={paginaActual === totalPaginas}
+          >
+            ›
+          </button>
+        </div>
       </div>
+      {/*FIN PAGINACIÓN*/}
+      {mostrarModal && createPortal(
+        <div className="modal-overlay">
+          <div className="modal">
 
-          <div className="modal-footer">
-            <button
-              className="btn-primary"
-              onClick={guardarEdicion}
-            >
-              Guardar cambios
-            </button>
+            {modoModal === "editar" ? (
+              <>
+                <div className="modal-header">
+                  <h3>
+                    Editar Responsiva{" "}
+                    {editando?.Folio ||
+                      `RESP-${String(editando?.IdResponsiva).padStart(5, "0")}`}
+                  </h3>
 
-            <button
-              className="btn-secondary"
-              onClick={cerrarEditar}
-            >
-              Cancelar
-            </button>
+                  <button
+                    className="btn-close"
+                    onClick={cerrarEditar}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="form-responsiva">
+
+                  <p>Fecha</p>
+                  <input
+                    type="date"
+                    value={formEditar.Fecha}
+                    onChange={(e) =>
+                      setFormEditar({
+                        ...formEditar,
+                        Fecha: e.target.value
+                      })
+                    }
+                  />
+
+                  <p>Nombre receptor</p>
+                  <input
+                    type="text"
+                    value={formEditar.NombreReceptor}
+                    onChange={(e) =>
+                      setFormEditar({
+                        ...formEditar,
+                        NombreReceptor: e.target.value
+                      })
+                    }
+                  />
+
+                  <p>Puesto</p>
+                  <input
+                    type="text"
+                    value={formEditar.Puesto}
+                    onChange={(e) =>
+                      setFormEditar({
+                        ...formEditar,
+                        Puesto: e.target.value
+                      })
+                    }
+                  />
+
+                  <p>Área</p>
+                  <input
+                    type="text"
+                    value={formEditar.Area}
+                    onChange={(e) =>
+                      setFormEditar({
+                        ...formEditar,
+                        Area: e.target.value
+                      })
+                    }
+                  />
+
+                  <p>Correo</p>
+                  <input
+                    type="email"
+                    value={formEditar.Correo}
+                    onChange={(e) =>
+                      setFormEditar({
+                        ...formEditar,
+                        Correo: e.target.value
+                      })
+                    }
+                  />
+
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    className="btn-primary"
+                    onClick={guardarEdicion}
+                  >
+                    Guardar cambios
+                  </button>
+
+                  <button
+                    className="btn-secondary"
+                    onClick={cerrarEditar}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="modal-header">
+                  <h3>
+                    {responsivaSeleccionada?.Folio ||
+                      `RESP-${String(
+                        responsivaSeleccionada?.IdResponsiva
+                      ).padStart(5, "0")}`}
+                  </h3>
+
+                  <button
+                    className="btn-close"
+                    onClick={cerrarEditar}
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="table-responsive">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Descripción</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Serie</th>
+                        <th>Devuelto</th>
+                        <th>Fecha devolución</th>
+                        <th>Comentarios</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {detalle.length === 0 ? (
+                        <tr>
+                          <td colSpan="8">
+                            Sin equipos registrados.
+                          </td>
+                        </tr>
+                      ) : (
+                        detalle.map((item) => (
+                          <tr key={item.IdDetalle}>
+                            <td>
+                              {item.Descripcion}
+                            </td>
+
+                            <td>{item.Marca}</td>
+                            <td>{item.Modelo}</td>
+                            <td>{item.NoSerie}</td>
+
+                            <td>
+                              {item.Devuelto
+                                ? "Sí"
+                                : "No"}
+                            </td>
+
+                            <td>
+                              {item.FechaDevolucion
+                                ? new Date(
+                                  item.FechaDevolucion
+                                ).toLocaleString(
+                                  "es-MX"
+                                )
+                                : ""}
+                            </td>
+
+                            <td>
+                              {item.ComentariosDevolucion ||
+                                ""}
+                            </td>
+
+                            <td>
+                              {item.Devuelto ? (
+                                "Devuelto"
+                              ) : puedeDevolver ? (
+                                <button
+                                  className="btn-secondary"
+                                  type="button"
+                                  onClick={() =>
+                                    devolverEquipo(
+                                      item.IdDetalle
+                                    )
+                                  }
+                                >
+                                  Devolver
+                                </button>
+                              ) : (
+                                "Pendiente"
+                              )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
           </div>
-        </>
-      ) : (
-        <>
-          <div className="modal-header">
-            <h3>
-              {responsivaSeleccionada?.Folio ||
-                `RESP-${String(
-                  responsivaSeleccionada?.IdResponsiva
-                ).padStart(5, "0")}`}
-            </h3>
-
-            <button
-              className="btn-close"
-              onClick={cerrarEditar}
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="table-responsive">
-            <table>
-              <thead>
-                <tr>
-                  <th>Descripción</th>
-                  <th>Marca</th>
-                  <th>Modelo</th>
-                  <th>Serie</th>
-                  <th>Devuelto</th>
-                  <th>Fecha devolución</th>
-                  <th>Comentarios</th>
-                  <th>Acción</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {detalle.length === 0 ? (
-                  <tr>
-                    <td colSpan="8">
-                      Sin equipos registrados.
-                    </td>
-                  </tr>
-                ) : (
-                  detalle.map((item) => (
-                    <tr key={item.IdDetalle}>
-                      <td>
-                        {item.Descripcion}
-                      </td>
-
-                      <td>{item.Marca}</td>
-                      <td>{item.Modelo}</td>
-                      <td>{item.NoSerie}</td>
-
-                      <td>
-                        {item.Devuelto
-                          ? "Sí"
-                          : "No"}
-                      </td>
-
-                      <td>
-                        {item.FechaDevolucion
-                          ? new Date(
-                              item.FechaDevolucion
-                            ).toLocaleString(
-                              "es-MX"
-                            )
-                          : ""}
-                      </td>
-
-                      <td>
-                        {item.ComentariosDevolucion ||
-                          ""}
-                      </td>
-
-                      <td>
-                        {item.Devuelto ? (
-                          "Devuelto"
-                        ) : puedeDevolver ? (
-                          <button
-                            className="btn-secondary"
-                            type="button"
-                            onClick={() =>
-                              devolverEquipo(
-                                item.IdDetalle
-                              )
-                            }
-                          >
-                            Devolver
-                          </button>
-                        ) : (
-                          "Pendiente"
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </>
+        </div>, document.body
       )}
-
-    </div>
-  </div>, document.body
-)}
 
 
 

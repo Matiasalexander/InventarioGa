@@ -23,6 +23,9 @@ function UsuariosPage({ setLoading }) {
   const [usuarios, setUsuarios] = useState([]);
   const [roles, setRoles] = useState([]);
   const [unidades, setUnidades] = useState([]);
+  //estados paginación
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
 
   const [mostrarModalUsuario, setMostrarModalUsuario] =
     useState(false);
@@ -45,6 +48,11 @@ function UsuariosPage({ setLoading }) {
       cargarDatos();
     }
   }, [puedeVer]);
+
+  //reiniciar la primera página cuando cambia
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [registrosPorPagina]);
 
   // =========================================================
   // MENSAJES DE ERROR
@@ -108,6 +116,22 @@ function UsuariosPage({ setLoading }) {
       );
     }
   };
+
+  const totalRegistros = usuarios.length;
+
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(totalRegistros / registrosPorPagina)
+  );
+
+  const indiceInicial =
+    (paginaActual - 1) * registrosPorPagina;
+
+  const indiceFinal =
+    indiceInicial + registrosPorPagina;
+
+  const usuariosPaginados =
+    usuarios.slice(indiceInicial, indiceFinal);
 
   // =========================================================
   // ABRIR MODAL - NUEVO USUARIO
@@ -265,7 +289,7 @@ function UsuariosPage({ setLoading }) {
 
       toast.success(
         dataUsuario.message ||
-          "Usuario guardado correctamente."
+        "Usuario guardado correctamente."
       );
 
       // -----------------------------------------------------
@@ -391,7 +415,7 @@ function UsuariosPage({ setLoading }) {
 
       toast.success(
         data.message ||
-          "Contraseña actualizada."
+        "Contraseña actualizada."
       );
     } catch (error) {
       toast.error(
@@ -431,7 +455,7 @@ function UsuariosPage({ setLoading }) {
 
       toast.success(
         data.message ||
-          "Usuario eliminado correctamente."
+        "Usuario eliminado correctamente."
       );
 
       // Si el usuario eliminado estaba abierto
@@ -485,28 +509,28 @@ function UsuariosPage({ setLoading }) {
       {/* ===================================================
           HEADER
       =================================================== */}
-  <div className="card-user">
-      <div className="header-user">
+      <div className="card-user">
+        <div className="header-user">
 
-        <div>
-          <h1>Usuarios</h1>
+          <div>
+            <h1>Usuarios</h1>
 
-          <p>
-            Administración de usuarios en
-            el sistema.
-          </p>
+            <p>
+              Administración de usuarios en
+              el sistema.
+            </p>
+          </div>
+
+          {puedeCrear && (
+            <button
+              type="button"
+              onClick={abrirNuevoUsuario}
+            >
+              + Nuevo usuario
+            </button>
+          )}
+
         </div>
-
-        {puedeCrear && (
-          <button
-            type="button"
-            onClick={abrirNuevoUsuario}
-          >
-            + Nuevo usuario
-          </button>
-        )}
-
-      </div>
       </div><br></br>
 
       {/* ===================================================
@@ -595,7 +619,7 @@ function UsuariosPage({ setLoading }) {
 
                 ) : (
 
-                  usuarios.map(
+                  usuariosPaginados.map(
                     (usuario) => (
 
                       <tr
@@ -666,6 +690,67 @@ function UsuariosPage({ setLoading }) {
               </tbody>
 
             </table>
+
+          </div>
+
+          <div className="inventario-paginacion">
+
+            <div className="inventario-paginacion-info">
+              {totalRegistros === 0
+                ? "0 registros"
+                : `${indiceInicial + 1}-${Math.min(
+                  indiceFinal,
+                  totalRegistros
+                )} de ${totalRegistros}`}
+            </div>
+
+            <div className="inventario-paginacion-controles">
+
+              <label>
+                Registros por página:
+              </label>
+
+              <select
+                value={registrosPorPagina}
+                onChange={(e) =>
+                  setRegistrosPorPagina(Number(e.target.value))
+                }
+              >
+                <option value={15}>15</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setPaginaActual((prev) =>
+                    Math.max(1, prev - 1)
+                  )
+                }
+                disabled={paginaActual === 1}
+              >
+                ‹
+              </button>
+
+              <span>
+                Página {paginaActual} de {totalPaginas}
+              </span>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setPaginaActual((prev) =>
+                    Math.min(totalPaginas, prev + 1)
+                  )
+                }
+                disabled={paginaActual === totalPaginas}
+              >
+                ›
+              </button>
+
+            </div>
 
           </div>
 
