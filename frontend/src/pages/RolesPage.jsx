@@ -53,8 +53,8 @@ function RolesPage({ setLoading }) {
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "Error cargando roles y permisos."
+        error.message ||
+        "Error cargando roles y permisos."
       );
     } finally {
       setLoading(false);
@@ -75,8 +75,8 @@ function RolesPage({ setLoading }) {
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "Error cargando permisos del rol."
+        error.message ||
+        "Error cargando permisos del rol."
       );
     } finally {
       setLoading(false);
@@ -184,13 +184,13 @@ function RolesPage({ setLoading }) {
 
       toast.success(
         data.message ||
-          "Permisos actualizados correctamente."
+        "Permisos actualizados correctamente."
       );
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "Error guardando permisos."
+        error.message ||
+        "Error guardando permisos."
       );
     } finally {
       setGuardando(false);
@@ -204,19 +204,28 @@ function RolesPage({ setLoading }) {
       String(idRolSeleccionado)
   );
 
+  const [modulosAbiertos, setModulosAbiertos] = useState({});
+
+  const toggleModulo = (modulo) => {
+    setModulosAbiertos((prev) => ({
+      ...prev,
+      [modulo]: !prev[modulo],
+    }));
+  }
+
   return (
     <div className="roles-page">
       <div className="card-user">
-      <div className="header-user">
-        <div>
-          <h1>Roles y permisos</h1>
+        <div className="header-user">
+          <div>
+            <h1>Roles y permisos</h1>
 
-          <p>
-            Configura qué módulos y acciones puede utilizar
-            cada rol.
-          </p>
+            <p>
+              Configura qué módulos y acciones puede utilizar
+              cada rol.
+            </p>
+          </div>
         </div>
-      </div>
       </div><br></br>
 
       <div className="roles-layout">
@@ -268,14 +277,6 @@ function RolesPage({ setLoading }) {
             </div>
           )}
 
-
-{/*BTN QUE ACTIVA LA PÁGINA EN MANTENIMIENTO
-       <div className="modulo-card">
-          
-        </div>
-*/}
- 
-
         </div>
 
         <div className="card permisos-panel">
@@ -291,7 +292,7 @@ function RolesPage({ setLoading }) {
 
             <div className="permisos-acciones">
               <button
-              className="btn-permisos select-all"
+                className="btn-permisos select-all"
                 type="button"
                 onClick={seleccionarTodos}
               >
@@ -299,7 +300,7 @@ function RolesPage({ setLoading }) {
               </button>
 
               <button
-              className="btn-permisos clear-all"
+                className="btn-permisos clear-all"
                 type="button"
                 onClick={limpiarTodos}
               >
@@ -312,75 +313,66 @@ function RolesPage({ setLoading }) {
             <p>Selecciona un rol para continuar.</p>
           ) : (
             <div className="modulos-grid">
-              {Object.entries(
-                permisosAgrupados
-              ).map(
-                ([
-                  modulo,
-                  permisosModulo
-                ]) => (
-                  <div
-                    className="modulo-card"
-                    key={modulo}
-                  >
-                    <div className="modulo-header">
-                      <h3>{modulo}</h3>
+              {Object.entries(permisosAgrupados).map(([modulo, permisosModulo]) => (
+                <div
+                  className={`modulo-card ${modulosAbiertos[modulo] ? "modulo-abierto" : ""
+                    }`}
+                  key={modulo}
+                >
+                  <div className="modulo-header">
 
-                      <label className="permiso-check permiso-todos">
-                        <input
-                          type="checkbox"
-                          checked={moduloCompleto(
-                            permisosModulo
-                          )}
-                          onChange={() =>
-                            cambiarModuloCompleto(
-                              permisosModulo
-                            )
-                          }
-                        />
+                    <button
+                      type="button"
+                      className="modulo-dropdown-btn"
+                      onClick={() => toggleModulo(modulo)}
+                    >
+                      <span>{modulo}</span>
 
-                        <span>Todos</span>
-                      </label>
-                    </div>
+                      <span className="modulo-flecha">
+                        {modulosAbiertos[modulo] ? "▲" : "▼"}
+                      </span>
+                    </button>
 
-                    <div className="permisos-lista">
-                      {permisosModulo.map(
-                        (permiso) => (
-                          <label
-                            className="permiso-check"
-                            key={
-                              permiso.ID_PERMISO
-                            }
-                          >
-                            <input
-                              type="checkbox"
-                              checked={permisoEstaSeleccionado(
-                                permiso.ID_PERMISO
-                              )}
-                              onChange={() =>
-                                cambiarPermiso(
-                                  permiso.ID_PERMISO
-                                )
-                              }
-                            />
+                    <label className="permiso-check permiso-todos">
+                      <input
+                        type="checkbox"
+                        checked={moduloCompleto(permisosModulo)}
+                        onChange={() => cambiarModuloCompleto(permisosModulo)}
+                      />
 
-                            <div>
-                              <strong>
-                                {permiso.NOMBRE}
-                              </strong>
+                      <span>Todos</span>
+                    </label>
 
-                              <small>
-                                {permiso.CODIGO}
-                              </small>
-                            </div>
-                          </label>
-                        )
-                      )}
-                    </div>
                   </div>
-                )
-              )}
-            </div>
+
+                  {modulosAbiertos[modulo] && (
+                    <div className="permisos-lista">
+                      {permisosModulo.map((permiso) => (
+                        <label
+                          className="permiso-check"
+                          key={permiso.ID_PERMISO}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={permisoEstaSeleccionado(
+                              permiso.ID_PERMISO
+                            )}
+                            onChange={() =>
+                              cambiarPermiso(permiso.ID_PERMISO)
+                            }
+                          />
+
+                          <div>
+                            <strong>{permiso.NOMBRE}</strong>
+                            <small>{permiso.CODIGO}</small>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div> //fin modulo grid
           )}
 
           <div className="guardar-permisos">
