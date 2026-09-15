@@ -71,12 +71,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: 12px;
+
 }
 
 .modulo-dropdown-btn {
   flex: 1;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -93,15 +92,35 @@
 
   text-align: left;
   color: #032870;
+  margin: 12px;
+    animation: dropdownEntrada 0.18s ease-out;
+
+}
+
+@keyframes dropdownEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modulo-dropdown-btn:hover {
+  background: none;
 }
 
 
 
 .modulo-flecha {
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-left: 10px;
 }
-
 .modulo-card {
   transition: all 0.2s ease;
   width: 100%;
@@ -113,11 +132,12 @@
 
 .permisos-lista {
   margin-top: 10px;
+  
 }
 
 .permisos-lista {
   display: flex;
-  flex-direction: column;
+ flex-direction: column
 }
 
 .permiso-check {
@@ -155,8 +175,9 @@
 
 .guardar-permisos {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin-top: 24px;
+ 
 }
 
 @media (max-width: 900px) {

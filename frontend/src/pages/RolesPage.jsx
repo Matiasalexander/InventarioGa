@@ -329,7 +329,7 @@ function RolesPage({ setLoading }) {
                       <span>{modulo}</span>
 
                       <span className="modulo-flecha">
-                        {modulosAbiertos[modulo] ? "▲" : "▼"}
+                        {modulosAbiertos[modulo] ? "⬆️​" : "⬇️​"}
                       </span>
                     </button>
 
