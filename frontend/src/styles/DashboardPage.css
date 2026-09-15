@@ -1,3 +1,15 @@
+/*SCROLL TABLE*/
+.tabla-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.tabla-scroll thead th {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 1;
+}
 /* =========================================================
    DASHBOARD PAGE
    ========================================================= */
@@ -330,6 +342,7 @@
 .dashboard-card-restaurante,
 .dashboard-card-estatus {
     background: #ffffff;
+    height: fit-content;
 }
 
 

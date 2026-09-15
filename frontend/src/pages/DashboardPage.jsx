@@ -96,6 +96,7 @@ function DashboardPage({ setLoading }) {
           </h2>
 
           <div className="dashboard-table-container">
+            <div className="tabla-scroll">
             <table className="dashboard-table">
               <thead>
                 <tr>
@@ -113,6 +114,7 @@ function DashboardPage({ setLoading }) {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 
@@ -124,6 +126,7 @@ function DashboardPage({ setLoading }) {
           </h2>
 
           <div className="dashboard-table-container">
+            <div className="tabla-scroll">
             <table className="dashboard-table">
               <thead>
                 <tr>
@@ -141,6 +144,7 @@ function DashboardPage({ setLoading }) {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 
@@ -152,6 +156,7 @@ function DashboardPage({ setLoading }) {
           </h2>
 
           <div className="dashboard-table-container">
+            <div className="tabla-scroll">
             <table className="dashboard-table">
               <thead>
                 <tr>
@@ -169,6 +174,7 @@ function DashboardPage({ setLoading }) {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 
