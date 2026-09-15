@@ -385,6 +385,7 @@ function HistorialResponsivasPage({ setLoading }) {
 
   return (
     <div className="card">
+
       <div className="header">
         <div>
           <h2>Historial de Responsivas</h2>
@@ -771,7 +772,7 @@ function HistorialResponsivasPage({ setLoading }) {
 
 
 
-    </div>
+    </div>//div de la card principal
   );
 }
 

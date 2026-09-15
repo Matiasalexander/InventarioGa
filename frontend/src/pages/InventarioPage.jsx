@@ -502,7 +502,8 @@ const limpiarFiltros = () => {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Inventario</h1>
           <p>Administración de equipos registrados.</p>
@@ -535,7 +536,7 @@ const limpiarFiltros = () => {
           )}
         </div>
       </div>
-
+</div> <br></br>
       <div className="card">
 <div className="toolbar">
 

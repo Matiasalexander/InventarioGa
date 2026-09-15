@@ -35,11 +35,12 @@
 
 .card-user {
   display: flex;
-
-  padding: 17px 20px;
+  
+  padding: 12px 20px;
   background: white;
   border-radius: 12px;
     box-shadow: 0 12px 12px rgba(15, 23, 42, 0.08);
+  
   }
 
 .header-user {

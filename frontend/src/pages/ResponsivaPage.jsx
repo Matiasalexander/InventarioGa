@@ -226,6 +226,7 @@ const puedePDF = tienePermiso("responsivas.pdf");
 
   return (
     <div className="contenedor">
+      <div className="card-user">
       <div className="header">
         <h2>Nueva responsiva</h2>
         
@@ -245,7 +246,7 @@ const puedePDF = tienePermiso("responsivas.pdf");
         </button>
         </div>
       </div>
-
+</div> <br></br>
       <div className="responsiva-grid">
         <div className="card-responsiva">
           <div className="form-responsiva">
