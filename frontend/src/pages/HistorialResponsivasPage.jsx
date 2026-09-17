@@ -387,16 +387,17 @@ function HistorialResponsivasPage({ setLoading }) {
     <div className="card">
 
       <div className="header">
-        <div>
-          <h2>Historial de Responsivas</h2>
+        <div className="header-user">
+          <div>
+          <h1>Historial de Responsivas</h1>
           <p>
             Consulta, edita y administra las
             responsivas registradas.
           </p>
-        </div>
-      
+              </div>  
         {puedeCrear && (
           <button
+          className="btn-responsiva"
             type="button"
             onClick={() =>
               navigate("/responsiva")
@@ -405,6 +406,8 @@ function HistorialResponsivasPage({ setLoading }) {
             Crear Responsiva
           </button>
         )}
+        </div>
+
       </div>
 
       <div

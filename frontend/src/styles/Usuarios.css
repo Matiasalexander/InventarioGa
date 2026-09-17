@@ -172,3 +172,14 @@ input[type="checkbox"]{
   z-index: 5;
   background: #171a4d;
 }
+@media (max-width: 768px) {
+    .header-user {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .header-user button {
+        width: 100%;
+    }
+}

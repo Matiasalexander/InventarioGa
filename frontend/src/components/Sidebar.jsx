@@ -118,8 +118,10 @@ export default function Sidebar() {
         </div>
 
         <div className="usuario">
+          <div className="usuario-info">
           <strong>{usuario?.Nombre || "Usuario"}</strong>
           <small>{usuario?.Rol || "Sin rol"}</small>
+          </div>
         </div>
 
         <nav className="menu">
