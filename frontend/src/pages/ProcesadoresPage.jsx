@@ -199,7 +199,8 @@ function ProcesadoresPage({ setLoading }) {
   return (
     <div className="responsive-u">
       <div className="detail-item">
-        <div className="header">
+        <div className="card-user">
+        <div className="header-user">
           <div>
             <h1>Procesadores</h1>
 
@@ -208,6 +209,7 @@ function ProcesadoresPage({ setLoading }) {
             </p>
           </div>
         </div>
+        </div> <br></br>
 
         {mostrarFormulario && (
           <div className="card">
@@ -272,7 +274,7 @@ function ProcesadoresPage({ setLoading }) {
                   )}
                 </tr>
               </thead>
-
+                  
               <tbody>
                 {procesadoresFiltrados.map((item) => (
                   <tr key={item.id}>

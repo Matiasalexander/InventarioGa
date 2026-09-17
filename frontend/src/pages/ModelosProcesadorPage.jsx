@@ -251,7 +251,8 @@ function ModelosProcesadorPage({ setLoading }) {
 
   return (
     <div className="detail-item">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Modelos de Procesador</h1>
           <p>
@@ -259,7 +260,7 @@ function ModelosProcesadorPage({ setLoading }) {
           </p>
         </div>
       </div>
-
+</div><br></br>
       {mostrarFormulario && (
         <div className="card">
           <h2>

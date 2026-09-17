@@ -198,13 +198,14 @@ function RamPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Memorias RAM</h1>
           <p>Catálogo de capacidades de memoria RAM.</p>
         </div>
       </div>
-
+</div><br></br>
       {mostrarFormulario && (
         <div className="card">
           <h2>

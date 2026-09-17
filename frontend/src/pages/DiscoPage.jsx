@@ -213,13 +213,14 @@ function DiscoPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Discos Duros</h1>
           <p>Catálogo de discos duros.</p>
         </div>
       </div>
-
+</div><br></br>
       {mostrarFormulario && (
         <div className="card">
           <h2>
