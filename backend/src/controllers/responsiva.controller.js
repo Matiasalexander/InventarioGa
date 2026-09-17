@@ -2,7 +2,7 @@ const responsivaService = require("../services/responsiva.service");
 
 const responderError = (res, error, mensaje) => {
   res.status(error.statusCode || 500).json({
-    message: mensaje,
+    message: error.statusCode ? error.message : mensaje,
     error: error.message
   });
 };

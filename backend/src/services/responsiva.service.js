@@ -67,6 +67,52 @@ const crearResponsiva = async (payload) => {
 
   await validarEquiposDisponibles(pool, equipos);
 
+const fechaResponsiva = Fecha.substring(0, 10);
+
+const hoy = new Date();
+const fechaHoy = hoy.toISOString().substring(0, 10);
+
+if (fechaResponsiva > fechaHoy) {
+  lanzarError(
+    "La fecha de la responsiva no puede ser posterior a la fecha actual",
+    400
+  );
+}
+
+  for (const equipo of equipos) {
+    if (!equipo.IdInventario) continue;
+
+    const result = await pool.request()
+      .input("IdInventario", equipo.IdInventario)
+      .query(`
+        SELECT FECHA_REGISTRO
+        FROM INVENTARIO_M
+        WHERE id = @IdInventario
+      `);
+
+    if (result.recordset.length === 0) {
+      lanzarError(`El equipo con ID ${equipo.IdInventario} no existe`, 404);
+    }
+
+    const fechaRegistroEquipo = result.recordset[0].FECHA_REGISTRO;
+console.log("VALIDACIÓN FECHAS:", {
+  IdInventario: equipo.IdInventario,
+  FechaResponsiva: Fecha,
+  FechaRegistroEquipo: fechaRegistroEquipo
+});
+    if (fechaRegistroEquipo) {
+  const fechaResponsiva = Fecha.substring(0, 10);
+  const fechaRegistro = new Date(fechaRegistroEquipo)
+    .toISOString()
+    .substring(0, 10);
+
+  if (fechaResponsiva < fechaRegistro) {
+    lanzarError("El rango de fechas no coincide", 400);
+  }
+}
+  }
+
+  
   const result = await pool.request()
     .input("Fecha", Fecha)
     .input("NombreReceptor", NombreReceptor)
