@@ -227,8 +227,8 @@ const puedePDF = tienePermiso("responsivas.pdf");
   return (
     <div className="contenedor">
       <div className="card-user">
-      <div className="header">
-        <h2>Nueva responsiva</h2>
+      <div className="header-user">
+        <h1>Nueva responsiva</h1>
         
         <div className="header-actions">
         <button
