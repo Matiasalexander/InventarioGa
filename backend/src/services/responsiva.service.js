@@ -67,7 +67,7 @@ const crearResponsiva = async (payload) => {
 
   await validarEquiposDisponibles(pool, equipos);
 
-const fechaResponsiva = Fecha.substring(0, 10);
+/*const fechaResponsiva = Fecha.substring(0, 10);
 
 const hoy = new Date();
 const fechaHoy = hoy.toISOString().substring(0, 10);
@@ -110,7 +110,7 @@ console.log("VALIDACIÓN FECHAS:", {
     lanzarError("El rango de fechas no coincide", 400);
   }
 }
-  }
+  }*/
 
   
   const result = await pool.request()
