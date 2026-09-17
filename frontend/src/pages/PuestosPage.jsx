@@ -34,6 +34,9 @@ function PuestosPage({ setLoading }) {
   const puedeEditar = tienePermiso("puestos.editar");
   const puedeEliminar = tienePermiso("puestos.eliminar");
 
+    const [puestoAbierto, setPuestosAbiertos] = useState(false);
+
+
   const puedeConsultarDepartamentos =
     tienePermiso("departamentos.ver");
 
@@ -254,8 +257,25 @@ function PuestosPage({ setLoading }) {
           <h1>Puestos</h1>
           <p>Catálogo de puestos por departamento.</p>
         </div>
+  <button
+    type="button"
+    className="btn-dropdown"
+    onClick={() =>
+      setPuestosAbiertos((prev) => !prev)
+    }
+  >
+    {puestoAbierto ? "Ocultar" : "Mostrar"}
+    <span>
+      {puestoAbierto ? "" : ""}
+    </span>
+  </button>
       </div>
-</div><br></br>
+</div>
+
+<br></br>
+
+{puestoAbierto && (
+  <>
       {mostrarFormulario && (
         <div className="card">
           <h2>
@@ -321,6 +341,7 @@ function PuestosPage({ setLoading }) {
           </form>
         </div>
       )}
+     
 
       <div className="card">
         <input
@@ -389,6 +410,9 @@ function PuestosPage({ setLoading }) {
           </table>
         </div>
       </div>
+       </>
+)
+}
     </div>
   );
 }

@@ -27,6 +27,8 @@ function DepartamentosPage({ setLoading }) {
   const puedeEditar = tienePermiso("departamentos.editar");
   const puedeEliminar = tienePermiso("departamentos.eliminar");
 
+  const [departamentosAbierto, setDepartamentosAbierto] = useState(false);
+
   const cargarDepartamentos = async () => {
     try {
       setLoading(true);
@@ -41,8 +43,8 @@ function DepartamentosPage({ setLoading }) {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error al cargar listado de departamentos."
+        error.response?.data?.error ||
+        "Error al cargar listado de departamentos."
       );
     } finally {
       setLoading(false);
@@ -126,8 +128,8 @@ function DepartamentosPage({ setLoading }) {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error al guardar departamento."
+        error.response?.data?.error ||
+        "Error al guardar departamento."
       );
     } finally {
       setLoading(false);
@@ -183,8 +185,8 @@ function DepartamentosPage({ setLoading }) {
 
       toast.error(
         error.response?.data?.message ||
-          error.response?.data?.error ||
-          "Error al eliminar departamento."
+        error.response?.data?.error ||
+        "Error al eliminar departamento."
       );
     } finally {
       setLoading(false);
@@ -204,112 +206,131 @@ function DepartamentosPage({ setLoading }) {
   return (
     <div className="contenedor">
       <div className="card-user">
-      <div className="header-user">
-        <div>
-          <h1>Departamentos</h1>
-          <p>Catálogo de departamentos internos.</p>
+        <div className="header-user">
+          <div>
+            <h1>Departamentos</h1>
+            <p>Catálogo de departamentos internos.</p>
+          </div>
+
+          <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setDepartamentosAbierto((prev) => !prev)
+            }
+          >
+            {departamentosAbierto ? "Ocultar" : "Mostrar"}
+            <span>
+              {departamentosAbierto ? "" : ""}
+            </span>
+          </button>
         </div>
       </div>
-</div> <br></br>
-      {mostrarFormulario && (
-        <div className="card">
-          <h2>
-            {modoEdicion
-              ? "Editar departamento"
-              : "Agregar departamento"}
-          </h2>
+      <br></br>
 
-          <form
-            onSubmit={guardarDepartamento}
-            className="form-grid"
-          >
+      {departamentosAbierto && (
+        <>
+          {mostrarFormulario && (
+            <div className="card">
+              <h2>
+                {modoEdicion
+                  ? "Editar departamento"
+                  : "Agregar departamento"}
+              </h2>
+
+              <form
+                onSubmit={guardarDepartamento}
+                className="form-grid"
+              >
+                <input
+                  placeholder="Nombre del departamento"
+                  value={nombreDepartamento}
+                  onChange={(e) =>
+                    setNombreDepartamento(e.target.value)
+                  }
+                />
+
+                <button type="submit">
+                  {modoEdicion
+                    ? "Actualizar departamento"
+                    : "Guardar departamento"}
+                </button>
+
+                {modoEdicion && (
+                  <button
+                    type="button"
+                    onClick={limpiarFormulario}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </form>
+            </div>
+          )}
+
+          <div className="card">
             <input
-              placeholder="Nombre del departamento"
-              value={nombreDepartamento}
-              onChange={(e) =>
-                setNombreDepartamento(e.target.value)
-              }
+              className="search-input-f"
+              placeholder="Buscar departamento Ej. Contabilidad, Marketing"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
             />
 
-            <button type="submit">
-              {modoEdicion
-                ? "Actualizar departamento"
-                : "Guardar departamento"}
-            </button>
+            <br />
 
-            {modoEdicion && (
-              <button
-                type="button"
-                onClick={limpiarFormulario}
-              >
-                Cancelar
-              </button>
-            )}
-          </form>
-        </div>
-      )}
+            <h2>Listado de departamentos</h2>
 
-      <div className="card">
-        <input
-          className="search-input-f"
-          placeholder="Buscar departamento Ej. Contabilidad, Marketing"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-        />
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Departamento</th>
 
-        <br />
+                    {mostrarAcciones && (
+                      <th>Acciones</th>
+                    )}
+                  </tr>
+                </thead>
 
-        <h2>Listado de departamentos</h2>
+                <tbody>
+                  {departamentosFiltrados.map((item) => (
+                    <tr key={item.Id}>
+                      <td>{item.Nombre_departamento}</td>
 
-        <div className="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Departamento</th>
+                      {mostrarAcciones && (
+                        <td>
+                          <CatalogoActions
+                            item={item}
+                            onEditar={
+                              puedeEditar
+                                ? editarDepartamento
+                                : null
+                            }
+                            onEliminar={
+                              puedeEliminar
+                                ? borrarDepartamento
+                                : null
+                            }
+                            getId={(item) => item.Id}
+                          />
+                        </td>
+                      )}
+                    </tr>
+                  ))}
 
-                {mostrarAcciones && (
-                  <th>Acciones</th>
-                )}
-              </tr>
-            </thead>
-
-            <tbody>
-              {departamentosFiltrados.map((item) => (
-                <tr key={item.Id}>
-                  <td>{item.Nombre_departamento}</td>
-
-                  {mostrarAcciones && (
-                    <td>
-                      <CatalogoActions
-                        item={item}
-                        onEditar={
-                          puedeEditar
-                            ? editarDepartamento
-                            : null
-                        }
-                        onEliminar={
-                          puedeEliminar
-                            ? borrarDepartamento
-                            : null
-                        }
-                        getId={(item) => item.Id}
-                      />
-                    </td>
+                  {departamentosFiltrados.length === 0 && (
+                    <tr>
+                      <td colSpan={mostrarAcciones ? 2 : 1}>
+                        No hay departamentos registrados.
+                      </td>
+                    </tr>
                   )}
-                </tr>
-              ))}
-
-              {departamentosFiltrados.length === 0 && (
-                <tr>
-                  <td colSpan={mostrarAcciones ? 2 : 1}>
-                    No hay departamentos registrados.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
