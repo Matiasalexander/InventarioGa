@@ -264,7 +264,8 @@ function ModelosPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Modelos</h1>
 
@@ -273,7 +274,7 @@ function ModelosPage({ setLoading }) {
           </p>
         </div>
       </div>
-
+</div><br></br>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>

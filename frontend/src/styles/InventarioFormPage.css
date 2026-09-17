@@ -2,12 +2,18 @@
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
+    background: white;
+    border-radius: 22px;
+    margin: 20px;
+    padding: 26px;
+     box-shadow: 0 12px 12px rgba(15, 23, 42, 0.08);
 }
 
 .formulario-card h2,
 .formulario-card h3 {
     grid-column: 1 / -1;
     margin-top: 20px;
+    color: #334155;
 }
 
 .formulario-card input,

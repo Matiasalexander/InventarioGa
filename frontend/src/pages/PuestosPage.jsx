@@ -248,13 +248,14 @@ function PuestosPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Puestos</h1>
           <p>Catálogo de puestos por departamento.</p>
         </div>
       </div>
-
+</div><br></br>
       {mostrarFormulario && (
         <div className="card">
           <h2>

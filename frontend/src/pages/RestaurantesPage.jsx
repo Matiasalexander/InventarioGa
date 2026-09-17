@@ -186,13 +186,14 @@ function RestaurantesPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Restaurantes</h1>
           <p>Catálogo principal de restaurantes / marcas operativas.</p>
         </div>
       </div>
-
+</div><br></br>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>

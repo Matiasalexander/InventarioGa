@@ -195,13 +195,14 @@ function MarcasPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Marcas</h1>
           <p>Catálogo de marcas de equipos.</p>
         </div>
       </div>
-
+</div><br></br>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>

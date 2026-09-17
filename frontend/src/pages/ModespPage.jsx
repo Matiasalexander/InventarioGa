@@ -186,7 +186,8 @@ function ModespPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Modelos base</h1>
 
@@ -195,7 +196,7 @@ function ModespPage({ setLoading }) {
           </p>
         </div>
       </div>
-
+</div><br></br>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>

@@ -203,13 +203,14 @@ function DepartamentosPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Departamentos</h1>
           <p>Catálogo de departamentos internos.</p>
         </div>
       </div>
-
+</div> <br></br>
       {mostrarFormulario && (
         <div className="card">
           <h2>

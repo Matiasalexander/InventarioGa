@@ -635,7 +635,8 @@ function InventarioFormPage({ setLoading }) {
 
   return (
     <div className="contenedor-responsive">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>{esEdicion ? "Actualizar equipo" : "Agregar equipo"}</h1>
           <p>
@@ -649,8 +650,8 @@ function InventarioFormPage({ setLoading }) {
           Volver al listado
         </button>
       </div>
-
-      <div className="card">
+</div>
+      
         <form onSubmit={guardarEquipo}>
           <div className="formulario-card">
             <h2>Información general</h2>
@@ -1159,6 +1160,8 @@ function InventarioFormPage({ setLoading }) {
               />
             </div>
           </div>
+
+          <div className="card">
           <div className="campo-form campo-foto">
             <label>Foto</label>
             <input
@@ -1185,13 +1188,14 @@ function InventarioFormPage({ setLoading }) {
             )}
           </div>
           <br />
-
+</div>
           <button type="submit" disabled={!formularioCompleto()}>
             {esEdicion ? "Actualizar equipo" : "Guardar equipo"}
           </button>
         </form>
       </div>
-    </div>
+      
+   
   );
 }
 

@@ -253,7 +253,8 @@ function UnidadesPage({ setLoading }) {
 
   return (
     <div className="contenedor">
-      <div className="header">
+      <div className="card-user">
+      <div className="header-user">
         <div>
           <h1>Unidades</h1>
 
@@ -262,7 +263,7 @@ function UnidadesPage({ setLoading }) {
           </p>
         </div>
       </div>
-
+</div><br></br>
       {mostrarFormulario && (
         <div className="card">
           <h2>
