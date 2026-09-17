@@ -394,7 +394,7 @@ function HistorialResponsivasPage({ setLoading }) {
             responsivas registradas.
           </p>
         </div>
-
+      
         {puedeCrear && (
           <button
             type="button"
