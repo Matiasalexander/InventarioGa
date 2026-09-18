@@ -27,6 +27,8 @@ function ProcesadoresPage({ setLoading }) {
   const puedeEditar = tienePermiso("procesadores.editar");
   const puedeEliminar = tienePermiso("procesadores.eliminar");
 
+    const [procesadoresAbierto, setProcesadoresAbierto] = useState(false);
+
   const cargarProcesadores = async () => {
     try {
       setLoading?.(true);
@@ -208,9 +210,24 @@ function ProcesadoresPage({ setLoading }) {
               Catálogo de procesadores disponibles para equipos.
             </p>
           </div>
+          
+          <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setProcesadoresAbierto((prev) => !prev)
+            }
+          >
+            {procesadoresAbierto ? "Ocultar" : "Mostrar"}
+            <span>
+              {procesadoresAbierto ? "" : ""}
+            </span>
+          </button>
         </div>
         </div> <br></br>
 
+ {procesadoresAbierto && (
+        <>
         {mostrarFormulario && (
           <div className="card">
             <h2>
@@ -315,6 +332,8 @@ function ProcesadoresPage({ setLoading }) {
             </table>
           </div>
         </div>
+        </>
+ )}
       </div>
     </div>
   );

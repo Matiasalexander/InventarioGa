@@ -34,6 +34,8 @@ function ModelosProcesadorPage({ setLoading }) {
   const puedeEditar = tienePermiso("modelosprocesador.editar");
   const puedeEliminar = tienePermiso("modelosprocesador.eliminar");
 
+    const [modelosProcesadoresAbierto, setModelosProcesadoresAbierto] = useState(false);
+
   const puedeConsultarProcesadores =
     tienePermiso("procesadores.ver");
 
@@ -259,8 +261,22 @@ function ModelosProcesadorPage({ setLoading }) {
             Catálogo de modelos asociados a cada procesador.
           </p>
         </div>
+        <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setModelosProcesadoresAbierto((prev) => !prev)
+            }
+          >
+            {modelosProcesadoresAbierto ? "Ocultar" : "Mostrar"}
+            <span>
+              {modelosProcesadoresAbierto ? "" : ""}
+            </span>
+          </button>
       </div>
 </div><br></br>
+ {modelosProcesadoresAbierto&& (
+        <>
       {mostrarFormulario && (
         <div className="card">
           <h2>
@@ -396,6 +412,8 @@ function ModelosProcesadorPage({ setLoading }) {
           </table>
         </div>
       </div>
+      </>
+ )}
     </div>
   );
 }
