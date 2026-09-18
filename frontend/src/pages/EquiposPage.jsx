@@ -18,14 +18,23 @@ function EquiposPage({ setLoading }) {
 
   return (
     <div className="responsive">
-      <div className="dashboard-grid">
-        <TipoEquipoPage setLoading={setLoading} />
-        <MarcasPage setLoading={setLoading} />
-      </div>
+      <div className="area-grid">
 
-      <div className="dashboard-grid">
+        <div className="detail-item">
+        <TipoEquipoPage setLoading={setLoading} />
+        </div>
+
+        <div className="detail-item">
+        <MarcasPage setLoading={setLoading} />
+  </div>
+
+      <div className="detail-item">
         <ModespPage setLoading={setLoading} />
+        </div>
+
+        <div className="detail-item">
         <ModelosPage setLoading={setLoading} />
+        </div>
       </div>
     </div>
   );

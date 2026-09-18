@@ -41,6 +41,8 @@ function ModelosPage({ setLoading }) {
   const puedeEditar = tienePermiso("catalogos.editar");
   const puedeEliminar = tienePermiso("catalogos.eliminar");
 
+  const [modelosAbiertos, setModelosAbiertos] = useState(false);
+
   const cargarDatos = async () => {
     try {
       setLoading?.(true);
@@ -273,8 +275,25 @@ function ModelosPage({ setLoading }) {
             Relaciona tipo de equipo, marca y modelo específico.
           </p>
         </div>
+
+                      <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setModelosAbiertos((prev) => !prev)
+            }
+          >
+            {modelosAbiertos ? "Ocultar" : "Mostrar"}
+            <span>
+              {modelosAbiertos ? "" : ""}
+            </span>
+          </button>
+
       </div>
 </div><br></br>
+
+{modelosAbiertos && (
+  <>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>
@@ -435,6 +454,8 @@ function ModelosPage({ setLoading }) {
           </table>
         </div>
       </div>
+      </>
+)}
     </div>
   );
 }

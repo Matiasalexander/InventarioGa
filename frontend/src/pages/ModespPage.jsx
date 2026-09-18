@@ -27,6 +27,8 @@ function ModespPage({ setLoading }) {
   const puedeEditar = tienePermiso("catalogos.editar");
   const puedeEliminar = tienePermiso("catalogos.eliminar");
 
+  const [mbAbiertos, setMbAbiertos] = useState(false);
+
   const cargarModelos = async () => {
     try {
       setLoading?.(true);
@@ -195,8 +197,25 @@ function ModespPage({ setLoading }) {
             Catálogo base de modelos específicos.
           </p>
         </div>
+        
+                     <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setMbAbiertos((prev) => !prev)
+            }
+          >
+            {mbAbiertos ? "Ocultar" : "Mostrar"}
+            <span>
+              {mbAbiertos ? "" : ""}
+            </span>
+          </button>
+
       </div>
 </div><br></br>
+
+{mbAbiertos && (
+  <>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>
@@ -304,6 +323,8 @@ function ModespPage({ setLoading }) {
           </table>
         </div>
       </div>
+</>
+)}
     </div>
   );
 }

@@ -27,6 +27,8 @@ function MarcasPage({ setLoading }) {
   const puedeEditar = tienePermiso("catalogos.editar");
   const puedeEliminar = tienePermiso("catalogos.eliminar");
 
+  const [marcasAbiertos, setMarcasAbiertos] = useState(false);
+
   const cargarMarcas = async () => {
     try {
       setLoading(true);
@@ -201,8 +203,25 @@ function MarcasPage({ setLoading }) {
           <h1>Marcas</h1>
           <p>Catálogo de marcas de equipos.</p>
         </div>
+
+                 <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setMarcasAbiertos((prev) => !prev)
+            }
+          >
+            {marcasAbiertos ? "Ocultar" : "Mostrar"}
+            <span>
+              {marcasAbiertos ? "" : ""}
+            </span>
+          </button>
+
       </div>
 </div><br></br>
+
+{marcasAbiertos && (
+  <>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>
@@ -310,6 +329,8 @@ function MarcasPage({ setLoading }) {
           </table>
         </div>
       </div>
+      </>
+)}
     </div>
   );
 }

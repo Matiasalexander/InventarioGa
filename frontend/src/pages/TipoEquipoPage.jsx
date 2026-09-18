@@ -26,6 +26,7 @@ function TipoEquipoPage({ setLoading }) {
   const puedeCrear = tienePermiso("catalogos.crear");
   const puedeEditar = tienePermiso("catalogos.editar");
   const puedeEliminar = tienePermiso("catalogos.eliminar");
+  const [tpeAbiertos, setTpeAbiertos] = useState(false);
 
   const cargarTiposEquipo = async () => {
     try {
@@ -204,9 +205,24 @@ function TipoEquipoPage({ setLoading }) {
             Catálogo de tipos de equipo del inventario.
           </p>
         </div>
+
+               <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setTpeAbiertos((prev) => !prev)
+            }
+          >
+            {tpeAbiertos ? "Ocultar" : "Mostrar"}
+            <span>
+              {tpeAbiertos ? "" : ""}
+            </span>
+          </button>
+
       </div>
 </div><br></br>
-
+ {tpeAbiertos && (
+        <>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>
@@ -315,6 +331,9 @@ function TipoEquipoPage({ setLoading }) {
           </table>
         </div>
       </div>
+      </>
+ )
+}
     </div>
   );
 }
