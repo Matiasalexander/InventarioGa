@@ -1,16 +1,46 @@
+/*father page*/
+.area-grid .contenedor {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: auto;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.responsive {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
 .area-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
+    width: 100%;
+    min-width: 0;
     align-items: start;
 }
 
 .detail-item {
-    min-width: 0; /* evita que el contenido rompa el grid */
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
 }
 
+/* Tablets y pantallas pequeñas */
 @media (max-width: 992px) {
     .area-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+/* Celulares */
+@media (max-width: 576px) {
+    .area-grid {
+        gap: 16px;
     }
 }

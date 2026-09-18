@@ -9,6 +9,7 @@ import "../styles/InventarioDetallePage.css";
 
 function InventarioDetallePage() {
 
+
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -67,17 +68,17 @@ function InventarioDetallePage() {
   }, [id]);
 
 
-  const formatearFecha = (fecha) => {
+const formatearFecha = (fecha) => {
+  if (!fecha) return "N/A";
 
-    if (!fecha) return "N/A";
+  const fechaTexto = String(fecha).substring(0, 10);
 
-    return new Date(fecha).toLocaleDateString("es-MX", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
-    });
+  const [year, month, day] = fechaTexto.split("-");
 
-  };
+  if (!year || !month || !day) return "N/A";
+
+  return `${day}/${month}/${year}`;
+};
 
 
   const mostrar = (valor) => {

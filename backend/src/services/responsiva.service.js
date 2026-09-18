@@ -67,7 +67,7 @@ const crearResponsiva = async (payload) => {
 
   await validarEquiposDisponibles(pool, equipos);
 
-/*const fechaResponsiva = Fecha.substring(0, 10);
+const fechaResponsiva = Fecha.substring(0, 10);
 
 const hoy = new Date();
 const fechaHoy = hoy.toISOString().substring(0, 10);
@@ -82,36 +82,40 @@ if (fechaResponsiva > fechaHoy) {
   for (const equipo of equipos) {
     if (!equipo.IdInventario) continue;
 
-    const result = await pool.request()
-      .input("IdInventario", equipo.IdInventario)
-      .query(`
-        SELECT FECHA_REGISTRO
-        FROM INVENTARIO_M
-        WHERE id = @IdInventario
-      `);
-
+const result = await pool.request()
+  .input("IdInventario", equipo.IdInventario)
+  .input("FechaResponsiva", Fecha)
+  .query(`
+    SELECT
+      FECHA_FABRICACION,
+      CASE
+        WHEN CAST(@FechaResponsiva AS date) < CAST(FECHA_FABRICACION AS date)
+        THEN 1
+        ELSE 0
+      END AS FechaInvalida
+    FROM INVENTARIO_M
+    WHERE id = @IdInventario
+  `);
     if (result.recordset.length === 0) {
       lanzarError(`El equipo con ID ${equipo.IdInventario} no existe`, 404);
     }
+    const equipoBD = result.recordset[0];
 
-    const fechaRegistroEquipo = result.recordset[0].FECHA_REGISTRO;
-console.log("VALIDACIÓN FECHAS:", {
+    console.log("VALIDACIÓN FECHAS:", {
   IdInventario: equipo.IdInventario,
   FechaResponsiva: Fecha,
-  FechaRegistroEquipo: fechaRegistroEquipo
+  FechaFabricacionEquipo: equipoBD.FECHA_FABRICACION,
+  FechaInvalida: equipoBD.FechaInvalida
 });
-    if (fechaRegistroEquipo) {
-  const fechaResponsiva = Fecha.substring(0, 10);
-  const fechaRegistro = new Date(fechaRegistroEquipo)
-    .toISOString()
-    .substring(0, 10);
 
-  if (fechaResponsiva < fechaRegistro) {
-    lanzarError("El rango de fechas no coincide", 400);
-  }
+if (equipoBD.FechaInvalida === 1) {
+  lanzarError(
+    "El rango de fechas no coincide",
+    400
+  );
 }
-  }*/
-
+  }
+ 
   
   const result = await pool.request()
     .input("Fecha", Fecha)
