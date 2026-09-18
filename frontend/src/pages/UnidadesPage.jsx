@@ -35,6 +35,8 @@ function UnidadesPage({ setLoading }) {
   const puedeEditar = tienePermiso("unidades.editar");
   const puedeEliminar = tienePermiso("unidades.eliminar");
 
+  const [unidadesAbiertos, setUnidadesAbiertos] = useState(false);
+
   /*
    * El selector de restaurantes consume /api/restaurantes.
    * Por eso el usuario también necesita restaurantes.ver.
@@ -262,8 +264,25 @@ function UnidadesPage({ setLoading }) {
             Catálogo de localidades asociadas a restaurantes.
           </p>
         </div>
+
+                      <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setUnidadesAbiertos((prev) => !prev)
+            }
+          >
+            {unidadesAbiertos ? "Ocultar" : "Mostrar"}
+            <span>
+              {unidadesAbiertos ? "" : ""}
+            </span>
+          </button>
+
       </div>
 </div><br></br>
+
+{unidadesAbiertos && (
+        <>
       {mostrarFormulario && (
         <div className="card">
           <h2>
@@ -409,6 +428,8 @@ function UnidadesPage({ setLoading }) {
           </table>
         </div>
       </div>
+      </>
+)}
     </div>
   );
 }

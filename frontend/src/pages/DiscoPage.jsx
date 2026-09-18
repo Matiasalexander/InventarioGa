@@ -27,6 +27,7 @@ function DiscoPage({ setLoading }) {
   const puedeCrear = tienePermiso("discosduros.crear");
   const puedeEditar = tienePermiso("discosduros.editar");
   const puedeEliminar = tienePermiso("discosduros.eliminar");
+  const [discosAbiertos, setDiscosAbiertos] = useState(false);
 
   const cargarDiscos = async () => {
     try {
@@ -219,8 +220,22 @@ function DiscoPage({ setLoading }) {
           <h1>Discos Duros</h1>
           <p>Catálogo de discos duros.</p>
         </div>
+        <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setDiscosAbiertos((prev) => !prev)
+            }
+          >
+            {discosAbiertos ? "Ocultar" : "Mostrar"}
+            <span>
+              {discosAbiertos ? "" : ""}
+            </span>
+          </button>
       </div>
 </div><br></br>
+ {discosAbiertos && (
+        <>
       {mostrarFormulario && (
         <div className="card">
           <h2>
@@ -335,6 +350,9 @@ function DiscoPage({ setLoading }) {
           </table>
         </div>
       </div>
+      </>
+ )
+}
     </div>
   );
 }

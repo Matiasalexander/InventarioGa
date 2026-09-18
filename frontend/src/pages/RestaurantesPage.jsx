@@ -31,6 +31,7 @@ function RestaurantesPage({ setLoading }) {
   const puedeCrear = tienePermiso("restaurantes.crear");
   const puedeEditar = tienePermiso("restaurantes.editar");
   const puedeEliminar = tienePermiso("restaurantes.eliminar");
+  const [restaurantesAbierto, setRestaurantesAbiertos] = useState(false);
 
   const cargarRestaurantes = async () => {
     try {
@@ -192,8 +193,24 @@ function RestaurantesPage({ setLoading }) {
           <h1>Restaurantes</h1>
           <p>Catálogo principal de restaurantes / marcas operativas.</p>
         </div>
+
+              <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setRestaurantesAbiertos((prev) => !prev)
+            }
+          >
+            {restaurantesAbierto ? "Ocultar" : "Mostrar"}
+            <span>
+              {restaurantesAbierto ? "" : ""}
+            </span>
+          </button>
       </div>
 </div><br></br>
+
+ {restaurantesAbierto && (
+        <>
       {(puedeCrear || (modoEdicion && puedeEditar)) && (
         <div className="card">
           <h2>
@@ -293,6 +310,8 @@ function RestaurantesPage({ setLoading }) {
           </table>
         </div>
       </div>
+      </>
+    )}
     </div>
   );
 }

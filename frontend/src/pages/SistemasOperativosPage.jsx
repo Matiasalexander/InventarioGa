@@ -30,6 +30,7 @@ function SistemasOperativosPage({ setLoading }) {
   const puedeCrear = tienePermiso("sistemasoperativos.crear");
   const puedeEditar = tienePermiso("sistemasoperativos.editar");
   const puedeEliminar = tienePermiso("sistemasoperativos.eliminar");
+  const [soAbiertos, setSoAbiertos] = useState(false);
 
   const cargarSistemasOperativos = async () => {
     try {
@@ -222,8 +223,22 @@ function SistemasOperativosPage({ setLoading }) {
             Catálogo de sistemas operativos y sus versiones.
           </p>
         </div>
+          <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setSoAbiertos((prev) => !prev)
+            }
+          >
+            {soAbiertos ? "Ocultar" : "Mostrar"}
+            <span>
+              {soAbiertos ? "" : ""}
+            </span>
+          </button>
       </div>
 </div><br></br>
+ {soAbiertos && (
+        <>
       {mostrarFormulario && (
         <div className="card">
 
@@ -357,7 +372,8 @@ function SistemasOperativosPage({ setLoading }) {
         </div>
 
       </div>
-
+</>
+)}
     </div>
   );
 }

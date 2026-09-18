@@ -26,6 +26,7 @@ function RamPage({ setLoading }) {
   const puedeCrear = tienePermiso("memoriaram.crear");
   const puedeEditar = tienePermiso("memoriaram.editar");
   const puedeEliminar = tienePermiso("memoriaram.eliminar");
+  const [ramAbiertos, setRamAbiertos] = useState(false);
 
   const cargarRam = async () => {
     try {
@@ -204,8 +205,22 @@ function RamPage({ setLoading }) {
           <h1>Memorias RAM</h1>
           <p>Catálogo de capacidades de memoria RAM.</p>
         </div>
+           <button
+            type="button"
+            className="btn-dropdown"
+            onClick={() =>
+              setRamAbiertos((prev) => !prev)
+            }
+          >
+            {ramAbiertos ? "Ocultar" : "Mostrar"}
+            <span>
+              {ramAbiertos ? "" : ""}
+            </span>
+          </button>
       </div>
 </div><br></br>
+ {ramAbiertos && (
+        <>
       {mostrarFormulario && (
         <div className="card">
           <h2>
@@ -310,6 +325,8 @@ function RamPage({ setLoading }) {
           </table>
         </div>
       </div>
+      </>
+    )}
     </div>
   );
 }
