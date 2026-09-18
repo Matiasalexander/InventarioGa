@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef} from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { createPortal } from "react-dom";
@@ -11,7 +11,10 @@ import {
   actualizarResponsiva,
   marcarEquipoDevuelto,
   descargarResponsivaPDF,
-  reenviarResponsiva
+  reenviarResponsiva,
+  obtenerEquiposDisponibles,
+  crearResponsiva,
+  generarPDFResponsiva
 } from "../services/responsivaService";
 import "../styles/historialResponsivas.css";
 
@@ -39,6 +42,290 @@ function HistorialResponsivasPage({ setLoading }) {
   // NUEVO: paginación de la tabla
   const [paginaActual, setPaginaActual] = useState(1);
   const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
+
+  //-----------------------------
+  //MODAL Y FUNCIONES
+  //-------------------------------
+  const [mostrarNuevaResponsiva, setMostrarNuevaResponsiva] = useState(false);
+  const [pasoResponsiva, setPasoResponsiva] = useState(1);
+
+  const [fecha, setFecha] = useState("");
+  const [nombreReceptor, setNombreReceptor] = useState("");
+  const [puesto, setPuesto] = useState("");
+  const [area, setArea] = useState("");
+  const [correo, setCorreo] = useState("");
+
+  const [equipos, setEquipos] = useState([]);
+  const [inventario, setInventario] = useState([]);
+  const [busquedaEquipo, setBusquedaEquipo] = useState("");
+
+  const sigCanvas = useRef();
+
+  //LIMPIAR RESPONSIVA
+  const limpiarNuevaResponsiva = () => {
+  setFecha("");
+  setNombreReceptor("");
+  setPuesto("");
+  setArea("");
+  setCorreo("");
+
+  setEquipos([]);
+  setInventario([]);
+  setBusquedaEquipo("");
+
+  if (sigCanvas.current) {
+    sigCanvas.current.clear();
+  }
+
+  setPasoResponsiva(1);
+};
+
+//ABRIR NUEVA RESPONSIVA
+const abrirNuevaResponsiva = async () => {
+  if (!puedeCrear) {
+    toast.warning("No tienes permiso para crear responsivas.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const data = await obtenerEquiposDisponibles();
+
+    setInventario(Array.isArray(data) ? data : []);
+    setPasoResponsiva(1);
+    setMostrarNuevaResponsiva(true);
+  } catch (error) {
+    console.error("Error cargando equipos:", error);
+
+    toast.error(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "Error cargando equipos disponibles."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+//CERRAR
+const cerrarNuevaResponsiva = () => {
+  setMostrarNuevaResponsiva(false);
+  limpiarNuevaResponsiva();
+};
+
+//PASOS PARA LA RESPONSIVA
+
+const irPasoEquipos = () => {
+  if (!fecha) {
+    toast.warning("La fecha es obligatoria.");
+    return;
+  }
+
+  if (!nombreReceptor.trim()) {
+    toast.warning("El nombre del receptor es obligatorio.");
+    return;
+  }
+
+  if (!puesto.trim()) {
+    toast.warning("El puesto es obligatorio.");
+    return;
+  }
+
+  if (
+    correo &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)
+  ) {
+    toast.warning("Ingresa un correo válido.");
+    return;
+  }
+
+  setPasoResponsiva(2);
+};
+
+//PASO REVISION
+const irPasoRevision = () => {
+  if (equipos.length === 0) {
+    toast.warning("Debes agregar al menos un equipo.");
+    return;
+  }
+
+  setPasoResponsiva(3);
+};
+
+//LOGICA PARA AGREGAR EQUIPOS
+const agregarEquipoDesdeInventario = (item) => {
+  const yaExiste = equipos.some(
+    (equipo) => equipo.IdInventario === item.id
+  );
+
+  if (yaExiste) {
+    toast.warning("Este equipo ya fue agregado.");
+    return;
+  }
+
+  setEquipos((prev) => [
+    ...prev,
+    {
+      IdInventario: item.id,
+      Descripcion: item.TIPO_EQUIPO || item.NOMBRE_EQUIPO || "",
+      Marca: item.MARCA || "",
+      Modelo: item.MODELO || "",
+      NoSerie: item.SERIAL || ""
+    }
+  ]);
+};
+
+//ELIMINAR EQUIPOS
+const eliminarEquipo = (index) => {
+  setEquipos((prev) =>
+    prev.filter((_, i) => i !== index)
+  );
+};
+
+//FILTRO
+const inventarioFiltrado = useMemo(() => {
+  const texto = busquedaEquipo.trim().toLowerCase();
+
+  return inventario.filter((item) => {
+    const estatus = item.ESTATUS?.toLowerCase();
+
+    if (estatus === "en uso") {
+      return false;
+    }
+
+    if (!texto) {
+      return true;
+    }
+
+    return [
+      item.TIPO_EQUIPO,
+      item.NOMBRE_EQUIPO,
+      item.MARCA,
+      item.MODELO,
+      item.SERIAL,
+      item.ESTATUS
+    ]
+      .filter(Boolean)
+      .some((valor) =>
+        String(valor).toLowerCase().includes(texto)
+      );
+  });
+}, [inventario, busquedaEquipo]);
+
+//LÓGICA NUEVA RESPONSIVA
+const guardarNuevaResponsiva = async () => {
+  if (!fecha || !nombreReceptor.trim() || !puesto.trim()) {
+    toast.warning("Completa los datos obligatorios.");
+    setPasoResponsiva(1);
+    return;
+  }
+
+  if (equipos.length === 0) {
+    toast.warning("Agrega al menos un equipo.");
+    setPasoResponsiva(2);
+    return;
+  }
+
+  if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+    toast.warning("La firma es obligatoria.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const firmaBase64 = sigCanvas.current
+      .getTrimmedCanvas()
+      .toDataURL("image/png");
+
+    const respuesta = await crearResponsiva({
+      Fecha: fecha,
+      NombreReceptor: nombreReceptor,
+      Puesto: puesto,
+      Area: area,
+      Correo: correo,
+      FirmaBase64: firmaBase64,
+      equipos
+    });
+
+    if (respuesta?.correoEnviado) {
+      toast.success(
+        "Responsiva creada y correo enviado correctamente."
+      );
+    } else {
+      toast.success("Responsiva creada correctamente.");
+    }
+
+    cerrarNuevaResponsiva();
+
+    await cargarResponsivas();
+
+  } catch (error) {
+    console.error("Error creando responsiva:", error);
+
+    toast.error(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "Error al crear la responsiva."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+//generar pdf
+const generarPDFNuevaResponsiva = async () => {
+  if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+    toast.warning("Debes agregar la firma antes de generar el PDF.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const firma = sigCanvas.current
+      .getTrimmedCanvas()
+      .toDataURL("image/png");
+
+    const blob = await generarPDFResponsiva({
+      fecha,
+      nombreReceptor,
+      puesto,
+      area,
+      firma,
+      equipos
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "responsiva.pdf";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+
+    toast.success("PDF generado correctamente.");
+  } catch (error) {
+    console.error("Error generando PDF:", error);
+
+    toast.error(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "Error generando el PDF."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+  //----------------------------------
+  // FINAL MODAL Y FUNCIONES
+  //----------------------------------
+
 
   const [formEditar, setFormEditar] = useState({
     Fecha: "",
@@ -395,17 +682,16 @@ function HistorialResponsivasPage({ setLoading }) {
             responsivas registradas.
           </p>
               </div>  
+              {/*NUEVO BTN*/}
         {puedeCrear && (
-          <button
-          className="btn-responsiva"
-            type="button"
-            onClick={() =>
-              navigate("/responsiva")
-            }
-          >
-            Crear Responsiva
-          </button>
-        )}
+  <button
+    className="btn-responsiva"
+    type="button"
+    onClick={abrirNuevaResponsiva}
+  >
+    Crear Responsiva
+  </button>
+)}
         </div>
 
       </div>
@@ -773,7 +1059,463 @@ function HistorialResponsivasPage({ setLoading }) {
         </div>, document.body
       )}
 
+{mostrarNuevaResponsiva &&
+  createPortal(
+    <div className="modal-overlay">
+      <div className="modal modal-responsiva">
 
+        <div className="modal-header">
+          <div>
+            <h3>Nueva responsiva</h3>
+            <p>Paso {pasoResponsiva} de 3</p>
+          </div>
+
+          <button
+            type="button"
+            className="btn-close"
+            onClick={cerrarNuevaResponsiva}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* INDICADOR DE PASOS */}
+        <div className="responsiva-steps">
+
+          <div
+            className={`responsiva-step ${
+              pasoResponsiva >= 1 ? "activo" : ""
+            }`}
+          >
+            <span>1</span>
+
+            <div>
+              <strong>Datos</strong>
+              <small>Receptor</small>
+            </div>
+          </div>
+
+          <div className="responsiva-step-line" />
+
+          <div
+            className={`responsiva-step ${
+              pasoResponsiva >= 2 ? "activo" : ""
+            }`}
+          >
+            <span>2</span>
+
+            <div>
+              <strong>Equipos</strong>
+              <small>Asignación</small>
+            </div>
+          </div>
+
+          <div className="responsiva-step-line" />
+
+          <div
+            className={`responsiva-step ${
+              pasoResponsiva >= 3 ? "activo" : ""
+            }`}
+          >
+            <span>3</span>
+
+            <div>
+              <strong>Revisión</strong>
+              <small>Firma</small>
+            </div>
+          </div>
+
+        </div>
+
+        {/* PASO 1 */}
+        {pasoResponsiva === 1 && (
+          <div className="responsiva-modal-body">
+
+            <div className="responsiva-form-grid">
+
+              <div className="form-group">
+                <label>Fecha *</label>
+
+                <input
+                  type="date"
+                  value={fecha}
+                  onChange={(e) => setFecha(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Nombre del receptor *</label>
+
+                <input
+                  type="text"
+                  value={nombreReceptor}
+                  onChange={(e) =>
+                    setNombreReceptor(e.target.value)
+                  }
+                  placeholder="Nombre completo"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Puesto *</label>
+
+                <input
+                  type="text"
+                  value={puesto}
+                  onChange={(e) =>
+                    setPuesto(e.target.value)
+                  }
+                  placeholder="Puesto"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Área</label>
+
+                <input
+                  type="text"
+                  value={area}
+                  onChange={(e) =>
+                    setArea(e.target.value)
+                  }
+                  placeholder="Área"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Correo</label>
+
+                <input
+                  type="email"
+                  value={correo}
+                  onChange={(e) =>
+                    setCorreo(e.target.value)
+                  }
+                  placeholder="correo@empresa.com"
+                />
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* PASO 2 */}
+        {pasoResponsiva === 2 && (
+          <div className="responsiva-modal-body">
+
+            <div className="responsiva-equipos-grid">
+
+              {/* INVENTARIO DISPONIBLE */}
+              <div className="responsiva-panel">
+
+                <div className="responsiva-panel-header">
+                  <div>
+                    <h4>Equipos disponibles</h4>
+                    <span>
+                      Selecciona los equipos que deseas asignar
+                    </span>
+                  </div>
+                </div>
+
+                <input
+                  type="text"
+                  className="responsiva-search"
+                  placeholder="Buscar equipo, marca, modelo o serie..."
+                  value={busquedaEquipo}
+                  onChange={(e) =>
+                    setBusquedaEquipo(e.target.value)
+                  }
+                />
+
+                <div className="equipos-disponibles-list">
+
+                  {inventarioFiltrado.length === 0 ? (
+                    <p className="sin-resultados">
+                      No hay equipos disponibles.
+                    </p>
+                  ) : (
+                    inventarioFiltrado.map((item) => (
+                      <div
+                        key={item.id}
+                        className="equipo-disponible"
+                      >
+
+                        <div>
+                          <strong>
+                            {item.TIPO_EQUIPO ||
+                              item.NOMBRE_EQUIPO ||
+                              "Equipo"}
+                          </strong>
+
+                          <span>
+                            {item.MARCA || "Sin marca"}{" "}
+                            {item.MODELO || ""}
+                          </span>
+
+                          <small>
+                            Serie: {item.SERIAL || "N/A"}
+                          </small>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            agregarEquipoDesdeInventario(item)
+                          }
+                        >
+                          Agregar
+                        </button>
+
+                      </div>
+                    ))
+                  )}
+
+                </div>
+
+              </div>
+
+              {/* EQUIPOS SELECCIONADOS */}
+              <div className="responsiva-panel">
+
+                <div className="responsiva-panel-header">
+                  <div>
+                    <h4>Equipos de la responsiva</h4>
+                    <span>
+                      {equipos.length} equipo
+                      {equipos.length !== 1 ? "s" : ""} seleccionado
+                      {equipos.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                </div>
+
+                {equipos.length === 0 ? (
+                  <div className="sin-equipos">
+                    <p>No has agregado equipos.</p>
+                  </div>
+                ) : (
+                  <div className="equipos-seleccionados">
+
+                    {equipos.map((equipo, index) => (
+                      <div
+                        key={equipo.IdInventario}
+                        className="equipo-seleccionado"
+                      >
+
+                        <div>
+                          <strong>
+                            {equipo.Descripcion}
+                          </strong>
+
+                          <span>
+                            {equipo.Marca} {equipo.Modelo}
+                          </span>
+
+                          <small>
+                            Serie: {equipo.NoSerie || "N/A"}
+                          </small>
+                        </div>
+
+                        <button
+                          type="button"
+                          className="btn-eliminar-equipo"
+                          onClick={() =>
+                            eliminarEquipo(index)
+                          }
+                        >
+                          Eliminar
+                        </button>
+
+                      </div>
+                    ))}
+
+                  </div>
+                )}
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* PASO 3 */}
+        {pasoResponsiva === 3 && (
+          <div className="responsiva-modal-body">
+
+            <div className="responsiva-revision">
+
+              <div className="documento-preview">
+
+                <h4>Vista previa</h4>
+
+                <div className="documento-card">
+
+                  <h2>RESPONSIVA DE EQUIPO</h2>
+
+                  <p>
+                    <strong>Fecha:</strong>{" "}
+                    {fecha}
+                  </p>
+
+                  <p>
+                    <strong>Receptor:</strong>{" "}
+                    {nombreReceptor}
+                  </p>
+
+                  <p>
+                    <strong>Puesto:</strong>{" "}
+                    {puesto}
+                  </p>
+
+                  <p>
+                    <strong>Área:</strong>{" "}
+                    {area || "N/A"}
+                  </p>
+
+                  <p>
+                    <strong>Correo:</strong>{" "}
+                    {correo || "N/A"}
+                  </p>
+
+                  <hr />
+
+                  <h4>Equipos asignados</h4>
+
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Equipo</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Serie</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {equipos.map((equipo) => (
+                        <tr key={equipo.IdInventario}>
+                          <td>{equipo.Descripcion}</td>
+                          <td>{equipo.Marca}</td>
+                          <td>{equipo.Modelo}</td>
+                          <td>{equipo.NoSerie}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+
+                </div>
+
+              </div>
+
+              <div className="firma-panel">
+
+                <h4>Firma del receptor</h4>
+
+                <div className="firma-canvas-container">
+                  <SignatureCanvas
+                    ref={sigCanvas}
+                    penColor="black"
+                    canvasProps={{
+                      className: "firma-canvas"
+                    }}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-limpiar-firma"
+                  onClick={() =>
+                    sigCanvas.current?.clear()
+                  }
+                >
+                  Limpiar firma
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* FOOTER */}
+        <div className="responsiva-modal-footer">
+
+          {pasoResponsiva > 1 && (
+            <button
+              type="button"
+              className="btn-secundario"
+              onClick={() =>
+                setPasoResponsiva(
+                  pasoResponsiva - 1
+                )
+              }
+            >
+              ← Anterior
+            </button>
+          )}
+
+          <div className="footer-right">
+
+            <button
+              type="button"
+              className="btn-cancelar"
+              onClick={cerrarNuevaResponsiva}
+            >
+              Cancelar
+            </button>
+
+            {pasoResponsiva === 1 && (
+              <button
+                type="button"
+                className="btn-primario"
+                onClick={irPasoEquipos}
+              >
+                Siguiente →
+              </button>
+            )}
+
+            {pasoResponsiva === 2 && (
+              <button
+                type="button"
+                className="btn-primario"
+                onClick={irPasoRevision}
+              >
+                Revisar →
+              </button>
+            )}
+
+            {pasoResponsiva === 3 && (
+              <>
+                {puedePDF && (
+                  <button
+                    type="button"
+                    className="btn-secundario"
+                    onClick={generarPDFNuevaResponsiva}
+                  >
+                    Descargar PDF
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  className="btn-primario"
+                  onClick={guardarNuevaResponsiva}
+                >
+                  Guardar responsiva
+                </button>
+              </>
+            )}
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>,
+    document.body
+  )}
 
     </div>//div de la card principal
   );
