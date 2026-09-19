@@ -285,7 +285,7 @@ position: fixed;
     justify-content: space-between;
     gap: 12px;
     padding: 12px;
-    margin-bottom: 8px;
+    margin: 8px;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     background: #fff;
@@ -637,5 +637,427 @@ position: fixed;
     to {
         opacity: 1;
         transform: scale(1);
+    }
+}
+
+/**/
+/* =========================================================
+   RESPONSIVE - RESPONSIVAS
+   ========================================================= */
+
+/* TABLETS */
+@media (max-width: 900px) {
+
+    .modal-overlay {
+        padding: 15px;
+    }
+
+    .modal {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Modal Nueva Responsiva */
+    .modal-responsiva {
+        width: 100%;
+        max-width: 100%;
+        height: 92vh;
+        max-height: 92vh;
+    }
+
+    .modal-responsiva .modal-header {
+        padding: 16px 20px;
+    }
+
+    .responsiva-steps {
+        padding: 15px 20px;
+    }
+
+    .responsiva-step {
+        gap: 7px;
+    }
+
+    .responsiva-step > span {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+
+    .responsiva-step strong {
+        font-size: 13px;
+    }
+
+    .responsiva-step small {
+        font-size: 10px;
+    }
+
+    .responsiva-step-line {
+        margin: 0 10px;
+    }
+
+    .responsiva-modal-body {
+        padding: 20px;
+    }
+
+    /* Datos */
+    .responsiva-form-grid {
+        max-width: 100%;
+    }
+
+    /* Equipos */
+    .responsiva-equipos-grid {
+        gap: 15px;
+    }
+
+    /* Revisión */
+    .responsiva-revision {
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
+        gap: 15px;
+    }
+
+    .documento-card {
+        padding: 18px;
+    }
+
+    .firma-canvas-container {
+        height: 190px;
+    }
+
+    .responsiva-modal-footer {
+        padding: 14px 20px;
+    }
+}
+
+
+/* =========================================================
+   MÓVILES
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .modal-overlay {
+        padding: 8px;
+        align-items: center;
+    }
+
+    .modal {
+        width: 100%;
+        max-width: 100%;
+        max-height: 94vh;
+        padding: 18px;
+        border-radius: 8px;
+    }
+
+    /* -----------------------------------------------------
+       MODAL NUEVA RESPONSIVA
+       ----------------------------------------------------- */
+
+    .modal-responsiva {
+        width: 100%;
+        max-width: 100%;
+        height: 94vh;
+        max-height: 94vh;
+        border-radius: 8px;
+    }
+
+    .modal-responsiva .modal-header {
+        padding: 14px 16px;
+    }
+
+    .modal-responsiva .modal-header h3 {
+        font-size: 18px;
+    }
+
+    .modal-responsiva .modal-header p {
+        font-size: 11px;
+    }
+
+    /* -----------------------------------------------------
+       PASOS
+       ----------------------------------------------------- */
+
+    .responsiva-steps {
+        padding: 12px 14px;
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+    .responsiva-step {
+        flex-shrink: 0;
+    }
+
+    .responsiva-step > span {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .responsiva-step strong {
+        font-size: 11px;
+    }
+
+    .responsiva-step small {
+        font-size: 9px;
+    }
+
+    .responsiva-step-line {
+        min-width: 25px;
+        margin: 0 7px;
+    }
+
+    /* -----------------------------------------------------
+       CONTENIDO
+       ----------------------------------------------------- */
+
+    .responsiva-modal-body {
+        padding: 15px;
+    }
+
+    /* -----------------------------------------------------
+       FORMULARIO
+       ----------------------------------------------------- */
+
+    .responsiva-form-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .responsiva-form-grid .form-group:nth-child(2) {
+        grid-column: auto;
+    }
+
+    .responsiva-form-grid input {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    /* -----------------------------------------------------
+       SELECCIÓN DE EQUIPOS
+       ----------------------------------------------------- */
+
+    .responsiva-equipos-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+        gap: 12px;
+    }
+
+    .responsiva-panel {
+        min-height: 280px;
+        max-height: 350px;
+    }
+
+    .responsiva-panel-header {
+        padding: 12px;
+    }
+
+    .responsiva-panel-header h4 {
+        font-size: 14px;
+    }
+
+    .responsiva-panel-header span {
+        font-size: 11px;
+    }
+
+    .responsiva-search {
+        margin: 10px;
+        width: calc(100% - 20px);
+        box-sizing: border-box;
+    }
+
+    .equipos-disponibles-list,
+    .equipos-seleccionados {
+        padding: 0 10px 10px;
+    }
+
+    .equipo-disponible,
+    .equipo-seleccionado {
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .equipo-disponible strong,
+    .equipo-seleccionado strong {
+        font-size: 12px;
+    }
+
+    .equipo-disponible span,
+    .equipo-seleccionado span {
+        font-size: 11px;
+    }
+
+    .equipo-disponible small,
+    .equipo-seleccionado small {
+        font-size: 10px;
+    }
+
+    .equipo-disponible button,
+    .btn-eliminar-equipo {
+        padding: 6px 9px;
+        font-size: 11px;
+    }
+
+    /* -----------------------------------------------------
+       REVISIÓN
+       ----------------------------------------------------- */
+
+    .responsiva-revision {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .documento-preview,
+    .firma-panel {
+        padding: 14px;
+    }
+
+    .documento-card {
+        padding: 14px;
+        overflow-x: auto;
+    }
+
+    .documento-card h2 {
+        font-size: 16px;
+    }
+
+    .documento-card p {
+        font-size: 12px;
+    }
+
+    /* Tabla del documento */
+    .documento-card table {
+        min-width: 500px;
+        font-size: 10px;
+    }
+
+    .documento-card th,
+    .documento-card td {
+        padding: 5px;
+    }
+
+    /* Firma */
+    .firma-panel {
+        position: static;
+    }
+
+    .firma-canvas-container {
+        height: 180px;
+    }
+
+    /* -----------------------------------------------------
+       FOOTER
+       ----------------------------------------------------- */
+
+    .responsiva-modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 12px 15px;
+        gap: 10px;
+    }
+
+    .responsiva-modal-footer > button,
+    .footer-right {
+        width: 100%;
+    }
+
+    .footer-right {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .responsiva-modal-footer button {
+        width: 100%;
+        min-width: 0;
+        padding: 10px 14px;
+    }
+
+    /* -----------------------------------------------------
+       POPUP
+       ----------------------------------------------------- */
+
+    .responsiva-alert-overlay {
+        padding: 15px;
+    }
+
+    .responsiva-alert {
+        width: 100%;
+        max-width: 360px;
+        padding: 20px;
+    }
+
+    .responsiva-alert h4 {
+        font-size: 17px;
+    }
+
+    .responsiva-alert p {
+        font-size: 13px;
+    }
+}
+
+
+/* =========================================================
+   MÓVILES PEQUEÑOS
+   ========================================================= */
+
+@media (max-width: 450px) {
+
+    .modal-overlay {
+        padding: 5px;
+    }
+
+    .modal-responsiva {
+        height: 96vh;
+        max-height: 96vh;
+    }
+
+    .modal-responsiva .modal-header {
+        padding: 12px;
+    }
+
+    .modal-responsiva .modal-header h3 {
+        font-size: 16px;
+    }
+
+    .modal-responsiva .modal-header p {
+        font-size: 10px;
+    }
+
+    .responsiva-steps {
+        padding: 10px;
+    }
+
+    .responsiva-step strong {
+        display: none;
+    }
+
+    .responsiva-step small {
+        display: none;
+    }
+
+    .responsiva-step > span {
+        width: 27px;
+        height: 27px;
+    }
+
+    .responsiva-step-line {
+        min-width: 20px;
+        margin: 0 5px;
+    }
+
+    .responsiva-modal-body {
+        padding: 12px;
+    }
+
+    .documento-card {
+        padding: 10px;
+    }
+
+    .firma-canvas-container {
+        height: 160px;
+    }
+
+    .responsiva-alert {
+        padding: 18px 15px;
     }
 }

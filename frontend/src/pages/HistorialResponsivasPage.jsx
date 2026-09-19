@@ -13,8 +13,8 @@ import {
   descargarResponsivaPDF,
   reenviarResponsiva,
   obtenerEquiposDisponibles,
-  crearResponsiva,
-  generarPDFResponsiva
+  crearResponsiva
+
 } from "../services/responsivaService";
 import "../styles/historialResponsivas.css";
 
@@ -50,6 +50,11 @@ function HistorialResponsivasPage({ setLoading }) {
   //-------------------------------
   const [mostrarNuevaResponsiva, setMostrarNuevaResponsiva] = useState(false);
   const [pasoResponsiva, setPasoResponsiva] = useState(1);
+
+  //const responsiva guardada
+  const [responsivaGuardada, setResponsivaGuardada] = useState(false);
+  const [responsivaCreada, setResponsivaCreada] = useState(null);
+
 
   const [mensajeModal, setMensajeModal] = useState({
     mostrar: false,
@@ -99,6 +104,7 @@ function HistorialResponsivasPage({ setLoading }) {
     setEquipos([]);
     setInventario([]);
     setBusquedaEquipo("");
+    setResponsivaGuardada(false);
 
     if (sigCanvas.current) {
       sigCanvas.current.clear();
@@ -167,7 +173,7 @@ function HistorialResponsivasPage({ setLoading }) {
         "warning",
         "Datos incompletos",
         "El puesto es obligatorio."
-      ); toast.warning("El puesto es obligatorio.");
+      );
       return;
     }
 
@@ -265,147 +271,141 @@ return;
   }, [inventario, busquedaEquipo]);
 
   //LÓGICA NUEVA RESPONSIVA
-  const guardarNuevaResponsiva = async () => {
-    if (!fecha || !nombreReceptor.trim() || !puesto.trim()) {
+const guardarNuevaResponsiva = async () => {
+  if (!fecha || !nombreReceptor.trim() || !puesto.trim()) {
+    mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Completa los datos obligatorios."
+    );
+    setPasoResponsiva(1);
+    return;
+  }
+
+  if (equipos.length === 0) {
+    mostrarMensajeModal(
+      "warning",
+      "Sin equipos",
+      "Agrega al menos un equipo."
+    );
+    setPasoResponsiva(2);
+    return;
+  }
+
+  if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+    mostrarMensajeModal(
+      "warning",
+      "Firma requerida",
+      "La firma es obligatoria."
+    );
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const firmaBase64 = sigCanvas.current
+      .getCanvas()
+      .toDataURL("image/png");
+
+    const respuesta = await crearResponsiva({
+      Fecha: fecha,
+      NombreReceptor: nombreReceptor,
+      Puesto: puesto,
+      Area: area,
+      Correo: correo,
+      FirmaBase64: firmaBase64,
+      equipos
+    });
+
+    // Guardamos la responsiva creada para poder
+    // utilizar su ID al descargar el PDF.
+    setResponsivaCreada(respuesta);
+    setResponsivaGuardada(true);
+
+    if (respuesta?.correoEnviado) {
       mostrarMensajeModal(
-        "warning",
-        "Datos incompletos",
-        "Completa los datos obligatorios."
+        "success",
+        "Responsiva creada",
+        "La responsiva fue creada y el correo fue enviado correctamente."
       );
-      setPasoResponsiva(1);
-      return;
+    } else {
+      mostrarMensajeModal(
+        "success",
+        "Responsiva creada",
+        "La responsiva fue creada correctamente."
+      );
     }
 
-    if (equipos.length === 0) {
-      mostrarMensajeModal(
-        "warning",
-        "Sin equipos",
-        "Agrega al menos un equipo."
-      );
-      setPasoResponsiva(2);
-      return;
-    }
+    await cargarResponsivas();
 
-    if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
-      mostrarMensajeModal(
-        "warning",
-        "Firma requerida",
-        "La firma es obligatoria."
-      );
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const firmaBase64 = sigCanvas.current
-        .getCanvas()
-        .toDataURL("image/png");
-
-      const respuesta = await crearResponsiva({
-        Fecha: fecha,
-        NombreReceptor: nombreReceptor,
-        Puesto: puesto,
-        Area: area,
-        Correo: correo,
-        FirmaBase64: firmaBase64,
-        equipos
-      });
-
-      if (respuesta?.correoEnviado) {
-        mostrarMensajeModal(
-          "success",
-          "Responsiva creada",
-          "La responsiva fue creada y el correo fue enviado correctamente."
-        );
-      } else {
-        mostrarMensajeModal(
-          "success",
-          "Responsiva creada",
-          "La responsiva fue creada correctamente."
-        );
-      }
-
-      cerrarNuevaResponsiva();
-
-      await cargarResponsivas();
-
-    } catch (error) {
-      mostrarMensajeModal(
-        "error",
-        "Error al crear la responsiva",
-        error.response?.data?.message ||
+  } catch (error) {
+    mostrarMensajeModal(
+      "error",
+      "Error al crear la responsiva",
+      error.response?.data?.message ||
         error.response?.data?.error ||
         "Ocurrió un error al crear la responsiva."
-      );
-      toast.error(
-        error.response?.data?.message ||
+    );
+
+    toast.error(
+      error.response?.data?.message ||
         error.response?.data?.error ||
         "Error al crear la responsiva."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   //generar pdf
-  const generarPDFNuevaResponsiva = async () => {
-    if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
-mostrarMensajeModal(
-  "warning",
-  "Firma requerida",
-  "La firma es obligatoria."
-);
+const generarPDFNuevaResponsiva = async () => {
+  if (!responsivaGuardada) {
+    mostrarMensajeModal(
+      "warning",
+      "Responsiva no guardada",
+      "Primero debes guardar la responsiva antes de descargar el PDF."
+    );
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const idResponsiva =
+      responsivaCreada?.IdResponsiva ||
+      responsivaCreada?.idResponsiva;
+
+    if (!idResponsiva) {
+      mostrarMensajeModal(
+        "error",
+        "Identificador no encontrado",
+        "No se encontró el ID de la responsiva guardada."
+      );
       return;
     }
 
-    try {
-      setLoading(true);
+    await descargarResponsivaPDF(idResponsiva);
 
-      const firma = sigCanvas.current
-        .getCanvas()
-        .toDataURL("image/png");
+    mostrarMensajeModal(
+      "success",
+      "PDF generado correctamente",
+      "El PDF se descargó correctamente."
+    );
+  } catch (error) {
+    console.error("Error generando PDF:", error);
 
-      const blob = await generarPDFResponsiva({
-        fecha,
-        nombreReceptor,
-        puesto,
-        area,
-        firma,
-        equipos
-      });
-
-      const url = window.URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "responsiva.pdf";
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      window.URL.revokeObjectURL(url);
-
-  mostrarMensajeModal(
-    "success",
-    "PDF generado correctamente",
-    "el pdf ha sido generado correctamente."
-  );
-    } catch (error) {
-      console.error("Error generando PDF:", error);
-
-  mostrarMensajeModal(
-  "error",
-  "Error generando PDF",
-  error.response?.data?.message ||
-  error.response?.data?.error ||
-  "Ocurrió un error al generar el PDF."
-);
-    } finally {
-      setLoading(false);
-    }
-  };
+    mostrarMensajeModal(
+      "error",
+      "Error generando PDF",
+      error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Ocurrió un error al generar el PDF."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   //----------------------------------
   // FINAL MODAL Y FUNCIONES
   //----------------------------------
@@ -1609,8 +1609,9 @@ mostrarMensajeModal(
                         type="button"
                         className="btn-primario"
                         onClick={guardarNuevaResponsiva}
+                        disabled={responsivaGuardada}
                       >
-                        Guardar responsiva
+                        {responsivaGuardada ? "Responsiva guardada" : "Guardar"}
                       </button>
                     </>
                   )}
