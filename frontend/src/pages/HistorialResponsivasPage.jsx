@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, useRef} from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { createPortal } from "react-dom";
-
+import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "../context/AuthContext";
 
 import {
@@ -25,6 +25,8 @@ function HistorialResponsivasPage({ setLoading }) {
   const { tienePermiso } = useAuth();
 
   const puedeCrear = tienePermiso("responsivas.crear");
+  const puedePDF = tienePermiso("responsivas.pdf");
+
   const puedeEditar = tienePermiso("responsivas.editar");
   const puedeDevolver = tienePermiso("responsivas.devolver");
 
@@ -190,7 +192,7 @@ const inventarioFiltrado = useMemo(() => {
   return inventario.filter((item) => {
     const estatus = item.ESTATUS?.toLowerCase();
 
-    if (estatus === "en uso") {
+    if (estatus != "en uso") {
       return false;
     }
 
@@ -236,7 +238,7 @@ const guardarNuevaResponsiva = async () => {
     setLoading(true);
 
     const firmaBase64 = sigCanvas.current
-      .getTrimmedCanvas()
+      .getCanvas()
       .toDataURL("image/png");
 
     const respuesta = await crearResponsiva({
@@ -285,7 +287,7 @@ const generarPDFNuevaResponsiva = async () => {
     setLoading(true);
 
     const firma = sigCanvas.current
-      .getTrimmedCanvas()
+      .getCanvas()
       .toDataURL("image/png");
 
     const blob = await generarPDFResponsiva({
