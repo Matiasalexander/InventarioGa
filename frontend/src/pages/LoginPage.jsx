@@ -26,7 +26,7 @@ function LoginPage({ setLoading }) {
     authLogin(data.token, data.usuario);
       toast.success("Bienvenido");
 
-      navigate("/inventario");
+      navigate("/dashboard");
     } catch (error) {
       toast.error(
         error.response?.data?.message ||

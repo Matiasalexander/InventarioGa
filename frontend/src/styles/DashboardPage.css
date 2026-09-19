@@ -442,3 +442,373 @@
     }
 
 }
+
+/* =========================================
+   POPUP - NOTAS DE VERSIÓN
+   ========================================= */
+
+.version-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+
+    z-index: 9998;
+
+    animation: versionOverlayIn 0.2s ease;
+}
+
+.version-modal {
+    width: 100%;
+    max-width: 600px;
+
+    max-height: 85vh;
+
+    background: #ffffff;
+    border-radius: 16px;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+
+    overflow: hidden;
+
+    animation: versionModalIn 0.25s ease;
+}
+
+/*style icons*/
+
+/* =========================================
+   HEADER
+   ========================================= */
+
+.version-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    padding: 24px 28px;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+.version-label {
+    
+    display: inline-block;
+
+    margin-bottom: 6px;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    background: #e3f2fd;
+    color: #1565c0;
+
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.version-header h2 {
+    margin: 0;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    color: #222;
+}
+
+.version-header p {
+    margin: 5px 0 0;
+
+    color: #777;
+
+    font-size: 14px;
+}
+
+
+/* =========================================
+   BOTÓN CERRAR
+   ========================================= */
+
+.version-close {
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: #777;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 0.2s ease;
+}
+
+.version-close:hover {
+    background: #f1f1f1;
+    color: #222;
+}
+
+
+/* =========================================
+   BODY
+   ========================================= */
+
+.version-body {
+    padding: 24px 28px;
+
+    max-height: 50vh;
+
+    overflow-y: auto;
+}
+
+
+/* =========================================
+   ITEM DE VERSIÓN
+   ========================================= */
+
+.version-item {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 16px;
+
+    padding: 16px;
+
+    margin-bottom: 12px;
+
+    border: 1px solid #eeeeee;
+    border-radius: 12px;
+
+    background: #fafafa;
+
+    transition: all 0.2s ease;
+}
+
+.version-item:last-child {
+    margin-bottom: 0;
+}
+
+.version-item:hover {
+    background: #f5f5f5;
+    border-color: #dddddd;
+}
+
+.version-item-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #ffffff;
+
+    font-size: 21px;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.version-item h3 {
+    margin: 2px 0 5px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    color: #222;
+}
+
+.version-item p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: #666;
+}
+
+
+/* =========================================
+   FOOTER
+   ========================================= */
+
+.version-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 18px 28px;
+
+    border-top: 1px solid #eeeeee;
+
+    background: #fafafa;
+}
+
+
+/* =========================================
+   CHECKBOX
+   ========================================= */
+
+.version-checkbox {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    color: #555;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.version-checkbox input {
+    width: 16px;
+    height: 16px;
+
+    cursor: pointer;
+
+    accent-color: #1565c0;
+}
+
+
+/* =========================================
+   BOTÓN ENTENDIDO
+   ========================================= */
+
+.btn-version {
+    min-width: 110px;
+
+    padding: 10px 20px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #1565c0;
+    color: white;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.btn-version:hover {
+    background: #0d47a1;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.25);
+}
+
+.btn-version:active {
+    transform: translateY(0);
+}
+
+
+/* =========================================
+   ANIMACIONES
+   ========================================= */
+
+@keyframes versionOverlayIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes versionModalIn {
+    from {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+    .version-overlay {
+        padding: 15px;
+    }
+
+    .version-modal {
+        max-width: 100%;
+        border-radius: 14px;
+    }
+
+    .version-header {
+        padding: 20px;
+    }
+
+    .version-header h2 {
+        font-size: 21px;
+    }
+
+    .version-body {
+        padding: 20px;
+    }
+
+    .version-footer {
+        flex-direction: column;
+        align-items: stretch;
+
+        padding: 16px 20px;
+    }
+
+    .version-checkbox {
+        justify-content: center;
+    }
+
+    .btn-version {
+        width: 100%;
+    }
+
+    .version-item {
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .version-item-icon {
+        width: 38px;
+        height: 38px;
+
+        font-size: 18px;
+    }
+}
