@@ -539,3 +539,103 @@ position: fixed;
 .btn-cancelar:hover {
      opacity: 0.9;
 }
+
+/*pop up*/
+.responsiva-alert-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(15, 23, 42, 0.35);
+    padding: 20px;
+}
+
+.responsiva-alert {
+    width: 360px;
+    max-width: 100%;
+
+    background: #fff;
+    border-radius: 12px;
+
+    padding: 24px;
+
+    text-align: center;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+
+    animation: responsivaAlertEntrada 0.18s ease-out;
+}
+
+.responsiva-alert-icon {
+    width: 48px;
+    height: 48px;
+
+    margin: 0 auto 14px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.responsiva-alert.success .responsiva-alert-icon{
+    background:  #dcfce7;
+        color: #16a34a;
+
+}
+
+.responsiva-alert.warning .responsiva-alert-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.responsiva-alert.error .responsiva-alert-icon {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.responsiva-alert.info .responsiva-alert-icon {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.responsiva-alert h4 {
+    margin: 0 0 8px;
+
+    color: #171a4d;
+
+    font-size: 18px;
+}
+
+.responsiva-alert p {
+    margin: 0 0 20px;
+
+    color: #475569;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.responsiva-alert .btn-primario {
+    min-width: 100px;
+}
+
+@keyframes responsivaAlertEntrada {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
