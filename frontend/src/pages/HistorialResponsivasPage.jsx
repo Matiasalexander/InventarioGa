@@ -121,7 +121,6 @@ function HistorialResponsivasPage({ setLoading }) {
     }
 
     try {
-      setLoading(true);
 
       const data = await obtenerEquiposDisponibles();
 
