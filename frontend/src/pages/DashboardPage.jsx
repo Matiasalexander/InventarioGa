@@ -371,16 +371,6 @@ function DashboardPage({ setLoading }) {
                   Versión {VERSION_ACTUAL}
                 </p>
 
-            
-
-
-              <button
-                className="version-close"
-                onClick={cerrarNotasVersion}
-              >
-                ×
-              </button>
-
             </div>
 
             <div className="version-body">
