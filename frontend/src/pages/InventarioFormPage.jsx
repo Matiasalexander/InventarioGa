@@ -752,22 +752,27 @@ function InventarioFormPage({ setLoading }) {
                 Solo se genera automáticamente para Corporativo Cancún.
               </small>
             </div>
-
-            <div className="campo-form">
+        
+      
+                            <div className="campo-form">
               <label>Tipo de equipo</label>
               <select
                 name="ID_TIPO_EQUIPO"
                 value={formulario.ID_TIPO_EQUIPO}
                 onChange={manejarCambio}
+                disabled= {esEdicion && esCorporativoCancun}
               >
+                
                 <option value="">Selecciona tipo de equipo</option>
                 {catalogos.tiposEquipo.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.tequipo}
                   </option>
                 ))}
+                
               </select>
             </div>
+  
 
             <div className="campo-form">
               <label>Fecha de fabricación</label>

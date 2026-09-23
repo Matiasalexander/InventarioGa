@@ -1279,40 +1279,6 @@ const actualizarInventario = async (
       equipoActual.recordset[0]
         .NOMBRE_EQUIPO || "NA";
 
-    const aplicaNombre =
-      await debeGenerarNombreEquipo(
-        pool,
-        idUnidadNueva,
-        LOCALIDAD,
-        ID_TIPO_EQUIPO
-      );
-
-    if (!aplicaNombre) {
-      NOMBRE_EQUIPO = "NA";
-    }
-
-    if (aplicaNombre) {
-
-      if (
-        !ID_SISTEMA_OPERATIVO ||
-        !nombreSistemaOperativo ||
-        !FECHA_FABRICACION
-      ) {
-        return res.status(400).json({
-          message:
-            "El sistema operativo y la fecha de fabricación son obligatorios para generar el nombre del equipo."
-        });
-      }
-
-      NOMBRE_EQUIPO =
-        await generarNombreEquipo(
-          pool,
-          ID_TIPO_EQUIPO,
-          nombreSistemaOperativo,
-          FECHA_FABRICACION
-        );
-    }
-
     /* =====================================================
        FOTO
     ===================================================== */
