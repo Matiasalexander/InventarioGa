@@ -504,6 +504,32 @@ position: fixed;
     background: #f8fafc;
 }
 
+.equipo-accion-completada {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 15px;
+    color: #2e7d32;
+    background: #e8f5e9;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    box-sizing: border-box;
+}
+
+.section-devolver {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-devolver {
+    background: red;
+}
+
+.btn-devolver:hover{
+    background: rgb(226, 178, 178);
+}
 /*ESTE ES EL FOOTER*/
 .responsiva-modal-footer {
     display: flex;

@@ -1039,112 +1039,121 @@ function HistorialResponsivasPage({ setLoading }) {
                     Guardar cambios
                   </button>
 
-<div className="footer-right">
-                  <button
-                    className="btn-cancelar"
-                    onClick={cerrarEditar}
-                  >
-                    Cancelar
-                  </button>
-                </div>
+                  <div className="footer-right">
+                    <button
+                      className="btn-cancelar"
+                      onClick={cerrarEditar}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
                 </div>
               </>
             ) : (
               <>
-                <div className="modal-header">
-                  <h3>
-                    {responsivaSeleccionada?.Folio ||
-                      `RESP-${String(
-                        responsivaSeleccionada?.IdResponsiva
-                      ).padStart(5, "0")}`}
-                  </h3>
+                <div className="responsiva-modal-body">
+                  <div className="modal-header">
+                    <h3>
+                      {responsivaSeleccionada?.Folio ||
+                        `RESP-${String(
+                          responsivaSeleccionada?.IdResponsiva
+                        ).padStart(5, "0")}`}
+                    </h3>
 
-                  <button
-                    className="btn-close"
-                    onClick={cerrarEditar}
-                  >
-                    ✕
-                  </button>
-                </div>
+                    <button
+                      className="btn-close"
+                      onClick={cerrarEditar}
+                    >
+                      x
+                    </button>
+                  </div>
 
-                <div className="table-responsive">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Descripción</th>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>Serie</th>
-                        <th>Devuelto</th>
-                        <th>Fecha devolución</th>
-                        <th>Comentarios</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
+                  <div className="equipos-cards">
+                    {detalle.length === 0 ? (
+                      <div className="sin-equipos">
+                        Sin equipos registrados.
+                      </div>
+                    ) : (
+                      detalle.map((item) => (
+                        <div className="equipo-card" key={item.IdDetalle}>
+                          <div className="equipo-card-header">
+                       
 
-                    <tbody>
-                      {detalle.length === 0 ? (
-                        <tr>
-                          <td colSpan="8">
-                            Sin equipos registrados.
-                          </td>
-                        </tr>
-                      ) : (
-                        detalle.map((item) => (
-                          <tr key={item.IdDetalle}>
-                            <td>
-                              {item.Descripcion}
-                            </td>
+                            <span
+                              className={`estado-equipo ${item.Devuelto ? "devuelto" : "pendiente"
+                                }`}
+                            >
+                            </span>
+                          </div>
 
-                            <td>{item.Marca}</td>
-                            <td>{item.Modelo}</td>
-                            <td>{item.NoSerie}</td>
+                          <div className="responsiva-modal-body">
+                            <div className="responsiva-form-grid">
 
-                            <td>
-                              {item.Devuelto
-                                ? "Sí"
-                                : "No"}
-                            </td>
+                                <div className="detalle-item">
+                                  <span>Tipo de equipo: </span>
+                                  <strong>{item.Descripcion}</strong>
 
-                            <td>
-                              {item.FechaDevolucion
-                                ? new Date(
-                                  item.FechaDevolucion
-                                ).toLocaleString(
-                                  "es-MX"
-                                )
-                                : ""}
-                            </td>
+                                  </div>
+                              <div className="detalle-item">
+                                <span>Marca: </span>
+                                <strong>{item.Marca || "N/A"}</strong>
+                              </div>
 
-                            <td>
-                              {item.ComentariosDevolucion ||
-                                ""}
-                            </td>
+                              <div className="detalle-item">
+                                <span>Modelo: </span>
+                                <strong>{item.Modelo || "N/A"}</strong>
+                              </div>
 
-                            <td>
-                              {item.Devuelto ? (
-                                "Devuelto"
-                              ) : puedeDevolver ? (
-                                <button
-                                  className="btn-secondary"
-                                  type="button"
-                                  onClick={() =>
-                                    devolverEquipo(
-                                      item.IdDetalle
-                                    )
-                                  }
-                                >
-                                  Devolver
-                                </button>
-                              ) : (
-                                "Pendiente"
-                              )}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                              <div className="detalle-item">
+                                <span>Serie: </span>
+                                <strong>{item.NoSerie || "N/A"}</strong>
+                              </div>
+
+                              <div className="detalle-item">
+                                <span>Fecha devolución: </span>
+                                <strong>
+                                  {item.FechaDevolucion
+                                    ? new Date(item.FechaDevolucion).toLocaleString("es-MX")
+                                    : "Pendiente"}
+                                </strong>
+                              </div>
+
+                              <div className="detalle-item">
+                                <span>Comentarios: </span>
+                                <strong>
+                                  {item.ComentariosDevolucion || "Sin comentarios"}
+                                </strong>
+                              </div>
+                            </div>
+                          </div>
+
+
+                            {item.Devuelto ? (
+                              <span className="equipo-accion-completada">
+                                Equipo devuelto
+                              </span>
+                            ) : puedeDevolver ? (
+
+                              <div className="section-devolver">
+                              <button
+                                className="btn-devolver"
+                                type="button"
+                                onClick={() => devolverEquipo(item.IdDetalle)}
+                              >
+                                Devolver
+                              </button>
+                              </div>
+                            ) : (
+                              <span className="equipo-accion-pendiente">
+                                Pendiente de devolución
+                              </span>
+                            )}
+                       
+                        </div>
+                      ))
+                    )}
+                  </div>
+
                 </div>
               </>
             )}
