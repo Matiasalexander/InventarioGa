@@ -13,6 +13,7 @@ import InventarioAccionesMenu from "../components/InventarioAccionesMenu";
 import FiltrosModal from "../components/FiltrosModal";
 import { FileUp } from "lucide-react";
 import { Search } from "lucide-react";
+import InventarioFormPage from "./InventarioFormPage";
 
 function InventarioPage({ setLoading }) {
   const navigate = useNavigate();
@@ -31,6 +32,10 @@ const puedeExportar = tienePermiso("inventario.exportar");
   const [arbolUnidades, setArbolUnidades] = useState([]);
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
+  //estados del modal
+
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [equipoEditar, setEquipoEditar] = useState(null);
   // NUEVO:
   // La búsqueda se conserva mientras la pestaña siga abierta.
   const [busqueda, setBusqueda] = useState(
@@ -407,12 +412,25 @@ const limpiarFiltros = () => {
   };
 
   const irAgregar = () => {
-    navigate("/inventario/nuevo");
+    setEquipoEditar(null);
+    setMostrarFormulario(true);
   };
 
   const irActualizar = (id) => {
-    navigate(`/inventario/editar/${id}`);
+    setEquipoEditar(id);
+    setMostrarFormulario(true);
   };
+
+  const cerrarFormulario = () => {
+    setMostrarFormulario(false);
+    setEquipoEditar(null);
+  };
+
+  const manejarGuardado = async()=> {
+    cerrarFormulario();
+    await cargarInventario(unidadSeleccionada);
+  };
+
 
   const borrarEquipo = async (id) => {
     const confirmar = window.confirm(
@@ -749,6 +767,14 @@ const limpiarFiltros = () => {
     </button>
   </div>
 </div>
+  {mostrarFormulario && (
+      <InventarioFormPage
+        id={equipoEditar}
+        setLoading={setLoading}
+        onClose={cerrarFormulario}
+        onSuccess={manejarGuardado}
+      />
+    )}
     </div>
   );
 }

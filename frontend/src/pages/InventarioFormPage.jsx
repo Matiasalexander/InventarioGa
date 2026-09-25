@@ -1,35 +1,68 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { toast } from "react-toastify";
+
 import {
   crearInventario,
   actualizarInventario,
   obtenerInventarioPorId
 } from "../services/inventarioService";
+
 import { obtenerCatalogos } from "../services/catalogosService";
+
 import "../styles/InventarioFormPage.css";
 
-function InventarioFormPage({ setLoading }) {
-  const navigate = useNavigate();
-  const { id } = useParams();
-
+function InventarioFormPage({
+  id = null,
+  setLoading,
+  onClose,
+  onSuccess
+}) {
   const esEdicion = Boolean(id);
 
-  const estadosFisicos = ["Bueno", "Regular", "Dañado"];
+  // =========================================================
+  // CONFIGURACIÓN DEL WIZARD
+  // =========================================================
+
+  const [pasoInventario, setPasoInventario] = useState(1);
+
+  const totalPasos = 5;
+
+  // =========================================================
+  // CONSTANTES
+  // =========================================================
+
+  const estadosFisicos = [
+    "Bueno",
+    "Regular",
+    "Dañado"
+  ];
+
   const tiposImpresoras = [
     "Impresora térmica",
     "Impresora de impacto",
     "Impresora en general"
   ];
-  const tiposConexiones = ["wifi", "Bluetooth", "Ethernet", "Serial", "Serial y Ethernet"];
+
+  const tiposConexiones = [
+    "wifi",
+    "Bluetooth",
+    "Ethernet",
+    "Serial",
+    "Serial y Ethernet"
+  ];
+
+  // =========================================================
+  // ESTADOS
+  // =========================================================
 
   const [errorSerial, setErrorSerial] = useState("");
-  const [foto, setFoto] = useState(null);
-  const [preview, setPreview] = useState("");
-  //setear el correo del usuario
-  const [correo, setCorreo] = useState("");
 
-  useEffect(() => { const usuario = JSON.parse(localStorage.getItem("usuario")); setCorreo(usuario?.Correo || ""); }, []);
+  const [foto, setFoto] = useState(null);
+
+  const [preview, setPreview] = useState("");
+
+  const [correo, setCorreo] = useState("");
 
   const [catalogos, setCatalogos] = useState({
     restaurantes: [],
@@ -46,49 +79,77 @@ function InventarioFormPage({ setLoading }) {
     sistemasOperativos: []
   });
 
-  const [modelosFiltrados, setModelosFiltrados] = useState([]);
-  const [localidadesFiltradas, setLocalidadesFiltradas] = useState([]);
-  const [modelosProcesadorFiltrados, setModelosProcesadorFiltrados] = useState([]);
-  const [modelosRamFiltrados, setModelosRamFiltrados] = useState([]);
-  const [modelosDiscoFiltrados, setModeloDiscoFiltrados] = useState([]);
+  const [modelosFiltrados, setModelosFiltrados] =
+    useState([]);
+
+  const [localidadesFiltradas, setLocalidadesFiltradas] =
+    useState([]);
+
+  const [modelosProcesadorFiltrados, setModelosProcesadorFiltrados] =
+    useState([]);
+
+  const [modelosRamFiltrados, setModelosRamFiltrados] =
+    useState([]);
+
+  const [modelosDiscoFiltrados, setModeloDiscoFiltrados] =
+    useState([]);
 
   const [formulario, setFormulario] = useState({
     ID_RESTAURANTE: "",
     ID_UNIDAD: "",
     LOCALIDAD: "",
     UBICACION: "",
+
     ID_TIPO_EQUIPO: "",
     NOMBRE_EQUIPO: "",
+
     ID_DEPARTAMENTO: "",
     PUESTO: "",
+
     SERIAL: "",
+
     FECHA_FABRICACION: "",
     FECHA_GARANTIA: "",
     FECHA_INICIO: "",
     FECHA_REGISTRO: "",
+
     Grestante: "",
     Auso: "",
+
     ID_DISCO: "",
     ID_RAM: "",
     ID_PROCESADOR: "",
     MODELO_PROCESADOR: "",
     ID_SISTEMA_OPERATIVO: "",
+
     TIPO_IMPRESORA: "",
     CONEXION: "",
+
     ID_MARCA: "",
     MODELO: "",
+
     IP: "",
     PUERTO: "",
+
     ID_ESTATUS: "",
     ESTADO_FISICO: "",
+
     CORREO: "",
+
     ACCESO_TEAM_VIEWER: "",
     CONTRASEÑA_TEAM_VIEWER: "",
+
     ACCESO_ANYDESK: "",
     CONTRASEÑA_ANYDESK: "",
+
     FOTO: null,
+
     COMENTARIO: ""
   });
+
+  // =========================================================
+  // UTILIDADES
+  // =========================================================
 
   const normalizarTexto = (valor) => {
     return (valor || "")
@@ -99,415 +160,83 @@ function InventarioFormPage({ setLoading }) {
       .toUpperCase();
   };
 
-  const restauranteSeleccionado = catalogos.restaurantes.find(
-    (item) => String(item.Id) === String(formulario.ID_RESTAURANTE)
-  );
-
-  const esCorporativoCancun =
-    normalizarTexto(restauranteSeleccionado?.Restaurante) === "CORPORATIVO" &&
-    normalizarTexto(formulario.LOCALIDAD) === "CANCUN";
-
   const formatearFecha = (fecha) => {
     if (!fecha) return "";
+
     return String(fecha).split("T")[0];
   };
 
-  const cargarCatalogos = async () => {
-    const data = await obtenerCatalogos();
-    setCatalogos(data);
-    return data;
-  };
+  // =========================================================
+  // RESTAURANTE SELECCIONADO
+  // =========================================================
 
-  const cargarEquipo = async (catalogosData) => {
-    if (!esEdicion) return;
-
-    const equipo = await obtenerInventarioPorId(id);
-    
-    if (equipo.FOTO) {
-      setPreview(`data:image/jpeg;base64,${equipo.FOTO}`);
-    }
-
-    const unidadSeleccionada = catalogosData.unidades.find(
-      (item) => String(item.id) === String(equipo.ID_UNIDAD)
+  const restauranteSeleccionado =
+    catalogos.restaurantes.find(
+      (item) =>
+        String(item.Id) ===
+        String(formulario.ID_RESTAURANTE)
     );
 
-    const localidades = catalogosData.unidades.filter(
-      (item) => String(item.id_marca) === String(unidadSeleccionada?.id_marca)
-    );
+  // =========================================================
+  // CORPORATIVO CANCÚN
+  // =========================================================
 
-    const modelos = catalogosData.modelos.filter(
-      (item) => String(item.id_marca) === String(equipo.ID_MARCA)
-    );
+  const esCorporativoCancun =
+    normalizarTexto(
+      restauranteSeleccionado?.Restaurante
+    ) === "CORPORATIVO" &&
+    normalizarTexto(
+      formulario.LOCALIDAD
+    ) === "CANCUN";
 
-    const modelosProcesador = catalogosData.modelosProcesador.filter(
-      (item) => String(item.Id_procesador) === String(equipo.ID_PROCESADOR)
-    );
+  // =========================================================
+  // TIPOS DE EQUIPO
+  // =========================================================
 
-    /*
-  const modelosRam = catalogosData.modelosRam.filter(
-    (item)=>String(item.Id_disco)
-  );*/
+  // Teléfono
+  const esTelefono =
+    Number(formulario.ID_TIPO_EQUIPO) === 15;
 
-    setLocalidadesFiltradas(localidades);
-    setModelosFiltrados(modelos);
-    setModelosProcesadorFiltrados(modelosProcesador);
+  // Equipos con SO
+  const esLaptop =
+    Number(formulario.ID_TIPO_EQUIPO) === 1;
 
-    setFormulario({
-      ID_RESTAURANTE: unidadSeleccionada?.id_marca || "",
-      ID_UNIDAD: equipo.ID_UNIDAD || "",
-      LOCALIDAD: equipo.LOCALIDAD || "",
-      UBICACION: equipo.UBICACION || "",
-      ID_TIPO_EQUIPO: equipo.ID_TIPO_EQUIPO || "",
-      NOMBRE_EQUIPO: equipo.NOMBRE_EQUIPO || "",
-      ID_DEPARTAMENTO: equipo.ID_DEPARTAMENTO || "",
-      PUESTO: equipo.PUESTO || "",
-      SERIAL: equipo.SERIAL || "",
-      FECHA_FABRICACION: formatearFecha(equipo.FECHA_FABRICACION),
-      FECHA_GARANTIA: formatearFecha(equipo.FECHA_GARANTIA),
-      FECHA_INICIO: formatearFecha(equipo.FECHA_INICIO),
-      FECHA_REGISTRO: formatearFecha(equipo.FECHA_REGISTRO),
-      Grestante: equipo.Grestante ?? "",
-      Auso: equipo.Auso ?? "",
-      ID_DISCO: equipo.ID_DISCO || "",
-      ID_RAM: equipo.ID_RAM || "",
-      ID_PROCESADOR: equipo.ID_PROCESADOR || "",
-      MODELO_PROCESADOR: equipo.MODELO_PROCESADOR || "",
-      ID_SISTEMA_OPERATIVO: equipo.ID_SISTEMA_OPERATIVO ?? equipo.id_sistema_operativo ?? "",
-      TIPO_IMPRESORA: equipo.TIPO_IMPRESORA || "",
-      CONEXION: equipo.CONEXION || "",
-      ID_MARCA: equipo.ID_MARCA || "",
-      MODELO: equipo.MODELO || "",
-      IP: equipo.IP || "",
-      PUERTO: equipo.PUERTO || "",
-      ID_ESTATUS: equipo.ID_ESTATUS || "",
-      ESTADO_FISICO: equipo.ESTADO_FISICO || "",
-      CORREO: equipo.CORREO || "",
-      ACCESO_TEAM_VIEWER: equipo.ACCESO_TEAM_VIEWER || "",
-      CONTRASEÑA_TEAM_VIEWER: equipo.CONTRASEÑA_TEAM_VIEWER || "",
-      ACCESO_ANYDESK: equipo.ACCESO_ANYDESK || "",
-      CONTRASEÑA_ANYDESK: equipo.CONTRASEÑA_ANYDESK || "",
-      COMENTARIO: equipo.COMENTARIO || ""
-    });
-  };
+  const esDesktop =
+    Number(formulario.ID_TIPO_EQUIPO) === 2;
 
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        setLoading(true);
-        const data = await cargarCatalogos();
-        await cargarEquipo(data);
-      } catch (error) {
-        console.error("Error cargando formulario:", error);
-        toast.error("Error cargando formulario");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const esTablet =
+    Number(formulario.ID_TIPO_EQUIPO) === 14;
 
-    cargarDatos();
-  }, [id]);
+  // Equipos POS
+  const esPantallaPOS =
+    Number(formulario.ID_TIPO_EQUIPO) === 4;
 
-  const manejarCambio = (e) => {
-    const { name, value } = e.target;
+  const esWorkstationpos =
+    Number(formulario.ID_TIPO_EQUIPO) === 7;
 
-    if (name === "SERIAL") {
-      setErrorSerial("");
-    }
+  const esTabletPOS =
+    Number(formulario.ID_TIPO_EQUIPO) === 13;
 
-    if (name === "ID_RESTAURANTE") {
-      const localidades = catalogos.unidades.filter(
-        (item) => String(item.id_marca) === String(value)
-      );
+  const esKDS =
+    Number(formulario.ID_TIPO_EQUIPO) === 21;
 
-      setLocalidadesFiltradas(localidades);
+  // Equipos con IP
+  const esSwitch =
+    Number(formulario.ID_TIPO_EQUIPO) === 17;
 
-      setFormulario((prev) => ({
-        ...prev,
-        ID_RESTAURANTE: value,
-        ID_UNIDAD: "",
-        LOCALIDAD: "",
-        UBICACION: "",
-        ID_DEPARTAMENTO: "",
-        PUESTO: ""
-      }));
+  const esAPS =
+    Number(formulario.ID_TIPO_EQUIPO) === 19;
 
-      return;
-    }
+  const esCCTV =
+    Number(formulario.ID_TIPO_EQUIPO) === 20;
 
-    if (name === "ID_UNIDAD") {
-      const unidadSeleccionada = catalogos.unidades.find(
-        (item) => String(item.id) === String(value)
-      );
+  // Impresora
+  const esImpresora =
+    Number(formulario.ID_TIPO_EQUIPO) === 3;
 
-      setFormulario((prev) => ({
-        ...prev,
-        ID_UNIDAD: value,
-        LOCALIDAD: unidadSeleccionada?.localidad || "",
-        UBICACION: "",
-        ID_DEPARTAMENTO: "",
-        PUESTO: ""
-      }));
-
-      return;
-    }
-
-    if (name === "ID_MARCA") {
-      const modelos = catalogos.modelos.filter(
-        (item) => String(item.id_marca) === String(value)
-      );
-
-      setModelosFiltrados(modelos);
-
-      setFormulario((prev) => ({
-        ...prev,
-        ID_MARCA: value,
-        MODELO: ""
-      }));
-
-      return;
-    }
-
-    if (name === "ID_PROCESADOR") {
-      const modelos = catalogos.modelosProcesador.filter(
-        (item) => String(item.Id_procesador) === String(value)
-      );
-
-      setModelosProcesadorFiltrados(modelos);
-
-      setFormulario((prev) => ({
-        ...prev,
-        ID_PROCESADOR: value,
-        MODELO_PROCESADOR: ""
-      }));
-
-      return;
-    }
-
-    setFormulario((prev) => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const guardarEquipo = async (e) => {
-    e.preventDefault();
-
-    setErrorSerial("");
-
-    try {
-      setLoading(true);
-
-      //función que valida que todo esté lleno
-      const formularioCompleto = () => {
-        // Campos obligatorios generales
-        const camposBase = [
-          formulario.ID_RESTAURANTE,
-          formulario.ID_UNIDAD,
-          formulario.ID_TIPO_EQUIPO,
-          formulario.SERIAL,
-          formulario.FECHA_FABRICACION,
-          formulario.FECHA_GARANTIA,
-          formulario.ID_MARCA,
-          formulario.MODELO,
-          formulario.ID_ESTATUS,
-          formulario.ESTADO_FISICO
-        ];
-
-        // Si alguno de los campos base está vacío
-        if (camposBase.some((campo) => !String(campo ?? "").trim())) {
-          return false;
-        }
-
-        // Corporativo Cancún
-        if (esCorporativoCancun) {
-          if (!formulario.ID_DEPARTAMENTO || !formulario.PUESTO.trim()) {
-            return false;
-          }
-        } else {
-          if (!formulario.UBICACION.trim()) {
-            return false;
-          }
-        }
-
-        // Equipos con sistema operativo, RAM, disco y procesador
-        if (
-          esLaptop ||
-          esDesktop ||
-          esTablet ||
-          esTelefono ||
-          esTabletPOS ||
-          esWorkstationpos
-        ) {
-          if (
-            !formulario.ID_SISTEMA_OPERATIVO ||
-            !formulario.ID_RAM ||
-            !formulario.ID_DISCO ||
-            !formulario.ID_PROCESADOR ||
-            !formulario.MODELO_PROCESADOR
-          ) {
-            return false;
-          }
-        }
-
-        // Impresoras
-        if (esImpresora) {
-          if (!formulario.TIPO_IMPRESORA || !formulario.CONEXION) {
-            return false;
-          }
-
-          // Si la conexión requiere puerto
-          if (
-            formulario.CONEXION === "Serial" ||
-            formulario.CONEXION === "Serial y Ethernet"
-          ) {
-            if (!formulario.PUERTO.trim()) {
-              return false;
-            }
-          }
-
-          // Si la impresora usa IP
-          if (
-            formulario.CONEXION === "wifi" ||
-            formulario.CONEXION === "Ethernet" ||
-            formulario.CONEXION === "Serial y Ethernet"
-          ) {
-            if (!formulario.IP.trim()) {
-              return false;
-            }
-          }
-        }
-
-        // Equipos que requieren IP
-        if (
-          esSwitch ||
-          esAPS ||
-          esCCTV ||
-          esTabletPOS ||
-          esWorkstationpos ||
-          esKDS
-        ) {
-          if (!formulario.IP.trim()) {
-            return false;
-          }
-        }
-
-        // Equipos que requieren accesos
-        if (mostrarAccesos) {
-          if (
-            !formulario.ACCESO_TEAM_VIEWER ||
-            !formulario.CONTRASEÑA_TEAM_VIEWER.trim() ||
-            !formulario.ACCESO_ANYDESK ||
-            !formulario.CONTRASEÑA_ANYDESK.trim()
-          ) {
-            return false;
-          }
-        }
-
-        return true;
-      };
-
-
-      const formData = new FormData();
-
-      Object.entries({
-        ID_UNIDAD: formulario.ID_UNIDAD,
-        LOCALIDAD: formulario.LOCALIDAD,
-
-        UBICACION: esCorporativoCancun
-          ? "NA"
-          : formulario.UBICACION || "NA",
-
-        ID_TIPO_EQUIPO: formulario.ID_TIPO_EQUIPO,
-
-        ID_DEPARTAMENTO: esCorporativoCancun
-          ? formulario.ID_DEPARTAMENTO || null
-          : null,
-
-        PUESTO: esCorporativoCancun
-          ? formulario.PUESTO || "NA"
-          : "NA",
-
-        SERIAL: formulario.SERIAL,
-        FECHA_FABRICACION: formulario.FECHA_FABRICACION,
-        FECHA_GARANTIA: formulario.FECHA_GARANTIA,
-        FECHA_INICIO: formulario.FECHA_INICIO,
-        ID_DISCO: formulario.ID_DISCO,
-        ID_RAM: formulario.ID_RAM,
-        ID_PROCESADOR: formulario.ID_PROCESADOR,
-        MODELO_PROCESADOR: formulario.MODELO_PROCESADOR,
-        ID_SISTEMA_OPERATIVO: formulario.ID_SISTEMA_OPERATIVO,
-        TIPO_IMPRESORA: formulario.TIPO_IMPRESORA,
-        CONEXION: formulario.CONEXION,
-        ID_MARCA: formulario.ID_MARCA,
-        MODELO: formulario.MODELO,
-        IP: formulario.IP,
-        PUERTO: formulario.PUERTO,
-        ID_ESTATUS: formulario.ID_ESTATUS,
-        ESTADO_FISICO: formulario.ESTADO_FISICO,
-        CORREO: formulario.CORREO,
-        ACCESO_TEAM_VIEWER: formulario.ACCESO_TEAM_VIEWER,
-        CONTRASENA_TEAM_VIEWER: formulario.CONTRASEÑA_TEAM_VIEWER,
-        ACCESO_ANYDESK: formulario.ACCESO_ANYDESK,
-        CONTRASENA_ANYDESK: formulario.CONTRASEÑA_ANYDESK,
-        COMENTARIO: formulario.COMENTARIO
-      }).forEach(([key, value]) => {
-
-        if (value !== null && value !== undefined) {
-          formData.append(key, value);
-        }
-
-      });
-
-      if (foto) {
-        formData.append("FOTO", foto);
-      } if (esEdicion) {
-        await actualizarInventario(id, formData);
-        toast.success("Equipo editado exitosamente");
-
-      } else {
-        await crearInventario(formData);
-        toast.success("Equipo creado exitosamente");
-
-      }
-
-      //imagen-test
-      //finimagen
-
-      navigate("/inventario");
-    } catch (error) {
-      const mensaje = error.response?.data?.message || "Error guardando el equipo";
-
-      if (mensaje.includes("serie")) {
-        setErrorSerial("Este número de serie ya existe");
-      }
-
-      console.error("Error guardando equipo:", error.response?.data || error);
-      toast.error(mensaje);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  {/*Telefono*/ }
-  const esTelefono = Number(formulario.ID_TIPO_EQUIPO) === 15;
-  {/*Equipos con SO*/ }
-  const esLaptop = Number(formulario.ID_TIPO_EQUIPO) === 1;
-  const esDesktop = Number(formulario.ID_TIPO_EQUIPO) === 2;
-  const esTablet = Number(formulario.ID_TIPO_EQUIPO) === 14;
-
-  {/*Equipos POS*/ }
-  const esPantallaPOS = Number(formulario.ID_TIPO_EQUIPO) === 4;
-  const esWorkstationpos = Number(formulario.ID_TIPO_EQUIPO) === 7;
-  const esTabletPOS = Number(formulario.ID_TIPO_EQUIPO) === 13;
-  const esKDS = Number(formulario.ID_TIPO_EQUIPO) === 21;
-
-  {/*Equipos que llevan IP*/ }
-  const esSwitch = Number(formulario.ID_TIPO_EQUIPO) === 17;
-  const esAPS = Number(formulario.ID_TIPO_EQUIPO) === 19;
-  const esCCTV = Number(formulario.ID_TIPO_EQUIPO) === 20;
-
-  {/*IMPRESORAS*/ }
-  const esImpresora = Number(formulario.ID_TIPO_EQUIPO) === 3;
+  // =========================================================
+  // MOSTRAR IP
+  // =========================================================
 
   const mostrarIP =
     esSwitch ||
@@ -516,47 +245,601 @@ function InventarioFormPage({ setLoading }) {
     esTabletPOS ||
     esWorkstationpos ||
     esKDS ||
-    (esImpresora && formulario.CONEXION === "wifi" || formulario.CONEXION === "Ethernet" || formulario.CONEXION === "Serial y Ethernet");
-  {/*Herramientas en general*/ }
+    (
+      esImpresora &&
+      (
+        formulario.CONEXION === "wifi" ||
+        formulario.CONEXION === "Ethernet" ||
+        formulario.CONEXION === "Serial y Ethernet"
+      )
+    );
 
+  // =========================================================
+  // MOSTRAR ACCESOS
+  // =========================================================
 
   const mostrarAccesos =
     esPantallaPOS ||
     esWorkstationpos ||
     esTabletPOS ||
     esKDS;
-  {/*Perifericos*/ }
 
-  //función que valida que todo esté lleno
-  const formularioCompleto = () => {
-    // Campos obligatorios generales
-    const camposBase = [
-      formulario.ID_RESTAURANTE,
-      formulario.ID_UNIDAD,
-      formulario.ID_TIPO_EQUIPO,
-      formulario.SERIAL,
-      formulario.FECHA_FABRICACION,
-      formulario.FECHA_GARANTIA,
-      formulario.ID_MARCA,
-      formulario.MODELO,
-      formulario.ID_ESTATUS,
-      formulario.ESTADO_FISICO,
-      correo
-    ];
+  // =========================================================
+  // CARGAR CORREO
+  // =========================================================
 
-    // Si alguno de los campos base está vacío
-    if (camposBase.some((campo) => !String(campo ?? "").trim())) {
+  useEffect(() => {
+    const usuario = JSON.parse(
+      localStorage.getItem("usuario")
+    );
+
+    const correoUsuario =
+      usuario?.Correo || "";
+
+    setCorreo(correoUsuario);
+
+    setFormulario((prev) => ({
+      ...prev,
+      CORREO: correoUsuario
+    }));
+  }, []);
+
+  // =========================================================
+  // CARGAR CATÁLOGOS
+  // =========================================================
+
+  const cargarCatalogos = async () => {
+    const data = await obtenerCatalogos();
+
+    setCatalogos(data);
+
+    return data;
+  };
+
+  // =========================================================
+  // CARGAR EQUIPO EN EDICIÓN
+  // =========================================================
+
+  const cargarEquipo = async (catalogosData) => {
+    if (!esEdicion) return;
+
+    const equipo =
+      await obtenerInventarioPorId(id);
+
+    // -----------------------------------------
+    // FOTO
+    // -----------------------------------------
+
+    if (equipo.FOTO) {
+      setPreview(
+        `data:image/jpeg;base64,${equipo.FOTO}`
+      );
+    }
+
+    // -----------------------------------------
+    // UNIDAD
+    // -----------------------------------------
+
+    const unidadSeleccionada =
+      catalogosData.unidades.find(
+        (item) =>
+          String(item.id) ===
+          String(equipo.ID_UNIDAD)
+      );
+
+    // -----------------------------------------
+    // LOCALIDADES
+    // -----------------------------------------
+
+    const localidades =
+      catalogosData.unidades.filter(
+        (item) =>
+          String(item.id_marca) ===
+          String(
+            unidadSeleccionada?.id_marca
+          )
+      );
+
+    // -----------------------------------------
+    // MODELOS
+    // -----------------------------------------
+
+    const modelos =
+      catalogosData.modelos.filter(
+        (item) =>
+          String(item.id_marca) ===
+          String(equipo.ID_MARCA)
+      );
+
+    // -----------------------------------------
+    // MODELOS PROCESADOR
+    // -----------------------------------------
+
+    const modelosProcesador =
+      catalogosData.modelosProcesador.filter(
+        (item) =>
+          String(item.Id_procesador) ===
+          String(equipo.ID_PROCESADOR)
+      );
+
+    setLocalidadesFiltradas(
+      localidades
+    );
+
+    setModelosFiltrados(
+      modelos
+    );
+
+    setModelosProcesadorFiltrados(
+      modelosProcesador
+    );
+
+    // -----------------------------------------
+    // FORMULARIO
+    // -----------------------------------------
+
+    setFormulario({
+      ID_RESTAURANTE:
+        unidadSeleccionada?.id_marca || "",
+
+      ID_UNIDAD:
+        equipo.ID_UNIDAD || "",
+
+      LOCALIDAD:
+        equipo.LOCALIDAD || "",
+
+      UBICACION:
+        equipo.UBICACION || "",
+
+      ID_TIPO_EQUIPO:
+        equipo.ID_TIPO_EQUIPO || "",
+
+      NOMBRE_EQUIPO:
+        equipo.NOMBRE_EQUIPO || "",
+
+      ID_DEPARTAMENTO:
+        equipo.ID_DEPARTAMENTO || "",
+
+      PUESTO:
+        equipo.PUESTO || "",
+
+      SERIAL:
+        equipo.SERIAL || "",
+
+      FECHA_FABRICACION:
+        formatearFecha(
+          equipo.FECHA_FABRICACION
+        ),
+
+      FECHA_GARANTIA:
+        formatearFecha(
+          equipo.FECHA_GARANTIA
+        ),
+
+      FECHA_INICIO:
+        formatearFecha(
+          equipo.FECHA_INICIO
+        ),
+
+      FECHA_REGISTRO:
+        formatearFecha(
+          equipo.FECHA_REGISTRO
+        ),
+
+      Grestante:
+        equipo.Grestante ?? "",
+
+      Auso:
+        equipo.Auso ?? "",
+
+      ID_DISCO:
+        equipo.ID_DISCO || "",
+
+      ID_RAM:
+        equipo.ID_RAM || "",
+
+      ID_PROCESADOR:
+        equipo.ID_PROCESADOR || "",
+
+      MODELO_PROCESADOR:
+        equipo.MODELO_PROCESADOR || "",
+
+      ID_SISTEMA_OPERATIVO:
+        equipo.ID_SISTEMA_OPERATIVO ??
+        equipo.id_sistema_operativo ??
+        "",
+
+      TIPO_IMPRESORA:
+        equipo.TIPO_IMPRESORA || "",
+
+      CONEXION:
+        equipo.CONEXION || "",
+
+      ID_MARCA:
+        equipo.ID_MARCA || "",
+
+      MODELO:
+        equipo.MODELO || "",
+
+      IP:
+        equipo.IP || "",
+
+      PUERTO:
+        equipo.PUERTO || "",
+
+      ID_ESTATUS:
+        equipo.ID_ESTATUS || "",
+
+      ESTADO_FISICO:
+        equipo.ESTADO_FISICO || "",
+
+      CORREO:
+        equipo.CORREO || correo,
+
+      ACCESO_TEAM_VIEWER:
+        equipo.ACCESO_TEAM_VIEWER || "",
+
+      CONTRASEÑA_TEAM_VIEWER:
+        equipo.CONTRASEÑA_TEAM_VIEWER || "",
+
+      ACCESO_ANYDESK:
+        equipo.ACCESO_ANYDESK || "",
+
+      CONTRASEÑA_ANYDESK:
+        equipo.CONTRASEÑA_ANYDESK || "",
+
+      COMENTARIO:
+        equipo.COMENTARIO || ""
+    });
+  };
+
+  // =========================================================
+  // CARGA INICIAL
+  // =========================================================
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        setLoading(true);
+
+        const data =
+          await cargarCatalogos();
+
+        await cargarEquipo(data);
+
+      } catch (error) {
+        console.error(
+          "Error cargando formulario:",
+          error
+        );
+
+        toast.error(
+          "Error cargando formulario"
+        );
+
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarDatos();
+  }, [id]);
+
+  // =========================================================
+  // MANEJAR CAMBIOS
+  // =========================================================
+
+  const manejarCambio = (e) => {
+    const {
+      name,
+      value
+    } = e.target;
+
+    // -----------------------------------------
+    // SERIAL
+    // -----------------------------------------
+
+    if (name === "SERIAL") {
+      setErrorSerial("");
+    }
+
+    // -----------------------------------------
+    // RESTAURANTE
+    // -----------------------------------------
+
+    if (
+      name === "ID_RESTAURANTE"
+    ) {
+      const localidades =
+        catalogos.unidades.filter(
+          (item) =>
+            String(item.id_marca) ===
+            String(value)
+        );
+
+      setLocalidadesFiltradas(
+        localidades
+      );
+
+      setFormulario((prev) => ({
+        ...prev,
+
+        ID_RESTAURANTE:
+          value,
+
+        ID_UNIDAD:
+          "",
+
+        LOCALIDAD:
+          "",
+
+        UBICACION:
+          "",
+
+        ID_DEPARTAMENTO:
+          "",
+
+        PUESTO:
+          ""
+      }));
+
+      return;
+    }
+
+    // -----------------------------------------
+    // UNIDAD
+    // -----------------------------------------
+
+    if (
+      name === "ID_UNIDAD"
+    ) {
+      const unidadSeleccionada =
+        catalogos.unidades.find(
+          (item) =>
+            String(item.id) ===
+            String(value)
+        );
+
+      setFormulario((prev) => ({
+        ...prev,
+
+        ID_UNIDAD:
+          value,
+
+        LOCALIDAD:
+          unidadSeleccionada?.localidad ||
+          "",
+
+        UBICACION:
+          "",
+
+        ID_DEPARTAMENTO:
+          "",
+
+        PUESTO:
+          ""
+      }));
+
+      return;
+    }
+
+    // -----------------------------------------
+    // MARCA
+    // -----------------------------------------
+
+    if (
+      name === "ID_MARCA"
+    ) {
+      const modelos =
+        catalogos.modelos.filter(
+          (item) =>
+            String(item.id_marca) ===
+            String(value)
+        );
+
+      setModelosFiltrados(
+        modelos
+      );
+
+      setFormulario((prev) => ({
+        ...prev,
+
+        ID_MARCA:
+          value,
+
+        MODELO:
+          ""
+      }));
+
+      return;
+    }
+
+    // -----------------------------------------
+    // PROCESADOR
+    // -----------------------------------------
+
+    if (
+      name === "ID_PROCESADOR"
+    ) {
+      const modelos =
+        catalogos.modelosProcesador.filter(
+          (item) =>
+            String(item.Id_procesador) ===
+            String(value)
+        );
+
+      setModelosProcesadorFiltrados(
+        modelos
+      );
+
+      setFormulario((prev) => ({
+        ...prev,
+
+        ID_PROCESADOR:
+          value,
+
+        MODELO_PROCESADOR:
+          ""
+      }));
+
+      return;
+    }
+
+    // -----------------------------------------
+    // GENERAL
+    // -----------------------------------------
+
+    setFormulario((prev) => ({
+      ...prev,
+
+      [name]:
+        value
+    }));
+  };
+
+  // =========================================================
+  // VALIDACIÓN PASO 1
+  // =========================================================
+
+  const validarPaso1 = () => {
+
+    if (
+      !formulario.ID_RESTAURANTE
+    ) {
+      toast.error(
+        "Selecciona el restaurante"
+      );
+
       return false;
     }
 
-    // Corporativo Cancún
-  if (!esCorporativoCancun) {
-    if (!formulario.UBICACION.trim()) {
-    return false;
-    }
-  }
+    if (
+      !formulario.ID_UNIDAD
+    ) {
+      toast.error(
+        "Selecciona la localidad / unidad"
+      );
 
-    // Equipos con sistema operativo, RAM, disco y procesador
+      return false;
+    }
+
+    if (esCorporativoCancun) {
+
+      if (
+        !formulario.ID_DEPARTAMENTO
+      ) {
+        toast.error(
+          "Selecciona el departamento"
+        );
+
+        return false;
+      }
+
+      if (
+        !formulario.PUESTO?.trim()
+      ) {
+        toast.error(
+          "Ingresa el puesto"
+        );
+
+        return false;
+      }
+
+    } else {
+
+      if (
+        !formulario.UBICACION?.trim()
+      ) {
+        toast.error(
+          "Ingresa la ubicación interna"
+        );
+
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  // =========================================================
+  // VALIDACIÓN PASO 2
+  // =========================================================
+
+  const validarPaso2 = () => {
+
+    if (
+      !formulario.ID_TIPO_EQUIPO
+    ) {
+      toast.error(
+        "Selecciona el tipo de equipo"
+      );
+
+      return false;
+    }
+
+    if (
+      !formulario.SERIAL?.trim()
+    ) {
+      toast.error(
+        "Ingresa el número de serie"
+      );
+
+      return false;
+    }
+
+    return true;
+  };
+
+  // =========================================================
+  // VALIDACIÓN PASO 3
+  // =========================================================
+
+  const validarPaso3 = () => {
+
+    if (
+      !formulario.FECHA_FABRICACION
+    ) {
+      toast.error(
+        "Ingresa la fecha de fabricación"
+      );
+
+      return false;
+    }
+
+    if (
+      !formulario.FECHA_GARANTIA
+    ) {
+      toast.error(
+        "Ingresa la fecha de vencimiento de garantía"
+      );
+
+      return false;
+    }
+
+    if (
+      !formulario.ID_MARCA
+    ) {
+      toast.error(
+        "Selecciona la marca"
+      );
+
+      return false;
+    }
+
+    if (
+      !formulario.MODELO
+    ) {
+      toast.error(
+        "Selecciona el modelo"
+      );
+
+      return false;
+    }
+
+    // -----------------------------------------
+    // EQUIPOS CON SO
+    // -----------------------------------------
+
     if (
       esLaptop ||
       esDesktop ||
@@ -565,6 +848,7 @@ function InventarioFormPage({ setLoading }) {
       esTabletPOS ||
       esWorkstationpos
     ) {
+
       if (
         !formulario.ID_SISTEMA_OPERATIVO ||
         !formulario.ID_RAM ||
@@ -572,60 +856,44 @@ function InventarioFormPage({ setLoading }) {
         !formulario.ID_PROCESADOR ||
         !formulario.MODELO_PROCESADOR
       ) {
+        toast.error(
+          "Completa las especificaciones del equipo"
+        );
+
         return false;
       }
     }
 
-    // Impresoras
+    // -----------------------------------------
+    // IMPRESORAS
+    // -----------------------------------------
+
     if (esImpresora) {
-      if (!formulario.TIPO_IMPRESORA || !formulario.CONEXION) {
+
+      if (
+        !formulario.TIPO_IMPRESORA ||
+        !formulario.CONEXION
+      ) {
+        toast.error(
+          "Completa el tipo y conexión de la impresora"
+        );
+
         return false;
       }
 
-      // Si la conexión requiere puerto
       if (
-        formulario.CONEXION === "Serial" ||
-        formulario.CONEXION === "Serial y Ethernet"
+        (
+          formulario.CONEXION ===
+            "Serial" ||
+          formulario.CONEXION ===
+            "Serial y Ethernet"
+        ) &&
+        !formulario.PUERTO?.trim()
       ) {
-        if (!formulario.PUERTO.trim()) {
-          return false;
-        }
-      }
+        toast.error(
+          "Ingresa el puerto de la impresora"
+        );
 
-      // Si la impresora usa IP
-      if (
-        formulario.CONEXION === "wifi" ||
-        formulario.CONEXION === "Ethernet" ||
-        formulario.CONEXION === "Serial y Ethernet"
-      ) {
-        if (!formulario.IP.trim()) {
-          return false;
-        }
-      }
-    }
-
-    // Equipos que requieren IP
-    if (
-      esSwitch ||
-      esAPS ||
-      esCCTV ||
-      esTabletPOS ||
-      esWorkstationpos ||
-      esKDS
-    ) {
-      if (!formulario.IP.trim()) {
-        return false;
-      }
-    }
-
-    // Equipos que requieren accesos
-    if (mostrarAccesos) {
-      if (
-        !formulario.ACCESO_TEAM_VIEWER ||
-        !formulario.CONTRASEÑA_TEAM_VIEWER.trim() ||
-        !formulario.ACCESO_ANYDESK ||
-        !formulario.CONTRASEÑA_ANYDESK.trim()
-      ) {
         return false;
       }
     }
@@ -633,574 +901,2001 @@ function InventarioFormPage({ setLoading }) {
     return true;
   };
 
-  return (
-    <div className="contenedor-responsive">
-      <div className="card-user">
-      <div className="header-user">
-        <div>
-          <h1>{esEdicion ? "Actualizar equipo" : "Agregar equipo"}</h1>
-          <p>
-            {esEdicion
-              ? "Modifica los datos del equipo seleccionado."
-              : "Registra un nuevo equipo en el inventario."}
-          </p>
+  // =========================================================
+  // VALIDACIÓN PASO 4
+  // =========================================================
+
+  const validarPaso4 = () => {
+
+    // -----------------------------------------
+    // IP
+    // -----------------------------------------
+
+    if (
+      mostrarIP &&
+      !formulario.IP?.trim()
+    ) {
+      toast.error(
+        "Ingresa la dirección IP"
+      );
+
+      return false;
+    }
+
+    // -----------------------------------------
+    // ACCESOS
+    // -----------------------------------------
+
+    if (mostrarAccesos) {
+
+      if (
+        !formulario.ACCESO_TEAM_VIEWER ||
+        !formulario.CONTRASEÑA_TEAM_VIEWER?.trim() ||
+        !formulario.ACCESO_ANYDESK ||
+        !formulario.CONTRASEÑA_ANYDESK?.trim()
+      ) {
+        toast.error(
+          "Completa los datos de acceso remoto"
+        );
+
+        return false;
+      }
+    }
+
+    // -----------------------------------------
+    // ESTATUS
+    // -----------------------------------------
+
+    if (
+      !formulario.ID_ESTATUS
+    ) {
+      toast.error(
+        "Selecciona el estatus del equipo"
+      );
+
+      return false;
+    }
+
+    if (
+      !formulario.ESTADO_FISICO
+    ) {
+      toast.error(
+        "Selecciona el estado físico"
+      );
+
+      return false;
+    }
+
+    return true;
+  };
+
+  // =========================================================
+  // VALIDACIÓN PASO 5
+  // =========================================================
+
+  const validarPaso5 = () => {
+
+    if (!correo?.trim()) {
+      toast.error(
+        "No se encontró el correo del usuario"
+      );
+
+      return false;
+    }
+
+    return true;
+  };
+
+  // =========================================================
+  // VALIDAR PASO ACTUAL
+  // =========================================================
+
+  const validarPasoActual = () => {
+
+    switch (pasoInventario) {
+
+      case 1:
+        return validarPaso1();
+
+      case 2:
+        return validarPaso2();
+
+      case 3:
+        return validarPaso3();
+
+      case 4:
+        return validarPaso4();
+
+      case 5:
+        return validarPaso5();
+
+      default:
+        return true;
+    }
+  };
+
+  // =========================================================
+  // SIGUIENTE
+  // =========================================================
+
+  const siguientePaso = () => {
+
+    if (!validarPasoActual()) {
+      return;
+    }
+
+    setPasoInventario(
+      (prev) =>
+        Math.min(
+          prev + 1,
+          totalPasos
+        )
+    );
+  };
+
+  // =========================================================
+  // ANTERIOR
+  // =========================================================
+
+  const pasoAnterior = () => {
+
+    setPasoInventario(
+      (prev) =>
+        Math.max(
+          prev - 1,
+          1
+        )
+    );
+  };
+
+  // =========================================================
+  // GUARDAR EQUIPO
+  // =========================================================
+
+  const guardarEquipo = async (e) => {
+
+    e.preventDefault();
+
+    if (!validarPaso5()) {
+      return;
+    }
+
+    setErrorSerial("");
+
+    try {
+
+      setLoading(true);
+
+      const formData =
+        new FormData();
+
+      const datos = {
+
+        ID_UNIDAD:
+          formulario.ID_UNIDAD,
+
+        LOCALIDAD:
+          formulario.LOCALIDAD,
+
+        UBICACION:
+          esCorporativoCancun
+            ? "NA"
+            : formulario.UBICACION ||
+              "NA",
+
+        ID_TIPO_EQUIPO:
+          formulario.ID_TIPO_EQUIPO,
+
+        ID_DEPARTAMENTO:
+          esCorporativoCancun
+            ? formulario.ID_DEPARTAMENTO ||
+              null
+            : null,
+
+        PUESTO:
+          esCorporativoCancun
+            ? formulario.PUESTO ||
+              "NA"
+            : "NA",
+
+        SERIAL:
+          formulario.SERIAL,
+
+        FECHA_FABRICACION:
+          formulario.FECHA_FABRICACION,
+
+        FECHA_GARANTIA:
+          formulario.FECHA_GARANTIA,
+
+        FECHA_INICIO:
+          formulario.FECHA_INICIO,
+
+        ID_DISCO:
+          formulario.ID_DISCO,
+
+        ID_RAM:
+          formulario.ID_RAM,
+
+        ID_PROCESADOR:
+          formulario.ID_PROCESADOR,
+
+        MODELO_PROCESADOR:
+          formulario.MODELO_PROCESADOR,
+
+        ID_SISTEMA_OPERATIVO:
+          formulario.ID_SISTEMA_OPERATIVO,
+
+        TIPO_IMPRESORA:
+          formulario.TIPO_IMPRESORA,
+
+        CONEXION:
+          formulario.CONEXION,
+
+        ID_MARCA:
+          formulario.ID_MARCA,
+
+        MODELO:
+          formulario.MODELO,
+
+        IP:
+          formulario.IP,
+
+        PUERTO:
+          formulario.PUERTO,
+
+        ID_ESTATUS:
+          formulario.ID_ESTATUS,
+
+        ESTADO_FISICO:
+          formulario.ESTADO_FISICO,
+
+        CORREO:
+          correo,
+
+        ACCESO_TEAM_VIEWER:
+          formulario.ACCESO_TEAM_VIEWER,
+
+        CONTRASENA_TEAM_VIEWER:
+          formulario.CONTRASEÑA_TEAM_VIEWER,
+
+        ACCESO_ANYDESK:
+          formulario.ACCESO_ANYDESK,
+
+        CONTRASENA_ANYDESK:
+          formulario.CONTRASEÑA_ANYDESK,
+
+        COMENTARIO:
+          formulario.COMENTARIO
+      };
+
+      Object.entries(datos).forEach(
+        ([key, value]) => {
+
+          if (
+            value !== null &&
+            value !== undefined
+          ) {
+            formData.append(
+              key,
+              value
+            );
+          }
+
+        }
+      );
+
+      if (foto) {
+
+        formData.append(
+          "FOTO",
+          foto
+        );
+      }
+
+      // -----------------------------------------
+      // EDICIÓN
+      // -----------------------------------------
+
+      if (esEdicion) {
+
+        await actualizarInventario(
+          id,
+          formData
+        );
+
+        toast.success(
+          "Equipo editado exitosamente"
+        );
+
+      }
+
+      // -----------------------------------------
+      // CREACIÓN
+      // -----------------------------------------
+
+      else {
+
+        await crearInventario(
+          formData
+        );
+
+        toast.success(
+          "Equipo creado exitosamente"
+        );
+      }
+
+      // -----------------------------------------
+      // AVISAR AL PADRE
+      // -----------------------------------------
+
+      if (onSuccess) {
+        onSuccess();
+      }
+
+    } catch (error) {
+
+      const mensaje =
+        error.response?.data?.message ||
+        "Error guardando el equipo";
+
+      if (
+        mensaje
+          .toLowerCase()
+          .includes("serie")
+      ) {
+        setErrorSerial(
+          "Este número de serie ya existe"
+        );
+      }
+
+      console.error(
+        "Error guardando equipo:",
+        error.response?.data ||
+          error
+      );
+
+      toast.error(
+        mensaje
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
+  };
+
+  // =========================================================
+  // CAMBIO DE FOTO
+  // =========================================================
+
+  const manejarFoto = (e) => {
+
+    const archivo =
+      e.target.files?.[0];
+
+    if (!archivo) {
+      return;
+    }
+
+    setFoto(archivo);
+
+    setPreview(
+      URL.createObjectURL(
+        archivo
+      )
+    );
+  };
+
+  // =========================================================
+  // RENDER
+  // =========================================================
+
+  return createPortal(
+
+    <div className="modal-overlay">
+
+      <div className="modal modal-responsiva">
+
+        {/* =================================================
+            HEADER
+        ================================================= */}
+
+        <div className="modal-header">
+
+          <div>
+
+            <h2>
+              {esEdicion
+                ? "Actualizar equipo"
+                : "Agregar equipo"}
+            </h2>
+
+            <p>
+              {esEdicion
+                ? "Modifica los datos del equipo seleccionado."
+                : "Registra un nuevo equipo en el inventario."}
+            </p>
+
+          </div>
+
+          <div className="modal-header-right">
+
+            <span>
+              Paso {pasoInventario} de {totalPasos}
+            </span>
+
+            <button
+              type="button"
+              className="modal-close"
+              onClick={onClose}
+            >
+              ×
+            </button>
+
+          </div>
+
         </div>
 
-        <button type="button" onClick={() => navigate("/inventario")}>
-          Volver al listado
-        </button>
-      </div>
-</div>
-      
-        <form onSubmit={guardarEquipo}>
-          <div className="formulario-card">
-            <h2>Información general</h2>
+        {/* =================================================
+            PASOS
+        ================================================= */}
 
-            <div className="campo-form">
-              <label>Restaurante / marca</label>
-              <select
-                name="ID_RESTAURANTE"
-                value={formulario.ID_RESTAURANTE}
-                onChange={manejarCambio}
-              >
-                <option value="">Selecciona restaurante</option>
-                {catalogos.restaurantes.map((item) => (
-                  <option key={item.Id} value={item.Id}>
-                    {item.Restaurante}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="inventario-steps">
 
-            <div className="campo-form">
-              <label>Localidad / unidad</label>
-              <select
-                name="ID_UNIDAD"
-                value={formulario.ID_UNIDAD}
-                onChange={manejarCambio}
-                disabled={!formulario.ID_RESTAURANTE}
-              >
-                <option value="">Selecciona localidad</option>
-                {localidadesFiltradas.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.localidad}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div
+            className={
+              pasoInventario >= 1
+                ? "step active"
+                : "step"
+            }
+          >
+            <span>1</span>
+            <small>
+              Ubicación
+            </small>
+          </div>
 
-            {!esCorporativoCancun && (
-              <div className="campo-form">
-                <label>Ubicación interna</label>
-                <input
-                  name="UBICACION"
-                  placeholder="Área, oficina, almacén, caja, barra..."
-                  value={formulario.UBICACION}
-                  onChange={manejarCambio}
-                />
-              </div>
-            )}
+          <div
+            className={
+              pasoInventario >= 2
+                ? "step active"
+                : "step"
+            }
+          >
+            <span>2</span>
+            <small>
+              Identificación
+            </small>
+          </div>
 
-            {esCorporativoCancun && (
-              <>
+          <div
+            className={
+              pasoInventario >= 3
+                ? "step active"
+                : "step"
+            }
+          >
+            <span>3</span>
+            <small>
+              Especificaciones
+            </small>
+          </div>
+
+          <div
+            className={
+              pasoInventario >= 4
+                ? "step active"
+                : "step"
+            }
+          >
+            <span>4</span>
+            <small>
+              Conectividad
+            </small>
+          </div>
+
+          <div
+            className={
+              pasoInventario >= 5
+                ? "step active"
+                : "step"
+            }
+          >
+            <span>5</span>
+            <small>
+              Revisión
+            </small>
+          </div>
+
+        </div>
+
+        {/* =================================================
+            FORMULARIO
+        ================================================= */}
+
+        <form
+          className="modal-body"
+          onSubmit={guardarEquipo}
+        >
+
+          {/* =================================================
+              PASO 1
+          ================================================= */}
+
+          {pasoInventario === 1 && (
+
+            <div className="inventario-step-content">
+
+                <div className="formulario-card">
+
+                <h2>
+                  Información general
+                </h2>
+
                 <div className="campo-form">
-                  <label>Departamento</label>
+
+                  <label>
+                    Restaurante / marca
+                  </label>
+
                   <select
-                    name="ID_DEPARTAMENTO"
-                    value={formulario.ID_DEPARTAMENTO}
-                    onChange={manejarCambio}
-                  >
-                    <option value="">Selecciona departamento</option>
-                    {catalogos.departamentos.map((item) => (
-                      <option key={item.Id} value={item.Id}>
-                        {item.Nombre_departamento}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="campo-form">
-                  <label>Puesto</label>
-                  <input
-                    name="PUESTO"
-                    placeholder="Puesto del usuario o área responsable"
-                    value={formulario.PUESTO}
-                    onChange={manejarCambio}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="formulario-card">
-            <h2>Identificación del equipo</h2>
-
-            <div className="campo-form">
-              <label>Nombre del equipo</label>
-              <input
-                name="NOMBRE_EQUIPO"
-                value={
-                  esEdicion
-                    ? formulario.NOMBRE_EQUIPO
-                    : esCorporativoCancun
-                      ? "Se generará automáticamente al guardar"
-                      : "NA"
-                }
-                disabled
-              />
-              <small>
-                Solo se genera automáticamente para Corporativo Cancún.
-              </small>
-            </div>
-        
-      
-                            <div className="campo-form">
-              <label>Tipo de equipo</label>
-              <select
-                name="ID_TIPO_EQUIPO"
-                value={formulario.ID_TIPO_EQUIPO}
-                onChange={manejarCambio}
-                disabled= {esEdicion && esCorporativoCancun}
-              >
-                
-                <option value="">Selecciona tipo de equipo</option>
-                {catalogos.tiposEquipo.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.tequipo}
-                  </option>
-                ))}
-                
-              </select>
-            </div>
-  
-
-            <div className="campo-form">
-              <label>Fecha de fabricación</label>
-              <input
-                name="FECHA_FABRICACION"
-                type="date"
-                value={formulario.FECHA_FABRICACION}
-                onChange={manejarCambio}
-              />
-              <small>
-                Se usa para generar automáticamente el nombre del equipo.
-              </small>
-            </div>
-
-            <div className="campo-form">
-              <label>Número de serie</label>
-              <input
-                name="SERIAL"
-                placeholder="Número de serie del equipo"
-                value={formulario.SERIAL}
-                onChange={manejarCambio}
-              />
-              {errorSerial && (
-                <small style={{ color: "red" }}>{errorSerial}</small>
-              )}
-            </div>
-          </div>
-
-          <div className="formulario-card">
-            <h2>Fechas y garantía</h2>
-
-            <div className="campo-form">
-              <label>Fecha de vencimiento de garantía</label>
-              <input
-                name="FECHA_GARANTIA"
-                type="date"
-                value={formulario.FECHA_GARANTIA}
-                onChange={manejarCambio}
-              />
-              <small>Fecha en la que vence la garantía del equipo.</small>
-            </div>
-
-            {/*div className="campo-form">
-              <label>Fecha de inicio de uso</label>
-              <input
-                name="FECHA_INICIO"
-                type="date"
-                value={formulario.FECHA_INICIO}
-                onChange={manejarCambio}
-              />
-              <small>
-                Fecha en la que el equipo fue entregado o comenzó a utilizarse.
-              </small>
-            </div>*/}
-
-            {esEdicion && (
-              <>
-                <div className="campo-form">
-                  <label>Fecha de registro</label>
-                  <input
-                    name="FECHA_REGISTRO"
-                    value={formulario.FECHA_REGISTRO || ""}
-                    disabled
-                  />
-                  <small>
-                    Se genera automáticamente cuando se guarda el equipo.
-                  </small>
-                </div>
-
-                <div className="campo-form">
-                  <label>Tiempo de uso</label>
-                  <input
-                    name="Auso"
+                    name="ID_RESTAURANTE"
                     value={
-                      formulario.Auso !== ""
-                        ? `${formulario.Auso} días de uso`
-                        : "Sin fecha de inicio"
+                      formulario.ID_RESTAURANTE
                     }
-                    disabled
-                  />
+                    onChange={
+                      manejarCambio
+                    }
+                  >
+
+                    <option value="">
+                      Selecciona restaurante
+                    </option>
+
+                    {catalogos.restaurantes.map(
+                      (item) => (
+                        <option
+                          key={item.Id}
+                          value={item.Id}
+                        >
+                          {item.Restaurante}
+                        </option>
+                      )
+                    )}
+
+                  </select>
+
                 </div>
 
                 <div className="campo-form">
-                  <label>Garantía restante</label>
-                  <input
-                    name="Grestante"
+
+                  <label>
+                    Localidad / unidad
+                  </label>
+
+                  <select
+                    name="ID_UNIDAD"
                     value={
-                      formulario.Grestante !== ""
-                        ? `${formulario.Grestante} días restantes de garantía`
-                        : "Sin fecha de garantía"
+                      formulario.ID_UNIDAD
                     }
-                    disabled
-                  />
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="formulario-card">
-            <h2>Especificaciones del equipo</h2>
-
-            {(esLaptop || esDesktop || esTablet || esTelefono || esTabletPOS || esWorkstationpos) && (
-              <>
-
-        <div className="campo-form">
-  <label>Sistema operativo</label>
-
-  <select
-    name="ID_SISTEMA_OPERATIVO"
-    value={formulario.ID_SISTEMA_OPERATIVO || ""}
-    onChange={manejarCambio}
-  >
-    <option value="">Selecciona sistema operativo</option>
-
-    {(catalogos.sistemasOperativos || []).map((item) => (
-      <option key={item.id} value={item.id}>
-        {item.Nombre}
-        {item.N_Version ? ` - ${item.N_Version}` : ""}
-      </option>
-    ))}
-  </select>
-</div>
-
-                <div className="campo-form">
-                  <label>Memoria RAM</label>
-                  <select
-                    name="ID_RAM"
-                    value={formulario.ID_RAM}
-                    onChange={manejarCambio}
+                    onChange={
+                      manejarCambio
+                    }
+                    disabled={
+                      !formulario.ID_RESTAURANTE
+                    }
                   >
-                    <option value="">Selecciona RAM</option>
-                    {catalogos.memoriasRam.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.capacidad}
-                      </option>
-                    ))}
+
+                    <option value="">
+                      Selecciona localidad
+                    </option>
+
+                    {localidadesFiltradas.map(
+                      (item) => (
+                        <option
+                          key={item.id}
+                          value={item.id}
+                        >
+                          {item.localidad}
+                        </option>
+                      )
+                    )}
+
                   </select>
+
                 </div>
 
-                <div className="campo-form">
-                  <label>Disco duro</label>
-                  <select
-                    name="ID_DISCO"
-                    value={formulario.ID_DISCO}
-                    onChange={manejarCambio}
-                  >
-                    <option value="">Selecciona disco duro</option>
-                    {catalogos.discoDuro.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.modelo_disco} - {item.capacidad}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {!esCorporativoCancun && (
 
-                <div className="campo-form">
-                  <label>Procesador</label>
-                  <select
-                    name="ID_PROCESADOR"
-                    value={formulario.ID_PROCESADOR}
-                    onChange={manejarCambio}
-                  >
-                    <option value="">Selecciona procesador</option>
-                    {catalogos.procesadores.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.Nombre}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div className="form-group">
 
-                <div className="campo-form">
-                  <label>Modelo de procesador</label>
-                  <select
-                    name="MODELO_PROCESADOR"
-                    value={formulario.MODELO_PROCESADOR || ""}
-                    onChange={manejarCambio}
-                    disabled={!formulario.ID_PROCESADOR}
-                  >
-                    <option value="">Selecciona modelo de procesador</option>
-                    {modelosProcesadorFiltrados.map((item) => (
-                      <option key={item.Id} value={item.Modelo}>
-                        {item.Modelo}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </>
-            )}
-            {/*en este bloque se muestran los campos específicos para impresoras y tablets POS, dependiendo del tipo de equipo seleccionado.*/}
-            {esImpresora && (
-              <>
-                <div className="campo-form">
-                  <label>Tipo de impresora</label>
-                  <select
-                    name="TIPO_IMPRESORA"
-                    value={formulario.TIPO_IMPRESORA || ""}
-                    onChange={manejarCambio}
-                  >
-                    <option value="">Selecciona tipo de impresora</option>
-                    {tiposImpresoras.map((impresora) => (
-                      <option key={impresora} value={impresora}>
-                        {impresora}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                    <label>
+                      Ubicación interna
+                    </label>
 
-                <div className="campo-form">
-                  <label>Tipo de conexión</label>
-                  <select
-                    name="CONEXION"
-                    value={formulario.CONEXION || ""}
-                    onChange={manejarCambio}
-                  >
-                    <option value="">Selecciona tipo de conexión</option>
-                    {tiposConexiones.map((conexion) => (
-                      <option key={conexion} value={conexion}>
-                        {conexion}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {(formulario.CONEXION == "Serial y Ethernet" || formulario.CONEXION == "Serial") && (
-                  <div className="campo-form">
-                    <label>Puerto</label>
                     <input
-                      name="PUERTO"
-                      placeholder="Puerto"
-                      value={formulario.PUERTO}
-                      onChange={manejarCambio}
+                      name="UBICACION"
+                      placeholder="Área, oficina, almacén, caja, barra..."
+                      value={
+                        formulario.UBICACION
+                      }
+                      onChange={
+                        manejarCambio
+                      }
                     />
+
                   </div>
+
                 )}
 
-              </>
-            )}
+                {esCorporativoCancun && (
 
-            {mostrarIP && (
-              <div className="campo-form">
-                <label>IP</label>
-                <input
-                  name="IP"
-                  placeholder="000.000.0.0"
-                  value={formulario.IP}
-                  onChange={manejarCambio}
-                />
+                  <>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Departamento
+                      </label>
+
+                      <select
+                        name="ID_DEPARTAMENTO"
+                        value={
+                          formulario.ID_DEPARTAMENTO
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      >
+
+                        <option value="">
+                          Selecciona departamento
+                        </option>
+
+                        {catalogos.departamentos.map(
+                          (item) => (
+                            <option
+                              key={item.Id}
+                              value={item.Id}
+                            >
+                              {
+                                item.Nombre_departamento
+                              }
+                            </option>
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Puesto
+                      </label>
+
+                      <input
+                        name="PUESTO"
+                        placeholder="Puesto del usuario o área responsable"
+                        value={
+                          formulario.PUESTO
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      />
+
+                    </div>
+
+                  </>
+
+                )}
+
               </div>
-            )}
-            {/*en este bloque se muestran los campos específicos para tablets POS, dependiendo del tipo de equipo selecionado.*/}
-            {mostrarAccesos && (
-              <>
 
-                <div className="campo-form">
-                  <label>Acceso TeamViewer</label>
-                  <input
-                    type="number"
-                    name="ACCESO_TEAM_VIEWER"
-                    placeholder="Acceso TeamViewer"
-                    value={formulario.ACCESO_TEAM_VIEWER}
-                    onChange={manejarCambio}
-                  />
-                </div>
-
-                <div className="campo-form">
-                  <label>Contraseña TeamViewer</label>
-                  <input
-                    name="CONTRASEÑA_TEAM_VIEWER"
-                    placeholder="Contraseña TeamViewer"
-                    value={formulario.CONTRASEÑA_TEAM_VIEWER}
-                    disabled={!formulario.ACCESO_TEAM_VIEWER}
-                    onChange={manejarCambio}
-                  />
-                </div>
-
-                <div className="campo-form">
-                  <label>Acceso AnyDesk</label>
-                  <input
-                    type="number"
-                    name="ACCESO_ANYDESK"
-                    placeholder="Acceso AnyDesk"
-                    value={formulario.ACCESO_ANYDESK}
-                    onChange={manejarCambio}
-                  />
-                </div>
-
-                <div className="campo-form">
-                  <label>Contraseña AnyDesk</label>
-                  <input
-                    name="CONTRASEÑA_ANYDESK"
-                    placeholder="Contraseña AnyDesk"
-                    value={formulario.CONTRASEÑA_ANYDESK}
-                    disabled={!formulario.ACCESO_ANYDESK}
-                    onChange={manejarCambio}
-                  />
-                </div>
-              </>
-            )}
-            {/*aqui se muestran los campos de marca y modelo, que son comunes para todos los tipos de equipo.*/}
-
-
-            <div className="campo-form">
-              <label>Marca</label>
-              <select
-                name="ID_MARCA"
-                value={formulario.ID_MARCA}
-                onChange={manejarCambio}
-              >
-                <option value="">Selecciona marca</option>
-                {catalogos.marcas.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.Marca}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="campo-form">
-              <label>Modelo</label>
-              <select
-                name="MODELO"
-                value={formulario.MODELO}
-                onChange={manejarCambio}
-                disabled={!formulario.ID_MARCA}
-              >
-                <option value="">Selecciona modelo</option>
-                {modelosFiltrados.map((item) => (
-                  <option key={item.id} value={item.Modelo}>
-                    {item.Modelo}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="formulario-card">
-            <h2>Estado / estatus del equipo</h2>
-
-            <div className="campo-form">
-              <label>Estatus</label>
-              <select
-                name="ID_ESTATUS"
-                value={formulario.ID_ESTATUS}
-                onChange={manejarCambio}
-              >
-                <option value="">Selecciona estatus</option>
-                {catalogos.estatus.map((item) => (
-                  <option key={item.Id} value={item.Id}>
-                    {item.Estatus_equipo}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="campo-form">
-              <label>Estado físico</label>
-              <select
-                name="ESTADO_FISICO"
-                value={formulario.ESTADO_FISICO}
-                onChange={manejarCambio}
-              >
-                <option value="">Selecciona estado físico</option>
-                {estadosFisicos.map((estado) => (
-                  <option key={estado} value={estado}>
-                    {estado}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="campo-form">
-              <label>Correo</label>
-              <input
-                required
-                value={correo}
-                readOnly
-                onChange={manejarCambio}
-              />
-            </div>
-
-
-            <div className="campo-form">
-              <label>Comentario</label>
-              <input
-                name="COMENTARIO"
-                placeholder="Observaciones generales"
-                value={formulario.COMENTARIO}
-                onChange={manejarCambio}
-              />
-            </div>
-          </div>
-
-          <div className="card">
-          <div className="campo-form campo-foto">
-            <label>Foto</label>
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={(e) => {
-                const archivo = e.target.files[0];
-
-                if (!archivo) return;
-
-                setFoto(archivo);
-                setPreview(URL.createObjectURL(archivo));
-              }}
-            />
-
-            {preview && (
-              <div className="preview-foto">
-                <img
-                  src={preview}
-                  alt="Vista previa"
-                />
-              </div>
-            )}
-          </div>
-          <br />
 </div>
-          <button type="submit" disabled={!formularioCompleto()}>
-            {esEdicion ? "Actualizar equipo" : "Guardar equipo"}
-          </button>
+          )}
+
+          {/* =================================================
+              PASO 2
+          ================================================= */}
+
+          {pasoInventario === 2 && (
+
+            <div className="inventario-step-content">
+
+              <div className="formulario-card">
+
+                <h2>
+                  Identificación del equipo
+                </h2>
+
+                <div className="campo-form">
+
+                  <label>
+                    Nombre del equipo
+                  </label>
+
+                  <input
+                    name="NOMBRE_EQUIPO"
+                    value={
+                      esEdicion
+                        ? formulario.NOMBRE_EQUIPO
+                        : esCorporativoCancun
+                          ? "Se generará automáticamente al guardar"
+                          : "NA"
+                    }
+                    disabled
+                  />
+
+                  <small>
+                    Solo se genera automáticamente para Corporativo Cancún.
+                  </small>
+
+                </div>
+
+                <div className="campo-form">
+
+                  <label>
+                    Tipo de equipo
+                  </label>
+
+                  <select
+                    name="ID_TIPO_EQUIPO"
+                    value={
+                      formulario.ID_TIPO_EQUIPO
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                    disabled={
+                      esEdicion &&
+                      esCorporativoCancun
+                    }
+                  >
+
+                    <option value="">
+                      Selecciona tipo de equipo
+                    </option>
+
+                    {catalogos.tiposEquipo.map(
+                      (item) => (
+                        <option
+                          key={item.id}
+                          value={item.id}
+                        >
+                          {item.tequipo}
+                        </option>
+                      )
+                    )}
+
+                  </select>
+
+                </div>
+
+                <div className="campo-form">
+
+                  <label>
+                    Fecha de fabricación
+                  </label>
+
+                  <input
+                    name="FECHA_FABRICACION"
+                    type="date"
+                    value={
+                      formulario.FECHA_FABRICACION
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                  />
+
+                  <small>
+                    Se usa para generar automáticamente el nombre del equipo.
+                  </small>
+
+                </div>
+
+                <div className="campo-form">
+
+                  <label>
+                    Número de serie
+                  </label>
+
+                  <input
+                    name="SERIAL"
+                    placeholder="Número de serie del equipo"
+                    value={
+                      formulario.SERIAL
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                  />
+
+                  {errorSerial && (
+
+                    <small
+                      style={{
+                        color: "red"
+                      }}
+                    >
+                      {errorSerial}
+                    </small>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            </div>
+
+          )}
+
+          {/* =================================================
+              PASO 3
+          ================================================= */}
+
+          {pasoInventario === 3 && (
+
+            <div className="inventario-step-content">
+
+              <div className="formulario-card">
+
+                <h2>
+                  Fechas y especificaciones
+                </h2>
+
+                <div className="campo-form">
+
+                  <label>
+                    Fecha de vencimiento de garantía
+                  </label>
+
+                  <input
+                    name="FECHA_GARANTIA"
+                    type="date"
+                    value={
+                      formulario.FECHA_GARANTIA
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                  />
+
+                  <small>
+                    Fecha en la que vence la garantía del equipo.
+                  </small>
+
+                </div>
+
+                {esEdicion && (
+
+                  <>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Fecha de registro
+                      </label>
+
+                      <input
+                        name="FECHA_REGISTRO"
+                        value={
+                          formulario.FECHA_REGISTRO ||
+                          ""
+                        }
+                        disabled
+                      />
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Tiempo de uso
+                      </label>
+
+                      <input
+                        name="Auso"
+                        value={
+                          formulario.Auso !== ""
+                            ? `${formulario.Auso} días de uso`
+                            : "Sin fecha de inicio"
+                        }
+                        disabled
+                      />
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Garantía restante
+                      </label>
+
+                      <input
+                        name="Grestante"
+                        value={
+                          formulario.Grestante !== ""
+                            ? `${formulario.Grestante} días restantes de garantía`
+                            : "Sin fecha de garantía"
+                        }
+                        disabled
+                      />
+
+                    </div>
+
+                  </>
+
+                )}
+
+                {/* =========================================
+                    EQUIPOS CON SO
+                ========================================= */}
+
+                {(
+                  esLaptop ||
+                  esDesktop ||
+                  esTablet ||
+                  esTelefono ||
+                  esTabletPOS ||
+                  esWorkstationpos
+                ) && (
+
+                  <>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Sistema operativo
+                      </label>
+
+                      <select
+                        name="ID_SISTEMA_OPERATIVO"
+                        value={
+                          formulario.ID_SISTEMA_OPERATIVO ||
+                          ""
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      >
+
+                        <option value="">
+                          Selecciona sistema operativo
+                        </option>
+
+                        {(
+                          catalogos.sistemasOperativos ||
+                          []
+                        ).map(
+                          (item) => (
+
+                            <option
+                              key={item.id}
+                              value={item.id}
+                            >
+                              {item.Nombre}
+                              {item.N_Version
+                                ? ` - ${item.N_Version}`
+                                : ""}
+                            </option>
+
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Memoria RAM
+                      </label>
+
+                      <select
+                        name="ID_RAM"
+                        value={
+                          formulario.ID_RAM
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      >
+
+                        <option value="">
+                          Selecciona RAM
+                        </option>
+
+                        {catalogos.memoriasRam.map(
+                          (item) => (
+
+                            <option
+                              key={item.id}
+                              value={item.id}
+                            >
+                              {item.capacidad}
+                            </option>
+
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Disco duro
+                      </label>
+
+                      <select
+                        name="ID_DISCO"
+                        value={
+                          formulario.ID_DISCO
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      >
+
+                        <option value="">
+                          Selecciona disco duro
+                        </option>
+
+                        {catalogos.discoDuro.map(
+                          (item) => (
+
+                            <option
+                              key={item.id}
+                              value={item.id}
+                            >
+                              {item.modelo_disco}
+                              {" - "}
+                              {item.capacidad}
+                            </option>
+
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Procesador
+                      </label>
+
+                      <select
+                        name="ID_PROCESADOR"
+                        value={
+                          formulario.ID_PROCESADOR
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      >
+
+                        <option value="">
+                          Selecciona procesador
+                        </option>
+
+                        {catalogos.procesadores.map(
+                          (item) => (
+
+                            <option
+                              key={item.id}
+                              value={item.id}
+                            >
+                              {item.Nombre}
+                            </option>
+
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Modelo de procesador
+                      </label>
+
+                      <select
+                        name="MODELO_PROCESADOR"
+                        value={
+                          formulario.MODELO_PROCESADOR ||
+                          ""
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                        disabled={
+                          !formulario.ID_PROCESADOR
+                        }
+                      >
+
+                        <option value="">
+                          Selecciona modelo de procesador
+                        </option>
+
+                        {modelosProcesadorFiltrados.map(
+                          (item) => (
+
+                            <option
+                              key={item.Id}
+                              value={item.Modelo}
+                            >
+                              {item.Modelo}
+                            </option>
+
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                  </>
+
+                )}
+
+                {/* =========================================
+                    IMPRESORA
+                ========================================= */}
+
+                {esImpresora && (
+
+                  <>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Tipo de impresora
+                      </label>
+
+                      <select
+                        name="TIPO_IMPRESORA"
+                        value={
+                          formulario.TIPO_IMPRESORA ||
+                          ""
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      >
+
+                        <option value="">
+                          Selecciona tipo de impresora
+                        </option>
+
+                        {tiposImpresoras.map(
+                          (impresora) => (
+
+                            <option
+                              key={impresora}
+                              value={impresora}
+                            >
+                              {impresora}
+                            </option>
+
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Tipo de conexión
+                      </label>
+
+                      <select
+                        name="CONEXION"
+                        value={
+                          formulario.CONEXION ||
+                          ""
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      >
+
+                        <option value="">
+                          Selecciona tipo de conexión
+                        </option>
+
+                        {tiposConexiones.map(
+                          (conexion) => (
+
+                            <option
+                              key={conexion}
+                              value={conexion}
+                            >
+                              {conexion}
+                            </option>
+
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                    {(
+                      formulario.CONEXION ===
+                        "Serial" ||
+                      formulario.CONEXION ===
+                        "Serial y Ethernet"
+                    ) && (
+
+                      <div className="campo-form">
+
+                        <label>
+                          Puerto
+                        </label>
+
+                        <input
+                          name="PUERTO"
+                          placeholder="Puerto"
+                          value={
+                            formulario.PUERTO
+                          }
+                          onChange={
+                            manejarCambio
+                          }
+                        />
+
+                      </div>
+
+                    )}
+
+                  </>
+
+                )}
+
+                {/* =========================================
+                    MARCA
+                ========================================= */}
+
+                <div className="campo-form">
+
+                  <label>
+                    Marca
+                  </label>
+
+                  <select
+                    name="ID_MARCA"
+                    value={
+                      formulario.ID_MARCA
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                  >
+
+                    <option value="">
+                      Selecciona marca
+                    </option>
+
+                    {catalogos.marcas.map(
+                      (item) => (
+
+                        <option
+                          key={item.id}
+                          value={item.id}
+                        >
+                          {item.Marca}
+                        </option>
+
+                      )
+                    )}
+
+                  </select>
+
+                </div>
+
+                {/* =========================================
+                    MODELO
+                ========================================= */}
+
+                <div className="campo-form">
+
+                  <label>
+                    Modelo
+                  </label>
+
+                  <select
+                    name="MODELO"
+                    value={
+                      formulario.MODELO
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                    disabled={
+                      !formulario.ID_MARCA
+                    }
+                  >
+
+                    <option value="">
+                      Selecciona modelo
+                    </option>
+
+                    {modelosFiltrados.map(
+                      (item) => (
+
+                        <option
+                          key={item.id}
+                          value={item.Modelo}
+                        >
+                          {item.Modelo}
+                        </option>
+
+                      )
+                    )}
+
+                  </select>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          )}
+
+          {/* =================================================
+              PASO 4
+          ================================================= */}
+
+          {pasoInventario === 4 && (
+
+            <div className="inventario-step-content">
+
+              <div className="formulario-card">
+
+                <h2>
+                  Conectividad y accesos
+                </h2>
+
+                {/* =========================================
+                    IP
+                ========================================= */}
+
+                {mostrarIP && (
+
+                  <div className="campo-form">
+
+                    <label>
+                      IP
+                    </label>
+
+                    <input
+                      name="IP"
+                      placeholder="000.000.0.0"
+                      value={
+                        formulario.IP
+                      }
+                      onChange={
+                        manejarCambio
+                      }
+                    />
+
+                  </div>
+
+                )}
+
+                {/* =========================================
+                    ACCESOS
+                ========================================= */}
+
+                {mostrarAccesos && (
+
+                  <>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Acceso TeamViewer
+                      </label>
+
+                      <input
+                        type="number"
+                        name="ACCESO_TEAM_VIEWER"
+                        placeholder="Acceso TeamViewer"
+                        value={
+                          formulario.ACCESO_TEAM_VIEWER
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      />
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Contraseña TeamViewer
+                      </label>
+
+                      <input
+                        name="CONTRASEÑA_TEAM_VIEWER"
+                        placeholder="Contraseña TeamViewer"
+                        value={
+                          formulario.CONTRASEÑA_TEAM_VIEWER
+                        }
+                        disabled={
+                          !formulario.ACCESO_TEAM_VIEWER
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      />
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Acceso AnyDesk
+                      </label>
+
+                      <input
+                        type="number"
+                        name="ACCESO_ANYDESK"
+                        placeholder="Acceso AnyDesk"
+                        value={
+                          formulario.ACCESO_ANYDESK
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      />
+
+                    </div>
+
+                    <div className="campo-form">
+
+                      <label>
+                        Contraseña AnyDesk
+                      </label>
+
+                      <input
+                        name="CONTRASEÑA_ANYDESK"
+                        placeholder="Contraseña AnyDesk"
+                        value={
+                          formulario.CONTRASEÑA_ANYDESK
+                        }
+                        disabled={
+                          !formulario.ACCESO_ANYDESK
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                      />
+
+                    </div>
+
+                  </>
+
+                )}
+
+                {/* =========================================
+                    ESTATUS
+                ========================================= */}
+
+                <div className="campo-form">
+
+                  <label>
+                    Estatus
+                  </label>
+
+                  <select
+                    name="ID_ESTATUS"
+                    value={
+                      formulario.ID_ESTATUS
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                  >
+
+                    <option value="">
+                      Selecciona estatus
+                    </option>
+
+                    {catalogos.estatus.map(
+                      (item) => (
+
+                        <option
+                          key={item.Id}
+                          value={item.Id}
+                        >
+                          {item.Estatus_equipo}
+                        </option>
+
+                      )
+                    )}
+
+                  </select>
+
+                </div>
+
+                {/* =========================================
+                    ESTADO FÍSICO
+                ========================================= */}
+
+                <div className="campo-form">
+
+                  <label>
+                    Estado físico
+                  </label>
+
+                  <select
+                    name="ESTADO_FISICO"
+                    value={
+                      formulario.ESTADO_FISICO
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                  >
+
+                    <option value="">
+                      Selecciona estado físico
+                    </option>
+
+                    {estadosFisicos.map(
+                      (estado) => (
+
+                        <option
+                          key={estado}
+                          value={estado}
+                        >
+                          {estado}
+                        </option>
+
+                      )
+                    )}
+
+                  </select>
+
+                </div>
+
+                {/* =========================================
+                    CORREO
+                ========================================= */}
+
+                <div className="campo-form">
+
+                  <label>
+                    Correo
+                  </label>
+
+                  <input
+                    value={correo}
+                    readOnly
+                  />
+
+                  <small>
+                    Correo del usuario que realiza el registro.
+                  </small>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          )}
+
+          {/* =================================================
+              PASO 5
+          ================================================= */}
+
+          {pasoInventario === 5 && (
+
+            <div className="inventario-step-content">
+
+              {/* =========================================
+                  RESUMEN
+              ========================================= */}
+
+              <div className="formulario-card">
+
+                <h2>
+                  Revisión del equipo
+                </h2>
+
+                <div className="detalle-grid">
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Restaurante
+                    </span>
+
+                    <strong>
+                      {
+                        restauranteSeleccionado?.Restaurante ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Localidad
+                    </span>
+
+                    <strong>
+                      {
+                        formulario.LOCALIDAD ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Ubicación
+                    </span>
+
+                    <strong>
+                      {esCorporativoCancun
+                        ? formulario.PUESTO ||
+                          "—"
+                        : formulario.UBICACION ||
+                          "—"}
+                    </strong>
+
+                  </div>
+
+                  {esCorporativoCancun && (
+
+                    <div className="detalle-item">
+
+                      <span>
+                        Departamento
+                      </span>
+
+                      <strong>
+                        {
+                          catalogos.departamentos.find(
+                            (item) =>
+                              String(item.Id) ===
+                              String(
+                                formulario.ID_DEPARTAMENTO
+                              )
+                          )
+                            ?.Nombre_departamento ||
+                          "—"
+                        }
+                      </strong>
+
+                    </div>
+
+                  )}
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Tipo de equipo
+                    </span>
+
+                    <strong>
+                      {
+                        catalogos.tiposEquipo.find(
+                          (item) =>
+                            String(item.id) ===
+                            String(
+                              formulario.ID_TIPO_EQUIPO
+                            )
+                        )?.tequipo ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Serial
+                    </span>
+
+                    <strong>
+                      {
+                        formulario.SERIAL ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Fecha de fabricación
+                    </span>
+
+                    <strong>
+                      {
+                        formulario.FECHA_FABRICACION ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Garantía
+                    </span>
+
+                    <strong>
+                      {
+                        formulario.FECHA_GARANTIA ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Marca
+                    </span>
+
+                    <strong>
+                      {
+                        catalogos.marcas.find(
+                          (item) =>
+                            String(item.id) ===
+                            String(
+                              formulario.ID_MARCA
+                            )
+                        )?.Marca ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Modelo
+                    </span>
+
+                    <strong>
+                      {
+                        formulario.MODELO ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  {mostrarIP && (
+
+                    <div className="detalle-item">
+
+                      <span>
+                        IP
+                      </span>
+
+                      <strong>
+                        {
+                          formulario.IP ||
+                          "—"
+                        }
+                      </strong>
+
+                    </div>
+
+                  )}
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Estatus
+                    </span>
+
+                    <strong>
+                      {
+                        catalogos.estatus.find(
+                          (item) =>
+                            String(item.Id) ===
+                            String(
+                              formulario.ID_ESTATUS
+                            )
+                        )?.Estatus_equipo ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Estado físico
+                    </span>
+
+                    <strong>
+                      {
+                        formulario.ESTADO_FISICO ||
+                        "—"
+                      }
+                    </strong>
+
+                  </div>
+
+                  <div className="detalle-item">
+
+                    <span>
+                      Correo
+                    </span>
+
+                    <strong>
+                      {correo || "—"}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* =========================================
+                  FOTO Y COMENTARIO
+              ========================================= */}
+
+              <div className="formulario-card">
+
+                <h2>
+                  Foto y comentarios
+                </h2>
+
+                <div className="campo-form campo-foto">
+
+                  <label>
+                    Foto
+                  </label>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={
+                      manejarFoto
+                    }
+                  />
+
+                  {preview && (
+
+                    <div className="preview-foto">
+
+                      <img
+                        src={preview}
+                        alt="Vista previa"
+                      />
+
+                    </div>
+
+                  )}
+
+                </div>
+
+                <div className="campo-form">
+
+                  <label>
+                    Comentario
+                  </label>
+
+                  <textarea
+                    name="COMENTARIO"
+                    placeholder="Observaciones generales"
+                    value={
+                      formulario.COMENTARIO
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                    rows={4}
+                  />
+
+                </div>
+
+              </div>
+
+            </div>
+
+          )}
+
+          {/* =================================================
+              FOOTER
+          ================================================= */}
+
+          <div className="responsiva-modal-footer">
+
+            <div className="footer-right">
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={
+                pasoAnterior
+              }
+              disabled={
+                pasoInventario === 1
+              }
+            >
+              Anterior
+            </button>
+
+            <button
+              type="button"
+              className="btn-cancelar"
+              onClick={onClose}
+            >
+              Cancelar
+            </button>
+
+            {pasoInventario <
+            totalPasos ? (
+
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={
+                  siguientePaso
+                }
+              >
+                Siguiente
+              </button>
+
+            ) : (
+
+              <button
+                type="submit"
+                className="btn-primary"
+              >
+                {esEdicion
+                  ? "Actualizar equipo"
+                  : "Guardar equipo"}
+              </button>
+
+            )}
+</div>
+          </div>
+
         </form>
+
       </div>
-      
-   
+
+    </div>,
+
+    document.body
   );
 }
 
