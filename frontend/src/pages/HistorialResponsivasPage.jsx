@@ -1087,7 +1087,7 @@ function HistorialResponsivasPage({ setLoading }) {
                           </div>
 
                           <div className="responsiva-modal-body">
-                            <div className="responsiva-form-grid">
+                            <div className="detail-grid">
 
                                 <div className="detalle-item">
                                   <span>Tipo de equipo: </span>
