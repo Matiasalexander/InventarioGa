@@ -801,11 +801,10 @@ function HistorialResponsivasPage({ setLoading }) {
             <tr>
               <th>Folio</th>
               <th>Fecha</th>
-              <th>Correo del emisor</th>
+              <th>Correo del receptor</th>
               <th>Receptor</th>
               <th>Puesto</th>
               <th>Área</th>
-              <th>Correo</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -836,14 +835,13 @@ function HistorialResponsivasPage({ setLoading }) {
                     <td>
                       {formatearFecha(item.Fecha)}
                     </td>
-                    <td>{item.CorreoCreador}</td>
+                    <td>{item.Correo}</td>
                     <td>
                       {item.NombreReceptor || ""}
                     </td>
 
                     <td>{item.Puesto || ""}</td>
                     <td>{item.Area || ""}</td>
-                    <td>{item.Correo || ""}</td>
 
                     <td>
                       <span
