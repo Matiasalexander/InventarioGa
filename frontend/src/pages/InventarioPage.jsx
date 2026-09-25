@@ -617,8 +617,6 @@ const limpiarFiltros = () => {
                 <th>Ubicación</th>
                 <th>Tipo equipo</th>
                 <th>Nombre equipo</th>
-                <th>Serial</th>
-                <th>Marca</th>
                 <th>Modelo</th>
                 {/* <th>IP</th> */}
                 <th>Estatus</th>
@@ -635,8 +633,6 @@ const limpiarFiltros = () => {
                   <td>{item.UBICACION}</td>
                   <td>{item.TIPO_EQUIPO}</td>
                   <td>{item.NOMBRE_EQUIPO}</td>
-                  <td>{item.SERIAL}</td>
-                  <td>{item.MARCA}</td>
                   <td>{item.MODELO}</td>
                   {/* <td>{item.IP}</td> */}
 

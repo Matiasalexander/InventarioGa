@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { createPortal } from "react-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "../context/AuthContext";
+import {CircleArrowLeft, CircleArrowRight} from "lucide-react";
 
 import {
   obtenerResponsivas,
@@ -1578,7 +1579,7 @@ const generarPDFNuevaResponsiva = async () => {
                       className="btn-primario"
                       onClick={irPasoEquipos}
                     >
-                      Siguiente →
+                      Siguiente
                     </button>
                   )}
 
@@ -1588,7 +1589,7 @@ const generarPDFNuevaResponsiva = async () => {
                       className="btn-primario"
                       onClick={irPasoRevision}
                     >
-                      Revisar →
+                      Revisar
                     </button>
                   )}
 
