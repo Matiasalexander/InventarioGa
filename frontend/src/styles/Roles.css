@@ -92,8 +92,9 @@
 
   text-align: left;
   color: #032870;
-  margin: 12px;
+  margin: 10px;
     animation: dropdownEntrada 0.18s ease-out;
+    height: fit-content;
 
 }
 
