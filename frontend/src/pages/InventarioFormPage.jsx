@@ -723,41 +723,6 @@ function InventarioFormPage({
       return false;
     }
 
-    if (esCorporativoCancun) {
-
-      if (
-        !formulario.ID_DEPARTAMENTO
-      ) {
-        toast.error(
-          "Selecciona el departamento"
-        );
-
-        return false;
-      }
-
-      if (
-        !formulario.PUESTO?.trim()
-      ) {
-        toast.error(
-          "Ingresa el puesto"
-        );
-
-        return false;
-      }
-
-    } else {
-
-      if (
-        !formulario.UBICACION?.trim()
-      ) {
-        toast.error(
-          "Ingresa la ubicación interna"
-        );
-
-        return false;
-      }
-    }
-
     return true;
   };
 
@@ -794,112 +759,141 @@ function InventarioFormPage({
   // VALIDACIÓN PASO 3
   // =========================================================
 
-  const validarPaso3 = () => {
+// =========================================================
+// VALIDACIÓN PASO 3
+// =========================================================
 
-    if (
-      !formulario.FECHA_FABRICACION
-    ) {
+const validarPaso3 = () => {
+
+  // -----------------------------------------
+  // FECHA DE GARANTÍA
+  // -----------------------------------------
+
+  if (!formulario.FECHA_GARANTIA) {
+    toast.error(
+      "Ingresa la fecha de vencimiento de garantía"
+    );
+
+    return false;
+  }
+
+  // -----------------------------------------
+  // MARCA
+  // -----------------------------------------
+
+  if (!formulario.ID_MARCA) {
+    toast.error(
+      "Selecciona la marca"
+    );
+
+    return false;
+  }
+
+  // -----------------------------------------
+  // MODELO
+  // -----------------------------------------
+
+  if (!formulario.MODELO) {
+    toast.error(
+      "Selecciona el modelo"
+    );
+
+    return false;
+  }
+
+  // -----------------------------------------
+  // EQUIPOS CON ESPECIFICACIONES
+  // -----------------------------------------
+
+  if (
+    esLaptop ||
+    esDesktop ||
+    esTablet ||
+    esTelefono ||
+    esTabletPOS ||
+    esWorkstationpos
+  ) {
+
+    if (!formulario.ID_SISTEMA_OPERATIVO) {
       toast.error(
-        "Ingresa la fecha de fabricación"
+        "Selecciona el sistema operativo"
+      );
+
+      return false;
+    }
+
+    if (!formulario.ID_RAM) {
+      toast.error(
+        "Selecciona la memoria RAM"
+      );
+
+      return false;
+    }
+
+    if (!formulario.ID_DISCO) {
+      toast.error(
+        "Selecciona el disco duro"
+      );
+
+      return false;
+    }
+
+    if (!formulario.ID_PROCESADOR) {
+      toast.error(
+        "Selecciona el procesador"
+      );
+
+      return false;
+    }
+
+    if (!formulario.MODELO_PROCESADOR) {
+      toast.error(
+        "Selecciona el modelo del procesador"
+      );
+
+      return false;
+    }
+  }
+
+  // -----------------------------------------
+  // IMPRESORAS
+  // -----------------------------------------
+
+  if (esImpresora) {
+
+    if (!formulario.TIPO_IMPRESORA) {
+      toast.error(
+        "Selecciona el tipo de impresora"
+      );
+
+      return false;
+    }
+
+    if (!formulario.CONEXION) {
+      toast.error(
+        "Selecciona el tipo de conexión"
       );
 
       return false;
     }
 
     if (
-      !formulario.FECHA_GARANTIA
+      (
+        formulario.CONEXION === "Serial" ||
+        formulario.CONEXION === "Serial y Ethernet"
+      ) &&
+      !formulario.PUERTO?.trim()
     ) {
       toast.error(
-        "Ingresa la fecha de vencimiento de garantía"
+        "Ingresa el puerto de la impresora"
       );
 
       return false;
     }
+  }
 
-    if (
-      !formulario.ID_MARCA
-    ) {
-      toast.error(
-        "Selecciona la marca"
-      );
-
-      return false;
-    }
-
-    if (
-      !formulario.MODELO
-    ) {
-      toast.error(
-        "Selecciona el modelo"
-      );
-
-      return false;
-    }
-
-    // -----------------------------------------
-    // EQUIPOS CON SO
-    // -----------------------------------------
-
-    if (
-      esLaptop ||
-      esDesktop ||
-      esTablet ||
-      esTelefono ||
-      esTabletPOS ||
-      esWorkstationpos
-    ) {
-
-      if (
-        !formulario.ID_SISTEMA_OPERATIVO ||
-        !formulario.ID_RAM ||
-        !formulario.ID_DISCO ||
-        !formulario.ID_PROCESADOR ||
-        !formulario.MODELO_PROCESADOR
-      ) {
-        toast.error(
-          "Completa las especificaciones del equipo"
-        );
-
-        return false;
-      }
-    }
-
-    // -----------------------------------------
-    // IMPRESORAS
-    // -----------------------------------------
-
-    if (esImpresora) {
-
-      if (
-        !formulario.TIPO_IMPRESORA ||
-        !formulario.CONEXION
-      ) {
-        toast.error(
-          "Completa el tipo y conexión de la impresora"
-        );
-
-        return false;
-      }
-
-      if (
-        (
-          formulario.CONEXION ===
-            "Serial" ||
-          formulario.CONEXION ===
-            "Serial y Ethernet"
-        ) &&
-        !formulario.PUERTO?.trim()
-      ) {
-        toast.error(
-          "Ingresa el puerto de la impresora"
-        );
-
-        return false;
-      }
-    }
-
-    return true;
-  };
+  return true;
+};
 
   // =========================================================
   // VALIDACIÓN PASO 4
@@ -1326,7 +1320,7 @@ function InventarioFormPage({
 
             <button
               type="button"
-              className="modal-close"
+              className="btn-close"
               onClick={onClose}
             >
               ×
@@ -1415,7 +1409,7 @@ function InventarioFormPage({
 
         <form
           className="modal-body"
-          onSubmit={guardarEquipo}
+          onSubmit={(e)=>e.preventDefault()}
         >
 
           {/* =================================================
@@ -1741,6 +1735,7 @@ function InventarioFormPage({
           {pasoInventario === 3 && (
 
             <div className="inventario-step-content">
+              
 
               <div className="formulario-card">
 
@@ -2514,13 +2509,13 @@ function InventarioFormPage({
                   RESUMEN
               ========================================= */}
 
-              <div className="formulario-card">
+              <div className="responsiva-modal-body">
 
                 <h2>
                   Revisión del equipo
                 </h2>
 
-                <div className="detalle-grid">
+                <div className="responsiva-form-grid">
 
                   <div className="detalle-item">
 
@@ -2762,10 +2757,9 @@ function InventarioFormPage({
                     </strong>
 
                   </div>
+                  
 
                 </div>
-
-              </div>
 
               {/* =========================================
                   FOTO Y COMENTARIO
@@ -2828,6 +2822,8 @@ function InventarioFormPage({
                 </div>
 
               </div>
+              </div>
+
 
             </div>
 
@@ -2879,6 +2875,7 @@ function InventarioFormPage({
               <button
                 type="submit"
                 className="btn-primary"
+                onClick={guardarEquipo}
               >
                 {esEdicion
                   ? "Actualizar equipo"

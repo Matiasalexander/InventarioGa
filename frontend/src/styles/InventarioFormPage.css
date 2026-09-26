@@ -1,23 +1,68 @@
+.inventario-step-content {
+    flex: 1 1 auto;
+    min-height: 0;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 0;
+
+    /* Permite scroll suave en móviles */
+    -webkit-overflow-scrolling: touch;
+}
+.inventario-step-content::-webkit-scrollbar {
+    width: 8px;
+}
+.inventario-step-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.inventario-step-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.inventario-step-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
 .formulario-card {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
     gap: 16px;
+
     background: white;
+
     border-radius: 22px;
+
     margin: 20px;
     padding: 26px;
+
+    box-sizing: border-box;
+
+    /* Importante */
+    width: calc(100% - 40px);
 }
+
 
 .formulario-card h2,
 .formulario-card h3 {
     grid-column: 1 / -1;
+
     margin-top: 20px;
+
     color: #334155;
 }
 
 .formulario-card input,
-.formulario-card select {
+.formulario-card select,
+.formulario-card textarea {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /*REVISAR*/
@@ -71,6 +116,26 @@ select:disabled {
   object-fit: cover;
   border-radius: 10px;
 }
+
+.modal-close {
+  background: none;
+  color: #171a4d;
+}
+
+.modal-content {
+    height: 90vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+}
+
+
+.modal-close:hover {
+  background: #94a3b8;
+  margin-left: 20px;
+}
 .modal-footer {
  height: fit-content;
 }
@@ -118,7 +183,7 @@ button:disabled {
     font-weight: 700;
     color: #94a3b8;
 
-    transition: all 0.2s ease;
+    transition: all 0.5s ease;
 }
 
 .inventario-steps .step small {
@@ -157,4 +222,361 @@ button:disabled {
 /* Línea completada */
 .inventario-steps .step.active:not(:last-child)::after {
     background: #171a4d;
+}
+
+/* =========================================
+   RESPONSIVIDAD - FORMULARIO INVENTARIO
+   ========================================= */
+
+/* Tablet */
+@media (max-width: 992px) {
+
+    .formulario-card {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 15px;
+        padding: 22px;
+        gap: 14px;
+        border-radius: 18px;
+    }
+
+    .campo-form {
+        min-width: 0;
+    }
+
+    .formulario-card input,
+    .formulario-card select {
+        box-sizing: border-box;
+        min-width: 0;
+    }
+
+    .preview-foto img {
+        width: 200px;
+        height: 200px;
+    }
+
+    .inventario-steps {
+        padding: 16px 20px;
+    }
+
+    .inventario-steps .step {
+        min-width: 65px;
+    }
+
+    .inventario-steps .step:not(:last-child)::after {
+        left: calc(50% + 22px);
+        width: calc(100% - 5px);
+    }
+}
+
+
+/* =========================================
+   TABLET PEQUEÑA / MÓVIL GRANDE
+   ========================================= */
+@media (max-width: 768px) {
+
+    .formulario-card {
+        grid-template-columns: 1fr;
+        margin: 12px;
+        padding: 18px;
+        gap: 14px;
+        border-radius: 16px;
+    }
+
+    .formulario-card h2,
+    .formulario-card h3 {
+        grid-column: 1;
+        margin-top: 14px;
+        margin-bottom: 4px;
+    }
+
+    .campo-form {
+        width: 100%;
+    }
+
+    .campo-form input,
+    .campo-form select,
+    .campo-form textarea {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .campo-foto {
+        width: 100%;
+    }
+
+    .preview-foto {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .preview-foto img {
+        width: 180px;
+        height: 180px;
+        max-width: 100%;
+    }
+
+    /* Pasos */
+    .inventario-steps {
+        padding: 14px 12px;
+        gap: 4px;
+    }
+
+    .inventario-steps .step {
+        min-width: 50px;
+        gap: 5px;
+    }
+
+    .inventario-steps .step span {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+    }
+
+    .inventario-steps .step small {
+        font-size: 10px;
+    }
+
+    .inventario-steps .step:not(:last-child)::after {
+        top: 15px;
+        left: calc(50% + 18px);
+        width: calc(100% - 8px);
+    }
+
+    .modal-footer {
+        height: auto;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .modal-close {
+        margin-left: 0;
+    }
+
+    .modal-close:hover {
+        margin-left: 0;
+    }
+}
+
+
+/* =========================================
+   MÓVIL
+   ========================================= */
+@media (max-width: 576px) {
+
+    .formulario-card {
+        margin: 8px;
+        padding: 15px;
+        gap: 12px;
+        border-radius: 14px;
+    }
+
+    .formulario-card h2 {
+        font-size: 19px;
+    }
+
+    .formulario-card h3 {
+        font-size: 16px;
+    }
+
+    .campo-form {
+        gap: 5px;
+    }
+
+    .campo-form label {
+        font-size: 12px;
+    }
+
+    .campo-form small {
+        font-size: 11px;
+    }
+
+    .formulario-card input,
+    .formulario-card select,
+    .formulario-card textarea {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .preview-foto {
+        width: 100%;
+        padding: 8px;
+    }
+
+    .preview-foto img {
+        width: 150px;
+        height: 150px;
+    }
+
+    /* Pasos en móvil */
+    .inventario-steps {
+        padding: 12px 8px;
+        overflow-x: auto;
+        justify-content: flex-start;
+        gap: 0;
+    }
+
+    .inventario-steps .step {
+        flex: 1 0 65px;
+        min-width: 65px;
+    }
+
+    .inventario-steps .step span {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .inventario-steps .step small {
+        font-size: 9px;
+        max-width: 65px;
+        text-align: center;
+        white-space: normal;
+        line-height: 1.2;
+    }
+
+    .inventario-steps .step:not(:last-child)::after {
+        top: 14px;
+        left: calc(50% + 17px);
+        width: calc(100% - 4px);
+    }
+
+    button {
+        max-width: 100%;
+    }
+}
+
+
+/* =========================================
+   MÓVIL MUY PEQUEÑO
+   ========================================= */
+@media (max-width: 400px) {
+
+    .formulario-card {
+        margin: 5px;
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .inventario-steps {
+        padding: 10px 5px;
+    }
+
+    .inventario-steps .step {
+        flex: 1 0 58px;
+        min-width: 58px;
+    }
+
+    .inventario-steps .step span {
+        width: 26px;
+        height: 26px;
+        font-size: 11px;
+    }
+
+    .inventario-steps .step small {
+        font-size: 8px;
+        max-width: 58px;
+    }
+
+    .preview-foto img {
+        width: 130px;
+        height: 130px;
+    }
+}
+
+/* =========================================
+   MODAL INVENTARIO
+   ========================================= */
+
+.modal-responsiva {
+    width: min(950px, 95vw);
+    height: 90vh;
+    max-height: 90vh;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+    min-height: 0;
+}
+
+
+/* =========================================
+   CUERPO DEL FORMULARIO
+   ========================================= */
+
+.modal-body {
+    flex: 1 1 auto;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 0;
+    height: 100%;
+
+    overflow: hidden;
+}
+
+
+/* =========================================
+   CONTENIDO DE CADA PASO
+   ========================================= */
+
+.inventario-step-content {
+    flex: 1 1 auto;
+
+    min-height: 0;
+    height: 100%;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 0;
+
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+
+/* Scrollbar */
+
+.inventario-step-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.inventario-step-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.inventario-step-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.inventario-step-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* =========================================
+   FOOTER
+   ========================================= */
+
+.responsiva-modal-footer {
+    flex-shrink: 0;
+
+    background: #fff;
+    border-top: 1px solid #e2e8f0;
+
+    padding: 14px 20px;
+
+    position: relative;
+    z-index: 5;
+}
+
+.footer-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
 }

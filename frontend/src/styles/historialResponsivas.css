@@ -178,12 +178,15 @@ position: fixed;
 
 .responsiva-step.activo {
     color: #171a4d;
+    
 }
 
 .responsiva-step.activo > span {
     background: #171a4d;
     border-color: #171a4d;
     color: white;
+        transition: all 0.5s ease;
+
 }
 
 .responsiva-step-line {
@@ -191,6 +194,20 @@ position: fixed;
     height: 2px;
     background: #cbd5e1;
     margin: 0 18px;
+}
+
+.responsiva-steps .step:not(:last-child)::after {
+    content: "";
+    position: absolute;
+
+    top: 17px;
+    left: calc(50% + 25px);
+    width: calc(100% + 20px);
+
+    height: 2px;
+    background: #cbd5e1;
+
+    z-index: -1;
 }
 
 /*CONTENT AREA*/
