@@ -2,6 +2,10 @@
   margin-right: 20px;
 }
 
+.modal-header h2 {
+  color: #171a4d;
+}
+
 .inventario-step-content {
     flex: 1 1 auto;
     min-height: 0;

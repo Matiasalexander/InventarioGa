@@ -714,6 +714,7 @@ function InventarioFormPage({
       return false;
     }
 
+
     if (
       !formulario.ID_UNIDAD
     ) {
@@ -746,6 +747,16 @@ function InventarioFormPage({
 
       return false;
     }
+    
+     if (!formulario.FECHA_FABRICACION) {
+    mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Ingresa la fecha de fabricación del equipo."
+    );
+
+    return false;
+  }
 
     if (
       !formulario.SERIAL?.trim()
@@ -762,10 +773,6 @@ function InventarioFormPage({
     return true;
   };
 
-  // =========================================================
-  // VALIDACIÓN PASO 3
-  // =========================================================
-
 // =========================================================
 // VALIDACIÓN PASO 3
 // =========================================================
@@ -777,8 +784,10 @@ const validarPaso3 = () => {
   // -----------------------------------------
 
   if (!formulario.FECHA_GARANTIA) {
-    toast.error(
-      "Ingresa la fecha de vencimiento de garantía"
+    mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Ingresa la fecha de garantía."
     );
 
     return false;
@@ -789,8 +798,10 @@ const validarPaso3 = () => {
   // -----------------------------------------
 
   if (!formulario.ID_MARCA) {
-    toast.error(
-      "Selecciona la marca"
+    mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Debes seleccionar la marca del equipo."
     );
 
     return false;
@@ -801,8 +812,10 @@ const validarPaso3 = () => {
   // -----------------------------------------
 
   if (!formulario.MODELO) {
-    toast.error(
-      "Selecciona el modelo"
+     mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Debes seleccionar el modelo del equipo."
     );
 
     return false;
@@ -822,41 +835,49 @@ const validarPaso3 = () => {
   ) {
 
     if (!formulario.ID_SISTEMA_OPERATIVO) {
-      toast.error(
-        "Selecciona el sistema operativo"
-      );
-
+        mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Debes seleccionar el sistema operativo."
+    );
       return false;
     }
 
     if (!formulario.ID_RAM) {
-      toast.error(
-        "Selecciona la memoria RAM"
-      );
+         mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Debes seleccionar la memoria Ram."
+    );
 
       return false;
     }
 
     if (!formulario.ID_DISCO) {
-      toast.error(
-        "Selecciona el disco duro"
-      );
+        mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Debes seleccionar el tipo de disco duro"
+    );
 
       return false;
     }
 
     if (!formulario.ID_PROCESADOR) {
-      toast.error(
-        "Selecciona el procesador"
-      );
-
+         mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Debes seleccionar el procesador."
+    );
       return false;
     }
 
     if (!formulario.MODELO_PROCESADOR) {
-      toast.error(
-        "Selecciona el modelo del procesador"
-      );
+        mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Debes seleccionar el modelo de procesador."
+    );
 
       return false;
     }
@@ -869,17 +890,21 @@ const validarPaso3 = () => {
   if (esImpresora) {
 
     if (!formulario.TIPO_IMPRESORA) {
-      toast.error(
-        "Selecciona el tipo de impresora"
-      );
+        mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Selecciona el tipo de impresora."
+    );
 
       return false;
     }
 
     if (!formulario.CONEXION) {
-      toast.error(
-        "Selecciona el tipo de conexión"
-      );
+          mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Selecciona el tipo de conexión."
+    );
 
       return false;
     }
@@ -891,9 +916,11 @@ const validarPaso3 = () => {
       ) &&
       !formulario.PUERTO?.trim()
     ) {
-      toast.error(
-        "Ingresa el puerto de la impresora"
-      );
+         mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Ingresa el puerto de la impresora."
+    );
 
       return false;
     }
@@ -916,9 +943,11 @@ const validarPaso3 = () => {
       mostrarIP &&
       !formulario.IP?.trim()
     ) {
-      toast.error(
-        "Ingresa la dirección IP"
-      );
+       mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Ingresa la dirección IP."
+    );
 
       return false;
     }
@@ -935,9 +964,11 @@ const validarPaso3 = () => {
         !formulario.ACCESO_ANYDESK ||
         !formulario.CONTRASEÑA_ANYDESK?.trim()
       ) {
-        toast.error(
-          "Completa los datos de acceso remoto"
-        );
+           mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Completa los datos del acceso remoto."
+    );
 
         return false;
       }
@@ -950,9 +981,11 @@ const validarPaso3 = () => {
     if (
       !formulario.ID_ESTATUS
     ) {
-      toast.error(
-        "Selecciona el estatus del equipo"
-      );
+         mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Secciona el estatus del equipo."
+    );
 
       return false;
     }
@@ -960,9 +993,11 @@ const validarPaso3 = () => {
     if (
       !formulario.ESTADO_FISICO
     ) {
-      toast.error(
-        "Selecciona el estado físico"
-      );
+       mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Selecciona el estado físico del equipo."
+    );
 
       return false;
     }
@@ -977,9 +1012,11 @@ const validarPaso3 = () => {
   const validarPaso5 = () => {
 
     if (!correo?.trim()) {
-      toast.error(
-        "No se encontró el correo del usuario"
-      );
+         mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "No se encontró el correo del usuario."
+    );
 
       return false;
     }
@@ -2804,7 +2841,7 @@ const validarPaso3 = () => {
                   FOTO Y COMENTARIO
               ========================================= */}
 
-              <div className="formulario-card">
+              <div className="responsiva-modal-body">
 
                 <h2>
                   Foto y comentarios
