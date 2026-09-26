@@ -635,6 +635,11 @@ position: fixed;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
 
     animation: responsivaAlertEntrada 0.18s ease-out;
+
+}
+
+.responsiva-alert.saliendo {
+    animation: responsivaAlertSalida 0.2s ease-in forwards;
 }
 
 .responsiva-alert-icon {
@@ -704,6 +709,16 @@ position: fixed;
     to {
         opacity: 1;
         transform: scale(1);
+    }
+}
+
+@keyframes responsivaAlertSalida {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    } to {
+        opacity: 0;
+        transform: scale(0.95);
     }
 }
 

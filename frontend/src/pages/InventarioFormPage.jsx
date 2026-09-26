@@ -500,7 +500,6 @@ function InventarioFormPage({
   useEffect(() => {
     const cargarDatos = async () => {
       try {
-        setLoading(true);
 
         const data =
           await cargarCatalogos();
@@ -1501,7 +1500,7 @@ const validarPaso3 = () => {
 
                 {!esCorporativoCancun && (
 
-                  <div className="form-group">
+                  <div className="campo-form">
 
                     <label>
                       Ubicación interna

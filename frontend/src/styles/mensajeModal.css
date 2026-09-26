@@ -1,0 +1,91 @@
+.mensaje-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    z-index: 9999;
+
+    padding: 20px;
+}
+
+.mensaje-modal {
+    width: 360px;
+    max-width: 100%;
+
+    background: #fff;
+
+    border-radius: 12px;
+
+    padding: 24px;
+
+    text-align: center;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+
+    animation: mensajeModalEntrada 0.18s ease-out;
+}
+
+.mensaje-modal-icon {
+    width: 48px;
+    height: 48px;
+
+    margin: 0 auto 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.mensaje-modal h4 {
+    margin: 0 0 10px;
+
+    font-size: 18px;
+}
+
+.mensaje-modal p {
+    margin: 0 0 20px;
+
+    color: #666;
+
+    line-height: 1.5;
+}
+
+.mensaje-modal-btn {
+    border: none;
+    border-radius: 8px;
+
+    padding: 10px 22px;
+
+    background: #2563eb;
+    color: white;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.mensaje-modal-btn:hover {
+    opacity: 0.9;
+}
+
+@keyframes mensajeModalEntrada {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
