@@ -46,6 +46,26 @@
     font-weight: 700;
 }
 
+.mensaje-modal.success .mensaje-modal-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.mensaje-modal.warning .mensaje-modal-icon {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.mensaje-modal.error .mensaje-modal-icon {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.mensaje-modal.info .mensaje-modal-icon {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
 .mensaje-modal h4 {
     margin: 0 0 10px;
 
@@ -66,7 +86,7 @@
 
     padding: 10px 22px;
 
-    background: #2563eb;
+    background: #032870;
     color: white;
 
     font-weight: 600;
@@ -79,13 +99,13 @@
 }
 
 @keyframes mensajeModalEntrada {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
 
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

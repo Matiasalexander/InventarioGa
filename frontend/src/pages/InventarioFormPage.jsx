@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "react-toastify";
-
+import MensajeModal  from "../components/MensajeModal";
 import {
   crearInventario,
   actualizarInventario,
@@ -705,9 +705,11 @@ function InventarioFormPage({
     if (
       !formulario.ID_RESTAURANTE
     ) {
-      toast.error(
-        "Selecciona el restaurante"
-      );
+   mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Selecciona el restaurante."
+    );
 
       return false;
     }
@@ -715,9 +717,11 @@ function InventarioFormPage({
     if (
       !formulario.ID_UNIDAD
     ) {
-      toast.error(
-        "Selecciona la localidad / unidad"
-      );
+      mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Selecciona la unidad."
+    );
 
       return false;
     }
@@ -734,9 +738,11 @@ function InventarioFormPage({
     if (
       !formulario.ID_TIPO_EQUIPO
     ) {
-      toast.error(
-        "Selecciona el tipo de equipo"
-      );
+    mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Selecciona el tipo de equipo."
+    );
 
       return false;
     }
@@ -744,9 +750,11 @@ function InventarioFormPage({
     if (
       !formulario.SERIAL?.trim()
     ) {
-      toast.error(
-        "Ingresa el número de serie"
-      );
+    mostrarMensajeModal(
+      "warning",
+      "Datos incompletos",
+      "Ingresa el número de serie."
+    );
 
       return false;
     }
@@ -1227,9 +1235,12 @@ const validarPaso3 = () => {
 
     } catch (error) {
 
-      const mensaje =
-        error.response?.data?.message ||
-        "Error guardando el equipo";
+      mostrarMensajeModal(
+    "error",
+    "Error al guardar",
+    error.response?.data?.message ||
+    "Ocurrió un error al guardar el equipo."
+  );
 
       if (
         mensaje
@@ -1279,6 +1290,29 @@ const validarPaso3 = () => {
     );
   };
 
+  const [mensajeModal, setMensajeModal] = useState({
+    mostrar: false,
+    tipo: "info",
+    titulo: "",
+    mensaje: ""
+  });
+
+  const mostrarMensajeModal = (tipo, titulo, mensaje) => {
+    setMensajeModal({
+      mostrar: true,
+      tipo,
+      titulo,
+      mensaje
+    });
+  };
+
+  const cerrarMensajeModal = () => {
+    setMensajeModal({
+      mostrar: false,
+      tipo: "info",
+      mensaje: ""
+    });
+  };
   // =========================================================
   // RENDER
   // =========================================================
@@ -1286,7 +1320,13 @@ const validarPaso3 = () => {
   return createPortal(
 
     <div className="modal-overlay">
-
+   <MensajeModal
+      mostrar={mensajeModal.mostrar}
+      tipo={mensajeModal.tipo}
+      titulo={mensajeModal.titulo}
+      mensaje={mensajeModal.mensaje}
+      onCerrar={cerrarMensajeModal}
+    />
       <div className="modal modal-responsiva">
 
         {/* =================================================
