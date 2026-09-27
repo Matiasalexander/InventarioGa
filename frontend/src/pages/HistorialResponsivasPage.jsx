@@ -1223,7 +1223,11 @@ function HistorialResponsivasPage({ setLoading }) {
                   </div>
                 </div>
 
-                <div className="responsiva-step-line" />
+                 <div
+    className={`responsiva-step-line ${
+      pasoResponsiva >= 2 ? "completada" : ""
+    }`}
+  />
 
                 <div
                   className={`responsiva-step ${pasoResponsiva >= 2 ? "activo" : ""
@@ -1237,7 +1241,11 @@ function HistorialResponsivasPage({ setLoading }) {
                   </div>
                 </div>
 
-                <div className="responsiva-step-line" />
+                          <div
+    className={`responsiva-step-line ${
+      pasoResponsiva >= 3 ? "completada" : ""
+    }`}
+  />
 
                 <div
                   className={`responsiva-step ${pasoResponsiva >= 3 ? "activo" : ""
