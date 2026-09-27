@@ -152,10 +152,6 @@ function DashboardPage({ setLoading }) {
 
           <div className="dashboard-header-title">
 
-            <span className="dashboard-header-label">
-              PANEL GENERAL
-            </span>
-
             <h1>
               Inventario Grupo Anderson's
             </h1>
@@ -165,7 +161,9 @@ function DashboardPage({ setLoading }) {
             </p>
 
           </div>
-
+                      <span className="dashboard-header-label">
+              PANEL GENERAL
+            </span>
 
         </div>
 
