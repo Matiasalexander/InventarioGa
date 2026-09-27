@@ -1,19 +1,3 @@
-/*SCROLL TABLE*/
-.tabla-scroll {
-  max-height: 320px;
-  overflow-y: auto;
-}
-
-.tabla-scroll thead th {
-  position: sticky;
-  top: 0;
-  background: white;
-  z-index: 1;
-}
-/* =========================================================
-   DASHBOARD PAGE
-   ========================================================= */
-
 .dashboard-page {
     width: 100%;
     max-width: 1600px;
@@ -21,21 +5,28 @@
     padding: 0;
 }
 
-
-/* =========================================================
-   HEADER
-   ========================================================= */
-
 .dashboard-header {
     width: 100%;
-    margin-bottom: 24px;
+    margin-bottom: 26px;
 
-    background: white;
-    border-radius: 14px;
+    background: #ffffff;
 
-    padding: 22px 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
 
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.dashboard-header-main {
+    min-height: 110px;
+
+    padding: 22px 26px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
 }
 
 .dashboard-header-title {
@@ -44,14 +35,31 @@
     gap: 5px;
 }
 
+.dashboard-header-label {
+    width: fit-content;
+
+    padding: 4px 9px;
+
+    border-radius: 20px;
+
+    background: #eef2ff;
+    color: #102246;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.08em;
+}
+
 .dashboard-header-title h1 {
     margin: 0;
 
-    font-size: 26px;
-    font-weight: 700;
-    line-height: 1.2;
+    font-size: 27px;
+    font-weight: 750;
 
     color: #111827;
+
+    line-height: 1.2;
 }
 
 .dashboard-header-title p {
@@ -59,47 +67,99 @@
 
     font-size: 14px;
 
-    color: #111827;
-}
-.logoGA {
-    width: 200px;
+    color: #64748b;
 }
 
-/* =========================================================
-   ESTADÍSTICAS
-   ========================================================= */
+.dashboard-refresh-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 10px 15px;
+
+    border: 1px solid #dbe2ea;
+    border-radius: 9px;
+
+    background: #ffffff;
+    color: #334155;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: all 0.2s ease;
+}
+
+.dashboard-refresh-btn:hover {
+    background: #f8fafc;
+
+    border-color: #cbd5e1;
+
+    transform: translateY(-1px);
+}
+
+.dashboard-refresh-btn svg {
+    color: #102246;
+}
+
+
+.dashboard-section-title {
+    margin-bottom: 14px;
+}
+
+.dashboard-section-title h2 {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    color: #1e293b;
+}
+
+.dashboard-section-title p {
+    margin: 4px 0 0;
+
+    font-size: 13px;
+
+    color: #64748b;
+}
+
+
+/* KPIS*/
 
 .dashboard-stats-grid {
     display: grid;
 
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns:
+        repeat(6, minmax(0, 1fr));
 
-    gap: 16px;
+    gap: 14px;
 
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 }
 
-
-/* =========================================================
-   TARJETA INDIVIDUAL
-   ========================================================= */
-
 .dashboard-stat-card {
-    min-height: 110px;
-    padding: 20px;
+    min-width: 0;
+
+    min-height: 128px;
+
+    padding: 17px;
 
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    align-items: flex-start;
 
-    gap: 8px;
+    gap: 13px;
 
     background: #ffffff;
 
     border: 1px solid #e2e8f0;
     border-radius: 14px;
 
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    box-shadow:
+        0 3px 10px rgba(15, 23, 42, 0.05);
 
     transition:
         transform 0.2s ease,
@@ -109,66 +169,116 @@
 .dashboard-stat-card:hover {
     transform: translateY(-2px);
 
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.09);
+    box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.08);
 }
 
+.dashboard-stat-icon {
+    width: 40px;
+    height: 40px;
 
-/* =========================================================
-   TEXTO DE LA ESTADÍSTICA
-   ========================================================= */
+    flex-shrink: 0;
 
-.dashboard-stat-card span {
-    font-size: 12px;
-    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    border-radius: 10px;
+}
+
+.dashboard-stat-content {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.dashboard-stat-content span {
+    font-size: 11px;
+    font-weight: 700;
 
     color: #64748b;
+
+    line-height: 1.3;
 }
 
-.dashboard-stat-card strong {
-    font-size: 28px;
+.dashboard-stat-content strong {
+    font-size: 27px;
     font-weight: 800;
 
     line-height: 1;
+
+    color: #1e293b;
+}
+
+.dashboard-stat-content small {
+    font-size: 11px;
+
+    color: #94a3b8;
+
+    white-space: nowrap;
 }
 
 
-/* =========================================================
-   COLORES DE CADA ESTADÍSTICA
-   ========================================================= */
+/*colors indicdores*/
+
+.dashboard-stat-total .dashboard-stat-icon {
+    background: #eff6ff;
+    color: #2563eb;
+}
 
 .dashboard-stat-total strong {
     color: #2563eb;
+}
+
+.dashboard-stat-disponibles .dashboard-stat-icon {
+    background: #ecfdf5;
+    color: #16a34a;
 }
 
 .dashboard-stat-disponibles strong {
     color: #16a34a;
 }
 
+.dashboard-stat-asignados .dashboard-stat-icon {
+    background: #eff6ff;
+    color: #0284c7;
+}
+
 .dashboard-stat-asignados strong {
     color: #0284c7;
+}
+
+.dashboard-stat-danados .dashboard-stat-icon {
+    background: #fef2f2;
+    color: #dc2626;
 }
 
 .dashboard-stat-danados strong {
     color: #dc2626;
 }
 
+.dashboard-stat-garantias .dashboard-stat-icon {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
 .dashboard-stat-garantias strong {
     color: #ea580c;
+}
+
+.dashboard-stat-vencidas .dashboard-stat-icon {
+    background: #fef2f2;
+    color: #b91c1c;
 }
 
 .dashboard-stat-vencidas strong {
     color: #b91c1c;
 }
 
-
-/* =========================================================
-   SECCIÓN DE DETALLES
-   ========================================================= */
-
-.dashboard-details-grid {
+.dashboard-main-grid {
     display: grid;
 
     grid-template-columns:
@@ -176,280 +286,402 @@
         minmax(0, 1fr);
 
     gap: 20px;
+
+    margin-bottom: 20px;
 }
 
 
-/* =========================================================
-   TARJETAS DE INFORMACIÓN
-   ========================================================= */
+/*cards */
 
 .dashboard-card {
     background: #ffffff;
 
     border: 1px solid #e2e8f0;
+
     border-radius: 14px;
 
     overflow: hidden;
 
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    box-shadow:
+        0 4px 12px rgba(15, 23, 42, 0.05);
 }
 
+.dashboard-card-header {
+    padding: 17px 20px;
 
-/* =========================================================
-   TÍTULO DE CADA TARJETA
-   ========================================================= */
+    border-bottom: 1px solid #eef2f7;
+}
 
-.dashboard-card h2 {
-    margin: 0;
-
-    padding: 15px 20px;
-
+.dashboard-card-title {
     display: flex;
     align-items: center;
 
-    gap: 10px;
-
-    font-size: 16px;
-    font-weight: 700;
-
-    color: #ffffff;
-
-    background: #102246;
-
-    border-bottom: 1px solid #102246;
+    gap: 11px;
 }
 
+.dashboard-card-icon {
+    width: 36px;
+    height: 36px;
 
-/* ICONOS DE LOS ENCABEZADOS */
-
-.dashboard-card h2 svg {
     flex-shrink: 0;
 
-    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #eef2ff;
+    color: #102246;
 }
 
+.dashboard-card-title h2 {
+    margin: 0;
 
-/* =========================================================
-   TABLAS
-   ========================================================= */
-
-.dashboard-table-container {
-    width: 100%;
-
-    overflow-x: auto;
-}
-
-.dashboard-table {
-    width: 100%;
-
-    min-width: 350px;
-
-    border-collapse: collapse;
-}
-
-
-/* =========================================================
-   ENCABEZADO DE TABLA
-   ========================================================= */
-
-.dashboard-table thead {
-    background: #ffffff;
-}
-
-.dashboard-table th {
-    padding: 11px 20px;
-
-    font-size: 11px;
-    font-weight: 700;
-
-    text-align: left;
-
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-
-    color: #64748b;
-
-    border-bottom: 1px solid #e2e8f0;
-}
-
-
-/* =========================================================
-   CELDAS
-   ========================================================= */
-
-.dashboard-table td {
-    padding: 13px 20px;
-
-    font-size: 14px;
-
-    color: #334155;
-
-    border-bottom: 1px solid #f1f5f9;
-}
-
-
-/* =========================================================
-   HOVER
-   ========================================================= */
-
-.dashboard-table tbody tr {
-    transition: background-color 0.15s ease;
-}
-
-.dashboard-table tbody tr:hover {
-    background: #f8fafc;
-}
-
-
-/* =========================================================
-   ÚLTIMA FILA
-   ========================================================= */
-
-.dashboard-table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-
-/* =========================================================
-   COLUMNA DE TOTAL
-   ========================================================= */
-
-.dashboard-table th:last-child,
-.dashboard-table td:last-child {
-    width: 100px;
-
-    text-align: right;
-}
-
-.dashboard-table td:last-child {
+    font-size: 15px;
     font-weight: 700;
 
     color: #1e293b;
 }
 
+.dashboard-card-title p {
+    margin: 3px 0 0;
 
-/* =========================================================
-   TARJETAS ESPECÍFICAS
-   ========================================================= */
+    font-size: 12px;
 
-/*
-   El fondo de la tarjeta permanece blanco.
-   El color oscuro #102246 se aplica únicamente
-   al encabezado mediante .dashboard-card h2.
-*/
+    color: #94a3b8;
+}
 
-.dashboard-card-tipo,
-.dashboard-card-restaurante,
-.dashboard-card-estatus {
+
+/* estatus equipos*/
+
+.dashboard-status-list {
+    padding: 18px 20px;
+}
+
+.dashboard-status-item {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        45px;
+
+    gap: 8px 12px;
+
+    margin-bottom: 17px;
+}
+
+.dashboard-status-item:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard-status-info {
+    grid-column: 1 / -1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+.dashboard-status-info span {
+    font-size: 13px;
+
+    color: #475569;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard-status-info strong {
+    font-size: 13px;
+
+    color: #1e293b;
+}
+
+.dashboard-progress {
+    width: 100%;
+    height: 7px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #e2e8f0;
+}
+
+.dashboard-progress-fill {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: #102246;
+
+    transition: width 0.4s ease;
+}
+
+.dashboard-status-item small {
+    font-size: 11px;
+
+    text-align: right;
+
+    color: #64748b;
+}
+
+
+/*indicadores*/
+
+.dashboard-ranking-list {
+    max-height: 350px;
+
+    padding: 18px 20px;
+
+    overflow-y: auto;
+}
+
+.dashboard-ranking-item {
+    margin-bottom: 17px;
+}
+
+.dashboard-ranking-item:last-child {
+    margin-bottom: 0;
+}
+
+.dashboard-ranking-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 7px;
+}
+
+.dashboard-ranking-top span {
+    min-width: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 13px;
+
+    color: #475569;
+}
+
+.dashboard-ranking-top strong {
+    flex-shrink: 0;
+
+    font-size: 13px;
+
+    color: #1e293b;
+}
+
+.dashboard-ranking-bar {
+    width: 100%;
+    height: 7px;
+
+    overflow: hidden;
+
+    border-radius: 20px;
+
+    background: #eef2f7;
+}
+
+.dashboard-ranking-bar > div {
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: #102246;
+
+    transition: width 0.4s ease;
+}
+
+
+/*card de restaurantes */
+
+.dashboard-restaurantes-card {
+    margin-bottom: 20px;
+}
+
+.dashboard-restaurantes-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px 30px;
+
+    padding: 20px;
+}
+
+.dashboard-restaurante-item {
+    min-width: 0;
+}
+
+.dashboard-restaurante-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 7px;
+}
+
+.dashboard-restaurante-info span {
+    min-width: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    font-size: 13px;
+
+    color: #475569;
+}
+
+.dashboard-restaurante-info strong {
+    flex-shrink: 0;
+
+    font-size: 13px;
+
+    color: #1e293b;
+}
+
+.dashboard-alert-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 14px;
+
+    margin-bottom: 28px;
+}
+
+.dashboard-alert-card {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 13px;
+
+    padding: 17px;
+
     background: #ffffff;
-    height: fit-content;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 3px 10px rgba(15, 23, 42, 0.04);
+}
+
+.dashboard-alert-icon {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+}
+
+.dashboard-alert-card span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    color: #64748b;
+}
+
+.dashboard-alert-card strong {
+    display: block;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    line-height: 1.1;
+}
+
+.dashboard-alert-card p {
+    margin: 5px 0 0;
+
+    font-size: 11px;
+
+    color: #94a3b8;
+}
+
+.dashboard-alert-warning {
+    border-left: 4px solid #ea580c;
+}
+
+.dashboard-alert-warning .dashboard-alert-icon {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.dashboard-alert-warning strong {
+    color: #ea580c;
+}
+
+.dashboard-alert-danger {
+    border-left: 4px solid #b91c1c;
+}
+
+.dashboard-alert-danger .dashboard-alert-icon {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+.dashboard-alert-danger strong {
+    color: #b91c1c;
+}
+
+.dashboard-alert-damaged {
+    border-left: 4px solid #dc2626;
+}
+
+.dashboard-alert-damaged .dashboard-alert-icon {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.dashboard-alert-damaged strong {
+    color: #dc2626;
+}
+
+.dashboard-ranking-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dashboard-ranking-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dashboard-ranking-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+
+    border-radius: 10px;
 }
 
 
-/* =========================================================
-   RESPONSIVE - TABLET
-   ========================================================= */
-
-@media (max-width: 1200px) {
-
-    .dashboard-stats-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-}
-
-
-/* =========================================================
-   RESPONSIVE - TABLET PEQUEÑA
-   ========================================================= */
-
-@media (max-width: 850px) {
-
-    .dashboard-details-grid {
-        grid-template-columns: 1fr;
-    }
-
-}
-
-
-/* =========================================================
-   RESPONSIVE - MÓVIL
-   ========================================================= */
-
-@media (max-width: 650px) {
-
-    .dashboard-page {
-        padding: 0;
-    }
-
-    .dashboard-header {
-        padding: 20px;
-    }
-
-    .dashboard-header-title h1 {
-        font-size: 22px;
-    }
-
-    .dashboard-header-title p {
-        font-size: 13px;
-    }
-
-    .dashboard-stats-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-
-        gap: 12px;
-    }
-
-    .dashboard-stat-card {
-        min-height: 95px;
-
-        padding: 16px;
-    }
-
-    .dashboard-stat-card strong {
-        font-size: 24px;
-    }
-
-}
-
-
-/* =========================================================
-   MÓVIL PEQUEÑO
-   ========================================================= */
-
-@media (max-width: 450px) {
-
-    .dashboard-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .dashboard-stat-card {
-        min-height: 85px;
-    }
-
-    .dashboard-card h2 {
-        padding: 15px 16px;
-
-        font-size: 15px;
-    }
-
-    .dashboard-table th {
-        padding: 10px 16px;
-    }
-
-    .dashboard-table td {
-        padding: 12px 16px;
-    }
-
-}
-
-/* =========================================
-   POPUP - NOTAS DE VERSIÓN
-   ========================================= */
+/* IMPORTANTE NOTAS DE VERSN */
 
 .version-overlay {
     position: fixed;
     inset: 0;
+
     background: rgba(0, 0, 0, 0.45);
 
     display: flex;
@@ -470,20 +702,16 @@
     max-height: 85vh;
 
     background: #ffffff;
+
     border-radius: 16px;
 
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.25);
 
     overflow: hidden;
 
     animation: versionModalIn 0.25s ease;
 }
-
-/*style icons*/
-
-/* =========================================
-   HEADER
-   ========================================= */
 
 .version-header {
     display: flex;
@@ -496,7 +724,6 @@
 }
 
 .version-label {
-    
     display: inline-block;
 
     margin-bottom: 6px;
@@ -510,6 +737,7 @@
 
     font-size: 12px;
     font-weight: 700;
+
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -530,11 +758,6 @@
 
     font-size: 14px;
 }
-
-
-/* =========================================
-   BOTÓN CERRAR
-   ========================================= */
 
 .version-close {
     width: 36px;
@@ -561,13 +784,9 @@
 
 .version-close:hover {
     background: #f1f1f1;
+
     color: #222;
 }
-
-
-/* =========================================
-   BODY
-   ========================================= */
 
 .version-body {
     padding: 24px 28px;
@@ -576,11 +795,6 @@
 
     overflow-y: auto;
 }
-
-
-/* =========================================
-   ITEM DE VERSIÓN
-   ========================================= */
 
 .version-item {
     display: flex;
@@ -593,6 +807,7 @@
     margin-bottom: 12px;
 
     border: 1px solid #eeeeee;
+
     border-radius: 12px;
 
     background: #fafafa;
@@ -606,6 +821,7 @@
 
 .version-item:hover {
     background: #f5f5f5;
+
     border-color: #dddddd;
 }
 
@@ -623,9 +839,8 @@
 
     background: #ffffff;
 
-    font-size: 21px;
-
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    box-shadow:
+        0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .version-item h3 {
@@ -641,15 +856,11 @@
     margin: 0;
 
     font-size: 14px;
+
     line-height: 1.5;
 
     color: #666;
 }
-
-
-/* =========================================
-   FOOTER
-   ========================================= */
 
 .version-footer {
     display: flex;
@@ -664,11 +875,6 @@
 
     background: #fafafa;
 }
-
-
-/* =========================================
-   CHECKBOX
-   ========================================= */
 
 .version-checkbox {
     display: flex;
@@ -694,17 +900,13 @@
     accent-color: #1565c0;
 }
 
-
-/* =========================================
-   BOTÓN ENTENDIDO
-   ========================================= */
-
 .btn-version {
     min-width: 110px;
 
     padding: 10px 20px;
 
     border: none;
+
     border-radius: 8px;
 
     background: #1565c0;
@@ -723,19 +925,15 @@
 
     transform: translateY(-1px);
 
-    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.25);
-}
-
-.btn-version:active {
-    transform: translateY(0);
+    box-shadow:
+        0 4px 10px rgba(21, 101, 192, 0.25);
 }
 
 
-/* =========================================
-   ANIMACIONES
-   ========================================= */
+/*keyframes */
 
 @keyframes versionOverlayIn {
+
     from {
         opacity: 0;
     }
@@ -743,26 +941,127 @@
     to {
         opacity: 1;
     }
+
 }
 
 @keyframes versionModalIn {
+
     from {
         opacity: 0;
-        transform: translateY(-15px) scale(0.97);
+
+        transform:
+            translateY(-15px)
+            scale(0.97);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+
+        transform:
+            translateY(0)
+            scale(1);
     }
+
 }
 
 
-/* =========================================
-   RESPONSIVE
-   ========================================= */
+/*Responsividad */
 
-@media (max-width: 600px) {
+@media (max-width: 1300px) {
+
+    .dashboard-stats-grid {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 950px) {
+
+    .dashboard-main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-alert-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .dashboard-header-main {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .dashboard-refresh-btn {
+        width: 100%;
+    }
+
+    .dashboard-stats-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 12px;
+    }
+
+    .dashboard-alert-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-restaurantes-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .dashboard-header-main {
+        padding: 19px;
+    }
+
+    .dashboard-header-title h1 {
+        font-size: 22px;
+    }
+
+    .dashboard-header-title p {
+        font-size: 12px;
+    }
+
+    .dashboard-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-stat-card {
+        min-height: 96px;
+
+        padding: 15px;
+    }
+
+    .dashboard-stat-content strong {
+        font-size: 25px;
+    }
+
+    .dashboard-card-header {
+        padding: 15px 16px;
+    }
+
+    .dashboard-status-list,
+    .dashboard-ranking-list,
+    .dashboard-restaurantes-grid {
+        padding: 16px;
+    }
+
+    .dashboard-section-title h2 {
+        font-size: 17px;
+    }
 
     .version-overlay {
         padding: 15px;
@@ -770,6 +1069,7 @@
 
     .version-modal {
         max-width: 100%;
+
         border-radius: 14px;
     }
 
@@ -802,13 +1102,13 @@
 
     .version-item {
         gap: 12px;
+
         padding: 14px;
     }
 
     .version-item-icon {
         width: 38px;
         height: 38px;
-
-        font-size: 18px;
     }
+
 }
