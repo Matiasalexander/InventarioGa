@@ -710,13 +710,21 @@
 }
 
 .version-header {
+    position: relative;
+
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
 
-    padding: 24px 28px;
+    padding: 24px 60px 24px 28px;
 
+    background: #ffffff;
     border-bottom: 1px solid #eeeeee;
+}
+
+.version-header > div {
+    width: 100%;
+    text-align: center;
 }
 
 .version-label {
@@ -751,39 +759,42 @@
     margin: 5px 0 0;
 
     color: #777;
-
     font-size: 14px;
 }
 
 .version-close {
+    position: absolute !important;
+
+    top: 12px;
+    right: 12px;
+
     width: 36px;
     height: 36px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: transparent;
-
-    color: #777;
-
-    font-size: 28px;
-    line-height: 1;
-
-    cursor: pointer;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    transition: all 0.2s ease;
+    margin: 0;
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: transparent !important;
+
+    color: #666;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
 }
 
 .version-close:hover {
-    background: #f1f1f1;
-
+    background: #f1f5f9 !important;
     color: #222;
 }
-
 .version-body {
     padding: 24px 28px;
 
@@ -1019,62 +1030,50 @@
 
 @media (max-width: 500px) {
 
-    .dashboard-header-main {
-        padding: 19px;
-    }
-
-    .dashboard-header-title h1 {
-        font-size: 22px;
-    }
-
-    .dashboard-header-title p {
-        font-size: 12px;
-    }
-
-    .dashboard-stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .dashboard-stat-card {
-        min-height: 96px;
-
-        padding: 15px;
-    }
-
-    .dashboard-stat-content strong {
-        font-size: 25px;
-    }
-
-    .dashboard-card-header {
-        padding: 15px 16px;
-    }
-
-    .dashboard-status-list,
-    .dashboard-ranking-list,
-    .dashboard-restaurantes-grid {
-        padding: 16px;
-    }
-
-    .dashboard-section-title h2 {
-        font-size: 17px;
-    }
-
     .version-overlay {
         padding: 15px;
     }
 
     .version-modal {
+        width: 100%;
         max-width: 100%;
-
+        max-height: 90vh;
         border-radius: 14px;
     }
 
     .version-header {
-        padding: 20px;
+        position: relative;
+
+        padding: 20px 50px 20px 20px;
+
+        background: #ffffff;
+    }
+
+    .version-header > div {
+        width: 100%;
+        text-align: center;
+    }
+
+    .version-label {
+        font-size: 11px;
     }
 
     .version-header h2 {
         font-size: 21px;
+    }
+
+    .version-header p {
+        font-size: 13px;
+    }
+
+    .version-close {
+        top: 10px;
+        right: 10px;
+
+        width: 34px;
+        height: 34px;
+
+        font-size: 25px;
     }
 
     .version-body {
@@ -1084,7 +1083,6 @@
     .version-footer {
         flex-direction: column;
         align-items: stretch;
-
         padding: 16px 20px;
     }
 
@@ -1098,7 +1096,6 @@
 
     .version-item {
         gap: 12px;
-
         padding: 14px;
     }
 
@@ -1106,5 +1103,4 @@
         width: 38px;
         height: 38px;
     }
-
 }

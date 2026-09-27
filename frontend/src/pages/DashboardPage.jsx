@@ -17,6 +17,7 @@ import {
   Wrench,
   XCircle,
   Info,
+  Palette,
 } from "lucide-react";
 
 function DashboardPage({ setLoading }) {
@@ -25,7 +26,7 @@ function DashboardPage({ setLoading }) {
   const [noMostrarNuevamente, setNoMostrarNuevamente] = useState(false);
 
   //modificar esta nota de versión cuando se quiera desplegar en producto y anotar los nuevos cambios
-  const VERSION_ACTUAL = "3.0.0";
+  const VERSION_ACTUAL = "3.0.1";
 
   const [dashboard, setDashboard] = useState({
     resumen: {},
@@ -629,6 +630,7 @@ function DashboardPage({ setLoading }) {
                 <span className="version-item-icon">
                   <Wrench
                     size={20}
+                    color="gray"
                   />
                 </span>
 
@@ -639,9 +641,7 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se realizaron mejoras en el apartado de
-                    responsivas, diseño y lógica por fecha de
-                    fabricación.
+                    Se realizaron mejoras en el apartado de registro de equipo, modals y detalles de responsiva
                   </p>
 
                 </div>
@@ -652,8 +652,9 @@ function DashboardPage({ setLoading }) {
               <div className="version-item">
 
                 <span className="version-item-icon">
-                  <Info
+                  <Palette
                     size={20}
+                    color="red"
                   />
                 </span>
 
@@ -664,16 +665,14 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se realizaron mejoras en el diseño del
-                    sistema, dashboard, roles, catálogos y
-                    usuarios.
+                    Se realizaron mejoras de diseño en el dashboard, apartado de registro y responsividad para celulares.
                   </p>
 
                 </div>
 
               </div>
 
-
+{/*
               <div className="version-item">
 
                 <span className="version-item-icon">
@@ -696,7 +695,7 @@ function DashboardPage({ setLoading }) {
                 </div>
 
               </div>
-
+ */}
 
             </div>
 
