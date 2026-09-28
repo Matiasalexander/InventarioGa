@@ -247,9 +247,9 @@ function HistorialResponsivasPage({ setLoading }) {
     return inventario.filter((item) => {
       const estatus = item.ESTATUS?.toLowerCase();
 
-      if (estatus != "en uso") {
-        return false;
-      }
+ if (!["en uso", "disponible"].includes(estatus)) {
+  return false;
+}
 
       if (!texto) {
         return true;
@@ -1342,7 +1342,7 @@ function HistorialResponsivasPage({ setLoading }) {
 
                     {/* INVENTARIO DISPONIBLE */}
                     <div className="responsiva-panel">
-
+                  
                       <div className="responsiva-panel-header">
                         <div>
                           <h4>Equipos disponibles</h4>
@@ -1390,6 +1390,12 @@ function HistorialResponsivasPage({ setLoading }) {
                                 <small>
                                   Serie: {item.SERIAL || "N/A"}
                                 </small>
+                                
+                                <div className="badge-free">
+                                <small>
+                                 {item.ESTATUS}
+                                </small>
+                                </div>
                               </div>
 
                               <button

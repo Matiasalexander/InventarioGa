@@ -298,6 +298,7 @@ position: fixed;
 
 /*buscador*/
 .responsiva-search {
+    width: 475px;
     margin: 14px;
     padding: 10px 12px;
     border: 1px solid #cbd5e1;
@@ -1178,4 +1179,16 @@ position: fixed;
 
 .responsiva-step-line.completada {
     background: #171a4d;
+}
+
+.badge-free {
+    background: #DCFCE7;
+    border-radius: 12px;
+    width: fit-content;
+    
+}
+
+.badge-free small {
+    margin: 10px;
+    color: black;
 }
