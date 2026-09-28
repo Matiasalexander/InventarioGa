@@ -1943,9 +1943,13 @@ const mensaje =
                           formulario.ID_SISTEMA_OPERATIVO ||
                           ""
                         }
-                        onChange={
-                          manejarCambio
-                        }
+                              onChange={
+                      manejarCambio
+                    }
+                    disabled={
+                      esEdicion &&
+                      esCorporativoCancun
+                    }
                       >
 
                         <option value="">

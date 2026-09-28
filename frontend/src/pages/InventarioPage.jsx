@@ -141,7 +141,15 @@ useEffect(() => {
 
   const inventarioFiltrado = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
+/*console.log(
+  "EQUIPOS FREEPORT:",
+  inventario.filter(
+    item => String(item.LOCALIDAD).trim().toLowerCase() === "freeport"
+  )
+);
 
+console.log("UNIDAD SELECCIONADA:", unidadSeleccionada);
+console.log("RESTAURANTE ACTUAL:", restauranteActual);*/
     return inventario.filter((item) => {
       const coincideBusqueda =
         !texto ||
@@ -166,35 +174,40 @@ useEffect(() => {
 
       // NUEVO:
       // Permite filtrar por restaurante aun antes de elegir localidad.
-      const coincideRestaurante =
-        !restauranteActual?.nombre ||
-        item.UNIDAD === restauranteActual.nombre;
-        const coincideLocalidad =
-  !localidadSeleccionada?.nombre ||
-  String(item.LOCALIDAD || "").trim().toLowerCase() ===
-    String(localidadSeleccionada.nombre || "").trim().toLowerCase();
+const coincideRestaurante =
+  !restauranteActual ||
+  localidadesDisponibles.some(
+    (unidad) =>
+      Number(unidad.id) === Number(item.ID_UNIDAD)
+  );
 
-      const coincideTipo =
-        !filtros.tipoEquipo ||
-        item.TIPO_EQUIPO === filtros.tipoEquipo;
+const coincideLocalidad =
+  !unidadSeleccionada ||
+  Number(item.ID_UNIDAD) === Number(unidadSeleccionada);
 
-      const coincideMarca =
-        !filtros.marca ||
-        item.MARCA === filtros.marca;
+const coincideTipo =
+  !filtros.tipoEquipo ||
+  item.TIPO_EQUIPO === filtros.tipoEquipo;
 
-      const coincideEstatus =
-        !filtros.estatus ||
-        item.ESTATUS === filtros.estatus;
+const coincideMarca =
+  !filtros.marca ||
+  item.MARCA === filtros.marca;
 
-      const coincideEstadoFisico =
-        !filtros.estadoFisico ||
-        item.ESTADO_FISICO === filtros.estadoFisico;
+const coincideEstatus =
+  !filtros.estatus ||
+  item.ESTATUS === filtros.estatus;
 
-      const coincideResponsiva =
-        !filtros.responsiva ||
-        (filtros.responsiva === "asignado"
-          ? Boolean(item.RESPONSIVA_DIGITAL)
-          : !item.RESPONSIVA_DIGITAL);
+const coincideEstadoFisico =
+  !filtros.estadoFisico ||
+  item.ESTADO_FISICO === filtros.estadoFisico;
+
+const coincideResponsiva =
+  !filtros.responsiva ||
+  (
+    filtros.responsiva === "asignado"
+      ? Boolean(item.RESPONSIVA_DIGITAL)
+      : !item.RESPONSIVA_DIGITAL
+  );
 
       return (
         coincideBusqueda &&

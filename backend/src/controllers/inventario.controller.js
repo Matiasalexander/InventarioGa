@@ -375,7 +375,7 @@ const obtenerInventario = async (
         : "";
 
     const result = await request.query(`
-      SELECT TOP 100
+      SELECT
         i.id,
         i.ID_UNIDAD,
         r.Marca AS UNIDAD,

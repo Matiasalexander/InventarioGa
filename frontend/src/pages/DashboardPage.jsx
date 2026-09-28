@@ -26,7 +26,7 @@ function DashboardPage({ setLoading }) {
   const [noMostrarNuevamente, setNoMostrarNuevamente] = useState(false);
 
   //modificar esta nota de versión cuando se quiera desplegar en producto y anotar los nuevos cambios
-  const VERSION_ACTUAL = "3.0.1";
+  const VERSION_ACTUAL = "4.0.0";
 
   const [dashboard, setDashboard] = useState({
     resumen: {},
@@ -672,7 +672,7 @@ function DashboardPage({ setLoading }) {
 
               </div>
 
-{/*
+
               <div className="version-item">
 
                 <span className="version-item-icon">
@@ -688,14 +688,13 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se corrigieron errores detectados en
-                    versiones anteriores del sistema.
+                   Se implementó un checkbox en el número de serie, y nuevo modal de registro de equipo
                   </p>
 
                 </div>
 
               </div>
- */}
+
 
             </div>
 
