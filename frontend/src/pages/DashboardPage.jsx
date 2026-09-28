@@ -737,7 +737,7 @@ function DashboardPage({ setLoading }) {
       )}
 
     </div>
-    </div>
+
 
   );
 
