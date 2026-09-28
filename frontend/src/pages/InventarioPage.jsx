@@ -13,6 +13,7 @@ import InventarioAccionesMenu from "../components/InventarioAccionesMenu";
 import FiltrosModal from "../components/FiltrosModal";
 import { FileUp } from "lucide-react";
 import { Search } from "lucide-react";
+import InventarioFormPage from "./InventarioFormPage";
 
 function InventarioPage({ setLoading }) {
   const navigate = useNavigate();
@@ -31,6 +32,10 @@ const puedeExportar = tienePermiso("inventario.exportar");
   const [arbolUnidades, setArbolUnidades] = useState([]);
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
 
+  //estados del modal
+
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [equipoEditar, setEquipoEditar] = useState(null);
   // NUEVO:
   // La búsqueda se conserva mientras la pestaña siga abierta.
   const [busqueda, setBusqueda] = useState(
@@ -136,7 +141,15 @@ useEffect(() => {
 
   const inventarioFiltrado = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
+/*console.log(
+  "EQUIPOS FREEPORT:",
+  inventario.filter(
+    item => String(item.LOCALIDAD).trim().toLowerCase() === "freeport"
+  )
+);
 
+console.log("UNIDAD SELECCIONADA:", unidadSeleccionada);
+console.log("RESTAURANTE ACTUAL:", restauranteActual);*/
     return inventario.filter((item) => {
       const coincideBusqueda =
         !texto ||
@@ -161,35 +174,40 @@ useEffect(() => {
 
       // NUEVO:
       // Permite filtrar por restaurante aun antes de elegir localidad.
-      const coincideRestaurante =
-        !restauranteActual?.nombre ||
-        item.UNIDAD === restauranteActual.nombre;
-        const coincideLocalidad =
-  !localidadSeleccionada?.nombre ||
-  String(item.LOCALIDAD || "").trim().toLowerCase() ===
-    String(localidadSeleccionada.nombre || "").trim().toLowerCase();
+const coincideRestaurante =
+  !restauranteActual ||
+  localidadesDisponibles.some(
+    (unidad) =>
+      Number(unidad.id) === Number(item.ID_UNIDAD)
+  );
 
-      const coincideTipo =
-        !filtros.tipoEquipo ||
-        item.TIPO_EQUIPO === filtros.tipoEquipo;
+const coincideLocalidad =
+  !unidadSeleccionada ||
+  Number(item.ID_UNIDAD) === Number(unidadSeleccionada);
 
-      const coincideMarca =
-        !filtros.marca ||
-        item.MARCA === filtros.marca;
+const coincideTipo =
+  !filtros.tipoEquipo ||
+  item.TIPO_EQUIPO === filtros.tipoEquipo;
 
-      const coincideEstatus =
-        !filtros.estatus ||
-        item.ESTATUS === filtros.estatus;
+const coincideMarca =
+  !filtros.marca ||
+  item.MARCA === filtros.marca;
 
-      const coincideEstadoFisico =
-        !filtros.estadoFisico ||
-        item.ESTADO_FISICO === filtros.estadoFisico;
+const coincideEstatus =
+  !filtros.estatus ||
+  item.ESTATUS === filtros.estatus;
 
-      const coincideResponsiva =
-        !filtros.responsiva ||
-        (filtros.responsiva === "asignado"
-          ? Boolean(item.RESPONSIVA_DIGITAL)
-          : !item.RESPONSIVA_DIGITAL);
+const coincideEstadoFisico =
+  !filtros.estadoFisico ||
+  item.ESTADO_FISICO === filtros.estadoFisico;
+
+const coincideResponsiva =
+  !filtros.responsiva ||
+  (
+    filtros.responsiva === "asignado"
+      ? Boolean(item.RESPONSIVA_DIGITAL)
+      : !item.RESPONSIVA_DIGITAL
+  );
 
       return (
         coincideBusqueda &&
@@ -407,12 +425,25 @@ const limpiarFiltros = () => {
   };
 
   const irAgregar = () => {
-    navigate("/inventario/nuevo");
+    setEquipoEditar(null);
+    setMostrarFormulario(true);
   };
 
   const irActualizar = (id) => {
-    navigate(`/inventario/editar/${id}`);
+    setEquipoEditar(id);
+    setMostrarFormulario(true);
   };
+
+  const cerrarFormulario = () => {
+    setMostrarFormulario(false);
+    setEquipoEditar(null);
+  };
+
+  const manejarGuardado = async()=> {
+    cerrarFormulario();
+    await cargarInventario(unidadSeleccionada);
+  };
+
 
   const borrarEquipo = async (id) => {
     const confirmar = window.confirm(
@@ -617,8 +648,6 @@ const limpiarFiltros = () => {
                 <th>Ubicación</th>
                 <th>Tipo equipo</th>
                 <th>Nombre equipo</th>
-                <th>Serial</th>
-                <th>Marca</th>
                 <th>Modelo</th>
                 {/* <th>IP</th> */}
                 <th>Estatus</th>
@@ -635,8 +664,6 @@ const limpiarFiltros = () => {
                   <td>{item.UBICACION}</td>
                   <td>{item.TIPO_EQUIPO}</td>
                   <td>{item.NOMBRE_EQUIPO}</td>
-                  <td>{item.SERIAL}</td>
-                  <td>{item.MARCA}</td>
                   <td>{item.MODELO}</td>
                   {/* <td>{item.IP}</td> */}
 
@@ -753,6 +780,14 @@ const limpiarFiltros = () => {
     </button>
   </div>
 </div>
+  {mostrarFormulario && (
+      <InventarioFormPage
+        id={equipoEditar}
+        setLoading={setLoading}
+        onClose={cerrarFormulario}
+        onSuccess={manejarGuardado}
+      />
+    )}
     </div>
   );
 }

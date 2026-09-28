@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { createPortal } from "react-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "../context/AuthContext";
+import { CircleArrowLeft, CircleArrowRight } from "lucide-react";
 
 import {
   obtenerResponsivas,
@@ -212,12 +213,12 @@ function HistorialResponsivasPage({ setLoading }) {
     );
 
     if (yaExiste) {
-mostrarMensajeModal(
-  "warning",
-  "Equipo duplicado",
-  "Este equipo ya fue agregado a la responsiva."
-);      
-return;
+      mostrarMensajeModal(
+        "warning",
+        "Equipo duplicado",
+        "Este equipo ya fue agregado a la responsiva."
+      );
+      return;
     }
 
     setEquipos((prev) => [
@@ -270,141 +271,141 @@ return;
   }, [inventario, busquedaEquipo]);
 
   //LÓGICA NUEVA RESPONSIVA
-const guardarNuevaResponsiva = async () => {
-  if (!fecha || !nombreReceptor.trim() || !puesto.trim()) {
-    mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Completa los datos obligatorios."
-    );
-    setPasoResponsiva(1);
-    return;
-  }
-
-  if (equipos.length === 0) {
-    mostrarMensajeModal(
-      "warning",
-      "Sin equipos",
-      "Agrega al menos un equipo."
-    );
-    setPasoResponsiva(2);
-    return;
-  }
-
-  if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
-    mostrarMensajeModal(
-      "warning",
-      "Firma requerida",
-      "La firma es obligatoria."
-    );
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const firmaBase64 = sigCanvas.current
-      .getCanvas()
-      .toDataURL("image/png");
-
-    const respuesta = await crearResponsiva({
-      Fecha: fecha,
-      NombreReceptor: nombreReceptor,
-      Puesto: puesto,
-      Area: area,
-      Correo: correo,
-      FirmaBase64: firmaBase64,
-      equipos
-    });
-
-    // Guardamos la responsiva creada para poder
-    // utilizar su ID al descargar el PDF.
-    setResponsivaCreada(respuesta);
-    setResponsivaGuardada(true);
-
-    if (respuesta?.correoEnviado) {
+  const guardarNuevaResponsiva = async () => {
+    if (!fecha || !nombreReceptor.trim() || !puesto.trim()) {
       mostrarMensajeModal(
-        "success",
-        "Responsiva creada",
-        "La responsiva fue creada y el correo fue enviado correctamente."
+        "warning",
+        "Datos incompletos",
+        "Completa los datos obligatorios."
       );
-    } else {
-      mostrarMensajeModal(
-        "success",
-        "Responsiva creada",
-        "La responsiva fue creada correctamente."
-      );
+      setPasoResponsiva(1);
+      return;
     }
 
-    await cargarResponsivas();
-
-  } catch (error) {
-    mostrarMensajeModal(
-      "error",
-      "Error al crear la responsiva",
-      error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Ocurrió un error al crear la responsiva."
-    );
-
-    toast.error(
-      error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Error al crear la responsiva."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
-
-  //generar pdf
-const generarPDFNuevaResponsiva = async () => {
-  if (!responsivaGuardada) {
-    mostrarMensajeModal(
-      "warning",
-      "Responsiva no guardada",
-      "Primero debes guardar la responsiva antes de descargar el PDF."
-    );
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const idResponsiva =
-      responsivaCreada?.IdResponsiva ||
-      responsivaCreada?.idResponsiva;
-
-    if (!idResponsiva) {
+    if (equipos.length === 0) {
       mostrarMensajeModal(
-        "error",
-        "Identificador no encontrado",
-        "No se encontró el ID de la responsiva guardada."
+        "warning",
+        "Sin equipos",
+        "Agrega al menos un equipo."
+      );
+      setPasoResponsiva(2);
+      return;
+    }
+
+    if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+      mostrarMensajeModal(
+        "warning",
+        "Firma requerida",
+        "La firma es obligatoria."
       );
       return;
     }
 
-    await descargarResponsivaPDF(idResponsiva);
+    try {
+      setLoading(true);
 
-    mostrarMensajeModal(
-      "success",
-      "PDF generado correctamente",
-      "El PDF se descargó correctamente."
-    );
-  } catch (error) {
-    console.error("Error generando PDF:", error);
+      const firmaBase64 = sigCanvas.current
+        .getCanvas()
+        .toDataURL("image/png");
 
-    mostrarMensajeModal(
-      "error",
-      "Error generando PDF",
-      error.response?.data?.message ||
+      const respuesta = await crearResponsiva({
+        Fecha: fecha,
+        NombreReceptor: nombreReceptor,
+        Puesto: puesto,
+        Area: area,
+        Correo: correo,
+        FirmaBase64: firmaBase64,
+        equipos
+      });
+
+      // Guardamos la responsiva creada para poder
+      // utilizar su ID al descargar el PDF.
+      setResponsivaCreada(respuesta);
+      setResponsivaGuardada(true);
+
+      if (respuesta?.correoEnviado) {
+        mostrarMensajeModal(
+          "success",
+          "Responsiva creada",
+          "La responsiva fue creada y el correo fue enviado correctamente."
+        );
+      } else {
+        mostrarMensajeModal(
+          "success",
+          "Responsiva creada",
+          "La responsiva fue creada correctamente."
+        );
+      }
+
+      await cargarResponsivas();
+
+    } catch (error) {
+      mostrarMensajeModal(
+        "error",
+        "Error al crear la responsiva",
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Ocurrió un error al crear la responsiva."
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Error al crear la responsiva."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //generar pdf
+  const generarPDFNuevaResponsiva = async () => {
+    if (!responsivaGuardada) {
+      mostrarMensajeModal(
+        "warning",
+        "Responsiva no guardada",
+        "Primero debes guardar la responsiva antes de descargar el PDF."
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const idResponsiva =
+        responsivaCreada?.IdResponsiva ||
+        responsivaCreada?.idResponsiva;
+
+      if (!idResponsiva) {
+        mostrarMensajeModal(
+          "error",
+          "Identificador no encontrado",
+          "No se encontró el ID de la responsiva guardada."
+        );
+        return;
+      }
+
+      await descargarResponsivaPDF(idResponsiva);
+
+      mostrarMensajeModal(
+        "success",
+        "PDF generado correctamente",
+        "El PDF se descargó correctamente."
+      );
+    } catch (error) {
+      console.error("Error generando PDF:", error);
+
+      mostrarMensajeModal(
+        "error",
+        "Error generando PDF",
+        error.response?.data?.message ||
         error.response?.data?.error ||
         "Ocurrió un error al generar el PDF."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
   //----------------------------------
   // FINAL MODAL Y FUNCIONES
   //----------------------------------
@@ -800,11 +801,10 @@ const generarPDFNuevaResponsiva = async () => {
             <tr>
               <th>Folio</th>
               <th>Fecha</th>
-              <th>Correo del emisor</th>
+              <th>Correo del receptor</th>
               <th>Receptor</th>
               <th>Puesto</th>
               <th>Área</th>
-              <th>Correo</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -835,14 +835,13 @@ const generarPDFNuevaResponsiva = async () => {
                     <td>
                       {formatearFecha(item.Fecha)}
                     </td>
-                    <td>{item.CorreoCreador}</td>
+                    <td>{item.Correo}</td>
                     <td>
                       {item.NombreReceptor || ""}
                     </td>
 
                     <td>{item.Puesto || ""}</td>
                     <td>{item.Area || ""}</td>
-                    <td>{item.Correo || ""}</td>
 
                     <td>
                       <span
@@ -939,7 +938,7 @@ const generarPDFNuevaResponsiva = async () => {
       {/*FIN PAGINACIÓN*/}
       {mostrarModal && createPortal(
         <div className="modal-overlay">
-          <div className="modal">
+          <div className="modal modal-responsiva-editar">
 
             {modoModal === "editar" ? (
               <>
@@ -958,71 +957,81 @@ const generarPDFNuevaResponsiva = async () => {
                   </button>
                 </div>
 
-                <div className="form-responsiva">
+                <div className="responsiva-modal-body">
+                  <div className="responsiva-form-grid">
 
-                  <p>Fecha</p>
-                  <input
-                    type="date"
-                    value={formEditar.Fecha}
-                    onChange={(e) =>
-                      setFormEditar({
-                        ...formEditar,
-                        Fecha: e.target.value
-                      })
-                    }
-                  />
+                    <div className="form-group">
+                      <p>Fecha</p>
+                      <input
+                        type="date"
+                        value={formEditar.Fecha}
+                        onChange={(e) =>
+                          setFormEditar({
+                            ...formEditar,
+                            Fecha: e.target.value
+                          })
+                        }
+                      />
+                    </div>
 
-                  <p>Nombre receptor</p>
-                  <input
-                    type="text"
-                    value={formEditar.NombreReceptor}
-                    onChange={(e) =>
-                      setFormEditar({
-                        ...formEditar,
-                        NombreReceptor: e.target.value
-                      })
-                    }
-                  />
+                    <div className="form-group">
+                      <p>Nombre receptor</p>
+                      <input
+                        type="text"
+                        value={formEditar.NombreReceptor}
+                        onChange={(e) =>
+                          setFormEditar({
+                            ...formEditar,
+                            NombreReceptor: e.target.value
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-group">
+                      <p>Puesto</p>
+                      <input
+                        type="text"
+                        value={formEditar.Puesto}
+                        onChange={(e) =>
+                          setFormEditar({
+                            ...formEditar,
+                            Puesto: e.target.value
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="form-group">
 
-                  <p>Puesto</p>
-                  <input
-                    type="text"
-                    value={formEditar.Puesto}
-                    onChange={(e) =>
-                      setFormEditar({
-                        ...formEditar,
-                        Puesto: e.target.value
-                      })
-                    }
-                  />
+                      <p>Área</p>
+                      <input
+                        type="text"
+                        value={formEditar.Area}
+                        onChange={(e) =>
+                          setFormEditar({
+                            ...formEditar,
+                            Area: e.target.value
+                          })
+                        }
+                      />
+                    </div>
 
-                  <p>Área</p>
-                  <input
-                    type="text"
-                    value={formEditar.Area}
-                    onChange={(e) =>
-                      setFormEditar({
-                        ...formEditar,
-                        Area: e.target.value
-                      })
-                    }
-                  />
-
-                  <p>Correo</p>
-                  <input
-                    type="email"
-                    value={formEditar.Correo}
-                    onChange={(e) =>
-                      setFormEditar({
-                        ...formEditar,
-                        Correo: e.target.value
-                      })
-                    }
-                  />
-
+                    <div className="form-group">
+                      <p>Correo</p>
+                      <input
+                        type="email"
+                        value={formEditar.Correo}
+                        onChange={(e) =>
+                          setFormEditar({
+                            ...formEditar,
+                            Correo: e.target.value
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="modal-footer">
+                <div className="responsiva-modal-footer">
                   <button
                     className="btn-primary"
                     onClick={guardarEdicion}
@@ -1030,110 +1039,121 @@ const generarPDFNuevaResponsiva = async () => {
                     Guardar cambios
                   </button>
 
-                  <button
-                    className="btn-secondary"
-                    onClick={cerrarEditar}
-                  >
-                    Cancelar
-                  </button>
+                  <div className="footer-right">
+                    <button
+                      className="btn-cancelar"
+                      onClick={cerrarEditar}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
                 </div>
               </>
             ) : (
               <>
-                <div className="modal-header">
-                  <h3>
-                    {responsivaSeleccionada?.Folio ||
-                      `RESP-${String(
-                        responsivaSeleccionada?.IdResponsiva
-                      ).padStart(5, "0")}`}
-                  </h3>
+                <div className="responsiva-modal-body">
+                  <div className="modal-header">
+                    <h3>
+                      {responsivaSeleccionada?.Folio ||
+                        `RESP-${String(
+                          responsivaSeleccionada?.IdResponsiva
+                        ).padStart(5, "0")}`}
+                    </h3>
 
-                  <button
-                    className="btn-close"
-                    onClick={cerrarEditar}
-                  >
-                    ✕
-                  </button>
-                </div>
+                    <button
+                      className="btn-close"
+                      onClick={cerrarEditar}
+                    >
+                      x
+                    </button>
+                  </div>
 
-                <div className="table-responsive">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Descripción</th>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>Serie</th>
-                        <th>Devuelto</th>
-                        <th>Fecha devolución</th>
-                        <th>Comentarios</th>
-                        <th>Acción</th>
-                      </tr>
-                    </thead>
+                  <div className="equipos-cards">
+                    {detalle.length === 0 ? (
+                      <div className="sin-equipos">
+                        Sin equipos registrados.
+                      </div>
+                    ) : (
+                      detalle.map((item) => (
+                        <div className="equipo-card" key={item.IdDetalle}>
+                          <div className="equipo-card-header">
+                       
 
-                    <tbody>
-                      {detalle.length === 0 ? (
-                        <tr>
-                          <td colSpan="8">
-                            Sin equipos registrados.
-                          </td>
-                        </tr>
-                      ) : (
-                        detalle.map((item) => (
-                          <tr key={item.IdDetalle}>
-                            <td>
-                              {item.Descripcion}
-                            </td>
+                            <span
+                              className={`estado-equipo ${item.Devuelto ? "devuelto" : "pendiente"
+                                }`}
+                            >
+                            </span>
+                          </div>
 
-                            <td>{item.Marca}</td>
-                            <td>{item.Modelo}</td>
-                            <td>{item.NoSerie}</td>
+                          <div className="responsiva-modal-body">
+                            <div className="responsiva-equipos-grid">
 
-                            <td>
-                              {item.Devuelto
-                                ? "Sí"
-                                : "No"}
-                            </td>
+                                <div className="detalle-item">
+                                  <span>Tipo de equipo: </span>
+                                  <strong>{item.Descripcion}</strong>
 
-                            <td>
-                              {item.FechaDevolucion
-                                ? new Date(
-                                  item.FechaDevolucion
-                                ).toLocaleString(
-                                  "es-MX"
-                                )
-                                : ""}
-                            </td>
+                                  </div>
+                              <div className="detalle-item">
+                                <span>Marca: </span>
+                                <strong>{item.Marca || "N/A"}</strong>
+                              </div>
 
-                            <td>
-                              {item.ComentariosDevolucion ||
-                                ""}
-                            </td>
+                              <div className="detalle-item">
+                                <span>Modelo: </span>
+                                <strong>{item.Modelo || "N/A"}</strong>
+                              </div>
 
-                            <td>
-                              {item.Devuelto ? (
-                                "Devuelto"
-                              ) : puedeDevolver ? (
-                                <button
-                                  className="btn-secondary"
-                                  type="button"
-                                  onClick={() =>
-                                    devolverEquipo(
-                                      item.IdDetalle
-                                    )
-                                  }
-                                >
-                                  Devolver
-                                </button>
-                              ) : (
-                                "Pendiente"
-                              )}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                              <div className="detalle-item">
+                                <span>Serie: </span>
+                                <strong>{item.NoSerie || "N/A"}</strong>
+                              </div>
+
+                              <div className="detalle-item">
+                                <span>Fecha devolución: </span>
+                                <strong>
+                                  {item.FechaDevolucion
+                                    ? new Date(item.FechaDevolucion).toLocaleString("es-MX")
+                                    : "Pendiente"}
+                                </strong>
+                              </div>
+
+                              <div className="detalle-item">
+                                <span>Comentarios: </span>
+                                <strong>
+                                  {item.ComentariosDevolucion || "Sin comentarios"}
+                                </strong>
+                              </div>
+                            </div>
+                          </div>
+
+
+                            {item.Devuelto ? (
+                              <span className="equipo-accion-completada">
+                                Equipo devuelto
+                              </span>
+                            ) : puedeDevolver ? (
+
+                              <div className="section-devolver">
+                              <button
+                                className="btn-devolver"
+                                type="button"
+                                onClick={() => devolverEquipo(item.IdDetalle)}
+                              >
+                                Devolver
+                              </button>
+                              </div>
+                            ) : (
+                              <span className="equipo-accion-pendiente">
+                                Pendiente de devolución
+                              </span>
+                            )}
+                       
+                        </div>
+                      ))
+                    )}
+                  </div>
+
                 </div>
               </>
             )}
@@ -1203,7 +1223,11 @@ const generarPDFNuevaResponsiva = async () => {
                   </div>
                 </div>
 
-                <div className="responsiva-step-line" />
+                 <div
+    className={`responsiva-step-line ${
+      pasoResponsiva >= 2 ? "completada" : ""
+    }`}
+  />
 
                 <div
                   className={`responsiva-step ${pasoResponsiva >= 2 ? "activo" : ""
@@ -1217,7 +1241,11 @@ const generarPDFNuevaResponsiva = async () => {
                   </div>
                 </div>
 
-                <div className="responsiva-step-line" />
+                          <div
+    className={`responsiva-step-line ${
+      pasoResponsiva >= 3 ? "completada" : ""
+    }`}
+  />
 
                 <div
                   className={`responsiva-step ${pasoResponsiva >= 3 ? "activo" : ""
@@ -1578,7 +1606,7 @@ const generarPDFNuevaResponsiva = async () => {
                       className="btn-primario"
                       onClick={irPasoEquipos}
                     >
-                      Siguiente →
+                      Siguiente
                     </button>
                   )}
 
@@ -1588,7 +1616,7 @@ const generarPDFNuevaResponsiva = async () => {
                       className="btn-primario"
                       onClick={irPasoRevision}
                     >
-                      Revisar →
+                      Revisar
                     </button>
                   )}
 

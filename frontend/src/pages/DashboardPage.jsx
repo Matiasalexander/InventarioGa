@@ -2,23 +2,37 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import "../styles/DashboardPage.css";
 import { obtenerDashboard } from "../services/dashboardService";
-import { Laptop, Utensils, ClipboardCheck, Star, Hammer, Palette } from "lucide-react";
 
+import {
+  Laptop,
+  Utensils,
+  ClipboardCheck,
+  AlertTriangle,
+  Package,
+  CheckCircle2,
+  UserRound,
+  ShieldAlert,
+  Clock3,
+  RefreshCw,
+  Wrench,
+  XCircle,
+  Info,
+  Palette,
+} from "lucide-react";
 
 function DashboardPage({ setLoading }) {
-  // NOTAS DE VERSIÓN
+
   const [mostrarNotasVersion, setMostrarNotasVersion] = useState(false);
   const [noMostrarNuevamente, setNoMostrarNuevamente] = useState(false);
 
-  const VERSION_ACTUAL = "3.0.0";
+  //modificar esta nota de versión cuando se quiera desplegar en producto y anotar los nuevos cambios
+  const VERSION_ACTUAL = "4.0.0";
 
-
-  // DASHBOARD
   const [dashboard, setDashboard] = useState({
     resumen: {},
     porTipo: [],
     porRestaurante: [],
-    porEstatus: []
+    porEstatus: [],
   });
 
   useEffect(() => {
@@ -33,6 +47,7 @@ function DashboardPage({ setLoading }) {
     }
 
   }, []);
+
 
   const cargarDashboard = async () => {
 
@@ -60,7 +75,6 @@ function DashboardPage({ setLoading }) {
 
   };
 
-  // CERRAR NOTAS DE VERSIÓN
   const cerrarNotasVersion = () => {
 
     if (noMostrarNuevamente) {
@@ -76,275 +90,500 @@ function DashboardPage({ setLoading }) {
 
   };
 
-
   const resumen = dashboard.resumen || {};
-  
+
+  const totalEquipos =
+    Number(resumen.TotalEquipos) || 0;
+
+  const equiposDisponibles =
+    Number(resumen.EquiposDisponibles) || 0;
+
+  const equiposAsignados =
+    Number(resumen.EquiposAsignados) || 0;
+
+  const equiposDanados =
+    Number(resumen.EquiposDanados) || 0;
+
+  const garantiasPorVencer =
+    Number(resumen.GarantiasPorVencer) || 0;
+
+  const garantiasVencidas =
+    Number(resumen.GarantiasVencidas) || 0;
+
+  const porcentajeDisponible =
+    totalEquipos > 0
+      ? ((equiposDisponibles / totalEquipos) * 100).toFixed(1)
+      : 0;
+
+  const porcentajeAsignado =
+    totalEquipos > 0
+      ? ((equiposAsignados / totalEquipos) * 100).toFixed(1)
+      : 0;
+
+  const porcentajeDanado =
+    totalEquipos > 0
+      ? ((equiposDanados / totalEquipos) * 100).toFixed(1)
+      : 0;
+
+  const maxTipo =
+    dashboard.porTipo.length > 0
+      ? Math.max(
+          ...dashboard.porTipo.map(
+            item => Number(item.Total) || 0
+          )
+        )
+      : 1;
+
+  const maxRestaurante =
+    dashboard.porRestaurante.length > 0
+      ? Math.max(
+          ...dashboard.porRestaurante.map(
+            item => Number(item.Total) || 0
+          )
+        )
+      : 1;
+
   return (
 
     <div className="dashboard-page">
 
       <div className="dashboard-header">
 
-        <div className="dashboard-header-title">
+        <div className="dashboard-header-main">
 
-          <h1>
-            Inventario Grupo Anderson's
-          </h1>
+          <div className="dashboard-header-title">
 
-          <p>
-            Resumen general del inventario y responsivas.
-          </p>
+            <h1>
+              Inventario Grupo Anderson's
+            </h1>
+
+            <p>
+              Resumen general del inventario y estado de los equipos.
+            </p>
+
+          </div>
+                      <span className="dashboard-header-label">
+              PANEL GENERAL
+            </span>
 
         </div>
 
       </div>
+
+      <div className="dashboard-section-title">
+
+        <div>
+          <h2>Resumen del inventario</h2>
+
+          <p>
+            Estado actual de los equipos registrados.
+          </p>
+        </div>
+
+      </div>
+
 
       <div className="dashboard-stats-grid">
 
         <div className="dashboard-stat-card dashboard-stat-total">
-          <span>Total equipos</span>
-          <strong>
-            {resumen.TotalEquipos || 0}
-          </strong>
-        </div>
 
+          <div className="dashboard-stat-icon">
+
+            <Package size={21} />
+
+          </div>
+
+          <div className="dashboard-stat-content">
+
+            <span>Total de equipos</span>
+
+            <strong>
+              {totalEquipos}
+            </strong>
+
+            <small>
+              Inventario registrado
+            </small>
+
+          </div>
+
+        </div>
 
         <div className="dashboard-stat-card dashboard-stat-disponibles">
-          <span>Disponibles</span>
-          <strong>
-            {resumen.EquiposDisponibles || 0}
-          </strong>
-        </div>
 
+          <div className="dashboard-stat-icon">
+
+            <CheckCircle2 size={21} />
+
+          </div>
+
+          <div className="dashboard-stat-content">
+
+            <span>Disponibles</span>
+
+            <strong>
+              {equiposDisponibles}
+            </strong>
+
+            <small>
+              {porcentajeDisponible}% del inventario
+            </small>
+
+          </div>
+
+        </div>
 
         <div className="dashboard-stat-card dashboard-stat-asignados">
-          <span>Asignados</span>
-          <strong>
-            {resumen.EquiposAsignados || 0}
-          </strong>
-        </div>
 
+          <div className="dashboard-stat-icon">
+
+            <UserRound size={21} />
+
+          </div>
+
+          <div className="dashboard-stat-content">
+
+            <span>Asignados</span>
+
+            <strong>
+              {equiposAsignados}
+            </strong>
+
+            <small>
+              {porcentajeAsignado}% del inventario
+            </small>
+
+          </div>
+
+        </div>
 
         <div className="dashboard-stat-card dashboard-stat-danados">
-          <span>Dañados</span>
-          <strong>
-            {resumen.EquiposDanados || 0}
-          </strong>
-        </div>
 
+          <div className="dashboard-stat-icon">
+
+            <Wrench size={21} />
+
+          </div>
+
+          <div className="dashboard-stat-content">
+
+            <span>Dañados</span>
+
+            <strong>
+              {equiposDanados}
+            </strong>
+
+            <small>
+              {porcentajeDanado}% del inventario
+            </small>
+
+          </div>
+
+        </div>
 
         <div className="dashboard-stat-card dashboard-stat-garantias">
-          <span>Garantías por vencer</span>
-          <strong>
-            {resumen.GarantiasPorVencer || 0}
-          </strong>
-        </div>
 
+          <div className="dashboard-stat-icon">
+
+            <Clock3 size={21} />
+
+          </div>
+
+          <div className="dashboard-stat-content">
+
+            <span>Garantías por vencer</span>
+
+            <strong>
+              {garantiasPorVencer}
+            </strong>
+
+            <small>
+              Requieren seguimiento
+            </small>
+
+          </div>
+
+        </div>
 
         <div className="dashboard-stat-card dashboard-stat-vencidas">
-          <span>Garantías vencidas</span>
-          <strong>
-            {resumen.GarantiasVencidas || 0}
-          </strong>
-        </div>
 
-      </div>
+          <div className="dashboard-stat-icon">
 
-      <div className="dashboard-details-grid">
-
-
-        {/* EQUIPOS POR TIPO */}
-
-        <div className="dashboard-card dashboard-card-tipo">
-
-          <h2>
-
-            <Laptop
-              size={20}
-              strokeWidth={2.2}
-            />
-
-            <span>
-              Equipos por tipo
-            </span>
-
-          </h2>
-
-
-          <div className="dashboard-table-container">
-
-            <div className="tabla-scroll">
-
-              <table className="dashboard-table">
-
-                <thead>
-
-                  <tr>
-                    <th>Tipo</th>
-                    <th>Total</th>
-                  </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                  {dashboard.porTipo.map(
-                    (item, index) => (
-
-                      <tr key={index}>
-
-                        <td>
-                          {item.TipoEquipo ||
-                            "Sin tipo"}
-                        </td>
-
-                        <td>
-                          {item.Total}
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
+            <ShieldAlert size={21} />
 
           </div>
 
-        </div>
+          <div className="dashboard-stat-content">
 
-        <div className="dashboard-card dashboard-card-restaurante">
+            <span>Garantías vencidas</span>
 
-          <h2>
+            <strong>
+              {garantiasVencidas}
+            </strong>
 
-            <Utensils
-              size={20}
-              strokeWidth={2.2}
-            />
-
-            <span>
-              Equipos por restaurante
-            </span>
-
-          </h2>
-
-
-          <div className="dashboard-table-container">
-
-            <div className="tabla-scroll">
-
-              <table className="dashboard-table">
-
-                <thead>
-
-                  <tr>
-                    <th>Restaurante</th>
-                    <th>Total</th>
-                  </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                  {dashboard.porRestaurante.map(
-                    (item, index) => (
-
-                      <tr key={index}>
-
-                        <td>
-                          {item.Restaurante ||
-                            "Sin restaurante"}
-                        </td>
-
-                        <td>
-                          {item.Total}
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        <div className="dashboard-card dashboard-card-estatus">
-
-          <h2>
-
-            <ClipboardCheck
-              size={20}
-              strokeWidth={2.2}
-            />
-
-            <span>
-              Equipos por estatus
-            </span>
-
-          </h2>
-
-
-          <div className="dashboard-table-container">
-
-            <div className="tabla-scroll">
-
-              <table className="dashboard-table">
-
-                <thead>
-
-                  <tr>
-                    <th>Estatus</th>
-                    <th>Total</th>
-                  </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                  {dashboard.porEstatus.map(
-                    (item, index) => (
-
-                      <tr key={index}>
-
-                        <td>
-                          {item.Estatus ||
-                            "Sin estatus"}
-                        </td>
-
-                        <td>
-                          {item.Total}
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
+            <small>
+              Requieren revisión
+            </small>
 
           </div>
 
         </div>
 
       </div>
+
+      <div className="dashboard-main-grid">
+
+        <div className="dashboard-card dashboard-status-card">
+
+          <div className="dashboard-card-header">
+
+            <div className="dashboard-card-title">
+
+              <div className="dashboard-card-icon">
+                <ClipboardCheck size={19} />
+              </div>
+
+              <div>
+
+                <h2>
+                  Equipos por estatus
+                </h2>
+
+                <p>
+                  Distribución actual del inventario
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div className="dashboard-status-list">
+
+            {dashboard.porEstatus.map(
+              (item, index) => {
+
+                const total =
+                  Number(item.Total) || 0;
+
+                const porcentaje =
+                  totalEquipos > 0
+                    ? ((total / totalEquipos) * 100)
+                    : 0;
+
+                return (
+
+                  <div
+                    className="dashboard-status-item"
+                    key={index}
+                  >
+
+                    <div className="dashboard-status-info">
+
+                      <span>
+                        {item.Estatus || "Sin estatus"}
+                      </span>
+
+                      <strong>
+                        {total}
+                      </strong>
+
+                    </div>
+
+
+                    <div className="dashboard-progress">
+
+                      <div
+                        className="dashboard-progress-fill"
+                        style={{
+                          width: `${porcentaje}%`,
+                        }}
+                      />
+
+                    </div>
+
+
+                    <small>
+                      {porcentaje.toFixed(1)}%
+                    </small>
+
+                  </div>
+
+                );
+
+              }
+            )}
+
+          </div>
+
+        </div>
+
+        <div className="dashboard-card">
+
+          <div className="dashboard-card-header">
+
+            <div className="dashboard-card-title">
+
+              <div className="dashboard-card-icon">
+                <Laptop size={19} />
+              </div>
+
+              <div>
+
+                <h2>
+                  Equipos por tipo
+                </h2>
+
+                <p>
+                  Distribución por categoría
+                </p>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div className="dashboard-ranking-list">
+
+            {dashboard.porTipo.map(
+              (item, index) => {
+
+                const total =
+                  Number(item.Total) || 0;
+
+                const porcentaje =
+                  (total / maxTipo) * 100;
+
+                return (
+
+                  <div
+                    className="dashboard-ranking-item"
+                    key={index}
+                  >
+
+                    <div className="dashboard-ranking-top">
+
+                      <span>
+                        {item.TipoEquipo || "Sin tipo"}
+                      </span>
+
+                      <strong>
+                        {total}
+                      </strong>
+
+                    </div>
+
+
+                    <div className="dashboard-ranking-bar">
+
+                      <div
+                        style={{
+                          width: `${porcentaje}%`,
+                        }}
+                      />
+
+                    </div>
+
+                  </div>
+
+                );
+
+              }
+            )}
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+      <div className="dashboard-card dashboard-restaurantes-card">
+
+        <div className="dashboard-card-header">
+
+          <div className="dashboard-card-title">
+
+            <div className="dashboard-card-icon">
+              <Utensils size={19} />
+            </div>
+
+            <div>
+
+              <h2>
+                Equipos por restaurante
+              </h2>
+
+              <p>
+                Distribución del inventario por ubicación
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div className="dashboard-restaurantes-grid">
+
+          {dashboard.porRestaurante.map(
+            (item, index) => {
+
+              const total =
+                Number(item.Total) || 0;
+
+              const porcentaje =
+                (total / maxRestaurante) * 100;
+
+              return (
+
+                <div
+                  className="dashboard-restaurante-item"
+                  key={index}
+                >
+
+                  <div className="dashboard-restaurante-info">
+
+                    <span>
+                      {item.Restaurante ||
+                        "Sin restaurante"}
+                    </span>
+
+                    <strong>
+                      {total}
+                    </strong>
+
+                  </div>
+
+
+                  <div className="dashboard-ranking-bar">
+
+                    <div
+                      style={{
+                        width: `${porcentaje}%`,
+                      }}
+                    />
+
+                  </div>
+
+                </div>
+
+              );
+
+            }
+          )}
+
+        </div>
+
+      </div>
+
+
+      {/*NOTAS DE VERSION */}
 
       {mostrarNotasVersion && (
 
@@ -353,11 +592,9 @@ function DashboardPage({ setLoading }) {
           <div className="version-modal">
 
 
-            {/* HEADER */}
-
             <div className="version-header">
 
-          
+              <div>
 
                 <span className="version-label">
                   Actualización
@@ -371,43 +608,30 @@ function DashboardPage({ setLoading }) {
                   Versión {VERSION_ACTUAL}
                 </p>
 
+              </div>
+
+
+              <button
+                type="button"
+                className="version-close"
+                onClick={cerrarNotasVersion}
+              >
+                ×
+              </button>
+
             </div>
+
 
             <div className="version-body">
 
-{/*
-              <div className="version-item">
-
-                <span className="version-item-icon">
-                   <Star
-              size={20}
-              strokeWidth={2.2}
-            />
-                </span>
-
-                <div>
-
-                  <h3>
-                    Nueva funcionalidad
-                  </h3>
-
-                  <p>
-                    Se agregaron mejoras al módulo de responsivas, diseño y lógica
-                  </p>
-
-                </div>
-
-              </div>
- */}
 
               <div className="version-item">
 
                 <span className="version-item-icon">
-                  <Hammer
-              size={20}
-              strokeWidth={2.2}
-              color="blue"
-            />
+                  <Wrench
+                    size={20}
+                    color="gray"
+                  />
                 </span>
 
                 <div>
@@ -417,31 +641,31 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se realizaron mejoras en el apartado de responsivas, diseño y lógica por fecha de fabricación.
+                    Se realizaron mejoras en el apartado de registro de equipo, modals y detalles de responsiva
                   </p>
 
                 </div>
 
               </div>
+
 
               <div className="version-item">
 
                 <span className="version-item-icon">
                   <Palette
-              size={20}
-              strokeWidth={2.2}
-              color="red"
-            />
+                    size={20}
+                    color="red"
+                  />
                 </span>
 
                 <div>
 
                   <h3>
-                    Mejoras
+                    Mejoras de diseño
                   </h3>
 
                   <p>
-                    Se realizaron mejoras en el diseño del sistema, dashboard, roles, catalogos y usuarios.
+                    Se realizaron mejoras de diseño en el dashboard, apartado de registro y responsividad para celulares.
                   </p>
 
                 </div>
@@ -452,11 +676,9 @@ function DashboardPage({ setLoading }) {
               <div className="version-item">
 
                 <span className="version-item-icon">
-                   <ClipboardCheck
-              size={20}
-              strokeWidth={2.2}
-              color="blue"
-            />
+                  <ClipboardCheck
+                    size={20}
+                  />
                 </span>
 
                 <div>
@@ -466,8 +688,7 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se corrigieron errores detectados
-                    en versiones anteriores del sistema.
+                   Se implementó un checkbox en el número de serie, y nuevo modal de registro de equipo
                   </p>
 
                 </div>
@@ -476,6 +697,7 @@ function DashboardPage({ setLoading }) {
 
 
             </div>
+
 
             <div className="version-footer">
 
@@ -499,6 +721,7 @@ function DashboardPage({ setLoading }) {
 
 
               <button
+                type="button"
                 className="btn-version"
                 onClick={cerrarNotasVersion}
               >
@@ -514,10 +737,10 @@ function DashboardPage({ setLoading }) {
       )}
 
     </div>
+    </div>
 
   );
 
 }
-
 
 export default DashboardPage;

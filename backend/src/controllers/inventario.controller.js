@@ -375,7 +375,7 @@ const obtenerInventario = async (
         : "";
 
     const result = await request.query(`
-      SELECT TOP 100
+      SELECT
         i.id,
         i.ID_UNIDAD,
         r.Marca AS UNIDAD,
@@ -666,6 +666,8 @@ const crearInventario = async (
       COMENTARIO
     } = req.body;
 
+    const serialNormalizado = SERIAL?.toString().trim() || null;
+
     const idUnidad =
       convertirIdUnidad(ID_UNIDAD);
 
@@ -733,29 +735,27 @@ const crearInventario = async (
        VALIDAR SERIAL
     ===================================================== */
 
-    if (SERIAL) {
-      const serialExiste = await pool
-        .request()
-        .input(
-          "SERIAL",
-          sql.NVarChar,
-          SERIAL
-        )
-        .query(`
-          SELECT id
-          FROM INVENTARIO_M
-          WHERE SERIAL = @SERIAL
-        `);
+if (serialNormalizado) {
+  const serialExiste = await pool
+    .request()
+    .input(
+      "SERIAL",
+      sql.NVarChar,
+      serialNormalizado
+    )
+    .query(`
+      SELECT id
+      FROM INVENTARIO_M
+      WHERE SERIAL = @SERIAL
+    `);
 
-      if (
-        serialExiste.recordset.length > 0
-      ) {
-        return res.status(400).json({
-          message:
-            "El número de serie ya existe en el inventario."
-        });
-      }
-    }
+  if (serialExiste.recordset.length > 0) {
+    return res.status(400).json({
+      message:
+        "El número de serie ya existe en el inventario."
+    });
+  }
+}
 
     /* =====================================================
        INSERTAR INVENTARIO
@@ -796,10 +796,10 @@ const crearInventario = async (
         "PUESTO",
         PUESTO || null
       )
-      .input(
-        "SERIAL",
-        SERIAL || null
-      )
+     .input(
+  "SERIAL",
+  serialNormalizado
+)
       .input(
         "FECHA_FABRICACION",
         FECHA_FABRICACION || null
@@ -1122,6 +1122,8 @@ const actualizarInventario = async (
       COMENTARIO
     } = req.body;
 
+    const serialNormalizado = SERIAL?.toString().trim() || null;
+
     const idUnidadNueva =
       convertirIdUnidad(ID_UNIDAD);
 
@@ -1241,35 +1243,24 @@ const actualizarInventario = async (
        VALIDAR SERIAL
     ===================================================== */
 
-    if (SERIAL) {
-      const serialExiste = await pool
-        .request()
-        .input(
-          "SERIAL",
-          sql.NVarChar,
-          SERIAL
-        )
-        .input(
-          "IdEquipo",
-          sql.Int,
-          idEquipo
-        )
-        .query(`
-          SELECT id
-          FROM INVENTARIO_M
-          WHERE SERIAL = @SERIAL
-            AND id <> @IdEquipo
-        `);
+if (serialNormalizado) {
+  const serialExiste = await pool
+    .request()
+    .input("SERIAL", sql.NVarChar, serialNormalizado)
+    .input("IdEquipo", sql.Int, idEquipo)
+    .query(`
+      SELECT id
+      FROM INVENTARIO_M
+      WHERE SERIAL = @SERIAL
+        AND id <> @IdEquipo
+    `);
 
-      if (
-        serialExiste.recordset.length > 0
-      ) {
-        return res.status(400).json({
-          message:
-            "El número de serie ya existe en otro equipo."
-        });
-      }
-    }
+  if (serialExiste.recordset.length > 0) {
+    return res.status(400).json({
+      message: "El número de serie ya existe en otro equipo."
+    });
+  }
+}
 
     /* =====================================================
        GENERAR NOMBRE
@@ -1333,10 +1324,7 @@ const actualizarInventario = async (
         "PUESTO",
         PUESTO || null
       )
-      .input(
-        "SERIAL",
-        SERIAL || null
-      )
+   .input("SERIAL", serialNormalizado)
       .input(
         "FECHA_FABRICACION",
         FECHA_FABRICACION || null

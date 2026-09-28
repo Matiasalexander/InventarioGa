@@ -172,14 +172,233 @@ input[type="checkbox"]{
   z-index: 5;
   background: #171a4d;
 }
-@media (max-width: 768px) {
+/* ================================
+   RESPONSIVE - TABLET
+================================ */
+
+@media (max-width: 900px) {
+
+    /* Formulario */
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .page-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* Encabezado */
     .header-user {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .header-user h1 {
+        font-size: 32px;
+    }
+
+    .header-user p {
+        margin-top: 8px;
+        font-size: 14px;
+    }
+
+    .header-user button {
+        width: 100%;
+    }
+
+    /* Botones */
+    .botones {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .botones button {
+        width: 100%;
+    }
+
+    /* Modal unidades */
+    .modal-unidades {
+        width: 90%;
+        max-width: 650px;
+    }
+
+    .lista-unidades {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+/* ================================
+   RESPONSIVE - MÓVIL
+================================ */
+
+@media (max-width: 600px) {
+
+    /* Contenedor general */
+    .detail-user {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Formularios */
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .page-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* Card */
+    .card-user {
+        width: 100%;
+        padding: 14px;
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+
+    /* Header */
+    .header-user {
+        width: 100%;
         flex-direction: column;
         align-items: stretch;
         gap: 12px;
     }
 
+    .header-user h1 {
+        font-size: 26px;
+        line-height: 1.2;
+        letter-spacing: -0.5px;
+    }
+
+    .header-user p {
+        margin-top: 6px;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
     .header-user button {
         width: 100%;
+    }
+
+    /* Botones */
+    .botones {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .botones button {
+        width: 100%;
+    }
+
+    /* Botón cancelar */
+    .btn-cancel {
+        width: 100%;
+    }
+
+    /* Modal */
+    .modal-overlay {
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    .modal-unidades {
+        width: 100%;
+        max-width: 100%;
+        max-height: 90vh;
+        border-radius: 12px;
+    }
+
+    /* Header del modal */
+    .modal-header {
+        padding: 12px 16px;
+        gap: 10px;
+    }
+
+    .modal-header h2,
+    .modal-header h3 {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    .modal-header button {
+        flex-shrink: 0;
+        font-size: 24px;
+    }
+
+    /* Lista */
+    .lista-unidades {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .unidad-checkbox {
+        width: 100%;
+        min-height: 38px;
+    }
+
+    /* Footer */
+    .modal-footer {
+        padding: 12px 16px;
+    }
+
+    .btn-unidades {
+        width: 100%;
+        padding: 11px 18px;
+    }
+
+    /* Checkbox */
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+    }
+}
+
+/*Estos responsives son importantes ya que afectan a todas las clases header-user*/
+
+/* ================================
+   RESPONSIVE - MÓVIL PEQUEÑO
+================================ */
+
+@media (max-width: 400px) {
+
+    .card-user {
+        padding: 12px;
+    }
+
+    .header-user h1 {
+        font-size: 23px;
+    }
+
+    .header-user p {
+        font-size: 12px;
+    }
+
+    .modal-unidades {
+        max-height: 92vh;
+    }
+
+    .modal-header {
+        padding: 10px 14px;
+    }
+
+    .lista-unidades {
+        padding: 14px;
+    }
+
+    .modal-footer {
+        padding: 10px 14px;
+    }
+
+    .btn-unidades {
+        font-size: 14px;
     }
 }

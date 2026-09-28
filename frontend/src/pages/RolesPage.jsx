@@ -8,6 +8,8 @@ import {
   actualizarPermisosRol
 } from "../services/rolesService";
 
+import {CircleArrowDown, CircleArrowUp} from "lucide-react"
+
 import "../styles/Roles.css";
 
 function RolesPage({ setLoading }) {
@@ -329,7 +331,7 @@ function RolesPage({ setLoading }) {
                       <span>{modulo}</span>
 
                       <span className="modulo-flecha">
-                        {modulosAbiertos[modulo] ? "⬆️​" : "⬇️​"}
+                        {modulosAbiertos[modulo] ? <CircleArrowUp/> : <CircleArrowDown/>}
                       </span>
                     </button>
 

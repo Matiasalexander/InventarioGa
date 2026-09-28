@@ -1,60 +1,146 @@
-.detalle-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(400px,1fr));
-    gap:20px;
-    margin-top:20px;
+.detalle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+    gap: 20px;
+    margin-top: 20px;
 }
 
-.detalle-item{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:12px 0;
-    border-bottom:1px solid #ececec;
+/* Elementos de información */
+.detalle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid #ececec;
 }
 
-.detalle-item:last-child{
-    border-bottom:none;
+.detalle-item:last-child {
+    border-bottom: none;
 }
 
-.detalle-item span{
-    color:#666;
-    font-weight:500;
+.detalle-item span {
+    color: #666;
+    font-weight: 500;
+    flex: 0 0 40%;
 }
 
-.detalle-item strong{
-    color:#222;
+.detalle-item strong {
+    color: #222;
+    text-align: right;
+    flex: 1;
+    overflow-wrap: anywhere;
 }
 
-.card h2{
-    margin-bottom:20px;
-    padding-bottom:10px;
-    border-bottom:2px solid #f2f2f2;
+/* Títulos */
+.card h2 {
+    margin: 0 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f2f2f2;
 }
 
-.comentario{
-    line-height:1.8;
-    color:#555;
+/* Comentarios */
+.comentario {
+    line-height: 1.8;
+    color: #555;
+    overflow-wrap: anywhere;
 }
 
+/* Contenedor de fotografía */
 .card-foto {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 
 .contenedor-foto-detalle {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 12px;  background: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    width: min(100%, 350px);
+    aspect-ratio: 1 / 1;
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 12px;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
 }
 
+/* Fotografía */
 .foto-equipo {
-  width: 250px;
-  height: 250px;
-  object-fit: cover;
-  border-radius: 10px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    display: block;
+}
+
+/* Tablets */
+@media (max-width: 768px) {
+
+    .detalle-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .detalle-item {
+        gap: 15px;
+        padding: 11px 0;
+    }
+
+    .detalle-item span {
+        flex-basis: 42%;
+    }
+
+    .contenedor-foto-detalle {
+        width: min(100%, 300px);
+    }
+}
+
+/* Celulares */
+@media (max-width: 576px) {
+
+    .detalle-grid {
+        gap: 10px;
+    }
+
+    .detalle-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 10px 0;
+    }
+
+    .detalle-item span {
+        flex: none;
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .detalle-item strong {
+        width: 100%;
+        text-align: left;
+        font-size: 0.95rem;
+    }
+
+    .card h2 {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    .contenedor-foto-detalle {
+        width: min(100%, 260px);
+        padding: 8px;
+    }
+
+    .foto-equipo {
+        border-radius: 8px;
+    }
+
+    .comentario {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
 }
