@@ -68,8 +68,8 @@ const crearMarca = async (req, res) => {
         message: "Ya existe una marca con ese nombre"
       });
     }
-    res.status(500).json({
-      message: "Error creando marca",
+     res.status(500).json({
+      message: "Ya existe una marca con ese nombre",
       error: error.message
     });
 

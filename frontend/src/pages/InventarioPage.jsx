@@ -19,10 +19,10 @@ function InventarioPage({ setLoading }) {
   const navigate = useNavigate();
   const { tienePermiso } = useAuth();
 
-const puedeCrear = tienePermiso("inventario.crear");
-const puedeEditar = tienePermiso("inventario.editar");
-const puedeEliminar = tienePermiso("inventario.eliminar");
-const puedeExportar = tienePermiso("inventario.exportar");
+  const puedeCrear = tienePermiso("inventario.crear");
+  const puedeEditar = tienePermiso("inventario.editar");
+  const puedeEliminar = tienePermiso("inventario.eliminar");
+  const puedeExportar = tienePermiso("inventario.exportar");
 
 
 
@@ -59,8 +59,8 @@ const puedeExportar = tienePermiso("inventario.exportar");
     sessionStorage.getItem("inventario_unidad_nombre") || ""
   );
   // NUEVO: paginación de la tabla
-const [paginaActual, setPaginaActual] = useState(1);
-const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
 
   // NUEVO:
   // Filtros persistentes del panel.
@@ -70,12 +70,12 @@ const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
     return guardados
       ? JSON.parse(guardados)
       : {
-          tipoEquipo: "",
-          marca: "",
-          estatus: "",
-          estadoFisico: "",
-          responsiva: ""
-        };
+        tipoEquipo: "",
+        marca: "",
+        estatus: "",
+        estadoFisico: "",
+        responsiva: ""
+      };
   });
 
   const cargarInventario = async (unidad = null) => {
@@ -102,10 +102,10 @@ const [registrosPorPagina, setRegistrosPorPagina] = useState(20);
     }
   };
 
-useEffect(() => {
-  cargarArbolUnidades();
-  cargarInventario();
-}, []);
+  useEffect(() => {
+    cargarArbolUnidades();
+    cargarInventario();
+  }, []);
 
   useEffect(() => {
     sessionStorage.setItem(
@@ -114,14 +114,14 @@ useEffect(() => {
     );
   }, [filtros]);
   useEffect(() => {
-  setPaginaActual(1);
-}, [
-  busqueda,
-  filtros,
-  restauranteSeleccionado,
-  unidadSeleccionada,
-  registrosPorPagina
-]);
+    setPaginaActual(1);
+  }, [
+    busqueda,
+    filtros,
+    restauranteSeleccionado,
+    unidadSeleccionada,
+    registrosPorPagina
+  ]);
 
   // NUEVO:
   // Obtiene el restaurante elegido dentro del catálogo del árbol.
@@ -137,19 +137,19 @@ useEffect(() => {
   // NUEVO:
   // Las localidades dependen del restaurante seleccionado.
   const localidadesDisponibles = restauranteActual?.children || [];
-  const localidadSeleccionada = useMemo(()=>localidadesDisponibles.find((unidad)=>Number(unidad.id) === Number(unidadSeleccionada)), [localidadesDisponibles, unidadSeleccionada]);
+  const localidadSeleccionada = useMemo(() => localidadesDisponibles.find((unidad) => Number(unidad.id) === Number(unidadSeleccionada)), [localidadesDisponibles, unidadSeleccionada]);
 
   const inventarioFiltrado = useMemo(() => {
     const texto = busqueda.toLowerCase().trim();
-/*console.log(
-  "EQUIPOS FREEPORT:",
-  inventario.filter(
-    item => String(item.LOCALIDAD).trim().toLowerCase() === "freeport"
-  )
-);
-
-console.log("UNIDAD SELECCIONADA:", unidadSeleccionada);
-console.log("RESTAURANTE ACTUAL:", restauranteActual);*/
+    /*console.log(
+      "EQUIPOS FREEPORT:",
+      inventario.filter(
+        item => String(item.LOCALIDAD).trim().toLowerCase() === "freeport"
+      )
+    );
+    
+    console.log("UNIDAD SELECCIONADA:", unidadSeleccionada);
+    console.log("RESTAURANTE ACTUAL:", restauranteActual);*/
     return inventario.filter((item) => {
       const coincideBusqueda =
         !texto ||
@@ -174,40 +174,40 @@ console.log("RESTAURANTE ACTUAL:", restauranteActual);*/
 
       // NUEVO:
       // Permite filtrar por restaurante aun antes de elegir localidad.
-const coincideRestaurante =
-  !restauranteActual ||
-  localidadesDisponibles.some(
-    (unidad) =>
-      Number(unidad.id) === Number(item.ID_UNIDAD)
-  );
+      const coincideRestaurante =
+        !restauranteActual ||
+        localidadesDisponibles.some(
+          (unidad) =>
+            Number(unidad.id) === Number(item.ID_UNIDAD)
+        );
 
-const coincideLocalidad =
-  !unidadSeleccionada ||
-  Number(item.ID_UNIDAD) === Number(unidadSeleccionada);
+      const coincideLocalidad =
+        !unidadSeleccionada ||
+        Number(item.ID_UNIDAD) === Number(unidadSeleccionada);
 
-const coincideTipo =
-  !filtros.tipoEquipo ||
-  item.TIPO_EQUIPO === filtros.tipoEquipo;
+      const coincideTipo =
+        !filtros.tipoEquipo ||
+        item.TIPO_EQUIPO === filtros.tipoEquipo;
 
-const coincideMarca =
-  !filtros.marca ||
-  item.MARCA === filtros.marca;
+      const coincideMarca =
+        !filtros.marca ||
+        item.MARCA === filtros.marca;
 
-const coincideEstatus =
-  !filtros.estatus ||
-  item.ESTATUS === filtros.estatus;
+      const coincideEstatus =
+        !filtros.estatus ||
+        item.ESTATUS === filtros.estatus;
 
-const coincideEstadoFisico =
-  !filtros.estadoFisico ||
-  item.ESTADO_FISICO === filtros.estadoFisico;
+      const coincideEstadoFisico =
+        !filtros.estadoFisico ||
+        item.ESTADO_FISICO === filtros.estadoFisico;
 
-const coincideResponsiva =
-  !filtros.responsiva ||
-  (
-    filtros.responsiva === "asignado"
-      ? Boolean(item.RESPONSIVA_DIGITAL)
-      : !item.RESPONSIVA_DIGITAL
-  );
+      const coincideResponsiva =
+        !filtros.responsiva ||
+        (
+          filtros.responsiva === "asignado"
+            ? Boolean(item.RESPONSIVA_DIGITAL)
+            : !item.RESPONSIVA_DIGITAL
+        );
 
       return (
         coincideBusqueda &&
@@ -227,24 +227,24 @@ const coincideResponsiva =
     restauranteActual,
     localidadSeleccionada
   ]);
-// NUEVO: cálculos de paginación
-const totalRegistros = inventarioFiltrado.length;
+  // NUEVO: cálculos de paginación
+  const totalRegistros = inventarioFiltrado.length;
 
-const totalPaginas = Math.max(
-  1,
-  Math.ceil(totalRegistros / registrosPorPagina)
-);
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(totalRegistros / registrosPorPagina)
+  );
 
-const indiceInicial =
-  (paginaActual - 1) * registrosPorPagina;
+  const indiceInicial =
+    (paginaActual - 1) * registrosPorPagina;
 
-const indiceFinal =
-  indiceInicial + registrosPorPagina;
+  const indiceFinal =
+    indiceInicial + registrosPorPagina;
 
-const inventarioPaginado = inventarioFiltrado.slice(
-  indiceInicial,
-  indiceFinal
-);
+  const inventarioPaginado = inventarioFiltrado.slice(
+    indiceInicial,
+    indiceFinal
+  );
   const tiposEquipo = useMemo(
     () =>
       [
@@ -295,7 +295,7 @@ const inventarioPaginado = inventarioFiltrado.slice(
 
   // NUEVO:
   // Selección del restaurante desde el panel.
-  const handleRestauranteChange =  (event) => {
+  const handleRestauranteChange = (event) => {
     const idRestaurante = event.target.value;
 
     setRestauranteSeleccionado(idRestaurante);
@@ -321,67 +321,67 @@ const inventarioPaginado = inventarioFiltrado.slice(
 
   // NUEVO:
   // Selección de la localidad/unidad.
-const handleLocalidadChange = (event) => {
-  const idUnidad = event.target.value;
+  const handleLocalidadChange = (event) => {
+    const idUnidad = event.target.value;
 
-  if (!idUnidad) {
-    setUnidadSeleccionada(null);
-    setUnidadNombreSeleccionada("");
+    if (!idUnidad) {
+      setUnidadSeleccionada(null);
+      setUnidadNombreSeleccionada("");
 
-    sessionStorage.removeItem("inventario_unidad_id");
-    sessionStorage.removeItem("inventario_unidad_nombre");
+      sessionStorage.removeItem("inventario_unidad_id");
+      sessionStorage.removeItem("inventario_unidad_nombre");
 
-    return;
-  }
+      return;
+    }
 
-  const unidad = localidadesDisponibles.find(
-    (item) => String(item.id) === String(idUnidad)
-  );
+    const unidad = localidadesDisponibles.find(
+      (item) => String(item.id) === String(idUnidad)
+    );
 
-  const nombreCompleto = unidad
-    ? `${restauranteActual?.nombre || ""} / ${unidad.nombre}`
-    : "";
+    const nombreCompleto = unidad
+      ? `${restauranteActual?.nombre || ""} / ${unidad.nombre}`
+      : "";
 
-  setUnidadSeleccionada(Number(idUnidad));
-  setUnidadNombreSeleccionada(nombreCompleto);
-  setBusqueda("");
+    setUnidadSeleccionada(Number(idUnidad));
+    setUnidadNombreSeleccionada(nombreCompleto);
+    setBusqueda("");
 
-  sessionStorage.setItem(
-    "inventario_unidad_id",
-    idUnidad
-  );
+    sessionStorage.setItem(
+      "inventario_unidad_id",
+      idUnidad
+    );
 
-  sessionStorage.setItem(
-    "inventario_unidad_nombre",
-    nombreCompleto
-  );
+    sessionStorage.setItem(
+      "inventario_unidad_nombre",
+      nombreCompleto
+    );
 
-  sessionStorage.removeItem("inventario_busqueda");
-};
+    sessionStorage.removeItem("inventario_busqueda");
+  };
   // NUEVO:
   // Limpia solamente los filtros secundarios.
-const limpiarFiltros = () => {
-  setRestauranteSeleccionado("");
-  setUnidadSeleccionada(null);
-  setUnidadNombreSeleccionada("");
-  setBusqueda("");
+  const limpiarFiltros = () => {
+    setRestauranteSeleccionado("");
+    setUnidadSeleccionada(null);
+    setUnidadNombreSeleccionada("");
+    setBusqueda("");
 
-  setFiltros({
-    tipoEquipo: "",
-    marca: "",
-    estatus: "",
-    estadoFisico: "",
-    responsiva: ""
-  });
+    setFiltros({
+      tipoEquipo: "",
+      marca: "",
+      estatus: "",
+      estadoFisico: "",
+      responsiva: ""
+    });
 
-  sessionStorage.removeItem("inventario_restaurante_id");
-  sessionStorage.removeItem("inventario_unidad_id");
-  sessionStorage.removeItem("inventario_unidad_nombre");
-  sessionStorage.removeItem("inventario_busqueda");
-  sessionStorage.removeItem("inventario_filtros");
+    sessionStorage.removeItem("inventario_restaurante_id");
+    sessionStorage.removeItem("inventario_unidad_id");
+    sessionStorage.removeItem("inventario_unidad_nombre");
+    sessionStorage.removeItem("inventario_busqueda");
+    sessionStorage.removeItem("inventario_filtros");
 
-  setPaginaActual(1);
-};
+    setPaginaActual(1);
+  };
 
   const limpiarFiltrosSecundarios = () => {
     const filtrosVacios = {
@@ -439,7 +439,7 @@ const limpiarFiltros = () => {
     setEquipoEditar(null);
   };
 
-  const manejarGuardado = async()=> {
+  const manejarGuardado = async () => {
     cerrarFormulario();
     await cargarInventario(unidadSeleccionada);
   };
@@ -467,7 +467,7 @@ const limpiarFiltros = () => {
 
       toast.error(
         error.response?.data?.error ||
-          "Error eliminando equipo"
+        "Error eliminando equipo"
       );
     }
   };
@@ -491,14 +491,14 @@ const limpiarFiltros = () => {
 
       const nombreArchivo = unidadNombreSeleccionada
         ? `Inventario_${unidadNombreSeleccionada.replaceAll(
-            " / ",
-            "_"
-          )}.xlsx`
+          " / ",
+          "_"
+        )}.xlsx`
         : restauranteActual?.nombre
           ? `Inventario_${restauranteActual.nombre.replaceAll(
-              " ",
-              "_"
-            )}.xlsx`
+            " ",
+            "_"
+          )}.xlsx`
           : "Inventario_General.xlsx";
 
       link.download = nombreArchivo;
@@ -534,121 +534,120 @@ const limpiarFiltros = () => {
   return (
     <div className="contenedor">
       <div className="card-user">
-      <div className="header-user">
-        <div>
-          <h1>Inventario</h1>
-          <p>Administración de equipos registrados.</p>
-        </div>
+        <div className="header-user">
+          <div>
+            <h1>Inventario</h1>
+            <p>Administración de equipos registrados.</p>
+          </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            alignItems: "center",
-            flexWrap: "wrap"
-          }}
-        >
-       {puedeExportar && (
-  
-    <button
-        type="button"
-        className="btn-export"
-        onClick={descargarExcel}
-    >
-      <FileUp className="file-icon"/>
-       Exportar Excel
-    </button>
-)}
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+              flexWrap: "wrap"
+            }}
+          >
+            {puedeExportar && (
 
-          {puedeCrear && (
-            <button type="button" onClick={irAgregar}>
-              + Agregar equipo
-            </button>
-          )}
+              <button
+                type="button"
+                className="btn-export"
+                onClick={descargarExcel}
+              >
+                <FileUp className="file-icon" />
+                Exportar Excel
+              </button>
+            )}
+
+            {puedeCrear && (
+              <button type="button" onClick={irAgregar}>
+                + Agregar equipo
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-</div> <br></br>
+      </div> <br></br>
       <div className="card">
-<div className="toolbar">
+        <div className="toolbar">
 
-  <div className="toolbar-header">
-    <h2>Equipos</h2>
-    <p>
-      {puedeEditar
-        ? "Consulta, actualiza o elimina registros del inventario."
-        : "Consulta de registros del inventario."}
-    </p>
-  </div>
+          <div className="toolbar-header">
+            <h2>Equipos</h2>
+            <p>
+              {puedeEditar
+                ? "Consulta, actualiza o elimina registros del inventario."
+                : "Consulta de registros del inventario."}
+            </p>
+          </div>
 
-  <div className="toolbar-search">
-    <input
-      className="search-input"
-      placeholder="Buscar por equipo, serial, marca, IP, responsiva..."
-      value={busqueda}
-      onChange={(event) => {
-        const valor = event.target.value;
-        setBusqueda(valor);
-        sessionStorage.setItem("inventario_busqueda", valor);
-      }}
+          <div className="toolbar-search">
+            <input
+              className="search-input"
+              placeholder="Buscar por equipo, serial, marca, IP, responsiva..."
+              value={busqueda}
+              onChange={(event) => {
+                const valor = event.target.value;
+                setBusqueda(valor);
+                sessionStorage.setItem("inventario_busqueda", valor);
+              }}
 
-    />    
+            />
 
-    <button
-      type="button"
-      onClick={() => setMostrarFiltros(prev => !prev)}
-      className={`btn-filtros ${mostrarFiltros ? "activo" : ""}`}
-    >
-      Filtros
+            <button
+              type="button"
+              onClick={() => setMostrarFiltros(prev => !prev)}
+              className={`btn-filtros ${mostrarFiltros ? "activo" : ""}`}
+            >
+              Filtros
 
-      {cantidadFiltrosActivos > 0 && (
-        <span className="badge-filtros">
-          {cantidadFiltrosActivos}
-        </span>
-      )}
-    </button>
-  </div>
+              {cantidadFiltrosActivos > 0 && (
+                <span className="badge-filtros">
+                  {cantidadFiltrosActivos}
+                </span>
+              )}
+            </button>
+          </div>
 
-</div>
+        </div>
 
         {/* NUEVO:
             Restaurante y localidad ahora viven dentro del panel.
             Ya no se renderiza InventarioTree ni tree-panel. */}
-<FiltrosModal
-  abierto={mostrarFiltros}
-  onCerrar={() => setMostrarFiltros(false)}
+        <FiltrosModal
+          abierto={mostrarFiltros}
+          onCerrar={() => setMostrarFiltros(false)}
 
-  onMostrarTodos={mostrarTodos}
-  onLimpiarFiltros={limpiarFiltros}
-  onLimpiarFiltrosSecundarios = {limpiarFiltrosSecundarios}
+          onMostrarTodos={mostrarTodos}
+          onLimpiarFiltros={limpiarFiltros}
+          onLimpiarFiltrosSecundarios={limpiarFiltrosSecundarios}
 
-  arbolUnidades={arbolUnidades}
+          arbolUnidades={arbolUnidades}
 
-  restauranteSeleccionado={restauranteSeleccionado}
-  unidadSeleccionada={unidadSeleccionada}
+          restauranteSeleccionado={restauranteSeleccionado}
+          unidadSeleccionada={unidadSeleccionada}
 
-  localidadesDisponibles={localidadesDisponibles}
+          localidadesDisponibles={localidadesDisponibles}
 
-  filtros={filtros}
-  setFiltros={setFiltros}
+          filtros={filtros}
+          setFiltros={setFiltros}
 
-  tiposEquipo={tiposEquipo}
-  marcas={marcas}
-  estatusDisponibles={estatusDisponibles}
-  estadosFisicos={estadosFisicos}
+          tiposEquipo={tiposEquipo}
+          marcas={marcas}
+          estatusDisponibles={estatusDisponibles}
+          estadosFisicos={estadosFisicos}
 
-  handleRestauranteChange={handleRestauranteChange}
-  handleLocalidadChange={handleLocalidadChange}
-/>
+          handleRestauranteChange={handleRestauranteChange}
+          handleLocalidadChange={handleLocalidadChange}
+        />
         <div className="table-container">
           <table>
             <thead>
               <tr>
-                <th>Restaurante</th>
-                <th>Localidad</th>
-                <th>Ubicación</th>
-                <th>Tipo equipo</th>
                 <th>Nombre equipo</th>
+                <th>Tipo equipo</th>
+                <th>Marca</th>
                 <th>Modelo</th>
+                <th>Serial</th>
                 {/* <th>IP</th> */}
                 <th>Estatus</th>
                 {/* <th>Responsiva</th> */}
@@ -659,12 +658,11 @@ const limpiarFiltros = () => {
             <tbody>
               {inventarioPaginado.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.UNIDAD}</td>
-                  <td>{item.LOCALIDAD}</td>
-                  <td>{item.UBICACION}</td>
-                  <td>{item.TIPO_EQUIPO}</td>
                   <td>{item.NOMBRE_EQUIPO}</td>
+                  <td>{item.TIPO_EQUIPO}</td>
+                  <td>{item.MARCA}</td>
                   <td>{item.MODELO}</td>
+                  <td>{item.SERIAL}</td>
                   {/* <td>{item.IP}</td> */}
 
                   <td>
@@ -678,7 +676,7 @@ const limpiarFiltros = () => {
                     </span>
                   </td>
 
-              {/*    <td>
+                  {/*    <td>
                     {item.RESPONSIVA_DIGITAL ? (
                       <span className="badge">
                         RESP-
@@ -693,18 +691,18 @@ const limpiarFiltros = () => {
                     )}
                   </td>*/}
 
-<td>
-  {/* NUEVO:
+                  <td>
+                    {/* NUEVO:
       Sustituye los tres botones por un menú contextual reutilizable. */}
-  <InventarioAccionesMenu
-    item={item}
-    puedeEditar={puedeEditar}
-    puedeEliminar={puedeEliminar}
-    onDetalle={irDetalle}
-    onEditar={irActualizar}
-    onEliminar={borrarEquipo}
-  />
-</td>
+                    <InventarioAccionesMenu
+                      item={item}
+                      puedeEditar={puedeEditar}
+                      puedeEliminar={puedeEliminar}
+                      onDetalle={irDetalle}
+                      onEditar={irActualizar}
+                      onEliminar={borrarEquipo}
+                    />
+                  </td>
                 </tr>
               ))}
 
@@ -721,73 +719,73 @@ const limpiarFiltros = () => {
           </table>
         </div>
       </div>
-    {/* NUEVO: barra de paginación */}
-<div className="inventario-paginacion">
-  <div className="inventario-paginacion-info">
-    {totalRegistros === 0
-      ? "0 registros"
-      : `${indiceInicial + 1}-${Math.min(
-          indiceFinal,
-          totalRegistros
-        )} de ${totalRegistros}`}
-  </div>
+      {/* NUEVO: barra de paginación */}
+      <div className="inventario-paginacion">
+        <div className="inventario-paginacion-info">
+          {totalRegistros === 0
+            ? "0 registros"
+            : `${indiceInicial + 1}-${Math.min(
+              indiceFinal,
+              totalRegistros
+            )} de ${totalRegistros}`}
+        </div>
 
-  <div className="inventario-paginacion-controles">
-    <label>
-      Registros por página:
-    </label>
+        <div className="inventario-paginacion-controles">
+          <label>
+            Registros por página:
+          </label>
 
-    <select
-      value={registrosPorPagina}
-      onChange={(e) =>
-        setRegistrosPorPagina(Number(e.target.value))
-      }
-    >
-      <option value={10}>10</option>
-      <option value={20}>20</option>
-      <option value={50}>50</option>
-      <option value={100}>100</option>
-    </select>
+          <select
+            value={registrosPorPagina}
+            onChange={(e) =>
+              setRegistrosPorPagina(Number(e.target.value))
+            }
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
 
-    <button
-      type="button"
-      onClick={() =>
-        setPaginaActual((prev) =>
-          Math.max(1, prev - 1)
-        )
-      }
-      disabled={paginaActual === 1}
-      aria-label="Página anterior"
-    >
-      ‹
-    </button>
+          <button
+            type="button"
+            onClick={() =>
+              setPaginaActual((prev) =>
+                Math.max(1, prev - 1)
+              )
+            }
+            disabled={paginaActual === 1}
+            aria-label="Página anterior"
+          >
+            ‹
+          </button>
 
-    <span>
-      Página {paginaActual} de {totalPaginas}
-    </span>
+          <span>
+            Página {paginaActual} de {totalPaginas}
+          </span>
 
-    <button
-      type="button"
-      onClick={() =>
-        setPaginaActual((prev) =>
-          Math.min(totalPaginas, prev + 1)
-        )
-      }
-      disabled={paginaActual === totalPaginas}
-      aria-label="Página siguiente"
-    >
-      ›
-    </button>
-  </div>
-</div>
-  {mostrarFormulario && (
-      <InventarioFormPage
-        id={equipoEditar}
-        setLoading={setLoading}
-        onClose={cerrarFormulario}
-        onSuccess={manejarGuardado}
-      />
-    )}
+          <button
+            type="button"
+            onClick={() =>
+              setPaginaActual((prev) =>
+                Math.min(totalPaginas, prev + 1)
+              )
+            }
+            disabled={paginaActual === totalPaginas}
+            aria-label="Página siguiente"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+      {mostrarFormulario && (
+        <InventarioFormPage
+          id={equipoEditar}
+          setLoading={setLoading}
+          onClose={cerrarFormulario}
+          onSuccess={manejarGuardado}
+        />
+      )}
     </div>
   );
 }

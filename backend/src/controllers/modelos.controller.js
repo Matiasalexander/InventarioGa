@@ -87,10 +87,16 @@ const crearModelo = async (req, res) => {
       message: "Modelo creado correctamente"
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Error creando modelo",
+    if (error.number === 2627 || error.number === 2601) {
+      return res.status(409).json({
+        message: "Ya existe un modelo con ese nombre"
+      });
+    }
+     res.status(500).json({
+      message: "Ya existe un modelo con ese nombre",
       error: error.message
     });
+
   }
 };
 
