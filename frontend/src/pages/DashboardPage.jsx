@@ -26,7 +26,7 @@ function DashboardPage({ setLoading }) {
   const [noMostrarNuevamente, setNoMostrarNuevamente] = useState(false);
 
   //modificar esta nota de versión cuando se quiera desplegar en producto y anotar los nuevos cambios
-  const VERSION_ACTUAL = "4.0.0";
+  const VERSION_ACTUAL = "4.0.1";
 
   const [dashboard, setDashboard] = useState({
     resumen: {},
