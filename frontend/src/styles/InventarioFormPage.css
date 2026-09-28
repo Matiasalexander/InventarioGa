@@ -227,6 +227,11 @@ button:disabled {
     z-index: -1;
 }
 
+.header-inv h2 {
+   color: #171a4d;
+   text-align: center;
+   margin-bottom: 20px;
+}
 /* Línea completada */
 .inventario-steps .step.active:not(:last-child)::after {
     background: #171a4d;
@@ -249,6 +254,9 @@ button:disabled {
 
     .campo-form {
         min-width: 0;
+    }
+    .comentario-text {
+        text-align: center;
     }
 
     .formulario-card input,

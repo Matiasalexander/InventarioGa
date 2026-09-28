@@ -20,6 +20,8 @@ function InventarioFormPage({
 }) {
   const esEdicion = Boolean(id);
 
+  const [sinSerial, setSinSerial] = useState(false);
+
   // =========================================================
   // CONFIGURACIÓN DEL WIZARD
   // =========================================================
@@ -758,17 +760,14 @@ function InventarioFormPage({
     return false;
   }
 
-    if (
-      !formulario.SERIAL?.trim()
-    ) {
-    mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Ingresa el número de serie."
-    );
-
-      return false;
-    }
+  if (!sinSerial && !formulario.SERIAL?.trim()) {
+  mostrarMensajeModal(
+    "warning",
+    "Datos incompletos",
+    "Ingresa el número de serie o marca que el equipo no tiene número de serie."
+  );
+  return false;
+}
 
     return true;
   };
@@ -1136,8 +1135,9 @@ const validarPaso3 = () => {
               "NA"
             : "NA",
 
-        SERIAL:
-          formulario.SERIAL,
+        SERIAL: sinSerial
+  ? null
+  : formulario.SERIAL?.trim() || null,
 
         FECHA_FABRICACION:
           formulario.FECHA_FABRICACION,
@@ -1271,7 +1271,9 @@ const validarPaso3 = () => {
       }
 
     } catch (error) {
-
+const mensaje =
+  error.response?.data?.message ||
+  "Ocurrió un error al guardar el equipo.";
       mostrarMensajeModal(
     "error",
     "Error al guardar",
@@ -1769,33 +1771,44 @@ const validarPaso3 = () => {
 
                 <div className="campo-form">
 
-                  <label>
-                    Número de serie
-                  </label>
-
+                  <label>Número de serie</label>
                   <input
-                    name="SERIAL"
-                    placeholder="Número de serie del equipo"
-                    value={
-                      formulario.SERIAL
-                    }
-                    onChange={
-                      manejarCambio
-                    }
+                  name="SERIAL"
+                  placeholder={
+                    sinSerial ? "El equipo no tiene número de serie" : "Número de serie del equipo"
+                  }
+                  value={sinSerial ? "" : formulario.SERIAL}
+                  onChange={manejarCambio}
+                  disabled={sinSerial}
                   />
 
-                  {errorSerial && (
+                  <label className="checkbox-serial">
+                 <input 
+  type="checkbox" 
+  checked={sinSerial} 
+  onChange={(e) => { 
+    const marcado = e.target.checked;
 
-                    <small
-                      style={{
-                        color: "red"
-                      }}
-                    >
+    setSinSerial(marcado);
+
+    if (marcado) { 
+      setFormulario((prev) => ({ 
+        ...prev, 
+        SERIAL: "" 
+      })); 
+
+      setErrorSerial(""); 
+    } 
+  }} 
+/>
+                  Este equipo no tiene numero de serie.
+                  </label>
+
+                  {errorSerial && !sinSerial && (
+                    <small style={{color: "red"}}>
                       {errorSerial}
                     </small>
-
                   )}
-
                 </div>
 
               </div>
@@ -2587,10 +2600,12 @@ const validarPaso3 = () => {
 
               <div className="responsiva-modal-body">
 
+                <div className="header-inv">
                 <h2>
                   Revisión del equipo
                 </h2>
-
+                </div>
+                <div></div>
                 <div className="responsiva-form-grid">
 
                   <div className="detalle-item">
@@ -2842,12 +2857,12 @@ const validarPaso3 = () => {
               ========================================= */}
 
               <div className="responsiva-modal-body">
-
+                <div className="header-inv">
                 <h2>
                   Foto y comentarios
                 </h2>
-
-                <div className="campo-form campo-foto">
+</div>
+                <div className="campo-form">
 
                   <label>
                     Foto
@@ -2885,6 +2900,7 @@ const validarPaso3 = () => {
 
                   <textarea
                     name="COMENTARIO"
+                    className="comentario-text"
                     placeholder="Observaciones generales"
                     value={
                       formulario.COMENTARIO
