@@ -103,33 +103,64 @@ position: fixed;
     flex-direction: column;
     overflow: hidden;
 }
-
 .modal-responsiva .modal-header {
-    padding: 20px 24px;
-    margin: 0;
-    border-bottom: 1px solid #e2e8f0;
-    flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 20px 24px;
+  margin: 0;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  flex-shrink: 0;
+
+  gap: 12px;
 }
 
 .modal-responsiva .modal-header h3 {
-    margin: 0;
-    color: #171a4d;
-    font-size: 22px;
-}
+  flex: 1;
+  min-width: 0;
 
-.modal-responsiva .modal-header p {
-    margin: 4px 0 0;
-    color: #64748b;
-    font-size: 13px;
+  margin: 0;
+
+  color: #171a4d;
+  font-size: 22px;
+  line-height: 1.3;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .modal-responsiva .btn-close {
-    width: auto;
-    padding: 4px 8px;
-    color: #475569;
-    border-radius: 6px;
+  flex: 0 0 36px;
+
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+  margin: 0;
+
+  box-sizing: border-box;
+
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+
+  cursor: pointer;
 }
 
+.modal-responsiva .btn-close svg {
+  width: 22px;
+  height: 22px;
+}
 .modal-responsiva .btn-close:hover {
     background: #f1f5f9;
     color: #171a4d;
@@ -1178,4 +1209,30 @@ position: fixed;
 
 .responsiva-step-line.completada {
     background: #171a4d;
+}
+
+@media (max-width: 480px) {
+
+  .modal-responsiva .modal-header {
+    padding: 14px 12px;
+    gap: 8px;
+  }
+
+  .modal-responsiva .modal-header h3 {
+    font-size: 17px;
+    line-height: 1.25;
+  }
+
+  .modal-responsiva .btn-close {
+    flex: 0 0 32px;
+
+    width: 32px;
+    height: 32px;
+  }
+
+  .modal-responsiva .btn-close svg {
+    width: 20px;
+    height: 20px;
+  }
+
 }

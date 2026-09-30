@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { createPortal } from "react-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { useAuth } from "../context/AuthContext";
-import { CircleArrowLeft, CircleArrowRight } from "lucide-react";
+import { CircleArrowLeft, CircleArrowRight, X } from "lucide-react";
 
 import {
   obtenerResponsivas,
@@ -953,7 +953,7 @@ function HistorialResponsivasPage({ setLoading }) {
                     className="btn-close"
                     onClick={cerrarEditar}
                   >
-                    ✕
+                   <X color="red"/>
                   </button>
                 </div>
 

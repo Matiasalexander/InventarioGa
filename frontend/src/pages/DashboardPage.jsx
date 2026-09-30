@@ -170,18 +170,6 @@ function DashboardPage({ setLoading }) {
 
       </div>
 
-      <div className="dashboard-section-title">
-
-        <div>
-          <h2>Resumen del inventario</h2>
-
-          <p>
-            Estado actual de los equipos registrados.
-          </p>
-        </div>
-
-      </div>
-
 
       <div className="dashboard-stats-grid">
 
