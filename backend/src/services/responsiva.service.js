@@ -269,7 +269,7 @@ const actualizarResponsiva = async (id, payload) => {
 };
 
 /*esta es la función para el permiso de firma de responsiva*/
-const autorizarFirma = async(id, permitir) => {
+const autorizarEdicionFirma = async(id, permitir) => {
   const pool = await poolPromise;
   const existe = await pool.request()
     .input("IdResponsiva", id)
@@ -641,6 +641,6 @@ module.exports = {
   marcarEquipoDevuelto,
   obtenerEquiposDisponibles,
   eliminarResponsiva,
-  autorizarFirma,
+  autorizarEdicionFirma,
   actualizarFirmaResponsiva
 };

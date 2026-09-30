@@ -81,11 +81,11 @@ export const eliminarResponsiva = async (id) => {
 };
 
 /*autorizar edición firma*/
-export const autorizarEdicionFirma = async(id, PermitirEdicionFirma) => {
+export const autorizarEdicionFirma = async(id, PermitirEditarFirma) => {
   const {data} = await api.put(
         `${ENDPOINTS.RESPONSIVA}/${id}/autorizar-firma`,
         {
-          PermitirEdicionFirma
+          PermitirEditarFirma
         }
   );
   return data;

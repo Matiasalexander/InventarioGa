@@ -20,7 +20,7 @@ const {
 const router = express.Router();
 
 router.put(
-  "/",
+  "/:id/autorizar-firma",
   verificarToken,
   verificarPermiso("responsivas.editar"),
   autorizarEdicionFirma
