@@ -268,6 +268,87 @@ const actualizarResponsiva = async (id, payload) => {
   };
 };
 
+/*esta es la función para el permiso de firma de responsiva*/
+const autorizarFirma = async(id, permitir) => {
+  const pool = await poolPromise;
+  const existe = await pool.request()
+    .input("IdResponsiva", id)
+    .query(`
+        SELECT IdResponsiva, PermitirEditarFirma FROM Responsivas WHERE IdResponsiva = @IdResponsiva`);
+      
+    if (existe.recordset.length === 0) {
+      lanzarError("Responsiva no encontrada", 404);
+    }
+
+    await pool.request()
+      .input("IdResponsiva", id)
+      .input("PermitirEditarFirma", permitir ? 1 : 0)
+      .query(`UPDATE Responsivas 
+        SET PermitirEditarFirma = @PermitirEditarFirma, 
+        FechaActualizacion = GETDATE()
+        WHERE IdResponsiva = @IdResponsiva`);
+      
+        return{
+          message: permitir ? "Edición de firma autorizada correctamente" : "Edición de firma desautorizada correctamente",
+          PermitirEditarFirma: permitir ? 1 : 0
+        };
+};
+
+/*Permitir guardar la girma*/
+const actualizarFirmaResponsiva = async (id, FirmaBase64) => {
+  if (!FirmaBase64 || !FirmaBase64.trim()) {
+    lanzarError("La firma es obligatoria");
+  }
+
+  const pool = await poolPromise;
+
+  const existe = await pool.request()
+    .input("IdResponsiva", id)
+    .query(`
+      SELECT
+        IdResponsiva,
+        PermitirEditarFirma
+      FROM Responsivas
+      WHERE IdResponsiva = @IdResponsiva
+    `);
+
+  if (existe.recordset.length === 0) {
+    lanzarError("Responsiva no encontrada", 404);
+  }
+
+  if (existe.recordset[0].PermitirEditarFirma !== 1) {
+    lanzarError(
+      "La edición de firma no está autorizada para esta responsiva",
+      403
+    );
+  }
+
+  const resultado = await pool.request()
+    .input("IdResponsiva", id)
+    .input("FirmaBase64", FirmaBase64)
+    .query(`
+      UPDATE Responsivas
+      SET
+        FirmaBase64 = @FirmaBase64,
+        PermitirEditarFirma = 0,
+        FechaActualizacion = GETDATE()
+      WHERE IdResponsiva = @IdResponsiva
+        AND PermitirEditarFirma = 1
+    `);
+
+  if (resultado.rowsAffected[0] === 0) {
+    lanzarError(
+      "La edición de firma ya no está autorizada para esta responsiva",
+      403
+    );
+  }
+
+  return {
+    message: "Firma actualizada correctamente",
+    PermitirEditarFirma: 0
+  };
+};
+
 const obtenerResponsivas = async () => {
   const pool = await poolPromise;
 
@@ -282,7 +363,9 @@ const obtenerResponsivas = async () => {
       Correo,
       CorreoCreador,
       Estado,
-      FechaCreacion
+      PermitirEditarFirma,
+      FechaCreacion,
+      FechaActualizacion
     FROM Responsivas
     ORDER BY IdResponsiva DESC
   `);
@@ -557,5 +640,7 @@ module.exports = {
   reenviarResponsivaCorreo,
   marcarEquipoDevuelto,
   obtenerEquiposDisponibles,
-  eliminarResponsiva
+  eliminarResponsiva,
+  autorizarFirma,
+  actualizarFirmaResponsiva
 };

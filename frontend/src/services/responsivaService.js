@@ -79,3 +79,28 @@ export const eliminarResponsiva = async (id) => {
   const { data } = await api.delete(`${ENDPOINTS.RESPONSIVA}/${id}`);
   return data;
 };
+
+/*autorizar edición firma*/
+export const autorizarEdicionFirma = async(id, PermitirEdicionFirma) => {
+  const {data} = await api.put(
+        `${ENDPOINTS.RESPONSIVA}/${id}/autorizar-firma`,
+        {
+          PermitirEdicionFirma
+        }
+  );
+  return data;
+};
+
+export const actualizarFirmaResponsiva = async (
+  id,
+  FirmaBase64
+) => {
+  const { data } = await api.put(
+    `${ENDPOINTS.RESPONSIVA}/${id}/firma`,
+    {
+      FirmaBase64
+    }
+  );
+
+  return data;
+};

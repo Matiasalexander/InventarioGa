@@ -35,6 +35,35 @@ const actualizarResponsiva = async (req, res) => {
   }
 };
 
+/*methods from service*/
+const autorizarEdicionFirma = async(req, res) => {
+  try {
+    const data = await responsivaService.autorizarEdicionFirma(
+      req.params.id,
+      req.body.PermitirEditarFirma
+    );
+    res.json(data);
+  } catch (error){
+    responderError(
+      res, error, "Error autorizando edición de firma"
+    );
+  }
+};
+
+/*Método para acutalizar firma responsiva*/
+const actualizarFirmaResponsiva = async(req, res) => {
+  try {
+    const data = await responsivaService.actualizarFirmaResponsiva(
+      req.params.id,
+      req.body.FirmaBase64
+    );
+
+    res.json(data);
+  } catch(error) {
+      responderError(res, error, "Error actualizando firma");
+  }
+};
+
 const obtenerResponsivas = async (req, res) => {
   try {
     const data = await responsivaService.obtenerResponsivas();
@@ -132,5 +161,7 @@ module.exports = {
   reenviarResponsivaCorreo,
   eliminarResponsiva,
   marcarEquipoDevuelto,
-  obtenerEquiposDisponibles
+  obtenerEquiposDisponibles,
+  autorizarEdicionFirma,
+  actualizarFirmaResponsiva
 };
