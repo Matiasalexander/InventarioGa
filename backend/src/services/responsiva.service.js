@@ -295,14 +295,18 @@ const autorizarEdicionFirma = async(id, permitir) => {
 };
 
 /*Permitir guardar la girma*/
-const actualizarFirmaResponsiva = async (id, FirmaBase64) => {
+const actualizarFirmaResponsiva = async (
+  id,
+  FirmaBase64
+) => {
   if (!FirmaBase64 || !FirmaBase64.trim()) {
     lanzarError("La firma es obligatoria");
   }
 
   const pool = await poolPromise;
 
-  const existe = await pool.request()
+  const existe = await pool
+    .request()
     .input("IdResponsiva", id)
     .query(`
       SELECT
@@ -313,17 +317,36 @@ const actualizarFirmaResponsiva = async (id, FirmaBase64) => {
     `);
 
   if (existe.recordset.length === 0) {
-    lanzarError("Responsiva no encontrada", 404);
+    lanzarError(
+      "Responsiva no encontrada",
+      404
+    );
   }
 
-  if (existe.recordset[0].PermitirEditarFirma !== 1) {
+  const permisoFirma =
+    Number(
+      existe.recordset[0].PermitirEditarFirma
+    ) === 1;
+/*
+  console.log(
+    "AUTORIZACIÓN FIRMA:",
+    {
+      IdResponsiva: id,
+      PermitirEditarFirma:
+        existe.recordset[0].PermitirEditarFirma,
+      permisoFirma
+    }
+  );*/
+
+  if (!permisoFirma) {
     lanzarError(
       "La edición de firma no está autorizada para esta responsiva",
       403
     );
   }
 
-  const resultado = await pool.request()
+  const resultado = await pool
+    .request()
     .input("IdResponsiva", id)
     .input("FirmaBase64", FirmaBase64)
     .query(`
@@ -348,7 +371,6 @@ const actualizarFirmaResponsiva = async (id, FirmaBase64) => {
     PermitirEditarFirma: 0
   };
 };
-
 const obtenerResponsivas = async () => {
   const pool = await poolPromise;
 

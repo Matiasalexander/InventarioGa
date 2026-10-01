@@ -33,14 +33,19 @@ function HistorialResponsivasPage({ setLoading }) {
 
   const navigate = useNavigate();
 
-  const { tienePermiso } = useAuth();
-
+const { tienePermiso, usuario } = useAuth();
 
   const puedeCrear = tienePermiso("responsivas.crear");
   const puedePDF = tienePermiso("responsivas.pdf");
   const puedeEditar = tienePermiso("responsivas.editar");
   const puedeDevolver = tienePermiso("responsivas.devolver");
   const puedeEditarFirma = tienePermiso("responsivas.firma");
+
+const esAdministrador =
+  Number(usuario?.IdRol) === 1;
+
+const esSistemas =
+  Number(usuario?.IdRol) === 2;
 
   const [responsivas, setResponsivas] = useState([]);
   const [detalle, setDetalle] = useState([]);
@@ -972,15 +977,6 @@ function HistorialResponsivasPage({ setLoading }) {
         autorizacionGuardada
       );
 
-      /*
-       * IMPORTANTE:
-       * No cerramos el modal.
-       *
-       * Si el administrador marcó el checkbox,
-       * el campo de firma aparecerá inmediatamente
-       * dentro de este mismo formulario.
-       */
-
       setEditandoFirma(false);
 
       toast.success(
@@ -1087,12 +1083,6 @@ function HistorialResponsivasPage({ setLoading }) {
       return;
     }
 
-    /*
-     * Validación adicional en frontend.
-     * La validación importante también existe
-     * en el backend.
-     */
-
     if (
       Number(
         editando.PermitirEditarFirma
@@ -1127,22 +1117,12 @@ function HistorialResponsivasPage({ setLoading }) {
           .getCanvas()
           .toDataURL("image/png");
 
-      /*
-       * El backend actualiza la firma y,
-       * automáticamente, pone:
-       *
-       * PermitirEditarFirma = 0
-       */
 
       await actualizarFirmaResponsiva(
         editando.IdResponsiva,
         nuevaFirma
       );
 
-      /*
-       * Volvemos a cargar la responsiva
-       * para obtener el estado real.
-       */
 
       const data =
         await obtenerResponsivaPorId(
@@ -1648,173 +1628,122 @@ function HistorialResponsivasPage({ setLoading }) {
 
             <div className="modal modal-responsiva-editar">
 
-              {modoModal === "editar" ? (
+            {modoModal === "editar" ? (
+  <>
+    <div className="modal-header">
+      <h3>
+        Editar Responsiva{" "}
+        {editando?.Folio ||
+          `RESP-${String(
+            editando?.IdResponsiva
+          ).padStart(5, "0")}`}
+      </h3>
 
-                <>
+      <button
+        className="btn-close"
+        onClick={cerrarEditar}
+      >
+        <X color="red" />
+      </button>
+    </div>
 
-                  <div className="modal-header">
+    <div className="responsiva-modal-body">
 
-                    <h3>
+      {/* =====================================
+          FORMULARIO PRINCIPAL
+          ===================================== */}
 
-                      Editar Responsiva{" "}
+      <div className="responsiva-form-grid">
 
-                      {editando?.Folio ||
-                        `RESP-${String(
-                          editando?.IdResponsiva
-                        ).padStart(5, "0")}`}
+        <div className="form-group">
+          <p>Fecha</p>
 
-                    </h3>
+          <input
+            type="date"
+            value={formEditar.Fecha}
+            disabled={esSistemas}
+            onChange={(e) =>
+              setFormEditar({
+                ...formEditar,
+                Fecha: e.target.value
+              })
+            }
+          />
+        </div>
 
-                    <button
-                      className="btn-close"
-                      onClick={cerrarEditar}
-                    >
-                      <X color="red" />
-                    </button>
+        <div className="form-group">
+          <p>Nombre receptor</p>
 
-                  </div>
+          <input
+            type="text"
+            value={formEditar.NombreReceptor}
+            disabled={esSistemas}
+            onChange={(e) =>
+              setFormEditar({
+                ...formEditar,
+                NombreReceptor: e.target.value
+              })
+            }
+          />
+        </div>
 
-                  <div className="responsiva-modal-body">
+        <div className="form-group">
+          <p>Puesto</p>
 
-                    {/* =====================================
-                        FORMULARIO PRINCIPAL
-                        ===================================== */}
+          <input
+            type="text"
+            value={formEditar.Puesto}
+            disabled={esSistemas}
+            onChange={(e) =>
+              setFormEditar({
+                ...formEditar,
+                Puesto: e.target.value
+              })
+            }
+          />
+        </div>
 
-                    <div className="responsiva-form-grid">
+        <div className="form-group">
+          <p>Área</p>
 
-                      <div className="form-group">
+          <input
+            type="text"
+            value={formEditar.Area}
+            disabled={esSistemas}
+            onChange={(e) =>
+              setFormEditar({
+                ...formEditar,
+                Area: e.target.value
+              })
+            }
+          />
+        </div>
 
-                        <p>
-                          Fecha
-                        </p>
+        <div className="form-group">
+          <p>Correo</p>
 
-                        <input
-                          type="date"
-                          value={
-                            formEditar.Fecha
-                          }
-                          disabled={
-                            !puedeEditar
-                          }
-                          onChange={(e) =>
-                            setFormEditar({
-                              ...formEditar,
-                              Fecha:
-                                e.target.value
-                            })
-                          }
-                        />
+          <input
+            type="email"
+            value={formEditar.Correo}
+            disabled={esSistemas}
+            onChange={(e) =>
+              setFormEditar({
+                ...formEditar,
+                Correo: e.target.value
+              })
+            }
+          />
+        </div>
 
-                      </div>
+      </div>
 
-                      <div className="form-group">
 
-                        <p>
-                          Nombre receptor
-                        </p>
+      {/* =====================================
+          AUTORIZACIÓN DE FIRMA
+          SOLO responsivas.editar
+          ===================================== */}
 
-                        <input
-                          type="text"
-                          value={
-                            formEditar.NombreReceptor
-                          }
-                          disabled={
-                            !puedeEditar
-                          }
-                          onChange={(e) =>
-                            setFormEditar({
-                              ...formEditar,
-                              NombreReceptor:
-                                e.target.value
-                            })
-                          }
-                        />
-
-                      </div>
-
-                      <div className="form-group">
-
-                        <p>
-                          Puesto
-                        </p>
-
-                        <input
-                          type="text"
-                          value={
-                            formEditar.Puesto
-                          }
-                          disabled={
-                            !puedeEditar
-                          }
-                          onChange={(e) =>
-                            setFormEditar({
-                              ...formEditar,
-                              Puesto:
-                                e.target.value
-                            })
-                          }
-                        />
-
-                      </div>
-
-                      <div className="form-group">
-
-                        <p>
-                          Área
-                        </p>
-
-                        <input
-                          type="text"
-                          value={
-                            formEditar.Area
-                          }
-                          disabled={
-                            !puedeEditar
-                          }
-                          onChange={(e) =>
-                            setFormEditar({
-                              ...formEditar,
-                              Area:
-                                e.target.value
-                            })
-                          }
-                        />
-
-                      </div>
-
-                      <div className="form-group">
-
-                        <p>
-                          Correo
-                        </p>
-
-                        <input
-                          type="email"
-                          value={
-                            formEditar.Correo
-                          }
-                          disabled={
-                            !puedeEditar
-                          }
-                          onChange={(e) =>
-                            setFormEditar({
-                              ...formEditar,
-                              Correo:
-                                e.target.value
-                            })
-                          }
-                        />
-
-                      </div>
-
-                    </div>
-
-                    {/* =====================================
-                        AUTORIZACIÓN DE FIRMA
-                        SOLO ADMINISTRADOR
-                        ===================================== */}
-
-                {puedeEditar && (
+ {esAdministrador && (
   <div className="firma-autorizacion">
     <label className="firma-autorizacion-checkbox">
       <input
@@ -1829,135 +1758,113 @@ function HistorialResponsivasPage({ setLoading }) {
         Permitir edición de firma
       </span>
     </label>
-
-    <p>
-      Al guardar, Sistemas podrá modificar
-      únicamente la firma de esta responsiva.
-    </p>
   </div>
 )}
 
-                    {puedeEditarFirma &&
-                      (
-                        permitirEditarFirma ||
-                        Number(editando?.PermitirEditarFirma) === 1
-                      ) && (
-                        <div className="firma-edicion-seccion">
+{puedeEditarFirma &&
+  Number(editando?.PermitirEditarFirma) === 1 && (
+    <div className="firma-edicion-seccion">
 
-                          <div className="firma-edicion-header">
-                            <div>
-                              <h4>Firma del receptor</h4>
+      <div className="firma-edicion-header">
+        <div>
+          <h4>Firma del receptor</h4>
 
-                              <span>
-                                Edición de firma autorizada
-                              </span>
-                            </div>
-                          </div>
+          <span>
+            Edición de firma autorizada
+          </span>
+        </div>
+      </div>
 
-                          {firmaBase64 && (
-                            <div className="firma-actual">
-                              <p>Firma actual:</p>
+      {firmaBase64 && (
+        <div className="firma-actual">
+          <p>Firma actual:</p>
 
-                              <img
-                                src={firmaBase64}
-                                alt="Firma actual"
-                              />
-                            </div>
-                          )}
+          <img
+            src={firmaBase64}
+            alt="Firma actual"
+          />
+        </div>
+      )}
 
-                          <div className="firma-canvas-container">
-                            <SignatureCanvas
-                              ref={firmaEdicionCanvas}
-                              penColor="black"
-                              canvasProps={{
-                                className: "firma-canvas"
-                              }}
-                            />
-                          </div>
+      <div className="firma-canvas-container">
+        <SignatureCanvas
+          ref={firmaEdicionCanvas}
+          penColor="black"
+          canvasProps={{
+            className: "firma-canvas"
+          }}
+        />
+      </div>
 
-                          <div className="firma-edicion-acciones">
+      <div className="firma-edicion-acciones">
 
-                            <button
-                              type="button"
-                              className="btn-limpiar-firma"
-                              onClick={() =>
-                                firmaEdicionCanvas.current?.clear()
-                              }
-                            >
-                              Limpiar firma
-                            </button>
+        <button
+          type="button"
+          className="btn-limpiar-firma"
+          onClick={() =>
+            firmaEdicionCanvas.current?.clear()
+          }
+        >
+          Limpiar firma
+        </button>
 
-                            <button
-                              type="button"
-                              className="btn-primario"
-                              onClick={guardarFirmaEditada}
-                            >
-                              Guardar firma
-                            </button>
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={guardarFirmaEditada}
+        >
+          Guardar firma
+        </button>
 
-                          </div>
+      </div>
 
-                        </div>
-                      )}
+    </div>
+  )}
 
-                    {puedeEditar &&
-                      permitirEditarFirma && (
+      {/* =====================================
+          INFORMACIÓN PARA ADMIN
+          ===================================== */}
 
-                        <div className="firma-info">
+      {puedeEditar &&
+        permitirEditarFirma && (
+<></>
 
-                          <strong>
-                            Edición de firma habilitada
-                          </strong>
+        )}
 
-                          <span>
-                            Guarda los cambios para que
-                            la autorización quede disponible
-                            para Sistemas.
-                          </span>
+    </div>
 
-                        </div>
 
-                      )}
+    {/* =====================================
+        FOOTER
+        ===================================== */}
 
-                  </div>
+    <div className="responsiva-modal-footer">
 
-                  {/* =====================================
-                      FOOTER EDICIÓN
-                      ===================================== */}
+   {esAdministrador && (
+  <button
+    type="button"
+    className="btn-primary"
+    onClick={guardarEdicion}
+  >
+    Guardar cambios
+  </button>
+)}
 
-                  <div className="responsiva-modal-footer">
+      <div className="footer-right">
 
-                    {puedeEditar && (
+        <button
+          type="button"
+          className="btn-cancelar"
+          onClick={cerrarEditar}
+        >
+          Cancelar
+        </button>
 
-                      <button
-                        className="btn-primary"
-                        onClick={
-                          guardarEdicion
-                        }
-                      >
-                        Guardar cambios
-                      </button>
+      </div>
 
-                    )}
-
-                    <div className="footer-right">
-
-                      <button
-                        className="btn-cancelar"
-                        onClick={
-                          cerrarEditar
-                        }
-                      >
-                        Cancelar
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                </>
-
-              ) : (
+    </div>
+  </>
+) :(
 
                 /* =====================================
                    MODAL DETALLE
