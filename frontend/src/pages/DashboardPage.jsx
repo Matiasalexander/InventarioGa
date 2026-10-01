@@ -632,14 +632,14 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se realizaron mejoras en el apartado de registro de equipo, modals y detalles de responsiva
+                    Se habilitó la posibilidad de editar firma por parte del administrador y del técnico. Así como nuevo diseño en el apartado correspondiente.
                   </p>
 
                 </div>
 
               </div>
 
-
+{/* 
               <div className="version-item">
 
                 <span className="version-item-icon">
@@ -685,7 +685,7 @@ function DashboardPage({ setLoading }) {
                 </div>
 
               </div>
-
+*/}
 
             </div>
 
