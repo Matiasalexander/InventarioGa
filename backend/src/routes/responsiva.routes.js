@@ -4,6 +4,8 @@ const { verificarPermiso } = require("../middleware/permisos.middleware");
 
 const {
   crearResponsiva,
+  autorizarEdicionFirma,
+  actualizarFirmaResponsiva,
   actualizarResponsiva,
   obtenerResponsivas,
   obtenerResponsivaPorId,
@@ -16,6 +18,20 @@ const {
 } = require("../controllers/responsiva.controller");
 
 const router = express.Router();
+
+router.put(
+  "/:id/autorizar-firma",
+  verificarToken,
+  verificarPermiso("responsivas.editar"),
+  autorizarEdicionFirma
+);
+
+router.put(
+  "/:id/firma",
+  verificarToken,
+  verificarPermiso("responsivas.firma"),
+  actualizarFirmaResponsiva
+);
 
 router.get(
   "/",

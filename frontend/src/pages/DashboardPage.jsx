@@ -26,7 +26,10 @@ function DashboardPage({ setLoading }) {
   const [noMostrarNuevamente, setNoMostrarNuevamente] = useState(false);
 
   //modificar esta nota de versión cuando se quiera desplegar en producto y anotar los nuevos cambios
+
   const VERSION_ACTUAL = "4.0.1";
+
+
 
   const [dashboard, setDashboard] = useState({
     resumen: {},
@@ -166,18 +169,6 @@ function DashboardPage({ setLoading }) {
               PANEL GENERAL
             </span>
 
-        </div>
-
-      </div>
-
-      <div className="dashboard-section-title">
-
-        <div>
-          <h2>Resumen del inventario</h2>
-
-          <p>
-            Estado actual de los equipos registrados.
-          </p>
         </div>
 
       </div>
