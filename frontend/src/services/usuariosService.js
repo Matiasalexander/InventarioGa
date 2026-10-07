@@ -79,3 +79,11 @@ export const actualizarUnidadesUsuario = async (
 
   return data;
 };
+
+export const obtenerMisUnidades = async () => {
+  const { data } = await api.get(
+    `${ENDPOINTS.USUARIOS}/mis-unidades`
+  );
+
+  return data;
+};

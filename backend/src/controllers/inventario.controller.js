@@ -416,7 +416,8 @@ const obtenerInventario = async (
         e.Estatus_equipo AS ESTATUS,
         i.ESTADO_FISICO,
         i.CORREO,
-        i.COMENTARIO
+        i.COMENTARIO,
+        i.RESPONSIVA_DIGITAL
 
       FROM INVENTARIO_M i
 
