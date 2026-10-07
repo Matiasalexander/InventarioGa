@@ -591,56 +591,60 @@ const esSistemas =
   };
 
   //----------------------------------
-  // FILTRO RESPONSIVAS
+  // FILTRO RESPONSIVAS --NUEVO
   //----------------------------------
 
-  const responsivasFiltradas = useMemo(() => {
+const responsivasFiltradas = useMemo(() => {
 
-    const texto = busqueda
-      .toLowerCase()
-      .trim();
+  const texto = busqueda
+    .trim()
+    .toLowerCase();
 
-    if (!texto) {
-      return responsivas;
-    }
+  if (!texto) {
+    return responsivas;
+  }
 
-    return responsivas.filter((item) => {
+  return responsivas.filter((item) => {
 
-      const folio = (
-        item.Folio ||
-        `RESP-${String(item.IdResponsiva).padStart(5, "0")}`
-      ).toLowerCase();
+    const folio =
+      item.Folio ||
+      `RESP-${String(
+        item.IdResponsiva
+      ).padStart(5, "0")}`;
 
-      const receptor =
-        String(item.NombreReceptor || "")
-          .toLowerCase();
+const valores = [
+  item.IdResponsiva,
+  item.Folio,
+  item.Fecha,
+  item.Correo,
+  item.NombreReceptor,
+  item.Puesto,
+  item.Area,
+  item.Estado,
+  item.CorreoCreador,
 
-      const area =
-        String(item.Area || "")
-          .toLowerCase();
+  // Equipos
+  item.Equipos,
+  item.Marcas,
+  item.Modelos,
+  item.Series
+];
 
-      const correo =
-        String(item.Correo || "")
-          .toLowerCase();
-
-      const puesto =
-        String(item.Puesto || "")
-          .toLowerCase();
-
-      return (
-        folio.includes(texto) ||
-        receptor.includes(texto) ||
-        area.includes(texto) ||
-        correo.includes(texto) ||
-        puesto.includes(texto)
+    return valores
+      .filter(
+        (valor) =>
+          valor !== null &&
+          valor !== undefined
+      )
+      .some((valor) =>
+        String(valor)
+          .toLowerCase()
+          .includes(texto)
       );
-    });
 
-  }, [busqueda, responsivas]);
+  });
 
-  //----------------------------------
-  // PAGINACIÓN
-  //----------------------------------
+}, [busqueda, responsivas]);
 
   const totalRegistros =
     responsivasFiltradas.length;
@@ -1389,7 +1393,7 @@ const esSistemas =
 
         <input
           className="search-input"
-          placeholder="Buscar por folio, receptor, puesto, área o correo..."
+          placeholder="Buscar por folio, receptor, puesto, área, correo, marca, modelo, serial..."
           value={busqueda}
           onChange={(event) =>
             setBusqueda(event.target.value)

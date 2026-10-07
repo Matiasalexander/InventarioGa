@@ -371,25 +371,75 @@ const actualizarFirmaResponsiva = async (
     PermitirEditarFirma: 0
   };
 };
+
 const obtenerResponsivas = async () => {
-  const pool = await poolPromise;
+  const pool = await poolPromise; //espera un pool de conexión
 
   const result = await pool.request().query(`
     SELECT
-      IdResponsiva,
-      CONCAT('RESP-', RIGHT('00000' + CAST(IdResponsiva AS VARCHAR(10)), 5)) AS Folio,
-      Fecha,
-      NombreReceptor,
-      Puesto,
-      Area,
-      Correo,
-      CorreoCreador,
-      Estado,
-      PermitirEditarFirma,
-      FechaCreacion,
-      FechaActualizacion
-    FROM Responsivas
-    ORDER BY IdResponsiva DESC
+      r.IdResponsiva,
+
+      CONCAT(
+        'RESP-',
+        RIGHT(
+          '00000' + CAST(r.IdResponsiva AS VARCHAR(10)),
+          5
+        )
+      ) AS Folio,
+--concatena el folio
+
+      r.Fecha,
+      r.NombreReceptor,
+      r.Puesto,
+      r.Area,
+      r.Correo,
+      r.CorreoCreador,
+      r.Estado,
+      r.PermitirEditarFirma,
+      r.FechaCreacion,
+      r.FechaActualizacion,
+
+      STRING_AGG(
+        rd.Descripcion,
+        ' | '
+      ) AS Equipos,
+
+      STRING_AGG(
+        rd.Marca,
+        ' | '
+      ) AS Marcas,
+
+      STRING_AGG(
+        rd.Modelo,
+        ' | '
+      ) AS Modelos,
+
+      STRING_AGG(
+        rd.NoSerie,
+        ' | '
+      ) AS Series
+
+    FROM Responsivas r
+
+    --join con la tabla responsiva_detalle
+    LEFT JOIN Responsiva_Detalle rd
+      ON rd.IdResponsiva = r.IdResponsiva
+
+    GROUP BY
+      r.IdResponsiva,
+      r.Fecha,
+      r.NombreReceptor,
+      r.Puesto,
+      r.Area,
+      r.Correo,
+      r.CorreoCreador,
+      r.Estado,
+      r.PermitirEditarFirma,
+      r.FechaCreacion,
+      r.FechaActualizacion
+
+    ORDER BY
+      r.IdResponsiva DESC
   `);
 
   return result.recordset;
