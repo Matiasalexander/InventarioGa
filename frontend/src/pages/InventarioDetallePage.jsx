@@ -337,9 +337,17 @@ const formatearFecha = (fecha) => {
                 <span>Estado</span>
 
                 <strong>
-                  Disponible
+                 {equipo.ESTATUS}
                 </strong>
-
+       {console.log(
+        "EQUIPO:",
+        equipo.id,
+        equipo.NOMBRE_EQUIPO,
+        "RESPONSIVA_DIGITAL:",
+        equipo.RESPONSIVA_DIGITAL,
+        "TIPO:",
+        typeof equipo.RESPONSIVA_DIGITAL
+      )}
               </div>
 
 

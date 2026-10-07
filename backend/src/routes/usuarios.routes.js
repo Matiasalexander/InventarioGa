@@ -4,6 +4,7 @@ const { verificarToken } = require("../middleware/auth.middleware");
 const { verificarPermiso } = require("../middleware/permisos.middleware");
 
 const {
+  obtenerMisUnidades,
   obtenerUsuarios,
   obtenerUsuarioPorId,
   crearUsuario,
@@ -22,7 +23,12 @@ router.get(
   verificarPermiso("usuarios.ver"),
   obtenerUsuarios
 );
-
+//consultar mis unidades
+router.get(
+  "/mis-unidades",
+  verificarToken,
+  obtenerMisUnidades
+);
 /*
   Consultar las unidades asignadas a un usuario.
 */

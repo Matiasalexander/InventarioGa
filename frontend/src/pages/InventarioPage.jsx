@@ -657,56 +657,64 @@ const limpiarFiltros = () => {
             </thead>
 
             <tbody>
-              {inventarioPaginado.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.UNIDAD}</td>
-                  <td>{item.LOCALIDAD}</td>
-                  <td>{item.UBICACION}</td>
-                  <td>{item.TIPO_EQUIPO}</td>
-                  <td>{item.NOMBRE_EQUIPO}</td>
-                  <td>{item.MODELO}</td>
-                  {/* <td>{item.IP}</td> */}
+              {inventarioPaginado.map((item) => {
+  const tieneResponsivaActiva =
+    Number(item.RESPONSIVA_DIGITAL) === 1 ||
+    item.RESPONSIVA_DIGITAL === true;
 
-                  <td>
-                    <span
-                      className={
-                        estados[item.ESTATUS] ||
-                        "badge badge-default"
-                      }
-                    >
-                      {item.ESTATUS || "Sin estatus"}
-                    </span>
-                  </td>
+  console.log(
+    "EQUIPO:",
+    item.id,
+    item.NOMBRE_EQUIPO,
+    "RESPONSIVA_DIGITAL:",
+    item.RESPONSIVA_DIGITAL,
+    "TIPO:",
+    typeof item.RESPONSIVA_DIGITAL,
+    "TIENE RESPONSIVA:",
+    tieneResponsivaActiva
+  );
 
-              {/*    <td>
-                    {item.RESPONSIVA_DIGITAL ? (
-                      <span className="badge">
-                        RESP-
-                        {String(
-                          item.NUM_RESPONSIVA || ""
-                        ).padStart(5, "0")}
-                      </span>
-                    ) : (
-                      <span className="badge">
-                        Disponible
-                      </span>
-                    )}
-                  </td>*/}
+  return (
+    <tr key={item.id}>
+      <td>{item.UNIDAD}</td>
 
-<td>
-  {/* NUEVO:
-      Sustituye los tres botones por un menú contextual reutilizable. */}
-  <InventarioAccionesMenu
-    item={item}
-    puedeEditar={puedeEditar}
-    puedeEliminar={puedeEliminar}
-    onDetalle={irDetalle}
-    onEditar={irActualizar}
-    onEliminar={borrarEquipo}
-  />
-</td>
-                </tr>
-              ))}
+      <td>{item.LOCALIDAD}</td>
+
+      <td>{item.UBICACION}</td>
+
+      <td>{item.TIPO_EQUIPO}</td>
+
+      <td>{item.NOMBRE_EQUIPO}</td>
+
+      <td>{item.MODELO}</td>
+
+      {/* <td>{item.IP}</td> */}
+
+      <td>
+        <span
+          className={
+            estados[item.ESTATUS] ||
+            "badge badge-default"
+          }
+        >
+          {item.ESTATUS || "Sin estatus"}
+        </span>
+      </td>
+
+      <td>
+        <InventarioAccionesMenu
+          item={item}
+          puedeEditar={puedeEditar}
+          puedeEliminar={puedeEliminar}
+          tieneResponsivaActiva={tieneResponsivaActiva}
+          onDetalle={irDetalle}
+          onEditar={irActualizar}
+          onEliminar={borrarEquipo}
+        />
+      </td>
+    </tr>
+  );
+})}
 
               {inventarioFiltrado.length === 0 && (
                 <tr>

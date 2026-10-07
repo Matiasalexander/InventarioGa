@@ -689,7 +689,75 @@ const actualizarUnidadesUsuario = async (req, res) => {
   }
 };
 
+const obtenerMisUnidades = async (req, res) => {
+  try {
+    const idUsuario = Number(req.usuario.IdUsuario);
+
+    if (!Number.isInteger(idUsuario) || idUsuario <= 0) {
+      return res.status(400).json({
+        message: "El usuario autenticado no es válido"
+      });
+    }
+
+    const pool = await poolPromise;
+
+    const usuarioResult = await pool.request()
+      .input("IdUsuario", sql.Int, idUsuario)
+      .query(`
+        SELECT
+          IdUsuario,
+          Nombre,
+          Correo,
+          VerTodasUnidades
+        FROM Usuarios
+        WHERE IdUsuario = @IdUsuario
+      `);
+
+    if (usuarioResult.recordset.length === 0) {
+      return res.status(404).json({
+        message: "Usuario no encontrado"
+      });
+    }
+
+    const unidadesResult = await pool.request()
+      .input("IdUsuario", sql.Int, idUsuario)
+      .query(`
+        SELECT
+          UN.id,
+          UN.id_marca,
+          UN.Ubicacion,
+          UN.Estado,
+          UU.FechaAsignacion
+        FROM Usuario_Unidades UU
+        INNER JOIN Unidades UN
+          ON UN.id = UU.IdUnidad
+        WHERE UU.IdUsuario = @IdUsuario
+        ORDER BY
+          UN.Ubicacion,
+          UN.id_marca
+      `);
+
+    return res.json({
+      usuario: usuarioResult.recordset[0],
+      unidades: unidadesResult.recordset
+    });
+
+  } catch (error) {
+    console.error(
+      "Error obteniendo mis unidades:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Error obteniendo las unidades del usuario",
+      error: error.message
+    });
+  }
+};
+
+
 module.exports = {
+  obtenerMisUnidades,
   obtenerUsuarios,
   obtenerUsuarioPorId,
   crearUsuario,

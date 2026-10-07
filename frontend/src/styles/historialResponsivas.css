@@ -551,7 +551,18 @@ position: fixed;
 .btn-limpiar-firma:hover {
     background: #f8fafc;
 }
-
+.equipo-accion-pendiente {
+     display: block;
+    width: 100%;
+    text-align: center;
+    padding: 10px 15px;
+    color: white;
+    background: #EF5D5D;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    box-sizing: border-box;
+}
 .equipo-accion-completada {
     display: block;
     width: 100%;

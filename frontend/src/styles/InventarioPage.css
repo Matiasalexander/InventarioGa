@@ -637,6 +637,14 @@ td button{
 .form-actions .btn-secondary:hover{
     background:#475569;
 }
+.acciones-menu-item-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.acciones-menu-item-disabled:hover {
+  background: transparent;
+}
 
 /*NO HABIA UN DETALLE GRID*/
 .detalle-grid {

@@ -10,6 +10,8 @@ import {
 
 import { obtenerCatalogos } from "../services/catalogosService";
 
+import { obtenerMisUnidades } from "../services/usuariosService";
+
 import "../styles/InventarioFormPage.css";
 
 function InventarioFormPage({
@@ -19,7 +21,7 @@ function InventarioFormPage({
   onSuccess
 }) {
   const esEdicion = Boolean(id);
-
+const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
   const [sinSerial, setSinSerial] = useState(false);
 
   // =========================================================
@@ -500,28 +502,43 @@ function InventarioFormPage({
   // =========================================================
 
   useEffect(() => {
-    const cargarDatos = async () => {
-      try {
+  const cargarDatos = async () => {
+  try {
+    const data = await cargarCatalogos();
 
-        const data =
-          await cargarCatalogos();
+    const dataUsuario = await obtenerMisUnidades();
 
-        await cargarEquipo(data);
+    if (dataUsuario?.usuario?.VerTodasUnidades) {
+      setRestaurantesPermitidos(data.restaurantes);
+    } else {
+      const idsRestaurantes = new Set(
+        (dataUsuario?.unidades || []).map(
+          unidad => String(unidad.id_marca)
+        )
+      );
 
-      } catch (error) {
-        console.error(
-          "Error cargando formulario:",
-          error
+      const restaurantesFiltrados =
+        data.restaurantes.filter(restaurante =>
+          idsRestaurantes.has(String(restaurante.Id))
         );
 
-        toast.error(
-          "Error cargando formulario"
-        );
+      setRestaurantesPermitidos(restaurantesFiltrados);
+    }
 
-      } finally {
-        setLoading(false);
-      }
-    };
+    await cargarEquipo(data);
+
+  } catch (error) {
+    console.error(
+      "Error cargando formulario:",
+      error
+    );
+
+    toast.error("Error cargando formulario");
+
+  } finally {
+    setLoading(false);
+  }
+};
 
     cargarDatos();
   }, [id]);
@@ -1510,32 +1527,24 @@ const mensaje =
                     Restaurante / marca
                   </label>
 
-                  <select
-                    name="ID_RESTAURANTE"
-                    value={
-                      formulario.ID_RESTAURANTE
-                    }
-                    onChange={
-                      manejarCambio
-                    }
-                  >
+            <select
+  name="ID_RESTAURANTE"
+  value={formulario.ID_RESTAURANTE}
+  onChange={manejarCambio}
+>
+  <option value="">
+    Selecciona restaurante
+  </option>
 
-                    <option value="">
-                      Selecciona restaurante
-                    </option>
-
-                    {catalogos.restaurantes.map(
-                      (item) => (
-                        <option
-                          key={item.Id}
-                          value={item.Id}
-                        >
-                          {item.Restaurante}
-                        </option>
-                      )
-                    )}
-
-                  </select>
+  {restaurantesPermitidos.map(item => (
+    <option
+      key={item.Id}
+      value={item.Id}
+    >
+      {item.Restaurante}
+    </option>
+  ))}
+</select>
 
                 </div>
 

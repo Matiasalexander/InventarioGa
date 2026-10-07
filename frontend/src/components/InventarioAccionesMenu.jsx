@@ -12,7 +12,8 @@ export default function InventarioAccionesMenu({
   puedeEliminar,
   onDetalle,
   onEditar,
-  onEliminar
+  onEliminar,
+  tieneResponsivaActiva,
 }) {
   const [abierto, setAbierto] = useState(false);
   const contenedorRef = useRef(null);
@@ -99,22 +100,34 @@ export default function InventarioAccionesMenu({
             </button>
           )}
 
-          {puedeEliminar && (
-            <>
-              <div className="acciones-menu-separador" />
+       {puedeEliminar && (
+  <>
+    <div className="acciones-menu-separador" />
 
-              <button
-                type="button"
-                className="acciones-menu-item acciones-menu-item-danger"
-                onClick={() =>
-                  ejecutarAccion(() => onEliminar(item.id))
-                }
-              >
-                <Trash2 className="icon-trash" size={16} />
-                Eliminar
-              </button>
-            </>
-          )}
+    <button
+      type="button"
+      className={`acciones-menu-item acciones-menu-item-danger ${
+        tieneResponsivaActiva
+          ? "acciones-menu-item-disabled"
+          : ""
+      }`}
+      disabled={tieneResponsivaActiva}
+      title={
+        tieneResponsivaActiva
+          ? "No se puede eliminar un equipo con una responsiva activa"
+          : "Eliminar equipo"
+      }
+      onClick={() => {
+        if (tieneResponsivaActiva) return;
+
+        ejecutarAccion(() => onEliminar(item.id));
+      }}
+    >
+      <Trash2 className="icon-trash" size={16} />
+      Eliminar
+    </button>
+  </>
+)}
         </div>
       )}
     </div>
