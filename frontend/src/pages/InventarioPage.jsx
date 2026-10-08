@@ -657,7 +657,9 @@ const limpiarFiltros = () => {
             </thead>
 
             <tbody>
-              {inventarioPaginado.map((item) => (
+              {inventarioPaginado.map((item) => {
+                const tieneResponsivaActiva = Number(item.RESPONSIVA_ACTIVA) === 1;
+                return(
                 <tr key={item.id}>
                   <td>{item.UNIDAD}</td>
                   <td>{item.LOCALIDAD}</td>
@@ -677,22 +679,15 @@ const limpiarFiltros = () => {
                       {item.ESTATUS || "Sin estatus"}
                     </span>
                   </td>
-
-              {/*    <td>
-                    {item.RESPONSIVA_DIGITAL ? (
-                      <span className="badge">
-                        RESP-
-                        {String(
-                          item.NUM_RESPONSIVA || ""
-                        ).padStart(5, "0")}
-                      </span>
-                    ) : (
-                      <span className="badge">
-                        Disponible
-                      </span>
-                    )}
-                  </td>*/}
-
+ {console.log(
+        "EQUIPO:",
+        item.id,
+        item.NOMBRE_EQUIPO,
+        "RESPONSIVA_DIGITAL:",
+        item.RESPONSIVA_DIGITAL,
+        "TIPO:",
+        typeof item.RESPONSIVA_DIGITAL
+      )}
 <td>
   {/* NUEVO:
       Sustituye los tres botones por un menú contextual reutilizable. */}
@@ -705,8 +700,8 @@ const limpiarFiltros = () => {
     onEliminar={borrarEquipo}
   />
 </td>
-                </tr>
-              ))}
+                </tr>);
+})}
 
               {inventarioFiltrado.length === 0 && (
                 <tr>

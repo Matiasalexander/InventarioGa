@@ -339,9 +339,10 @@ const esSistemas =
 
       const estatus = item.ESTATUS?.toLowerCase();
 
-      if (estatus !== "en uso") {
-        return false;
-      }
+     if (estatus !== "en uso" && estatus !== "disponible") {
+  return false;
+}
+
 
       if (!texto) {
         return true;
@@ -2457,6 +2458,8 @@ const valores = [
                                       "N/A"}
 
                                   </small>
+                                      
+                                    <small className="status-badge">{item.ESTATUS}</small>
 
                                 </div>
 
