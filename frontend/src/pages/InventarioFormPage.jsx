@@ -238,6 +238,8 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
   const esImpresora =
     Number(formulario.ID_TIPO_EQUIPO) === 3;
 
+    const esServidor = Number(formulario.ID_TIPO_EQUIPO) === 38;
+
   // =========================================================
   // MOSTRAR IP
   // =========================================================
@@ -248,7 +250,7 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
     esCCTV ||
     esTabletPOS ||
     esWorkstationpos ||
-    esKDS ||
+    esKDS || esServidor ||
     (
       esImpresora &&
       (
@@ -262,7 +264,7 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
   // MOSTRAR ACCESOS
   // =========================================================
 
-  const mostrarAccesos =
+  const mostrarAccesos = esLaptop || esDesktop || esServidor ||
     esPantallaPOS ||
     esWorkstationpos ||
     esTabletPOS ||
