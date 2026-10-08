@@ -339,7 +339,11 @@ const esSistemas =
 
       const estatus = item.ESTATUS?.toLowerCase();
 
+
+
+
      if (estatus !== "en uso" && estatus !== "disponible") {
+
   return false;
 }
 
@@ -362,9 +366,10 @@ const esSistemas =
             .toLowerCase()
             .includes(texto)
         );
-    });
+   } );
 
   }, [inventario, busquedaEquipo]);
+  
 
   //----------------------------------
   // GUARDAR NUEVA RESPONSIVA
@@ -2382,7 +2387,7 @@ const valores = [
                   <div className="responsiva-equipos-grid">
 
                     <div className="responsiva-panel">
-
+                  
                       <div className="responsiva-panel-header">
 
                         <div>
@@ -2473,6 +2478,17 @@ const valores = [
                                 >
                                   Agregar
                                 </button>
+
+
+                                <small>
+                                  Serie: {item.SERIAL || "N/A"}
+                                </small>
+                                
+                                <div className="badge-free">
+                                <small>
+                                 {item.ESTATUS}
+                                </small>
+                                </div>
 
                               </div>
 
