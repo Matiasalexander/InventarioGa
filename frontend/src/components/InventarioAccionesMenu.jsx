@@ -18,7 +18,12 @@ export default function InventarioAccionesMenu({
   const [abierto, setAbierto] = useState(false);
   const contenedorRef = useRef(null);
 
-  // NUEVO:
+  // Determina si el equipo tiene una responsiva activa.
+  // RESPONSIVA_DIGITAL puede llegar como string "1".
+  const responsivaActiva =
+    Number(item.RESPONSIVA_DIGITAL) === 1 ||
+    tieneResponsivaActiva === true;
+
   // Cierra el menú cuando se hace clic fuera.
   useEffect(() => {
     const manejarClickFuera = (event) => {
@@ -37,7 +42,6 @@ export default function InventarioAccionesMenu({
     };
   }, []);
 
-  // NUEVO:
   // Cierra el menú al presionar Escape.
   useEffect(() => {
     const manejarEscape = (event) => {
@@ -71,11 +75,17 @@ export default function InventarioAccionesMenu({
         aria-expanded={abierto}
         onClick={() => setAbierto((prev) => !prev)}
       >
-        <MoreVertical className="icon-more"  size={18} color="white"/>
+        <MoreVertical
+          className="icon-more"
+          size={18}
+          color="white"
+        />
       </button>
 
       {abierto && (
         <div className="acciones-menu-dropdown">
+
+          {/* VER DETALLES */}
           <button
             type="button"
             className="acciones-menu-item"
@@ -83,10 +93,14 @@ export default function InventarioAccionesMenu({
               ejecutarAccion(() => onDetalle(item.id))
             }
           >
-            <Eye className="icon-menu" size={16}/>
+            <Eye
+              className="icon-menu"
+              size={16}
+            />
             Ver detalles
           </button>
 
+          {/* EDITAR */}
           {puedeEditar && (
             <button
               type="button"
@@ -95,39 +109,52 @@ export default function InventarioAccionesMenu({
                 ejecutarAccion(() => onEditar(item.id))
               }
             >
-              <Pencil className="icon-p" size={16}/>
+              <Pencil
+                className="icon-p"
+                size={16}
+              />
               Editar
             </button>
           )}
 
-       {puedeEliminar && (
-  <>
-    <div className="acciones-menu-separador" />
+          {/* ELIMINAR */}
+          {puedeEliminar && (
+            <>
+              <div className="acciones-menu-separador" />
 
-    <button
-      type="button"
-      className={`acciones-menu-item acciones-menu-item-danger ${
-        tieneResponsivaActiva
-          ? "acciones-menu-item-disabled"
-          : ""
-      }`}
-      disabled={tieneResponsivaActiva}
-      title={
-        tieneResponsivaActiva
-          ? "No se puede eliminar un equipo con una responsiva activa"
-          : "Eliminar equipo"
-      }
-      onClick={() => {
-        if (tieneResponsivaActiva) return;
+              <button
+                type="button"
+                className={`acciones-menu-item acciones-menu-item-danger ${
+                  responsivaActiva
+                    ? "acciones-menu-item-disabled"
+                    : ""
+                }`}
+                disabled={responsivaActiva}
+                title={
+                  responsivaActiva
+                    ? "No se puede eliminar un equipo con una responsiva activa"
+                    : "Eliminar equipo"
+                }
+                onClick={() => {
+                  if (responsivaActiva) {
+                    return;
+                  }
 
-        ejecutarAccion(() => onEliminar(item.id));
-      }}
-    >
-      <Trash2 className="icon-trash" size={16} />
-      Eliminar
-    </button>
-  </>
-)}
+                  ejecutarAccion(() =>
+                    onEliminar(item.id)
+                  );
+                }}
+              >
+                <Trash2
+                  className="icon-trash"
+                  size={16}
+                />
+
+                Eliminar
+              </button>
+            </>
+          )}
+
         </div>
       )}
     </div>

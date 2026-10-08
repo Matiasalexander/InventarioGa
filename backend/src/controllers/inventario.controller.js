@@ -375,52 +375,63 @@ const obtenerInventario = async (
         : "";
 
     const result = await request.query(`
-      SELECT
-        i.id,
-        i.ID_UNIDAD,
-        r.Marca AS UNIDAD,
-        i.LOCALIDAD,
-        i.UBICACION,
-        i.ID_TIPO_EQUIPO,
-        te.tequipo AS TIPO_EQUIPO,
-        i.TIPO_IMPRESORA,
-        i.NOMBRE_EQUIPO,
-        i.ID_DEPARTAMENTO,
-        d.Nombre_departamento AS DEPARTAMENTO,
-        i.PUESTO,
-        i.SERIAL,
-        i.FECHA_FABRICACION,
-        i.FECHA_GARANTIA,
-        i.FECHA_INICIO,
-        i.Grestante,
-        i.Auso,
-        i.FECHA_REGISTRO,
-        i.ID_DISCO,
-        i.ID_RAM,
-        i.ID_PROCESADOR,
-        p.Nombre AS PROCESADOR,
-        i.MODELO_PROCESADOR,
+     SELECT
+  i.id,
+  i.ID_UNIDAD,
+  r.Marca AS UNIDAD,
+  i.LOCALIDAD,
+  i.UBICACION,
+  i.ID_TIPO_EQUIPO,
+  te.tequipo AS TIPO_EQUIPO,
+  i.TIPO_IMPRESORA,
+  i.NOMBRE_EQUIPO,
+  i.ID_DEPARTAMENTO,
+  d.Nombre_departamento AS DEPARTAMENTO,
+  i.PUESTO,
+  i.SERIAL,
+  i.FECHA_FABRICACION,
+  i.FECHA_GARANTIA,
+  i.FECHA_INICIO,
+  i.Grestante,
+  i.Auso,
+  i.FECHA_REGISTRO,
+  i.ID_DISCO,
+  i.ID_RAM,
+  i.ID_PROCESADOR,
+  p.Nombre AS PROCESADOR,
+  i.MODELO_PROCESADOR,
 
-        i.id_sistema_operativo AS ID_SISTEMA_OPERATIVO,
-        so.Nombre AS SISTEMA_OPERATIVO,
-        so.N_Version AS VERSION_SISTEMA_OPERATIVO,
+  i.id_sistema_operativo AS ID_SISTEMA_OPERATIVO,
+  so.Nombre AS SISTEMA_OPERATIVO,
+  so.N_Version AS VERSION_SISTEMA_OPERATIVO,
 
-        i.LECTOR_DE_HUELLA,
-        i.CONEXION,
-        i.ID_MARCA,
-        m.Marca AS MARCA,
-        i.MODELO,
-        i.IP,
-        i.PUERTO,
-        i.ID_ESTATUS,
-        e.Estatus_equipo AS ESTATUS,
-        i.ESTADO_FISICO,
-        i.CORREO,
-        i.COMENTARIO,
-        i.RESPONSIVA_DIGITAL
+  i.LECTOR_DE_HUELLA,
+  i.CONEXION,
+  i.ID_MARCA,
+  m.Marca AS MARCA,
+  i.MODELO,
+  i.IP,
+  i.PUERTO,
+  i.ID_ESTATUS,
+  e.Estatus_equipo AS ESTATUS,
+  i.ESTADO_FISICO,
+  i.CORREO,
+  i.COMENTARIO,
 
-      FROM INVENTARIO_M i
+  i.RESPONSIVA_DIGITAL,
 
+  CASE
+    WHEN EXISTS (
+      SELECT 1
+      FROM Responsiva_Detalle rd
+      WHERE rd.IdInventario = i.id
+        AND ISNULL(rd.Devuelto, 0) = 0
+    )
+    THEN 1
+    ELSE 0
+  END AS RESPONSIVA_ACTIVA
+
+FROM INVENTARIO_M i
       LEFT JOIN Unidades u
         ON i.ID_UNIDAD = u.id
 

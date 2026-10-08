@@ -339,7 +339,11 @@ const esSistemas =
 
       const estatus = item.ESTATUS?.toLowerCase();
 
+
  if (!["en uso", "disponible"].includes(estatus)) {
+
+     if (estatus !== "en uso" && estatus !== "disponible") {
+
   return false;
 }
 
@@ -362,9 +366,10 @@ const esSistemas =
             .toLowerCase()
             .includes(texto)
         );
-    });
+   } });
 
   }, [inventario, busquedaEquipo]);
+  
 
   //----------------------------------
   // GUARDAR NUEVA RESPONSIVA
@@ -2458,6 +2463,8 @@ const valores = [
                                       "N/A"}
 
                                   </small>
+                                      
+                                    <small className="status-badge">{item.ESTATUS}</small>
 
                                 </div>
 

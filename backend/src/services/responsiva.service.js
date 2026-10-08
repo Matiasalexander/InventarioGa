@@ -72,12 +72,7 @@ const fechaResponsiva = Fecha.substring(0, 10);
 const hoy = new Date();
 const fechaHoy = hoy.toISOString().substring(0, 10);
 
-if (fechaResponsiva > fechaHoy) {
-  lanzarError(
-    "La fecha de la responsiva no puede ser posterior a la fecha actual",
-    400
-  );
-}
+
 
   for (const equipo of equipos) {
     if (!equipo.IdInventario) continue;

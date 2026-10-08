@@ -655,56 +655,58 @@ function InventarioPage({ setLoading }) {
               </tr>
             </thead>
 
-            <tbody>
-              {inventarioPaginado.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.NOMBRE_EQUIPO}</td>
-                  <td>{item.TIPO_EQUIPO}</td>
-                  <td>{item.MARCA}</td>
-                  <td>{item.MODELO}</td>
-                  <td>{item.SERIAL}</td>
-                  {/* <td>{item.IP}</td> */}
+  <tbody>
+  {inventarioPaginado.map((item) => {
+    const tieneResponsivaActiva =
+      Number(item.RESPONSIVA_ACTIVA) === 1;
 
-                  <td>
-                    <span
-                      className={
-                        estados[item.ESTATUS] ||
-                        "badge badge-default"
-                      }
-                    >
-                      {item.ESTATUS || "Sin estatus"}
-                    </span>
-                  </td>
+    return (
+      <tr key={item.id}>
+        <td>{item.NOMBRE_EQUIPO}</td>
 
-                  {/*    <td>
-                    {item.RESPONSIVA_DIGITAL ? (
-                      <span className="badge">
-                        RESP-
-                        {String(
-                          item.NUM_RESPONSIVA || ""
-                        ).padStart(5, "0")}
-                      </span>
-                    ) : (
-                      <span className="badge">
-                        Disponible
-                      </span>
-                    )}
-                  </td>*/}
+        <td>{item.TIPO_EQUIPO}</td>
 
-                  <td>
-                    {/* NUEVO:
-      Sustituye los tres botones por un menú contextual reutilizable. */}
-                    <InventarioAccionesMenu
-                      item={item}
-                      puedeEditar={puedeEditar}
-                      puedeEliminar={puedeEliminar}
-                      onDetalle={irDetalle}
-                      onEditar={irActualizar}
-                      onEliminar={borrarEquipo}
-                    />
-                  </td>
-                </tr>
-              ))}
+        <td>{item.MARCA}</td>
+
+        <td>{item.MODELO}</td>
+
+        <td>{item.SERIAL}</td>
+
+        {/* <td>{item.IP}</td> */}
+
+        <td>
+          <span
+            className={
+              estados[item.ESTATUS] ||
+              "badge badge-default"
+            }
+          >
+            {item.ESTATUS || "Sin estatus"}
+          </span>
+        </td>
+
+        <td>
+          <InventarioAccionesMenu
+            item={item}
+            puedeEditar={puedeEditar}
+            puedeEliminar={puedeEliminar}
+            onDetalle={irDetalle}
+            onEditar={irActualizar}
+            onEliminar={borrarEquipo}
+          />
+        </td>
+      </tr>
+    );
+  })}
+
+  {inventarioFiltrado.length === 0 && (
+    <tr>
+      <td colSpan="7">
+        No hay equipos para mostrar.
+      </td>
+    </tr>
+  )}
+
 
               {inventarioFiltrado.length === 0 && (
                 <tr>
