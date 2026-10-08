@@ -971,28 +971,6 @@ const validarPaso3 = () => {
     }
 
     // -----------------------------------------
-    // ACCESOS
-    // -----------------------------------------
-
-    if (mostrarAccesos) {
-
-      if (
-        !formulario.ACCESO_TEAM_VIEWER ||
-        !formulario.CONTRASEÑA_TEAM_VIEWER?.trim() ||
-        !formulario.ACCESO_ANYDESK ||
-        !formulario.CONTRASEÑA_ANYDESK?.trim()
-      ) {
-           mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Completa los datos del acceso remoto."
-    );
-
-        return false;
-      }
-    }
-
-    // -----------------------------------------
     // ESTATUS
     // -----------------------------------------
 

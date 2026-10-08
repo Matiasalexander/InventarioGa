@@ -747,7 +747,7 @@ const formatearFecha = (fecha) => {
             ACCESOS REMOTOS
         ====================================== */}
 
-        {(esPantallaPOS ||
+        {(esPantallaPOS ||  esLaptop || esDesktop ||
           esWorkstationpos ||
           esTabletPOS) && (
 
