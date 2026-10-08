@@ -340,8 +340,6 @@ const esSistemas =
       const estatus = item.ESTATUS?.toLowerCase();
 
 
- if (!["en uso", "disponible"].includes(estatus)) {
-
      if (estatus !== "en uso" && estatus !== "disponible") {
 
   return false;
@@ -366,9 +364,8 @@ const esSistemas =
             .toLowerCase()
             .includes(texto)
         );
-   } });
-
-  }, [inventario, busquedaEquipo]);
+   } );
+  },[inventario, busquedaEquipo]);
   
 
   //----------------------------------
@@ -2463,9 +2460,12 @@ const valores = [
                                       "N/A"}
 
                                   </small>
-                                      
-                                    <small className="status-badge">{item.ESTATUS}</small>
-
+                                                                      
+                                <div className="badge-free">
+                                <small>
+                                 {item.ESTATUS}
+                                </small>
+                                </div>
                                 </div>
 
                                 <button
@@ -2480,15 +2480,6 @@ const valores = [
                                 </button>
 
 
-                                <small>
-                                  Serie: {item.SERIAL || "N/A"}
-                                </small>
-                                
-                                <div className="badge-free">
-                                <small>
-                                 {item.ESTATUS}
-                                </small>
-                                </div>
 
                               </div>
 
