@@ -147,6 +147,7 @@ const formatearFecha = (fecha) => {
 
   // Equipos con sistema operativo
 
+  const esServidor = Number(equipo.ID_TIPO_EQUIPO) == 38;
   const esLaptop =
     Number(equipo.ID_TIPO_EQUIPO) === 1;
 
@@ -747,7 +748,7 @@ const formatearFecha = (fecha) => {
             ACCESOS REMOTOS
         ====================================== */}
 
-        {(esPantallaPOS ||  esLaptop || esDesktop ||
+        {(esPantallaPOS ||  esLaptop || esDesktop || esServidor ||
           esWorkstationpos ||
           esTabletPOS) && (
 
