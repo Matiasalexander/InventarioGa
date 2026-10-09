@@ -530,6 +530,22 @@ function InventarioPage({ setLoading }) {
     Object.values(filtros).filter(Boolean).length +
     (restauranteSeleccionado ? 1 : 0) +
     (unidadSeleccionada ? 1 : 0);
+    
+//ESTO ES PARA UNICAMENTE VER LA COLUMNA SI NO ERES DE CORPORATIVO
+const normalizarTexto = (valor) =>
+  (valor || "")
+    .toString()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+
+const debeMostrarNuevaColumna = (item) => {
+  return (
+    normalizarTexto(item.UNIDAD) === "CELEBRATION KEY" &&
+    normalizarTexto(item.LOCALIDAD) === "FREEPORT"
+  );
+};
 
   return (
     <div className="contenedor">
@@ -651,6 +667,9 @@ function InventarioPage({ setLoading }) {
                 {/* <th>IP</th> */}
                 <th>Estatus</th>
                 {/* <th>Responsiva</th> */}
+                {inventarioPaginado.some(debeMostrarNuevaColumna) && (
+  <th>Codigo de unidad</th>
+)}
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -684,6 +703,14 @@ function InventarioPage({ setLoading }) {
             {item.ESTATUS || "Sin estatus"}
           </span>
         </td>
+
+        {inventarioPaginado.some(debeMostrarNuevaColumna) && (
+  <td>
+    {debeMostrarNuevaColumna(item)
+      ? item.CODIGO_UNIDAD || "—"
+      : ""}
+  </td>
+)}
 
         <td>
           <InventarioAccionesMenu

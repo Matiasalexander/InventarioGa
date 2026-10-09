@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "react-toastify";
-import MensajeModal  from "../components/MensajeModal";
+import MensajeModal from "../components/MensajeModal";
 import {
   crearInventario,
   actualizarInventario,
@@ -21,7 +21,7 @@ function InventarioFormPage({
   onSuccess
 }) {
   const esEdicion = Boolean(id);
-const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
+  const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
   const [sinSerial, setSinSerial] = useState(false);
 
   // =========================================================
@@ -103,6 +103,7 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
     ID_UNIDAD: "",
     LOCALIDAD: "",
     UBICACION: "",
+    CODIGO_UNIDAD: "",
 
     ID_TIPO_EQUIPO: "",
     NOMBRE_EQUIPO: "",
@@ -193,6 +194,11 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
       formulario.LOCALIDAD
     ) === "CANCUN";
 
+
+  const esCelebrationKeyFreeport =
+    normalizarTexto(restauranteSeleccionado?.Restaurante) ===
+    "CELEBRATION KEY" &&
+    normalizarTexto(formulario.LOCALIDAD) === "FREEPORT";
   // =========================================================
   // TIPOS DE EQUIPO
   // =========================================================
@@ -238,7 +244,7 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
   const esImpresora =
     Number(formulario.ID_TIPO_EQUIPO) === 3;
 
-    const esServidor = Number(formulario.ID_TIPO_EQUIPO) === 38;
+  const esServidor = Number(formulario.ID_TIPO_EQUIPO) === 38;
 
   // =========================================================
   // MOSTRAR IP
@@ -396,6 +402,7 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
 
       UBICACION:
         equipo.UBICACION || "",
+        CODIGO_UNIDAD: equipo.CODIGO_UNIDAD || "",
 
       ID_TIPO_EQUIPO:
         equipo.ID_TIPO_EQUIPO || "",
@@ -504,43 +511,43 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
   // =========================================================
 
   useEffect(() => {
-  const cargarDatos = async () => {
-  try {
-    const data = await cargarCatalogos();
+    const cargarDatos = async () => {
+      try {
+        const data = await cargarCatalogos();
 
-    const dataUsuario = await obtenerMisUnidades();
+        const dataUsuario = await obtenerMisUnidades();
 
-    if (dataUsuario?.usuario?.VerTodasUnidades) {
-      setRestaurantesPermitidos(data.restaurantes);
-    } else {
-      const idsRestaurantes = new Set(
-        (dataUsuario?.unidades || []).map(
-          unidad => String(unidad.id_marca)
-        )
-      );
+        if (dataUsuario?.usuario?.VerTodasUnidades) {
+          setRestaurantesPermitidos(data.restaurantes);
+        } else {
+          const idsRestaurantes = new Set(
+            (dataUsuario?.unidades || []).map(
+              unidad => String(unidad.id_marca)
+            )
+          );
 
-      const restaurantesFiltrados =
-        data.restaurantes.filter(restaurante =>
-          idsRestaurantes.has(String(restaurante.Id))
+          const restaurantesFiltrados =
+            data.restaurantes.filter(restaurante =>
+              idsRestaurantes.has(String(restaurante.Id))
+            );
+
+          setRestaurantesPermitidos(restaurantesFiltrados);
+        }
+
+        await cargarEquipo(data);
+
+      } catch (error) {
+        console.error(
+          "Error cargando formulario:",
+          error
         );
 
-      setRestaurantesPermitidos(restaurantesFiltrados);
-    }
+        toast.error("Error cargando formulario");
 
-    await cargarEquipo(data);
-
-  } catch (error) {
-    console.error(
-      "Error cargando formulario:",
-      error
-    );
-
-    toast.error("Error cargando formulario");
-
-  } finally {
-    setLoading(false);
-  }
-};
+      } finally {
+        setLoading(false);
+      }
+    };
 
     cargarDatos();
   }, [id]);
@@ -595,6 +602,7 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
 
         UBICACION:
           "",
+          CODIGO_UNIDAD: "",
 
         ID_DEPARTAMENTO:
           "",
@@ -632,6 +640,7 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
 
         UBICACION:
           "",
+          CODIGO_UNIDAD: "",
 
         ID_DEPARTAMENTO:
           "",
@@ -726,11 +735,11 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
     if (
       !formulario.ID_RESTAURANTE
     ) {
-   mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Selecciona el restaurante."
-    );
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Selecciona el restaurante."
+      );
 
       return false;
     }
@@ -740,13 +749,26 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
       !formulario.ID_UNIDAD
     ) {
       mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Selecciona la unidad."
-    );
+        "warning",
+        "Datos incompletos",
+        "Selecciona la unidad."
+      );
 
       return false;
     }
+    if (
+  esCelebrationKeyFreeport &&
+  !formulario.CODIGO_UNIDAD.trim()
+) {
+  mostrarMensajeModal(
+    "warning",
+    "Datos incompletos",
+    "Ingresa el código de la unidad."
+  );
+
+  return false;
+}
+
 
     return true;
   };
@@ -760,192 +782,192 @@ const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
     if (
       !formulario.ID_TIPO_EQUIPO
     ) {
-    mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Selecciona el tipo de equipo."
-    );
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Selecciona el tipo de equipo."
+      );
 
       return false;
     }
-    
-     if (!formulario.FECHA_FABRICACION) {
-    mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Ingresa la fecha de fabricación del equipo."
-    );
 
-    return false;
-  }
+    if (!formulario.FECHA_FABRICACION) {
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Ingresa la fecha de fabricación del equipo."
+      );
 
-  if (!sinSerial && !formulario.SERIAL?.trim()) {
-  mostrarMensajeModal(
-    "warning",
-    "Datos incompletos",
-    "Ingresa el número de serie o marca que el equipo no tiene número de serie."
-  );
-  return false;
-}
+      return false;
+    }
+
+    if (!sinSerial && !formulario.SERIAL?.trim()) {
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Ingresa el número de serie o marca que el equipo no tiene número de serie."
+      );
+      return false;
+    }
 
     return true;
   };
 
-// =========================================================
-// VALIDACIÓN PASO 3
-// =========================================================
+  // =========================================================
+  // VALIDACIÓN PASO 3
+  // =========================================================
 
-const validarPaso3 = () => {
+  const validarPaso3 = () => {
 
-  // -----------------------------------------
-  // FECHA DE GARANTÍA
-  // -----------------------------------------
+    // -----------------------------------------
+    // FECHA DE GARANTÍA
+    // -----------------------------------------
 
-  if (!formulario.FECHA_GARANTIA) {
-    mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Ingresa la fecha de garantía."
-    );
-
-    return false;
-  }
-
-  // -----------------------------------------
-  // MARCA
-  // -----------------------------------------
-
-  if (!formulario.ID_MARCA) {
-    mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Debes seleccionar la marca del equipo."
-    );
-
-    return false;
-  }
-
-  // -----------------------------------------
-  // MODELO
-  // -----------------------------------------
-
-  if (!formulario.MODELO) {
-     mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Debes seleccionar el modelo del equipo."
-    );
-
-    return false;
-  }
-
-  // -----------------------------------------
-  // EQUIPOS CON ESPECIFICACIONES
-  // -----------------------------------------
-
-  if (
-    esLaptop ||
-    esDesktop ||
-    esTablet ||
-    esTelefono ||
-    esTabletPOS ||
-    esWorkstationpos
-  ) {
-
-    if (!formulario.ID_SISTEMA_OPERATIVO) {
-        mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Debes seleccionar el sistema operativo."
-    );
-      return false;
-    }
-
-    if (!formulario.ID_RAM) {
-         mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Debes seleccionar la memoria Ram."
-    );
+    if (!formulario.FECHA_GARANTIA) {
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Ingresa la fecha de garantía."
+      );
 
       return false;
     }
 
-    if (!formulario.ID_DISCO) {
-        mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Debes seleccionar el tipo de disco duro"
-    );
+    // -----------------------------------------
+    // MARCA
+    // -----------------------------------------
+
+    if (!formulario.ID_MARCA) {
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Debes seleccionar la marca del equipo."
+      );
 
       return false;
     }
 
-    if (!formulario.ID_PROCESADOR) {
-         mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Debes seleccionar el procesador."
-    );
-      return false;
-    }
+    // -----------------------------------------
+    // MODELO
+    // -----------------------------------------
 
-    if (!formulario.MODELO_PROCESADOR) {
-        mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Debes seleccionar el modelo de procesador."
-    );
-
-      return false;
-    }
-  }
-
-  // -----------------------------------------
-  // IMPRESORAS
-  // -----------------------------------------
-
-  if (esImpresora) {
-
-    if (!formulario.TIPO_IMPRESORA) {
-        mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Selecciona el tipo de impresora."
-    );
+    if (!formulario.MODELO) {
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Debes seleccionar el modelo del equipo."
+      );
 
       return false;
     }
 
-    if (!formulario.CONEXION) {
-          mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Selecciona el tipo de conexión."
-    );
-
-      return false;
-    }
+    // -----------------------------------------
+    // EQUIPOS CON ESPECIFICACIONES
+    // -----------------------------------------
 
     if (
-      (
-        formulario.CONEXION === "Serial" ||
-        formulario.CONEXION === "Serial y Ethernet"
-      ) &&
-      !formulario.PUERTO?.trim()
+      esLaptop ||
+      esDesktop ||
+      esTablet ||
+      esTelefono ||
+      esTabletPOS ||
+      esWorkstationpos
     ) {
-         mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Ingresa el puerto de la impresora."
-    );
 
-      return false;
+      if (!formulario.ID_SISTEMA_OPERATIVO) {
+        mostrarMensajeModal(
+          "warning",
+          "Datos incompletos",
+          "Debes seleccionar el sistema operativo."
+        );
+        return false;
+      }
+
+      if (!formulario.ID_RAM) {
+        mostrarMensajeModal(
+          "warning",
+          "Datos incompletos",
+          "Debes seleccionar la memoria Ram."
+        );
+
+        return false;
+      }
+
+      if (!formulario.ID_DISCO) {
+        mostrarMensajeModal(
+          "warning",
+          "Datos incompletos",
+          "Debes seleccionar el tipo de disco duro"
+        );
+
+        return false;
+      }
+
+      if (!formulario.ID_PROCESADOR) {
+        mostrarMensajeModal(
+          "warning",
+          "Datos incompletos",
+          "Debes seleccionar el procesador."
+        );
+        return false;
+      }
+
+      if (!formulario.MODELO_PROCESADOR) {
+        mostrarMensajeModal(
+          "warning",
+          "Datos incompletos",
+          "Debes seleccionar el modelo de procesador."
+        );
+
+        return false;
+      }
     }
-  }
 
-  return true;
-};
+    // -----------------------------------------
+    // IMPRESORAS
+    // -----------------------------------------
+
+    if (esImpresora) {
+
+      if (!formulario.TIPO_IMPRESORA) {
+        mostrarMensajeModal(
+          "warning",
+          "Datos incompletos",
+          "Selecciona el tipo de impresora."
+        );
+
+        return false;
+      }
+
+      if (!formulario.CONEXION) {
+        mostrarMensajeModal(
+          "warning",
+          "Datos incompletos",
+          "Selecciona el tipo de conexión."
+        );
+
+        return false;
+      }
+
+      if (
+        (
+          formulario.CONEXION === "Serial" ||
+          formulario.CONEXION === "Serial y Ethernet"
+        ) &&
+        !formulario.PUERTO?.trim()
+      ) {
+        mostrarMensajeModal(
+          "warning",
+          "Datos incompletos",
+          "Ingresa el puerto de la impresora."
+        );
+
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   // =========================================================
   // VALIDACIÓN PASO 4
@@ -961,11 +983,11 @@ const validarPaso3 = () => {
       mostrarIP &&
       !formulario.IP?.trim()
     ) {
-       mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Ingresa la dirección IP."
-    );
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Ingresa la dirección IP."
+      );
 
       return false;
     }
@@ -977,11 +999,11 @@ const validarPaso3 = () => {
     if (
       !formulario.ID_ESTATUS
     ) {
-         mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Secciona el estatus del equipo."
-    );
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Secciona el estatus del equipo."
+      );
 
       return false;
     }
@@ -989,11 +1011,11 @@ const validarPaso3 = () => {
     if (
       !formulario.ESTADO_FISICO
     ) {
-       mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "Selecciona el estado físico del equipo."
-    );
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Selecciona el estado físico del equipo."
+      );
 
       return false;
     }
@@ -1008,11 +1030,11 @@ const validarPaso3 = () => {
   const validarPaso5 = () => {
 
     if (!correo?.trim()) {
-         mostrarMensajeModal(
-      "warning",
-      "Datos incompletos",
-      "No se encontró el correo del usuario."
-    );
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "No se encontró el correo del usuario."
+      );
 
       return false;
     }
@@ -1111,11 +1133,15 @@ const validarPaso3 = () => {
         LOCALIDAD:
           formulario.LOCALIDAD,
 
+          CODIGO_UNIDAD: esCelebrationKeyFreeport
+  ? formulario.CODIGO_UNIDAD.trim()
+  : null,
+
         UBICACION:
           esCorporativoCancun
             ? "NA"
             : formulario.UBICACION ||
-              "NA",
+            "NA",
 
         ID_TIPO_EQUIPO:
           formulario.ID_TIPO_EQUIPO,
@@ -1123,18 +1149,18 @@ const validarPaso3 = () => {
         ID_DEPARTAMENTO:
           esCorporativoCancun
             ? formulario.ID_DEPARTAMENTO ||
-              null
+            null
             : null,
 
         PUESTO:
           esCorporativoCancun
             ? formulario.PUESTO ||
-              "NA"
+            "NA"
             : "NA",
 
         SERIAL: sinSerial
-  ? null
-  : formulario.SERIAL?.trim() || null,
+          ? null
+          : formulario.SERIAL?.trim() || null,
 
         FECHA_FABRICACION:
           formulario.FECHA_FABRICACION,
@@ -1268,15 +1294,15 @@ const validarPaso3 = () => {
       }
 
     } catch (error) {
-const mensaje =
-  error.response?.data?.message ||
-  "Ocurrió un error al guardar el equipo.";
+      const mensaje =
+        error.response?.data?.message ||
+        "Ocurrió un error al guardar el equipo.";
       mostrarMensajeModal(
-    "error",
-    "Error al guardar",
-    error.response?.data?.message ||
-    "Ocurrió un error al guardar el equipo."
-  );
+        "error",
+        "Error al guardar",
+        error.response?.data?.message ||
+        "Ocurrió un error al guardar el equipo."
+      );
 
       if (
         mensaje
@@ -1291,7 +1317,7 @@ const mensaje =
       console.error(
         "Error guardando equipo:",
         error.response?.data ||
-          error
+        error
       );
 
       toast.error(
@@ -1356,69 +1382,69 @@ const mensaje =
   return createPortal(
 
     <div className="modal-overlay">
-   <MensajeModal
-      mostrar={mensajeModal.mostrar}
-      tipo={mensajeModal.tipo}
-      titulo={mensajeModal.titulo}
-      mensaje={mensajeModal.mensaje}
-      onCerrar={cerrarMensajeModal}
-    />
+      <MensajeModal
+        mostrar={mensajeModal.mostrar}
+        tipo={mensajeModal.tipo}
+        titulo={mensajeModal.titulo}
+        mensaje={mensajeModal.mensaje}
+        onCerrar={cerrarMensajeModal}
+      />
       <div className="modal modal-responsiva">
 
         {/* =================================================
             HEADER
         ================================================= */}
 
-     
-{/* =================================================
+
+        {/* =================================================
     HEADER
 ================================================= */}
-  <div className="modal-header-right">
+        <div className="modal-header-right">
 
-    <span>
-      Paso {pasoInventario} de {totalPasos}
-    </span>
+          <span>
+            Paso {pasoInventario} de {totalPasos}
+          </span>
 
-    <button
-      type="button"
-      className="btn-closer"
-      onClick={onClose}
-      aria-label="Cerrar formulario"
-      title="Cerrar"
-    >
-      ×
-    </button>
+          <button
+            type="button"
+            className="btn-closer"
+            onClick={onClose}
+            aria-label="Cerrar formulario"
+            title="Cerrar"
+          >
+            ×
+          </button>
 
-  </div>
-<div className="modal-header">
+        </div>
+        <div className="modal-header">
 
-  {/* Lado izquierdo: título y descripción */}
-  <div className="modal-header-left">
+          {/* Lado izquierdo: título y descripción */}
+          <div className="modal-header-left">
 
-    <h2>
-      {esEdicion
-        ? "Actualizar equipo"
-        : "Agregar equipo"}
-    </h2>
+            <h2>
+              {esEdicion
+                ? "Actualizar equipo"
+                : "Agregar equipo"}
+            </h2>
 
-    <p className="modal-header-descripcion">
-      {esEdicion
-        ? "Modifica los datos del equipo seleccionado."
-        : "Registra un nuevo equipo en el inventario."}
-    </p>
+            <p className="modal-header-descripcion">
+              {esEdicion
+                ? "Modifica los datos del equipo seleccionado."
+                : "Registra un nuevo equipo en el inventario."}
+            </p>
 
-    <div className="badge-comentario">
-      <p>
-        Los campos marcados con (*) son obligatorios
-      </p>
-    </div>
+            <div className="badge-comentario">
+              <p>
+                Los campos marcados con (*) son obligatorios
+              </p>
+            </div>
 
-  </div>
+          </div>
 
-  {/* Lado derecho: contador y botón de cerrar */}
+          {/* Lado derecho: contador y botón de cerrar */}
 
 
-</div>
+        </div>
 
         {/* =================================================
             PASOS
@@ -1433,7 +1459,7 @@ const mensaje =
                 : "step"
             }
           >
-            
+
             <span>1</span>
             <small>
               Ubicación
@@ -1500,7 +1526,7 @@ const mensaje =
 
         <form
           className="modal-body"
-          onSubmit={(e)=>e.preventDefault()}
+          onSubmit={(e) => e.preventDefault()}
         >
 
           {/* =================================================
@@ -1511,7 +1537,7 @@ const mensaje =
 
             <div className="inventario-step-content">
 
-                <div className="formulario-card">
+              <div className="formulario-card">
 
                 <h2>
                   Información general
@@ -1523,24 +1549,24 @@ const mensaje =
                     Restaurante / marca <strong>*</strong>
                   </label>
 
-            <select
-  name="ID_RESTAURANTE"
-  value={formulario.ID_RESTAURANTE}
-  onChange={manejarCambio}
->
-  <option value="">
-    Selecciona restaurante
-  </option>
+                  <select
+                    name="ID_RESTAURANTE"
+                    value={formulario.ID_RESTAURANTE}
+                    onChange={manejarCambio}
+                  >
+                    <option value="">
+                      Selecciona restaurante
+                    </option>
 
-  {restaurantesPermitidos.map(item => (
-    <option
-      key={item.Id}
-      value={item.Id}
-    >
-      {item.Restaurante}
-    </option>
-  ))}
-</select>
+                    {restaurantesPermitidos.map(item => (
+                      <option
+                        key={item.Id}
+                        value={item.Id}
+                      >
+                        {item.Restaurante}
+                      </option>
+                    ))}
+                  </select>
 
                 </div>
 
@@ -1581,29 +1607,47 @@ const mensaje =
                   </select>
 
                 </div>
+                
+{esCelebrationKeyFreeport ? (
+  <>
+    <div className="campo-form">
+      <label>
+        Código de unidad <strong>*</strong>
+      </label>
 
-                {!esCorporativoCancun && (
+      <input
+        name="CODIGO_UNIDAD"
+        placeholder="Ingresa el código de la unidad"
+        value={formulario.CODIGO_UNIDAD}
+        onChange={manejarCambio}
+      />
+    </div>
 
-                  <div className="campo-form">
+    <div className="campo-form">
+      <label>Ubicación interna</label>
 
-                    <label>
-                      Ubicación interna <strong>*</strong>
-                    </label>
+      <input
+        name="UBICACION"
+        placeholder="Área, oficina, almacén, caja, barra..."
+        value={formulario.UBICACION}
+        onChange={manejarCambio}
+      />
+    </div>
+  </>
+) : !esCorporativoCancun ? (
+  <div className="campo-form">
+    <label>
+      Ubicación interna <strong>*</strong>
+    </label>
 
-                    <input
-                      name="UBICACION"
-                      placeholder="Área, oficina, almacén, caja, barra..."
-                      value={
-                        formulario.UBICACION
-                      }
-                      onChange={
-                        manejarCambio
-                      }
-                    />
-
-                  </div>
-
-                )}
+    <input
+      name="UBICACION"
+      placeholder="Área, oficina, almacén, caja, barra..."
+      value={formulario.UBICACION}
+      onChange={manejarCambio}
+    />
+  </div>
+) : null}
 
                 {esCorporativoCancun && (
 
@@ -1671,7 +1715,7 @@ const mensaje =
 
               </div>
 
-</div>
+            </div>
           )}
 
           {/* =================================================
@@ -1778,39 +1822,39 @@ const mensaje =
 
                   <label>Número de serie</label>
                   <input
-                  name="SERIAL"
-                  placeholder={
-                    sinSerial ? "El equipo no tiene número de serie" : "Número de serie del equipo"
-                  }
-                  value={sinSerial ? "" : formulario.SERIAL}
-                  onChange={manejarCambio}
-                  disabled={sinSerial}
+                    name="SERIAL"
+                    placeholder={
+                      sinSerial ? "El equipo no tiene número de serie" : "Número de serie del equipo"
+                    }
+                    value={sinSerial ? "" : formulario.SERIAL}
+                    onChange={manejarCambio}
+                    disabled={sinSerial}
                   />
 
                   <label className="checkbox-serial">
-                 <input 
-  type="checkbox" 
-  checked={sinSerial} 
-  onChange={(e) => { 
-    const marcado = e.target.checked;
+                    <input
+                      type="checkbox"
+                      checked={sinSerial}
+                      onChange={(e) => {
+                        const marcado = e.target.checked;
 
-    setSinSerial(marcado);
+                        setSinSerial(marcado);
 
-    if (marcado) { 
-      setFormulario((prev) => ({ 
-        ...prev, 
-        SERIAL: "" 
-      })); 
+                        if (marcado) {
+                          setFormulario((prev) => ({
+                            ...prev,
+                            SERIAL: ""
+                          }));
 
-      setErrorSerial(""); 
-    } 
-  }} 
-/>
-                  Este equipo no tiene numero de serie.
+                          setErrorSerial("");
+                        }
+                      }}
+                    />
+                    Este equipo no tiene numero de serie.
                   </label>
 
                   {errorSerial && !sinSerial && (
-                    <small style={{color: "red"}}>
+                    <small style={{ color: "red" }}>
                       {errorSerial}
                     </small>
                   )}
@@ -1829,7 +1873,7 @@ const mensaje =
           {pasoInventario === 3 && (
 
             <div className="inventario-step-content">
-              
+
 
               <div className="formulario-card">
 
@@ -1934,213 +1978,213 @@ const mensaje =
                   esWorkstationpos
                 ) && (
 
-                  <>
+                    <>
 
-                    <div className="campo-form">
+                      <div className="campo-form">
 
-                      <label>
-                        Sistema operativo <strong>*</strong>
-                      </label>
+                        <label>
+                          Sistema operativo <strong>*</strong>
+                        </label>
 
-                      <select
-                        name="ID_SISTEMA_OPERATIVO"
-                        value={
-                          formulario.ID_SISTEMA_OPERATIVO ||
-                          ""
-                        }
-                              onChange={
-                      manejarCambio
-                    }
-                    disabled={
-                      esEdicion &&
-                      esCorporativoCancun
-                    }
-                      >
+                        <select
+                          name="ID_SISTEMA_OPERATIVO"
+                          value={
+                            formulario.ID_SISTEMA_OPERATIVO ||
+                            ""
+                          }
+                          onChange={
+                            manejarCambio
+                          }
+                          disabled={
+                            esEdicion &&
+                            esCorporativoCancun
+                          }
+                        >
 
-                        <option value="">
-                          Selecciona sistema operativo
-                        </option>
+                          <option value="">
+                            Selecciona sistema operativo
+                          </option>
 
-                        {(
-                          catalogos.sistemasOperativos ||
-                          []
-                        ).map(
-                          (item) => (
+                          {(
+                            catalogos.sistemasOperativos ||
+                            []
+                          ).map(
+                            (item) => (
 
-                            <option
-                              key={item.id}
-                              value={item.id}
-                            >
-                              {item.Nombre}
-                              {item.N_Version
-                                ? ` - ${item.N_Version}`
-                                : ""}
-                            </option>
+                              <option
+                                key={item.id}
+                                value={item.id}
+                              >
+                                {item.Nombre}
+                                {item.N_Version
+                                  ? ` - ${item.N_Version}`
+                                  : ""}
+                              </option>
 
-                          )
-                        )}
+                            )
+                          )}
 
-                      </select>
+                        </select>
 
-                    </div>
+                      </div>
 
-                    <div className="campo-form">
+                      <div className="campo-form">
 
-                      <label>
-                        Memoria RAM <strong>*</strong>
-                      </label>
+                        <label>
+                          Memoria RAM <strong>*</strong>
+                        </label>
 
-                      <select
-                        name="ID_RAM"
-                        value={
-                          formulario.ID_RAM
-                        }
-                        onChange={
-                          manejarCambio
-                        }
-                      >
+                        <select
+                          name="ID_RAM"
+                          value={
+                            formulario.ID_RAM
+                          }
+                          onChange={
+                            manejarCambio
+                          }
+                        >
 
-                        <option value="">
-                          Selecciona RAM
-                        </option>
+                          <option value="">
+                            Selecciona RAM
+                          </option>
 
-                        {catalogos.memoriasRam.map(
-                          (item) => (
+                          {catalogos.memoriasRam.map(
+                            (item) => (
 
-                            <option
-                              key={item.id}
-                              value={item.id}
-                            >
-                              {item.capacidad}
-                            </option>
+                              <option
+                                key={item.id}
+                                value={item.id}
+                              >
+                                {item.capacidad}
+                              </option>
 
-                          )
-                        )}
+                            )
+                          )}
 
-                      </select>
+                        </select>
 
-                    </div>
+                      </div>
 
-                    <div className="campo-form">
+                      <div className="campo-form">
 
-                      <label>
-                        Disco duro <strong>*</strong>
-                      </label>
+                        <label>
+                          Disco duro <strong>*</strong>
+                        </label>
 
-                      <select
-                        name="ID_DISCO"
-                        value={
-                          formulario.ID_DISCO
-                        }
-                        onChange={
-                          manejarCambio
-                        }
-                      >
+                        <select
+                          name="ID_DISCO"
+                          value={
+                            formulario.ID_DISCO
+                          }
+                          onChange={
+                            manejarCambio
+                          }
+                        >
 
-                        <option value="">
-                          Selecciona disco duro
-                        </option>
+                          <option value="">
+                            Selecciona disco duro
+                          </option>
 
-                        {catalogos.discoDuro.map(
-                          (item) => (
+                          {catalogos.discoDuro.map(
+                            (item) => (
 
-                            <option
-                              key={item.id}
-                              value={item.id}
-                            >
-                              {item.modelo_disco}
-                              {" - "}
-                              {item.capacidad}
-                            </option>
+                              <option
+                                key={item.id}
+                                value={item.id}
+                              >
+                                {item.modelo_disco}
+                                {" - "}
+                                {item.capacidad}
+                              </option>
 
-                          )
-                        )}
+                            )
+                          )}
 
-                      </select>
+                        </select>
 
-                    </div>
+                      </div>
 
-                    <div className="campo-form">
+                      <div className="campo-form">
 
-                      <label>
-                        Procesador <strong>*</strong>
-                      </label>
+                        <label>
+                          Procesador <strong>*</strong>
+                        </label>
 
-                      <select
-                        name="ID_PROCESADOR"
-                        value={
-                          formulario.ID_PROCESADOR
-                        }
-                        onChange={
-                          manejarCambio
-                        }
-                      >
+                        <select
+                          name="ID_PROCESADOR"
+                          value={
+                            formulario.ID_PROCESADOR
+                          }
+                          onChange={
+                            manejarCambio
+                          }
+                        >
 
-                        <option value="">
-                          Selecciona procesador
-                        </option>
+                          <option value="">
+                            Selecciona procesador
+                          </option>
 
-                        {catalogos.procesadores.map(
-                          (item) => (
+                          {catalogos.procesadores.map(
+                            (item) => (
 
-                            <option
-                              key={item.id}
-                              value={item.id}
-                            >
-                              {item.Nombre}
-                            </option>
+                              <option
+                                key={item.id}
+                                value={item.id}
+                              >
+                                {item.Nombre}
+                              </option>
 
-                          )
-                        )}
+                            )
+                          )}
 
-                      </select>
+                        </select>
 
-                    </div>
+                      </div>
 
-                    <div className="campo-form">
+                      <div className="campo-form">
 
-                      <label>
-                        Modelo de procesador <strong>*</strong>*
-                      </label>
+                        <label>
+                          Modelo de procesador <strong>*</strong>*
+                        </label>
 
-                      <select
-                        name="MODELO_PROCESADOR"
-                        value={
-                          formulario.MODELO_PROCESADOR ||
-                          ""
-                        }
-                        onChange={
-                          manejarCambio
-                        }
-                        disabled={
-                          !formulario.ID_PROCESADOR
-                        }
-                      >
+                        <select
+                          name="MODELO_PROCESADOR"
+                          value={
+                            formulario.MODELO_PROCESADOR ||
+                            ""
+                          }
+                          onChange={
+                            manejarCambio
+                          }
+                          disabled={
+                            !formulario.ID_PROCESADOR
+                          }
+                        >
 
-                        <option value="">
-                          Selecciona modelo de procesador
-                        </option>
+                          <option value="">
+                            Selecciona modelo de procesador
+                          </option>
 
-                        {modelosProcesadorFiltrados.map(
-                          (item) => (
+                          {modelosProcesadorFiltrados.map(
+                            (item) => (
 
-                            <option
-                              key={item.Id}
-                              value={item.Modelo}
-                            >
-                              {item.Modelo}
-                            </option>
+                              <option
+                                key={item.Id}
+                                value={item.Modelo}
+                              >
+                                {item.Modelo}
+                              </option>
 
-                          )
-                        )}
+                            )
+                          )}
 
-                      </select>
+                        </select>
 
-                    </div>
+                      </div>
 
-                  </>
+                    </>
 
-                )}
+                  )}
 
                 {/* =========================================
                     IMPRESORA
@@ -2228,31 +2272,31 @@ const mensaje =
 
                     {(
                       formulario.CONEXION ===
-                        "Serial" ||
+                      "Serial" ||
                       formulario.CONEXION ===
-                        "Serial y Ethernet"
+                      "Serial y Ethernet"
                     ) && (
 
-                      <div className="campo-form">
+                        <div className="campo-form">
 
-                        <label>
-                          Puerto
-                        </label>
+                          <label>
+                            Puerto
+                          </label>
 
-                        <input
-                          name="PUERTO"
-                          placeholder="Puerto"
-                          value={
-                            formulario.PUERTO
-                          }
-                          onChange={
-                            manejarCambio
-                          }
-                        />
+                          <input
+                            name="PUERTO"
+                            placeholder="Puerto"
+                            value={
+                              formulario.PUERTO
+                            }
+                            onChange={
+                              manejarCambio
+                            }
+                          />
 
-                      </div>
+                        </div>
 
-                    )}
+                      )}
 
                   </>
 
@@ -2610,9 +2654,9 @@ const mensaje =
               <div className="responsiva-modal-body">
 
                 <div className="header-inv">
-                <h2>
-                  Revisión del equipo
-                </h2>
+                  <h2>
+                    Revisión del equipo
+                  </h2>
                 </div>
                 <div></div>
                 <div className="responsiva-form-grid">
@@ -2656,9 +2700,9 @@ const mensaje =
                     <strong>
                       {esCorporativoCancun
                         ? formulario.PUESTO ||
-                          "—"
+                        "—"
                         : formulario.UBICACION ||
-                          "—"}
+                        "—"}
                     </strong>
 
                   </div>
@@ -2857,72 +2901,72 @@ const mensaje =
                     </strong>
 
                   </div>
-                  
+
 
                 </div>
 
-              {/* =========================================
+                {/* =========================================
                   FOTO Y COMENTARIO
               ========================================= */}
 
-              <div className="responsiva-modal-body">
-                <div className="header-inv">
-                <h2>
-                  Foto y comentarios
-                </h2>
-</div>
-                <div className="campo-form">
+                <div className="responsiva-modal-body">
+                  <div className="header-inv">
+                    <h2>
+                      Foto y comentarios
+                    </h2>
+                  </div>
+                  <div className="campo-form">
 
-                  <label>
-                    Foto
-                  </label>
+                    <label>
+                      Foto
+                    </label>
 
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={
-                      manejarFoto
-                    }
-                  />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={
+                        manejarFoto
+                      }
+                    />
 
-                  {preview && (
+                    {preview && (
 
-                    <div className="preview-foto">
+                      <div className="preview-foto">
 
-                      <img
-                        src={preview}
-                        alt="Vista previa"
-                      />
+                        <img
+                          src={preview}
+                          alt="Vista previa"
+                        />
 
-                    </div>
+                      </div>
 
-                  )}
+                    )}
+
+                  </div>
+
+                  <div className="campo-form">
+
+                    <label>
+                      Comentario
+                    </label>
+
+                    <textarea
+                      name="COMENTARIO"
+                      className="comentario-text"
+                      placeholder="Observaciones generales"
+                      value={
+                        formulario.COMENTARIO
+                      }
+                      onChange={
+                        manejarCambio
+                      }
+                      rows={4}
+                    />
+
+                  </div>
 
                 </div>
-
-                <div className="campo-form">
-
-                  <label>
-                    Comentario
-                  </label>
-
-                  <textarea
-                    name="COMENTARIO"
-                    className="comentario-text"
-                    placeholder="Observaciones generales"
-                    value={
-                      formulario.COMENTARIO
-                    }
-                    onChange={
-                      manejarCambio
-                    }
-                    rows={4}
-                  />
-
-                </div>
-
-              </div>
               </div>
 
 
@@ -2937,54 +2981,54 @@ const mensaje =
           <div className="responsiva-modal-footer">
 
             <div className="footer-right">
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={
-                pasoAnterior
-              }
-              disabled={
-                pasoInventario === 1
-              }
-            >
-              Anterior
-            </button>
-
-            <button
-              type="button"
-              className="btn-cancelar"
-              onClick={onClose}
-            >
-              Cancelar
-            </button>
-
-            {pasoInventario <
-            totalPasos ? (
-
               <button
                 type="button"
                 className="btn-primary"
                 onClick={
-                  siguientePaso
+                  pasoAnterior
+                }
+                disabled={
+                  pasoInventario === 1
                 }
               >
-                Siguiente
+                Anterior
               </button>
-
-            ) : (
 
               <button
-                type="submit"
-                className="btn-primary"
-                onClick={guardarEquipo}
+                type="button"
+                className="btn-cancelar"
+                onClick={onClose}
               >
-                {esEdicion
-                  ? "Actualizar equipo"
-                  : "Guardar equipo"}
+                Cancelar
               </button>
 
-            )}
-</div>
+              {pasoInventario <
+                totalPasos ? (
+
+                <button
+                  type="button"
+                  className="btn-primary"
+                  onClick={
+                    siguientePaso
+                  }
+                >
+                  Siguiente
+                </button>
+
+              ) : (
+
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  onClick={guardarEquipo}
+                >
+                  {esEdicion
+                    ? "Actualizar equipo"
+                    : "Guardar equipo"}
+                </button>
+
+              )}
+            </div>
           </div>
 
         </form>
