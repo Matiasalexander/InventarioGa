@@ -157,6 +157,7 @@ function InventarioPage({ setLoading }) {
           item.UNIDAD,
           item.LOCALIDAD,
           item.UBICACION,
+          item.CODIGO_UNIDAD,
           item.TIPO_EQUIPO,
           item.NOMBRE_EQUIPO,
           item.SERIAL,
