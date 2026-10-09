@@ -1,11 +1,34 @@
 .modal-header-right span {
   margin-right: 20px;
 }
+.modal-header {
+    margin: none;
+}
+.badge-comentario {
+
+    width: fit-content;
+    border-radius: 12px;
+}
+.badge-comentario p {
+    font-size: 12px;
+    margin: 12px;
+}
 
 .modal-header h2 {
   color: #171a4d;
 }
+.btn-closer {
+        color: black;
+    border:none;
+    background:none;
+    font-size:22px;
+    cursor:pointer;
+}
 
+.btn-closer:hover {
+    background: #f1f5f9;
+    color: #171a4d;
+}
 .inventario-step-content {
     flex: 1 1 auto;
     min-height: 0;
@@ -255,6 +278,9 @@ button:disabled {
     .campo-form {
         min-width: 0;
     }
+.necesario {
+    color: red;
+}
     .comentario-text {
         text-align: center;
     }
@@ -505,17 +531,34 @@ button:disabled {
    ========================================= */
 
 .modal-responsiva {
-    width: min(950px, 95vw);
+    width: 95%;
+    max-width: 950px;
     height: 90vh;
+    height: 90dvh;
     max-height: 90vh;
+    max-height: 90dvh;
 
     display: flex;
     flex-direction: column;
 
-    overflow: hidden;
+    box-sizing: border-box;
+    min-width: 0;
     min-height: 0;
-        animation: modalEntrada 0.18s ease-out;
 
+    overflow: hidden;
+    animation: modalEntrada 0.18s ease-out;
+}
+
+@media (max-width: 576px) {
+    .modal-responsiva {
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        max-height: 100vh;
+        max-height: 100dvh;
+        border-radius: 0;
+    }
 }
 
 @keyframes modalEntrada {
@@ -608,4 +651,209 @@ button:disabled {
     justify-content: flex-end;
     align-items: center;
     gap: 10px;
+}
+
+
+/* =========================================
+   HEADER DEL FORMULARIO DE INVENTARIO
+   ========================================= */
+
+.modal-responsiva > .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+
+    width: 100%;
+    padding: 20px 24px;
+    box-sizing: border-box;
+
+    flex: 0 0 auto;
+    position: relative;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Título, descripción y badge */
+.modal-header-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.modal-header-left h2 {
+    margin: 0;
+    color: #171a4d;
+    font-size: 23px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.modal-header-descripcion {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* Badge de campos obligatorios */
+.modal-header-left .badge-comentario {
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-radius: 12px;
+    background: #ff5e0034;
+}
+
+.modal-header-left .badge-comentario p {
+    margin: 8px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+/* Contador y botón de cerrar */
+.modal-header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+  
+    
+}
+
+.modal-header-right span {
+    margin: 0;
+    margin-bottom: none;
+    color: #171a4d;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    
+}
+
+.modal-header-right .btn-closer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #171a4d;
+
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.modal-header-right .btn-closer:hover {
+    background: #f1f5f9;
+    color: #171a4d;
+}
+
+/* =========================================
+   TABLET
+   ========================================= */
+
+@media (max-width: 768px) {
+    .modal-responsiva > .modal-header {
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .modal-header-left h2 {
+        font-size: 21px;
+    }
+
+    .modal-header-right {
+        gap: 6px;
+    }
+}
+
+/* =========================================
+   MÓVILES
+   ========================================= */
+
+@media (max-width: 576px) {
+    .modal-responsiva > .modal-header {
+        gap: 8px;
+        padding: 14px 12px;
+    }
+
+    .modal-header-left {
+        gap: 6px;
+    }
+
+    .modal-header-left h2 {
+        font-size: 18px;
+    }
+
+    .modal-header-descripcion {
+        font-size: 12px;
+    }
+
+    .modal-header-left .badge-comentario p {
+        margin: 7px 9px;
+        font-size: 11px;
+    }
+
+    .modal-header-right {
+        gap: 4px;
+    }
+
+    .modal-header-right span {
+        font-size: 11px;
+    }
+
+    .modal-header-right .btn-closer {
+        flex-basis: 30px;
+        width: 30px;
+        height: 30px;
+        font-size: 23px;
+    }
+}
+
+/* =========================================
+   MÓVILES MUY PEQUEÑOS
+   ========================================= */
+
+@media (max-width: 400px) {
+    .modal-responsiva > .modal-header {
+        padding: 12px 8px;
+        gap: 5px;
+    }
+
+    .modal-header-left h2 {
+        font-size: 16px;
+    }
+
+    .modal-header-descripcion {
+        font-size: 11px;
+    }
+
+    .modal-header-right {
+        gap: 2px;
+    }
+
+    .modal-header-right span {
+        font-size: 10px;
+    }
+
+    .modal-header-right .btn-closer {
+        flex-basis: 27px;
+        width: 27px;
+        height: 27px;
+        font-size: 21px;
+    }
 }

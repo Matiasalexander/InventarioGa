@@ -1369,41 +1369,56 @@ const mensaje =
             HEADER
         ================================================= */}
 
-        <div className="modal-header">
+     
+{/* =================================================
+    HEADER
+================================================= */}
+  <div className="modal-header-right">
 
-          <div>
+    <span>
+      Paso {pasoInventario} de {totalPasos}
+    </span>
 
-            <h2>
-              {esEdicion
-                ? "Actualizar equipo"
-                : "Agregar equipo"}
-            </h2>
+    <button
+      type="button"
+      className="btn-closer"
+      onClick={onClose}
+      aria-label="Cerrar formulario"
+      title="Cerrar"
+    >
+      ×
+    </button>
 
-            <p>
-              {esEdicion
-                ? "Modifica los datos del equipo seleccionado."
-                : "Registra un nuevo equipo en el inventario."}
-            </p>
+  </div>
+<div className="modal-header">
 
-          </div>
+  {/* Lado izquierdo: título y descripción */}
+  <div className="modal-header-left">
 
-          <div className="modal-header-right">
+    <h2>
+      {esEdicion
+        ? "Actualizar equipo"
+        : "Agregar equipo"}
+    </h2>
 
-            <span>
-              Paso {pasoInventario} de {totalPasos}
-            </span>
+    <p className="modal-header-descripcion">
+      {esEdicion
+        ? "Modifica los datos del equipo seleccionado."
+        : "Registra un nuevo equipo en el inventario."}
+    </p>
 
-            <button
-              type="button"
-              className="btn-close"
-              onClick={onClose}
-            >
-              ×
-            </button>
+    <div className="badge-comentario">
+      <p>
+        Los campos marcados con (*) son obligatorios
+      </p>
+    </div>
 
-          </div>
+  </div>
 
-        </div>
+  {/* Lado derecho: contador y botón de cerrar */}
+
+
+</div>
 
         {/* =================================================
             PASOS
@@ -1418,6 +1433,7 @@ const mensaje =
                 : "step"
             }
           >
+            
             <span>1</span>
             <small>
               Ubicación
@@ -1504,7 +1520,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Restaurante / marca
+                    Restaurante / marca <strong>*</strong>
                   </label>
 
             <select
@@ -1531,7 +1547,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Localidad / unidad
+                    Localidad / unidad <strong>*</strong>
                   </label>
 
                   <select
@@ -1571,7 +1587,7 @@ const mensaje =
                   <div className="campo-form">
 
                     <label>
-                      Ubicación interna
+                      Ubicación interna <strong>*</strong>
                     </label>
 
                     <input
@@ -1675,7 +1691,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Nombre del equipo
+                    Nombre del equipo <strong>*</strong>
                   </label>
 
                   <input
@@ -1699,7 +1715,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Tipo de equipo
+                    Tipo de equipo <strong>*</strong>
                   </label>
 
                   <select
@@ -1738,7 +1754,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Fecha de fabricación
+                    Fecha de fabricación <strong>*</strong>
                   </label>
 
                   <input
@@ -1824,7 +1840,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Fecha de vencimiento de garantía
+                    Fecha de vencimiento de garantía <strong>*</strong>
                   </label>
 
                   <input
@@ -1923,7 +1939,7 @@ const mensaje =
                     <div className="campo-form">
 
                       <label>
-                        Sistema operativo
+                        Sistema operativo <strong>*</strong>
                       </label>
 
                       <select
@@ -1971,7 +1987,7 @@ const mensaje =
                     <div className="campo-form">
 
                       <label>
-                        Memoria RAM
+                        Memoria RAM <strong>*</strong>
                       </label>
 
                       <select
@@ -2008,7 +2024,7 @@ const mensaje =
                     <div className="campo-form">
 
                       <label>
-                        Disco duro
+                        Disco duro <strong>*</strong>
                       </label>
 
                       <select
@@ -2047,7 +2063,7 @@ const mensaje =
                     <div className="campo-form">
 
                       <label>
-                        Procesador
+                        Procesador <strong>*</strong>
                       </label>
 
                       <select
@@ -2084,7 +2100,7 @@ const mensaje =
                     <div className="campo-form">
 
                       <label>
-                        Modelo de procesador
+                        Modelo de procesador <strong>*</strong>*
                       </label>
 
                       <select
@@ -2249,7 +2265,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Marca
+                    Marca <strong>*</strong>
                   </label>
 
                   <select
@@ -2290,7 +2306,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Modelo
+                    Modelo <strong>*</strong>
                   </label>
 
                   <select
@@ -2477,7 +2493,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Estatus
+                    Estatus <strong>*</strong>
                   </label>
 
                   <select
@@ -2518,7 +2534,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Estado físico
+                    Estado físico <strong>*</strong>
                   </label>
 
                   <select
@@ -2559,7 +2575,7 @@ const mensaje =
                 <div className="campo-form">
 
                   <label>
-                    Correo
+                    Correo <strong>*</strong>
                   </label>
 
                   <input
