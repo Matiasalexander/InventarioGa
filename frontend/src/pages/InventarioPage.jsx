@@ -580,6 +580,11 @@ const debeMostrarNuevaColumna = (item) => {
   );
 };
 
+const mostrarColumnaCodigoUnidad =
+  Boolean(filtros.codigoUnidad?.trim()) ||
+  inventarioPaginado.some(debeMostrarNuevaColumna);
+
+
   return (
     <div className="contenedor">
       <div className="card-user">
@@ -702,7 +707,7 @@ const debeMostrarNuevaColumna = (item) => {
                 {/* <th>IP</th> */}
                 <th>Estatus</th>
                 {/* <th>Responsiva</th> */}
-                {inventarioPaginado.some(debeMostrarNuevaColumna) && (
+                {mostrarColumnaCodigoUnidad && (
   <th>Codigo de unidad</th>
 )}
                 <th>Acciones</th>
@@ -739,11 +744,9 @@ const debeMostrarNuevaColumna = (item) => {
           </span>
         </td>
 
-        {inventarioPaginado.some(debeMostrarNuevaColumna) && (
+        {mostrarColumnaCodigoUnidad && (
   <td>
-    {debeMostrarNuevaColumna(item)
-      ? item.CODIGO_UNIDAD || "—"
-      : ""}
+    {debeMostrarNuevaColumna(item) || filtros.codigoUnidad?.trim() ? item.CODIGO_UNIDAD || "N/A" : ""}
   </td>
 )}
 
@@ -760,16 +763,6 @@ const debeMostrarNuevaColumna = (item) => {
       </tr>
     );
   })}
-
-  {inventarioFiltrado.length === 0 && (
-    <tr>
-      <td colSpan="7">
-        No hay equipos para mostrar.
-      </td>
-    </tr>
-  )}
-
-
               {inventarioFiltrado.length === 0 && (
                 <tr>
                   {/* CORRECCIÓN:
