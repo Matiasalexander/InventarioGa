@@ -729,12 +729,13 @@
 }
 
 .version-label {
-    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 10px;
 
+    text-align: left;
     margin-bottom: 6px;
-
     padding: 5px 10px;
-
     border-radius: 20px;
 
     background: #e3f2fd;
@@ -742,13 +743,12 @@
 
     font-size: 12px;
     font-weight: 700;
-
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .version-header h2 {
-    margin: 0;
+    margin-top: 22px;
 
     font-size: 24px;
     font-weight: 700;
@@ -1064,6 +1064,7 @@
 
     .version-header h2 {
         font-size: 21px;
+        margin-top: 22px;
     }
 
     .version-header p {

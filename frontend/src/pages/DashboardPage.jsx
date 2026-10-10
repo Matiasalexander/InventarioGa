@@ -18,6 +18,8 @@ import {
   XCircle,
   Info,
   Palette,
+  EggIcon,
+  Lamp,
 } from "lucide-react";
 
 function DashboardPage({ setLoading }) {
@@ -27,7 +29,7 @@ function DashboardPage({ setLoading }) {
 
   //modificar esta nota de versión cuando se quiera desplegar en producto y anotar los nuevos cambios
 
-  const VERSION_ACTUAL = "4.0.1";
+  const VERSION_ACTUAL = "4.4.0";
 
 
 
@@ -619,7 +621,7 @@ function DashboardPage({ setLoading }) {
               <div className="version-item">
 
                 <span className="version-item-icon">
-                  <Wrench
+                  <Lamp
                     size={20}
                     color="gray"
                   />
@@ -628,11 +630,11 @@ function DashboardPage({ setLoading }) {
                 <div>
 
                   <h3>
-                    Mejoras
+                    Nueva función
                   </h3>
 
                   <p>
-                    Se habilitó la posibilidad de editar firma por parte del administrador y del técnico. Así como nuevo diseño en el apartado correspondiente.
+                    Se agregó la columna codigo_unidad unicamente visible para los usuarios de nivel administrador y con acceso a celebration key
                   </p>
 
                 </div>
