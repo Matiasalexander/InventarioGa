@@ -12,6 +12,7 @@ const FiltrosModal = ({
   handleRestauranteChange,
 
   localidadesDisponibles,
+  codigosDisponibles = [],
   unidadSeleccionada,
   handleLocalidadChange,
 
@@ -125,6 +126,28 @@ const FiltrosModal = ({
                 ))}
               </select>
             </div>
+
+            <div className="filtros-modal-field">
+  <label htmlFor="filtro-codigo-unidad">
+    Código de unidad
+  </label>
+
+  <select
+    id="filtro-codigo-unidad"
+    value={filtros.codigoUnidad || ""}
+    onChange={(e) =>
+      cambiarFiltro("codigoUnidad", e.target.value)
+    }
+  >
+    <option value="">Todos los códigos</option>
+
+    {codigosDisponibles.map((codigo) => (
+      <option key={codigo} value={codigo}>
+        {codigo}
+      </option>
+    ))}
+  </select>
+</div>
 
             {/* Tipo */}
             <div className="filtros-modal-field">

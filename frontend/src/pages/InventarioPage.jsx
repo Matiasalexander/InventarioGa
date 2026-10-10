@@ -19,6 +19,26 @@ function InventarioPage({ setLoading }) {
   const navigate = useNavigate();
   const { tienePermiso } = useAuth();
 
+  //LISTA FIJA DEL SELECTOR
+  const codigosDisponibles = [
+  "BC1",
+  "CABANAS",
+  "FB1-1",
+  "FB1-2",
+  "FB2-1",
+  "FB2-2",
+  "FB3.1",
+  "FB3.2",
+  "FB4.1",
+  "FB4.2",
+  "FB6",
+  "FB7.1",
+  "FB7.2",
+  "FB12",
+  "RESPALDO",
+  "SITE CK"
+];
+
   const puedeCrear = tienePermiso("inventario.crear");
   const puedeEditar = tienePermiso("inventario.editar");
   const puedeEliminar = tienePermiso("inventario.eliminar");
@@ -139,95 +159,106 @@ function InventarioPage({ setLoading }) {
   const localidadesDisponibles = restauranteActual?.children || [];
   const localidadSeleccionada = useMemo(() => localidadesDisponibles.find((unidad) => Number(unidad.id) === Number(unidadSeleccionada)), [localidadesDisponibles, unidadSeleccionada]);
 
-  const inventarioFiltrado = useMemo(() => {
-    const texto = busqueda.toLowerCase().trim();
-    /*console.log(
-      "EQUIPOS FREEPORT:",
-      inventario.filter(
-        item => String(item.LOCALIDAD).trim().toLowerCase() === "freeport"
-      )
-    );
-    
-    console.log("UNIDAD SELECCIONADA:", unidadSeleccionada);
-    console.log("RESTAURANTE ACTUAL:", restauranteActual);*/
-    return inventario.filter((item) => {
-      const coincideBusqueda =
-        !texto ||
-        [
-          item.UNIDAD,
-          item.LOCALIDAD,
-          item.UBICACION,
-          item.CODIGO_UNIDAD,
-          item.TIPO_EQUIPO,
-          item.NOMBRE_EQUIPO,
-          item.SERIAL,
-          item.MARCA,
-          item.MODELO,
-          item.IP,
-          item.ESTATUS,
-          item.RESPONSIVA_DIGITAL
-            ? "asignado responsiva ocupado"
-            : "disponible sin responsiva"
-        ]
-          .join(" ")
-          .toLowerCase()
-          .includes(texto);
 
-      // NUEVO:
-      // Permite filtrar por restaurante aun antes de elegir localidad.
-      const coincideRestaurante =
-        !restauranteActual ||
-        localidadesDisponibles.some(
-          (unidad) =>
-            Number(unidad.id) === Number(item.ID_UNIDAD)
-        );
+const inventarioFiltrado = useMemo(() => {
+  const texto = busqueda.toLowerCase().trim();
 
-      const coincideLocalidad =
-        !unidadSeleccionada ||
-        Number(item.ID_UNIDAD) === Number(unidadSeleccionada);
+  return inventario.filter((item) => {
+    const coincideBusqueda =
+      !texto ||
+      [
+        item.UNIDAD,
+        item.LOCALIDAD,
+        item.UBICACION,
+        item.CODIGO_UNIDAD,
+        item.TIPO_EQUIPO,
+        item.NOMBRE_EQUIPO,
+        item.SERIAL,
+        item.MARCA,
+        item.MODELO,
+        item.IP,
+        item.ESTATUS,
+        item.RESPONSIVA_DIGITAL
+          ? "asignado responsiva ocupado"
+          : "disponible sin responsiva"
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(texto);
 
-      const coincideTipo =
-        !filtros.tipoEquipo ||
-        item.TIPO_EQUIPO === filtros.tipoEquipo;
-
-      const coincideMarca =
-        !filtros.marca ||
-        item.MARCA === filtros.marca;
-
-      const coincideEstatus =
-        !filtros.estatus ||
-        item.ESTATUS === filtros.estatus;
-
-      const coincideEstadoFisico =
-        !filtros.estadoFisico ||
-        item.ESTADO_FISICO === filtros.estadoFisico;
-
-      const coincideResponsiva =
-        !filtros.responsiva ||
-        (
-          filtros.responsiva === "asignado"
-            ? Boolean(item.RESPONSIVA_DIGITAL)
-            : !item.RESPONSIVA_DIGITAL
-        );
-
-      return (
-        coincideBusqueda &&
-        coincideRestaurante &&
-        coincideLocalidad &&
-        coincideTipo &&
-        coincideMarca &&
-        coincideEstatus &&
-        coincideEstadoFisico &&
-        coincideResponsiva
+    const coincideRestaurante =
+      !restauranteActual ||
+      localidadesDisponibles.some(
+        (unidad) =>
+          Number(unidad.id) === Number(item.ID_UNIDAD)
       );
-    });
-  }, [
-    busqueda,
-    inventario,
-    filtros,
-    restauranteActual,
-    localidadSeleccionada
-  ]);
+
+    const coincideLocalidad =
+      !unidadSeleccionada ||
+      Number(item.ID_UNIDAD) === Number(unidadSeleccionada);
+
+    // Busca por el prefijo del código de unidad.
+
+const codigoEquipo = String(item.CODIGO_UNIDAD ?? "")
+  .trim()
+  .toUpperCase()
+  .replace(/\./g, "-");
+
+const codigoSeleccionado = String(filtros.codigoUnidad ?? "")
+  .trim()
+  .toUpperCase()
+  .replace(/\./g, "-");
+
+const coincideCodigoUnidad =
+  !codigoSeleccionado ||
+  codigoEquipo.startsWith(codigoSeleccionado);
+
+
+    const coincideTipo =
+      !filtros.tipoEquipo ||
+      item.TIPO_EQUIPO === filtros.tipoEquipo;
+
+    const coincideMarca =
+      !filtros.marca ||
+      item.MARCA === filtros.marca;
+
+    const coincideEstatus =
+      !filtros.estatus ||
+      item.ESTATUS === filtros.estatus;
+
+    const coincideEstadoFisico =
+      !filtros.estadoFisico ||
+      item.ESTADO_FISICO === filtros.estadoFisico;
+
+    const coincideResponsiva =
+      !filtros.responsiva ||
+      (
+        filtros.responsiva === "asignado"
+          ? Boolean(item.RESPONSIVA_DIGITAL)
+          : !item.RESPONSIVA_DIGITAL
+      );
+
+    return (
+      coincideBusqueda &&
+      coincideRestaurante &&
+      coincideLocalidad &&
+      coincideCodigoUnidad &&
+      coincideTipo &&
+      coincideMarca &&
+      coincideEstatus &&
+      coincideEstadoFisico &&
+      coincideResponsiva
+    );
+  });
+}, [
+  busqueda,
+  inventario,
+  filtros,
+  restauranteActual,
+  localidadesDisponibles,
+  unidadSeleccionada
+]);
+
   // NUEVO: cálculos de paginación
   const totalRegistros = inventarioFiltrado.length;
 
@@ -372,7 +403,8 @@ function InventarioPage({ setLoading }) {
       marca: "",
       estatus: "",
       estadoFisico: "",
-      responsiva: ""
+      responsiva: "",
+      codigoUnidad: ""
     });
 
     sessionStorage.removeItem("inventario_restaurante_id");
@@ -655,6 +687,7 @@ const debeMostrarNuevaColumna = (item) => {
 
           handleRestauranteChange={handleRestauranteChange}
           handleLocalidadChange={handleLocalidadChange}
+          codigosDisponibles={codigosDisponibles}
         />
         <div className="table-container">
           <table>
