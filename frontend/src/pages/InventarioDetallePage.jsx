@@ -200,7 +200,21 @@ const formatearFecha = (fecha) => {
     esWorkstationpos ||
     (esImpresora && equipo.CONEXION === "wifi");
 
+//ESTO ES PARA UNICAMENTE VER LA COLUMNA SI NO ERES DE CORPORATIVO
+const normalizarTexto = (valor) =>
+  (valor || "")
+    .toString()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
 
+const debeMostrarNuevaColumna = (item) => {
+  return (
+    normalizarTexto(item.UNIDAD) === "CELEBRATION KEY" &&
+    normalizarTexto(item.LOCALIDAD) === "FREEPORT"
+  );
+};
   return (
 
     <div className="contenedor">
@@ -409,7 +423,16 @@ const formatearFecha = (fecha) => {
             </strong>
 
           </div>
+        
+          <div className="detalle-item">
 
+            <span>Codigo de unidad</span>
+
+            <strong>
+              {mostrar(equipo.CODIGO_UNIDAD)}
+            </strong>
+
+          </div>
 
           <div className="detalle-item">
 

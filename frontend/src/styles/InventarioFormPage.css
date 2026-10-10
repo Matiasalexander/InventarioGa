@@ -683,6 +683,7 @@ button:disabled {
 
     flex: 1 1 auto;
     min-width: 0;
+   
 }
 
 .modal-header-left h2 {
@@ -722,14 +723,11 @@ button:disabled {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 10px;
-  
-    
+    margin: 12px;
 }
 
 .modal-header-right span {
-    margin: 0;
-    margin-bottom: none;
+    margin-right: 12px;
     color: #171a4d;
     font-size: 13px;
     font-weight: 600;
@@ -750,17 +748,14 @@ button:disabled {
     border: none;
     border-radius: 8px;
     background: transparent;
-    color: #171a4d;
+    color: rgba(0, 0, 0, 0.626);
 
-    font-size: 26px;
-    line-height: 1;
+    font-size: 22px;
+
     cursor: pointer;
-}
+        background: #f1f5f9;
+} 
 
-.modal-header-right .btn-closer:hover {
-    background: #f1f5f9;
-    color: #171a4d;
-}
 
 /* =========================================
    TABLET

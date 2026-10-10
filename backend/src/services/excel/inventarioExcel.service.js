@@ -17,6 +17,7 @@ const generarInventarioExcel = async (inventario = []) => {
     { header: "Restaurante", key: "UNIDAD", width: 25 },
     { header: "Localidad", key: "LOCALIDAD", width: 20 },
     { header: "Ubicación", key: "UBICACION", width: 25 },
+    {header: "Codigo de unidad", key: "CODIGO_UNIDAD", width: 25},
 
     { header: "Departamento", key: "DEPARTAMENTO", width: 25 },
     { header: "Puesto", key: "PUESTO", width: 25 },

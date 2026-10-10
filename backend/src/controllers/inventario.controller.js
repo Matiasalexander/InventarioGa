@@ -381,6 +381,7 @@ const obtenerInventario = async (
   r.Marca AS UNIDAD,
   i.LOCALIDAD,
   i.UBICACION,
+  i.CODIGO_UNIDAD,
   i.ID_TIPO_EQUIPO,
   te.tequipo AS TIPO_EQUIPO,
   i.TIPO_IMPRESORA,
@@ -647,6 +648,7 @@ const crearInventario = async (
       ID_UNIDAD,
       LOCALIDAD,
       UBICACION,
+      CODIGO_UNIDAD,
       ID_TIPO_EQUIPO,
       TIPO_IMPRESORA,
       ID_DEPARTAMENTO,
@@ -792,6 +794,7 @@ if (serialNormalizado) {
         "ID_TIPO_EQUIPO",
         ID_TIPO_EQUIPO || null
       )
+      .input("CODIGO_UNIDAD", CODIGO_UNIDAD || null)
       .input(
         "TIPO_IMPRESORA",
         TIPO_IMPRESORA || null
@@ -915,6 +918,7 @@ if (serialNormalizado) {
           ID_UNIDAD,
           LOCALIDAD,
           UBICACION,
+          CODIGO_UNIDAD,
           ID_TIPO_EQUIPO,
           TIPO_IMPRESORA,
           NOMBRE_EQUIPO,
@@ -953,6 +957,7 @@ if (serialNormalizado) {
           @ID_UNIDAD,
           @LOCALIDAD,
           @UBICACION,
+          @CODIGO_UNIDAD,
           @ID_TIPO_EQUIPO,
           @TIPO_IMPRESORA,
           @NOMBRE_EQUIPO,
@@ -1103,6 +1108,7 @@ const actualizarInventario = async (
       ID_UNIDAD,
       LOCALIDAD,
       UBICACION,
+      CODIGO_UNIDAD,
       ID_TIPO_EQUIPO,
       TIPO_IMPRESORA,
       ID_DEPARTAMENTO,
@@ -1317,6 +1323,9 @@ if (serialNormalizado) {
         UBICACION || null
       )
       .input(
+  "CODIGO_UNIDAD", CODIGO_UNIDAD || null
+)
+      .input(
         "ID_TIPO_EQUIPO",
         ID_TIPO_EQUIPO || null
       )
@@ -1447,6 +1456,7 @@ if (serialNormalizado) {
           UBICACION =
             @UBICACION,
 
+          CODIGO_UNIDAD = @CODIGO_UNIDAD,
           ID_TIPO_EQUIPO =
             @ID_TIPO_EQUIPO,
 
@@ -1848,6 +1858,7 @@ const exportarInventarioExcel = async (
         r.Marca AS UNIDAD,
         i.LOCALIDAD,
         i.UBICACION,
+        i.CODIGO_UNIDAD,
 
         i.ID_DEPARTAMENTO,
         d.Nombre_departamento AS DEPARTAMENTO,

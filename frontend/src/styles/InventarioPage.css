@@ -279,50 +279,70 @@ select:disabled {
 
 
 .toolbar{
-    display:flex;
-    flex-direction:column;
-    gap:18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
     margin-bottom: 12px;
+    flex-wrap: wrap;
 }
 
 .toolbar-header{
-    text-align:center;
+        display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+}
+
+.toolbar-header p {
+    margin: 0;
+    font-size: 14px;
+    min-width: 0;
 }
 
 .toolbar-search{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:12px;
-    flex-wrap:wrap;
+  display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    flex: 0 1 auto;
+    min-width: 0;
 }
 
 .search-input{
-    width:420px;
-    max-width:100%;
+      width: clamp(180px, 30vw, 420px);
+    max-width: 100%;
+    min-width: 0;
 }
 
 .btn-filtros{
-    height:44px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:0 18px;
-    border:1px solid #cbd5e1;
-    border-radius:12px;
-    background:rgb(15, 57, 141);
-    color:white;
-    font-weight:600;
+   height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 18px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    background: rgb(15, 57, 141);
+    color: white;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .btn-filtros:hover{
-  background-color: #032870;
-  color: white;
+    background-color: #032870;
+    color: white;
 }
 
 .btn-filtros.activo{
-    background:rgb(15, 57, 141);
-    color:white;
+     background: rgb(15, 57, 141);
+    color: white;
 }
 
 .badge-filtros{
@@ -676,4 +696,65 @@ td button{
     width: 100%;
     padding: 16px;
   }
+}
+
+/* Tablets y pantallas medianas */
+@media (max-width: 900px) {
+    .toolbar {
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .toolbar-header {
+        flex: 1 1 100%;
+    }
+
+    .toolbar-search {
+        flex: 1 1 100%;
+        justify-content: flex-start;
+    }
+
+    .search-input {
+        width: auto;
+        flex: 1 1 auto;
+    }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .toolbar-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        width: 100%;
+    }
+
+    .toolbar-header p {
+        overflow-wrap: anywhere;
+    }
+
+    .toolbar-search {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .search-input {
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+
+    .btn-filtros {
+        width: 100%;
+        flex-shrink: 0;
+    }
 }
