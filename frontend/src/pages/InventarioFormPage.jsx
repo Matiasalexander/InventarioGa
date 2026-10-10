@@ -1412,7 +1412,7 @@ function InventarioFormPage({
             aria-label="Cerrar formulario"
             title="Cerrar"
           >
-            ×
+            x
           </button>
 
         </div>

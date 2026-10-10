@@ -621,8 +621,9 @@ const debeMostrarNuevaColumna = (item) => {
         <div className="toolbar">
 
           <div className="toolbar-header">
-            <h2>Equipos</h2>
+        
             <p>
+                  <h2>Equipos</h2>
               {puedeEditar
                 ? "Consulta, actualiza o elimina registros del inventario."
                 : "Consulta de registros del inventario."}
