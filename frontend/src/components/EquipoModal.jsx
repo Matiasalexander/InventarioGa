@@ -9,14 +9,14 @@ function EquipoQRModal({ mostrar, idEquipo, nombreEquipo, onCerrar }) {
 
   if (!mostrar ||  !idEquipo || !nombreEquipo) return null;
 
-const baseUrl = (
-  import.meta.env.VITE_INVENTARIO_PUBLIC_URL ||
-  window.location.origin
-).trim();
 
 const urlDetalle = idEquipo
-  ? `${baseUrl.replace(/\/+$/, "")}/inventario/detalle/${encodeURIComponent(idEquipo)}`
+  ? new URL(
+      `/inventario/detalle/${encodeURIComponent(idEquipo)}`,
+      window.location.origin
+    ).href
   : "";
+
 
   const descargarQR = () => {
     const svg = qrRef.current?.querySelector("svg");
