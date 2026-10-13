@@ -54,8 +54,11 @@ function InventarioFormPage({
   const [sinSerial, setSinSerial] = useState(false);
   const [guardadoExitoso, setGuardadoExitoso] = useState(false);
   const [guardandoEquipo, setGuardandoEquipo] = useState(false);
-const [mostrarQR, setMostrarQR] = useState(false);
-const [nombreEquipoQR, setNombreEquipoQR] = useState("");
+  
+  //ESTADOS DEL QR
+  const [mostrarQR, setMostrarQR] = useState(false);
+  const [nombreEquipoQR, setNombreEquipoQR] = useState("");
+  const [idEquipoQR, setIdEquipoQR] = useState(null);
 
   // =========================================================
   // CONFIGURACIÓN DEL WIZARD
@@ -1219,24 +1222,44 @@ const [nombreEquipoQR, setNombreEquipoQR] = useState("");
       // -----------------------------------------
       // EDICIÓN
       // -----------------------------------------
+if (esEdicion) {
+  await actualizarInventario(id, formData);
 
-      if (esEdicion) {
+  setIdEquipoQR(id);
 
-        await actualizarInventario(
-          id,
-          formData
-        );
+  const equipoActualizado = await obtenerInventarioPorId(id);
 
+  const nombreActualizado =
+    equipoActualizado?.data?.NOMBRE_EQUIPO ??
+    equipoActualizado?.NOMBRE_EQUIPO ??
+    "";
 
+  setNombreEquipoQR(nombreActualizado);
 
-      }
-
+  mostrarMensajeModal(
+    "success",
+    "Equipo actualizado",
+    esCorporativo
+      ? "El equipo se actualizó correctamente. ¿Deseas generar su código QR?"
+      : "El equipo se actualizó correctamente."
+  );
+}
       // -----------------------------------------
       // CREACIÓN
       // -----------------------------------------
 
       else {
         const respuesta = await crearInventario(formData);
+        const equipoCreado = respuesta?.data ?? respuesta;
+
+        const {id, NOMBRE_EQUIPO} = equipoCreado;
+        setIdEquipoQR(id);
+        setNombreEquipoQR(NOMBRE_EQUIPO);
+         mostrarMensajeModal(
+    "success",
+    "Equipo registrado",
+    "El equipo se registró correctamente. ¿Deseas generar su código QR?"
+  );
 
         const nombreGenerado =
           respuesta?.NOMBRE_EQUIPO ??
@@ -1381,18 +1404,21 @@ const [nombreEquipoQR, setNombreEquipoQR] = useState("");
             ? finalizarFormulario
             : cerrarMensajeModal
         }
-        mostrarOpcionQR={
-          guardadoExitoso &&
-          mensajeModal.tipo === "success" &&
-          esCorporativo &&
-          !esEdicion
-        }
+     mostrarOpcionQR={
+  esCorporativo &&
+  Boolean(idEquipoQR) &&
+  Boolean(nombreEquipoQR) &&
+  nombreEquipoQR !== "NA" &&
+  mensajeModal.tipo === "success"
+}
 
         onGenerarQR={generarQR}
         onFinalizar={finalizarFormulario}
       />
+      
       <EquipoQRModal
   mostrar={mostrarQR}
+  idEquipo={idEquipoQR}
   nombreEquipo={nombreEquipoQR}
   onCerrar={() => {
     setMostrarQR(false);

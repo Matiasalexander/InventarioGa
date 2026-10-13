@@ -4,10 +4,18 @@ import { createPortal } from "react-dom";
 import QRCode from "react-qr-code";
 import "../styles/equipoQRModal.css";
 
-function EquipoQRModal({ mostrar, nombreEquipo, onCerrar }) {
+function EquipoQRModal({ mostrar, idEquipo, nombreEquipo, onCerrar }) {
   const qrRef = useRef(null);
 
-  if (!mostrar || !nombreEquipo) return null;
+  if (!mostrar ||  !idEquipo || !nombreEquipo) return null;
+
+const baseUrl = import.meta.env.VITE_API_URL;
+
+const urlDetalle = baseUrl
+  ? `${baseUrl.replace(/\/$/, "")}/inventario/detalle/${encodeURIComponent(idEquipo)}`
+  : "";
+  console.log("ID del equipo:", idEquipo);
+console.log("URL del QR:", urlDetalle);
 
   const descargarQR = () => {
     const svg = qrRef.current?.querySelector("svg");
@@ -90,7 +98,7 @@ function EquipoQRModal({ mostrar, nombreEquipo, onCerrar }) {
         <h3>Código QR del equipo</h3>
         <div className="equipo-qr-imagen" ref={qrRef}>
           <QRCode
-            value={nombreEquipo}
+            value={urlDetalle}
             size={256}
             level="H"
             bgColor="#FFFFFF"
