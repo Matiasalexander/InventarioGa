@@ -587,12 +587,12 @@ function DashboardPage({ setLoading }) {
 
             <div className="version-header">
 
-              <div>
+              <div className="version-subheader">
 
                 <span className="version-label">
                   Actualización
                 </span>
-
+        
                 <h2>
                   Notas de versión
                 </h2>

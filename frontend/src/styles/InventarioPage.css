@@ -289,7 +289,7 @@ select:disabled {
 }
 
 .toolbar-header{
-        display: flex;
+    display: flex;
     align-items: center;
     justify-content: flex-start;
     gap: 16px;
@@ -298,6 +298,9 @@ select:disabled {
     text-align: left;
 }
 
+.toolbar-header h2 {
+  margin: 20px;
+}
 .toolbar-header p {
     margin: 0;
     font-size: 14px;
@@ -594,6 +597,7 @@ td button{
   align-items: center;
   gap: 16px;
   padding: 14px 16px;
+  border-radius: 16px;
   border-top: 1px solid #e2e8f0;
   background: white;
   flex-wrap: wrap;
