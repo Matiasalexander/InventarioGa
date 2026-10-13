@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "react-toastify";
 import MensajeModal from "../components/MensajeModal";
+//componente del qr
+import EquipoQRModal from "../components/EquipoModal";
 import {
   crearInventario,
   actualizarInventario,
@@ -12,7 +14,7 @@ import { obtenerCatalogos } from "../services/catalogosService";
 
 import { obtenerMisUnidades } from "../services/usuariosService";
 
-  const codigosDisponibles = [
+const codigosDisponibles = [
   "BC1",
   "CABANAS",
   "FB1-1",
@@ -50,6 +52,10 @@ function InventarioFormPage({
   const esEdicion = Boolean(id);
   const [restaurantesPermitidos, setRestaurantesPermitidos] = useState([]);
   const [sinSerial, setSinSerial] = useState(false);
+  const [guardadoExitoso, setGuardadoExitoso] = useState(false);
+  const [guardandoEquipo, setGuardandoEquipo] = useState(false);
+const [mostrarQR, setMostrarQR] = useState(false);
+const [nombreEquipoQR, setNombreEquipoQR] = useState("");
 
   // =========================================================
   // CONFIGURACIÓN DEL WIZARD
@@ -213,13 +219,12 @@ function InventarioFormPage({
   // CORPORATIVO CANCÚN
   // =========================================================
 
+  // El QR aplica a cualquier unidad perteneciente a Corporativo.
+  const esCorporativo =
+    normalizarTexto(restauranteSeleccionado?.Restaurante) === "CORPORATIVO";
+
   const esCorporativoCancun =
-    normalizarTexto(
-      restauranteSeleccionado?.Restaurante
-    ) === "CORPORATIVO" &&
-    normalizarTexto(
-      formulario.LOCALIDAD
-    ) === "CANCUN";
+    esCorporativo && normalizarTexto(formulario.LOCALIDAD) === "CANCUN";
 
 
   const esCelebrationKeyFreeport =
@@ -361,7 +366,7 @@ function InventarioFormPage({
 
       UBICACION:
         equipo.UBICACION || "",
-        CODIGO_UNIDAD: equipo.CODIGO_UNIDAD || "",
+      CODIGO_UNIDAD: equipo.CODIGO_UNIDAD || "",
 
       ID_TIPO_EQUIPO:
         equipo.ID_TIPO_EQUIPO || "",
@@ -561,7 +566,7 @@ function InventarioFormPage({
 
         UBICACION:
           "",
-          CODIGO_UNIDAD: "",
+        CODIGO_UNIDAD: "",
 
         ID_DEPARTAMENTO:
           "",
@@ -599,7 +604,7 @@ function InventarioFormPage({
 
         UBICACION:
           "",
-          CODIGO_UNIDAD: "",
+        CODIGO_UNIDAD: "",
 
         ID_DEPARTAMENTO:
           "",
@@ -716,17 +721,17 @@ function InventarioFormPage({
       return false;
     }
     if (
-  esCelebrationKeyFreeport &&
-  !formulario.CODIGO_UNIDAD.trim()
-) {
-  mostrarMensajeModal(
-    "warning",
-    "Datos incompletos",
-    "Ingresa el código de la unidad."
-  );
+      esCelebrationKeyFreeport &&
+      !formulario.CODIGO_UNIDAD.trim()
+    ) {
+      mostrarMensajeModal(
+        "warning",
+        "Datos incompletos",
+        "Ingresa el código de la unidad."
+      );
 
-  return false;
-}
+      return false;
+    }
 
 
     return true;
@@ -1066,6 +1071,9 @@ function InventarioFormPage({
 
     e.preventDefault();
 
+    // Evita guardar dos veces el mismo registro.
+    if (guardadoExitoso || guardandoEquipo) return;
+
     if (!validarPaso5()) {
       return;
     }
@@ -1074,6 +1082,7 @@ function InventarioFormPage({
 
     try {
 
+      setGuardandoEquipo(true);
       setLoading(true);
 
       const formData =
@@ -1087,9 +1096,9 @@ function InventarioFormPage({
         LOCALIDAD:
           formulario.LOCALIDAD,
 
-          CODIGO_UNIDAD: esCelebrationKeyFreeport
-  ? formulario.CODIGO_UNIDAD.trim()
-  : null,
+        CODIGO_UNIDAD: esCelebrationKeyFreeport
+          ? formulario.CODIGO_UNIDAD.trim()
+          : null,
 
         UBICACION:
           esCorporativoCancun
@@ -1218,9 +1227,7 @@ function InventarioFormPage({
           formData
         );
 
-        toast.success(
-          "Equipo editado exitosamente"
-        );
+
 
       }
 
@@ -1229,23 +1236,34 @@ function InventarioFormPage({
       // -----------------------------------------
 
       else {
+        const respuesta = await crearInventario(formData);
 
-        await crearInventario(
-          formData
-        );
+        const nombreGenerado =
+          respuesta?.NOMBRE_EQUIPO ??
+          respuesta?.equipo?.NOMBRE_EQUIPO ??
+          respuesta?.data?.NOMBRE_EQUIPO ??
+          respuesta?.data?.equipo?.NOMBRE_EQUIPO;
 
-        toast.success(
-          "Equipo creado exitosamente"
-        );
+        if (esCorporativo && !nombreGenerado?.trim()) {
+          console.warn(
+            "El backend no devolvió el nombre del equipo creado."
+          );
+        }
+
+        setNombreEquipoQR(nombreGenerado?.trim() || "");
       }
 
-      // -----------------------------------------
-      // AVISAR AL PADRE
-      // -----------------------------------------
-
-      if (onSuccess) {
-        onSuccess();
-      }
+      // Mantener el formulario montado después de guardar.
+      // onSuccess se invocará cuando el usuario decida terminar,
+      // porque el componente padre podría cerrar el formulario.
+      setGuardadoExitoso(true);
+      mostrarMensajeModal(
+        "success",
+        esEdicion ? "Equipo actualizado" : "Equipo registrado",
+        esCorporativo
+          ? "El equipo se guardó correctamente. ¿Deseas generar un código QR?"
+          : "El equipo se guardó correctamente."
+      );
 
     } catch (error) {
       const mensaje =
@@ -1279,10 +1297,21 @@ function InventarioFormPage({
       );
 
     } finally {
-
+      setGuardandoEquipo(false);
       setLoading(false);
     }
   };
+
+  //FUNCION ABRE QR
+  const generarQR = () => {
+  if (!nombreEquipoQR) {
+    toast.error("No se pudo recuperar el nombre del equipo.");
+    return;
+  }
+
+  cerrarMensajeModal();
+  setMostrarQR(true);
+};
 
   // =========================================================
   // CAMBIO DE FOTO
@@ -1329,6 +1358,12 @@ function InventarioFormPage({
       mensaje: ""
     });
   };
+  // Notificar al padre únicamente cuando el usuario termina.
+  const finalizarFormulario = () => {
+    if (guardadoExitoso) onSuccess?.();
+    onClose?.();
+  };
+
   // =========================================================
   // RENDER
   // =========================================================
@@ -1341,8 +1376,30 @@ function InventarioFormPage({
         tipo={mensajeModal.tipo}
         titulo={mensajeModal.titulo}
         mensaje={mensajeModal.mensaje}
-        onCerrar={cerrarMensajeModal}
+        onCerrar={
+          guardadoExitoso && mensajeModal.tipo === "success"
+            ? finalizarFormulario
+            : cerrarMensajeModal
+        }
+        mostrarOpcionQR={
+          guardadoExitoso &&
+          mensajeModal.tipo === "success" &&
+          esCorporativo &&
+          !esEdicion
+        }
+
+        onGenerarQR={generarQR}
+        onFinalizar={finalizarFormulario}
       />
+      <EquipoQRModal
+  mostrar={mostrarQR}
+  nombreEquipo={nombreEquipoQR}
+  onCerrar={() => {
+    setMostrarQR(false);
+    onSuccess?.();
+    onClose?.();
+  }}
+/>
       <div className="modal modal-responsiva">
 
         {/* =================================================
@@ -1362,7 +1419,7 @@ function InventarioFormPage({
           <button
             type="button"
             className="btn-closer"
-            onClick={onClose}
+            onClick={finalizarFormulario}
             aria-label="Cerrar formulario"
             title="Cerrar"
           >
@@ -1561,69 +1618,69 @@ function InventarioFormPage({
                   </select>
 
                 </div>
-                
-{esCelebrationKeyFreeport ? (
-  <>
-    <div className="campo-form">
-      <label>
-        Código de unidad <strong>*</strong>
-      </label>
-           <select
-                    name="CODIGO_UNIDAD"
-                    value={
-                      formulario.CODIGO_UNIDAD
-                    }
-                    onChange={
-                      manejarCambio
-                    }
-                    disabled={
-                      !formulario.LOCALIDAD
-                    }
-                  >
 
-                    <option value="">
-                      Selecciona el código de la unidad
-                    </option>
+                {esCelebrationKeyFreeport ? (
+                  <>
+                    <div className="campo-form">
+                      <label>
+                        Código de unidad <strong>*</strong>
+                      </label>
+                      <select
+                        name="CODIGO_UNIDAD"
+                        value={
+                          formulario.CODIGO_UNIDAD
+                        }
+                        onChange={
+                          manejarCambio
+                        }
+                        disabled={
+                          !formulario.LOCALIDAD
+                        }
+                      >
 
-                    {codigosDisponibles.map(
-                      (codigo) => (
-                        <option
-                          key={codigo}
-                          value={codigo}
-                        >
-                          {codigo}
+                        <option value="">
+                          Selecciona el código de la unidad
                         </option>
-                      )
-                    )}
 
-                  </select>
-    </div>
+                        {codigosDisponibles.map(
+                          (codigo) => (
+                            <option
+                              key={codigo}
+                              value={codigo}
+                            >
+                              {codigo}
+                            </option>
+                          )
+                        )}
 
-    <div className="campo-form">
-      <label>Ubicación interna</label>
+                      </select>
+                    </div>
 
-      <input
-        name="UBICACION"
-        placeholder="Área, oficina, almacén, caja, barra..."
-        value={formulario.UBICACION}
-        onChange={manejarCambio}
-      />
-    </div>
-  </>
-) : !esCorporativoCancun ? (
-  <div className="campo-form">
-    <label>
-      Ubicación interna <strong>*</strong>
-    </label>
+                    <div className="campo-form">
+                      <label>Ubicación interna</label>
 
-    <input
-      name="UBICACION"
-      placeholder="Área, oficina, almacén, caja, barra..."
-      value={formulario.UBICACION}
-      onChange={manejarCambio}
-    />
-  </div>
-) : null}
+                      <input
+                        name="UBICACION"
+                        placeholder="Área, oficina, almacén, caja, barra..."
+                        value={formulario.UBICACION}
+                        onChange={manejarCambio}
+                      />
+                    </div>
+                  </>
+                ) : !esCorporativoCancun ? (
+                  <div className="campo-form">
+                    <label>
+                      Ubicación interna <strong>*</strong>
+                    </label>
+
+                    <input
+                      name="UBICACION"
+                      placeholder="Área, oficina, almacén, caja, barra..."
+                      value={formulario.UBICACION}
+                      onChange={manejarCambio}
+                    />
+                  </div>
+                ) : null}
 
                 {esCorporativoCancun && (
 
@@ -2614,7 +2671,7 @@ function InventarioFormPage({
               PASO 5
           ================================================= */}
 
-          {pasoInventario === 5 && (
+          {pasoInventario === 5 && !guardadoExitoso && (
 
             <div className="inventario-step-content">
 
@@ -2880,7 +2937,7 @@ function InventarioFormPage({
                   FOTO Y COMENTARIO
               ========================================= */}
 
-                <div className="responsiva-modal-body">
+                <div className="card">
                   <div className="header-inv">
                     <h2>
                       Foto y comentarios
@@ -2949,58 +3006,49 @@ function InventarioFormPage({
               FOOTER
           ================================================= */}
 
-          <div className="responsiva-modal-footer">
-
-            <div className="footer-right">
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={
-                  pasoAnterior
-                }
-                disabled={
-                  pasoInventario === 1
-                }
-              >
-                Anterior
-              </button>
-
-              <button
-                type="button"
-                className="btn-cancelar"
-                onClick={onClose}
-              >
-                Cancelar
-              </button>
-
-              {pasoInventario <
-                totalPasos ? (
-
+          {!guardadoExitoso && (
+            <div className="responsiva-modal-footer">
+              <div className="footer-right">
                 <button
                   type="button"
                   className="btn-primary"
-                  onClick={
-                    siguientePaso
-                  }
+                  onClick={pasoAnterior}
+                  disabled={pasoInventario === 1 || guardandoEquipo}
                 >
-                  Siguiente
+                  Anterior
                 </button>
-
-              ) : (
-
                 <button
-                  type="submit"
-                  className="btn-primary"
-                  onClick={guardarEquipo}
+                  type="button"
+                  className="btn-cancelar"
+                  onClick={finalizarFormulario}
+                  disabled={guardandoEquipo}
                 >
-                  {esEdicion
-                    ? "Actualizar equipo"
-                    : "Guardar equipo"}
+                  Cancelar
                 </button>
-
-              )}
+                {pasoInventario < totalPasos ? (
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={siguientePaso}
+                    disabled={guardandoEquipo}
+                  >
+                    Siguiente
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={guardarEquipo}
+                    disabled={guardandoEquipo}
+                  >
+                    {guardandoEquipo
+                      ? "Guardando..."
+                      : esEdicion ? "Actualizar equipo" : "Guardar equipo"}
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
         </form>
 

@@ -1,3 +1,4 @@
+
 .modal-header-right span {
   margin-right: 20px;
 }
@@ -169,6 +170,14 @@ select:disabled {
 }
 .modal-footer {
  height: fit-content;
+}
+
+.btn-generate {
+    background: #15A97C;
+}
+.btn-generate:hover {
+    background: #15a97da4;
+    cursor: pointer;
 }
 /*button de guardar formulario*/
 

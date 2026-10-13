@@ -1,0 +1,57 @@
+
+.equipo-qr-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px;
+  width: min(90vw, 440px);
+  max-height: 90vh;
+  overflow-y: auto;
+  text-align: center;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .2);
+  position: relative;
+  z-index: 10000;
+}
+
+.equipo-qr-modal h3 {
+  margin-bottom: 8px;
+}
+
+.equipo-qr-imagen {
+  background: white;
+  padding: 20px;
+  margin: 24px auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.equipo-qr-imagen svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.equipo-qr-nombre {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-bottom: 24px;
+}
+
+.equipo-qr-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.equipo-qr-acciones button {
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #032870;
+  color: white;
+}
+
+.equipo-qr-acciones button:last-child {
+  background: #e5e7eb;
+  color: #111827;
+}
