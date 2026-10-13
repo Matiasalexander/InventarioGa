@@ -12,6 +12,33 @@ import { obtenerCatalogos } from "../services/catalogosService";
 
 import { obtenerMisUnidades } from "../services/usuariosService";
 
+  const codigosDisponibles = [
+  "BC1",
+  "CABANAS",
+  "FB1-1",
+  "FB1-2",
+  "FB2-1",
+  "FB2-2",
+  "FB3.1",
+  "FB3.2",
+  "FB4.1",
+  "FB4.2",
+  "FB6",
+  "FB7.1",
+  "FB7.2",
+  "FB12",
+  "RESPALDO",
+  "SITE CK"
+];
+
+import {
+  obtenerConfigEquipo,
+  tieneEspecificacionesTecnicas,
+  tieneCampoEquipo,
+  requiereIP,
+  permiteAccesosRemotos,
+} from "../config/equiposConfig";
+
 import "../styles/InventarioFormPage.css";
 
 function InventarioFormPage({
@@ -200,81 +227,13 @@ function InventarioFormPage({
     "CELEBRATION KEY" &&
     normalizarTexto(formulario.LOCALIDAD) === "FREEPORT";
   // =========================================================
-  // TIPOS DE EQUIPO
+  // REGLAS CENTRALIZADAS DEL TIPO DE EQUIPO
   // =========================================================
-
-  // Teléfono
-  const esTelefono =
-    Number(formulario.ID_TIPO_EQUIPO) === 15;
-
-  // Equipos con SO
-  const esLaptop =
-    Number(formulario.ID_TIPO_EQUIPO) === 1;
-
-  const esDesktop =
-    Number(formulario.ID_TIPO_EQUIPO) === 2;
-
-  const esTablet =
-    Number(formulario.ID_TIPO_EQUIPO) === 14;
-
-  // Equipos POS
-  const esPantallaPOS =
-    Number(formulario.ID_TIPO_EQUIPO) === 4;
-
-  const esWorkstationpos =
-    Number(formulario.ID_TIPO_EQUIPO) === 7;
-
-  const esTabletPOS =
-    Number(formulario.ID_TIPO_EQUIPO) === 13;
-
-  const esKDS =
-    Number(formulario.ID_TIPO_EQUIPO) === 21;
-
-  // Equipos con IP
-  const esSwitch =
-    Number(formulario.ID_TIPO_EQUIPO) === 17;
-
-  const esAPS =
-    Number(formulario.ID_TIPO_EQUIPO) === 19;
-
-  const esCCTV =
-    Number(formulario.ID_TIPO_EQUIPO) === 20;
-
-  // Impresora
-  const esImpresora =
-    Number(formulario.ID_TIPO_EQUIPO) === 3;
-
-  const esServidor = Number(formulario.ID_TIPO_EQUIPO) === 38;
-
-  // =========================================================
-  // MOSTRAR IP
-  // =========================================================
-
-  const mostrarIP =
-    esSwitch ||
-    esAPS ||
-    esCCTV ||
-    esTabletPOS ||
-    esWorkstationpos ||
-    esKDS || esServidor ||
-    (
-      esImpresora &&
-      (
-        formulario.CONEXION === "wifi" ||
-        formulario.CONEXION === "Ethernet" ||
-        formulario.CONEXION === "Serial y Ethernet"
-      )
-    );
-
-  // =========================================================
-  // MOSTRAR ACCESOS
-  // =========================================================
-
-  const mostrarAccesos = esLaptop || esDesktop || esServidor ||
-    esPantallaPOS ||
-    esWorkstationpos ||
-    esTabletPOS ||
-    esKDS;
+  const configEquipo = obtenerConfigEquipo(formulario.ID_TIPO_EQUIPO);
+  const mostrarEspecificaciones = tieneEspecificacionesTecnicas(configEquipo);
+  const esImpresora = tieneCampoEquipo(configEquipo, "TIPO_IMPRESORA");
+  const mostrarIP = requiereIP(configEquipo, formulario.CONEXION);
+  const mostrarAccesos = permiteAccesosRemotos(configEquipo);
 
   // =========================================================
   // CARGAR CORREO
@@ -866,12 +825,7 @@ function InventarioFormPage({
     // -----------------------------------------
 
     if (
-      esLaptop ||
-      esDesktop ||
-      esTablet ||
-      esTelefono ||
-      esTabletPOS ||
-      esWorkstationpos
+      mostrarEspecificaciones
     ) {
 
       if (!formulario.ID_SISTEMA_OPERATIVO) {
@@ -1614,13 +1568,35 @@ function InventarioFormPage({
       <label>
         Código de unidad <strong>*</strong>
       </label>
+           <select
+                    name="CODIGO_UNIDAD"
+                    value={
+                      formulario.CODIGO_UNIDAD
+                    }
+                    onChange={
+                      manejarCambio
+                    }
+                    disabled={
+                      !formulario.LOCALIDAD
+                    }
+                  >
 
-      <input
-        name="CODIGO_UNIDAD"
-        placeholder="Ingresa el código de la unidad"
-        value={formulario.CODIGO_UNIDAD}
-        onChange={manejarCambio}
-      />
+                    <option value="">
+                      Selecciona el código de la unidad
+                    </option>
+
+                    {codigosDisponibles.map(
+                      (codigo) => (
+                        <option
+                          key={codigo}
+                          value={codigo}
+                        >
+                          {codigo}
+                        </option>
+                      )
+                    )}
+
+                  </select>
     </div>
 
     <div className="campo-form">
@@ -1970,12 +1946,7 @@ function InventarioFormPage({
                 ========================================= */}
 
                 {(
-                  esLaptop ||
-                  esDesktop ||
-                  esTablet ||
-                  esTelefono ||
-                  esTabletPOS ||
-                  esWorkstationpos
+                  mostrarEspecificaciones
                 ) && (
 
                     <>
