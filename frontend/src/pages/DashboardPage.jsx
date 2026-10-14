@@ -20,6 +20,7 @@ import {
   Palette,
   EggIcon,
   Lamp,
+  QrCode,
 } from "lucide-react";
 
 function DashboardPage({ setLoading }) {
@@ -29,7 +30,7 @@ function DashboardPage({ setLoading }) {
 
   //modificar esta nota de versión cuando se quiera desplegar en producto y anotar los nuevos cambios
 
-  const VERSION_ACTUAL = "4.4.0";
+  const VERSION_ACTUAL = "5.0.0";
 
 
 
@@ -641,7 +642,7 @@ function DashboardPage({ setLoading }) {
 
               </div>
 
-{/* 
+
               <div className="version-item">
 
                 <span className="version-item-icon">
@@ -658,7 +659,7 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se realizaron mejoras de diseño en el dashboard, apartado de registro y responsividad para celulares.
+                    Se agregó variaciones de color a las badge de estatus del equipo.
                   </p>
 
                 </div>
@@ -669,7 +670,7 @@ function DashboardPage({ setLoading }) {
               <div className="version-item">
 
                 <span className="version-item-icon">
-                  <ClipboardCheck
+                  <QrCode
                     size={20}
                   />
                 </span>
@@ -677,17 +678,17 @@ function DashboardPage({ setLoading }) {
                 <div>
 
                   <h3>
-                    Correcciones
+                    Implementación QR
                   </h3>
 
                   <p>
-                   Se implementó un checkbox en el número de serie, y nuevo modal de registro de equipo
+                   Se implementó una función para generar QR's con información del equipo únicamente disponible para corporativo.
                   </p>
 
                 </div>
 
               </div>
-*/}
+
 
             </div>
 
