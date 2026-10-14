@@ -14,6 +14,7 @@ import FiltrosModal from "../components/FiltrosModal";
 import { FileUp } from "lucide-react";
 import { Search } from "lucide-react";
 import InventarioFormPage from "./InventarioFormPage";
+import EquipoQRModal from "../components/EquipoModal";
 
 function InventarioPage({ setLoading }) {
   const navigate = useNavigate();
@@ -43,10 +44,27 @@ function InventarioPage({ setLoading }) {
   const puedeEditar = tienePermiso("inventario.editar");
   const puedeEliminar = tienePermiso("inventario.eliminar");
   const puedeExportar = tienePermiso("inventario.exportar");
+  const [equipoQRSeleccionado, setEquipoQRSeleccionado] = useState(null);
 
+  const consultarQR = (equipo) => {
+    if (!equipo?.id || !equipo?.NOMBRE_EQUIPO?.trim()) {
+      toast.error(
+        "No se encontró información suficiente para generar el QR."
+      );
+      return;
+    }
 
+    if (equipo.NOMBRE_EQUIPO.trim().toUpperCase() === "NA") {
+      toast.warning(
+        "Este equipo no tiene un nombre válido para generar su QR."
+      );
+      return;
+    }
 
+    setEquipoQRSeleccionado(equipo);
+  };
 
+  
 
   const [inventario, setInventario] = useState([]);
   const [arbolUnidades, setArbolUnidades] = useState([]);
@@ -554,7 +572,9 @@ const coincideCodigoUnidad =
   const estados = {
     "En uso": "badge badge-en-uso",
     Activo: "badge badge-activo",
-    Baja: "badge badge-baja"
+    Baja: "badge badge-baja",
+    Disponible: "badge badge-disponible",
+    Refacciones : "badge badge-refacciones"
   };
 
   // NUEVO:
@@ -578,6 +598,10 @@ const debeMostrarNuevaColumna = (item) => {
     normalizarTexto(item.UNIDAD) === "CELEBRATION KEY" &&
     normalizarTexto(item.LOCALIDAD) === "FREEPORT"
   );
+};
+
+const esCorporativoEquipo = (equipo) => {
+  return normalizarTexto(equipo.UNIDAD) === "CORPORATIVO";
 };
 
 const mostrarColumnaCodigoUnidad =
@@ -749,6 +773,7 @@ const mostrarColumnaCodigoUnidad =
   </td>
 )}
 
+
         <td>
           <InventarioAccionesMenu
             item={item}
@@ -757,6 +782,8 @@ const mostrarColumnaCodigoUnidad =
             onDetalle={irDetalle}
             onEditar={irActualizar}
             onEliminar={borrarEquipo}
+            esCorporativo={esCorporativoEquipo(item)}
+            onConsultarQR={consultarQR}
           />
         </td>
       </tr>
@@ -842,6 +869,14 @@ const mostrarColumnaCodigoUnidad =
           onSuccess={manejarGuardado}
         />
       )}
+      <EquipoQRModal
+  mostrar={Boolean(equipoQRSeleccionado)}
+  idEquipo={equipoQRSeleccionado?.id}
+  nombreEquipo={equipoQRSeleccionado?.NOMBRE_EQUIPO ?? ""}
+  onCerrar={() => {
+    setEquipoQRSeleccionado(null);
+  }}
+/>
     </div>
   );
 }
