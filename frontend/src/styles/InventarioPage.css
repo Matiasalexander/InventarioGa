@@ -376,6 +376,7 @@ select:disabled {
 .badge-en-uso{
   background: #dcfce7;
 }
+
 .badge-activo{
   background-color: rgb(255, 255, 150);
 }

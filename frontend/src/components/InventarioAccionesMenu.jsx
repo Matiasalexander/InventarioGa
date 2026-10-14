@@ -3,7 +3,7 @@ import {
   MoreVertical,
   Eye,
   Pencil,
-  Trash2
+  Trash2, QrCode
 } from "lucide-react";
 
 export default function InventarioAccionesMenu({
@@ -14,6 +14,9 @@ export default function InventarioAccionesMenu({
   onEditar,
   onEliminar,
   tieneResponsivaActiva,
+  //
+  esCorporativo = false,
+  onConsultarQR
 }) {
   const [abierto, setAbierto] = useState(false);
   const contenedorRef = useRef(null);
@@ -100,6 +103,19 @@ export default function InventarioAccionesMenu({
             Ver detalles
           </button>
 
+{/*CONSULTA DE QR*/}
+{esCorporativo && (
+  <button
+    type="button"
+    className="acciones-menu-item"
+    onClick={() =>
+      ejecutarAccion(() => onConsultarQR?.(item))
+    }
+  >
+    <QrCode className="icon-menu" size={16} />
+    Consultar QR
+  </button>
+)}
           {/* EDITAR */}
           {puedeEditar && (
             <button
