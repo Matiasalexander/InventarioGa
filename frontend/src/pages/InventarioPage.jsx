@@ -30,6 +30,7 @@ function InventarioPage({ setLoading }) {
   "FB2-2",
   "FB3.1",
   "FB3.2",
+  "FB3.3",
   "FB4.1",
   "FB4.2",
   "FB6",
