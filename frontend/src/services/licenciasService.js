@@ -33,3 +33,8 @@ export const obtenerOpcionesLicencias = async () => {
   const response = await apiLicencias.get("/api/licencias/opciones");
   return response.data;
 };
+
+export const crearLicencia = async(datos)=> {
+    const response = await apiLicencias.post("/api/licencias", datos);
+    return response.data;
+};
