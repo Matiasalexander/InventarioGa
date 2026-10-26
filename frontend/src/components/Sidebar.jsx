@@ -83,6 +83,12 @@ export default function Sidebar() {
       label: "Roles",
       icon: SlidersHorizontal,
       permiso: "roles.ver"
+    },
+    {
+      to: "/licencias",
+      label: "Licencias",
+      icon: SlidersHorizontal,
+      permiso: "licencias.ver"
     }
   ];
 
