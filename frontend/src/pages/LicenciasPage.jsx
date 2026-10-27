@@ -106,7 +106,6 @@ export default function LicenciasPage() {
                                 onClick={() => setMostrarModalRegistro(true)}
 
                             >
-                                <KeyRound size={16} />
                                 Agregar licencia
 
                             </button>

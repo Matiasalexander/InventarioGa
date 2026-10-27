@@ -17,7 +17,7 @@ import { obtenerMisUnidades } from "../services/usuariosService";
 
 import {
   obtenerLicenciasDisponibles,
-  asignarLicenciaAEquipo, obtenerLicenciasPorEquipo
+  asignarLicenciaAEquipo, obtenerLicenciasPorEquipo, liberarLicenciaDeEquipo
 } from "../services/licenciasService";
 
 const codigosDisponibles = [
@@ -89,6 +89,8 @@ const [errorLicenciasAsignadas, setErrorLicenciasAsignadas] =
 
 const [puedeAgregarLicencias, setPuedeAgregarLicencias] =
   useState(false);
+
+const [licenciaDesvinculando, setLicenciaDesvinculando] = useState(null);
   //ESTADOS DEL QR
   const [mostrarQR, setMostrarQR] = useState(false);
   const [nombreEquipoQR, setNombreEquipoQR] = useState("");
@@ -1219,6 +1221,114 @@ const alternarLicencia = (idLicencia) => {
 
     return [...actuales, idLicencia];
   });
+};
+
+
+const desvincularLicencia = async (licencia) => {
+  if (
+    !esEdicion ||
+    guardandoEquipo ||
+    guardadoExitoso ||
+    licenciaDesvinculando !== null
+  ) {
+    return;
+  }
+
+  const nombreLicencia =
+    `${licencia.SOFTWARE} ${licencia.VERSION}`;
+
+  const confirmado = window.confirm(
+    `¿Deseas desvincular la licencia "${nombreLicencia}"?\n\n` +
+    "La licencia quedará DISPONIBLE y podrá asignarse " +
+    "a otro equipo.\n\n" +
+    "Esta acción se aplicará inmediatamente."
+  );
+
+  if (!confirmado) return;
+
+  const idLicencia = licencia.ID_LICENCIA;
+
+  setLicenciaDesvinculando(idLicencia);
+
+  try {
+    // 1. Liberar la asignación desde el backend.
+    await liberarLicenciaDeEquipo(idLicencia);
+
+  } catch (error) {
+    console.error("Error desvinculando licencia:", error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "No se pudo desvincular la licencia."
+    );
+
+    setLicenciaDesvinculando(null);
+    return;
+  }
+
+  // La liberación ya fue confirmada por el backend.
+  // Si falla la recarga, no debemos presentarla como fallida.
+  toast.success(
+    "Licencia desvinculada y marcada como DISPONIBLE."
+  );
+
+  try {
+    // 2. Recargar licencias activas del equipo.
+    const respuestaEquipo =
+      await obtenerLicenciasPorEquipo(id);
+
+    setLicenciasAsignadas(
+      Array.isArray(respuestaEquipo?.licencias)
+        ? respuestaEquipo.licencias
+        : []
+    );
+
+    setErrorLicenciasAsignadas("");
+
+  } catch (error) {
+    console.error(
+      "Error actualizando licencias del equipo:",
+      error
+    );
+
+    setErrorLicenciasAsignadas(
+      "La licencia se desvinculó correctamente, " +
+      "pero no se pudo actualizar el listado."
+    );
+  }
+
+  try {
+    // 3. Recargar licencias disponibles.
+    const disponibles =
+      await obtenerLicenciasDisponibles();
+
+    if (!Array.isArray(disponibles)) {
+      throw new Error("Respuesta inválida.");
+    }
+
+    setLicenciasDisponibles(disponibles);
+
+    const idsDisponibles = new Set(
+      disponibles.map(item => item.ID_LICENCIA)
+    );
+
+    setLicenciasSeleccionadas(actuales =>
+      actuales.filter(item => idsDisponibles.has(item))
+    );
+
+  } catch (error) {
+    console.error(
+      "Error actualizando licencias disponibles:",
+      error
+    );
+
+    toast.warn(
+      "La licencia fue liberada, pero no se pudo " +
+      "actualizar el catálogo de disponibles."
+    );
+  } finally {
+    setLicenciaDesvinculando(null);
+  }
 };
 
 const asignarLicenciasDelEquipo = async (idEquipo, ids) => {
@@ -3306,30 +3416,58 @@ if (esEdicion) {
         <p>Este equipo no tiene licencias asignadas.</p>
       ) : (
         <div style={{ display: "grid", gap: "10px" }}>
-          {licenciasAsignadas.map(licencia => (
-            <div
-              key={licencia.ID_LICENCIA}
-              style={{
-                border: "1px solid #cbd5e1",
-                borderRadius: "8px",
-                padding: "12px"
-              }}
-            >
-              <strong>{licencia.SOFTWARE}</strong>
-              {" — "}
-              {licencia.VERSION}<br></br>
 
-              <div className="badge badge-activo">
-                {licencia.TIPO_LICENCIA}
-              </div>
+{licenciasAsignadas.map(licencia => (
+  <div
+    key={licencia.ID_LICENCIA}
+    style={{
+      border: "1px solid #cbd5e1",
+      borderRadius: "8px",
+      padding: "12px"
+    }}
+  >
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "12px"
+      }}
+    >
+      <div>
+        <strong>
+          {licencia.SOFTWARE} — {licencia.VERSION}
+        </strong>
+<br></br>
+        <small className="badge badge-activo">
+          {licencia.TIPO_LICENCIA}
+        </small>
 
-              <div
-                className="badge badge-en-uso"
-              >
-                Asignada a este equipo
-              </div>
-            </div>
-          ))}
+        <small className="badge badge-en-uso"
+        >
+        Asignada a este equipo
+        </small>
+      </div>
+
+      <button
+        type="button"
+        className="btn-cancelar"
+        onClick={() => desvincularLicencia(licencia)}
+        disabled={
+          guardandoEquipo ||
+          licenciaDesvinculando !== null
+        }
+        
+      >
+        {licenciaDesvinculando === licencia.ID_LICENCIA
+          ? "Desvinculando..."
+          : "Desvincular"}
+      </button>
+    </div>
+  </div>
+))}
+
         </div>
       )}
     </div>

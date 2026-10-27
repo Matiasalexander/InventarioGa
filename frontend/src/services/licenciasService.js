@@ -72,3 +72,12 @@ export const obtenerLicenciasPorEquipo = async (idEquipo) => {
   return response.data;
 };
 
+
+export const liberarLicenciaDeEquipo = async (idLicencia) => {
+  const response = await apiLicencias.post(
+    `/api/licencias/${idLicencia}/liberar`
+  );
+
+  return response.data;
+};
+
