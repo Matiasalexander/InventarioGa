@@ -896,11 +896,251 @@ const asignarLicencia = async (req, res) => {
 };
 
 
+/**
+ * GET /api/licencias/equipo/:idEquipo
+ *
+ * Obtiene las licencias con asignación activa
+ * a un equipo de INVENTARIO_M.
+ */
+const obtenerLicenciasPorEquipo = async (req, res) => {
+  const idEquipo = Number(req.params.idEquipo);
+  const idUsuario = Number(req.usuario?.IdUsuario);
+
+  const idValido = (id) =>
+    Number.isSafeInteger(id) &&
+    id > 0 &&
+    id <= 2147483647;
+
+  if (!idValido(idEquipo)) {
+    return res.status(400).json({
+      message: "ID de equipo inválido."
+    });
+  }
+
+  if (!idValido(idUsuario)) {
+    return res.status(401).json({
+      message: "Usuario no autenticado."
+    });
+  }
+
+  try {
+    const pool = await poolPromise;
+
+    // 1. Comprobar existencia del equipo.
+    const equipoResult = await pool.request()
+      .input("ID_EQUIPO", sql.Int, idEquipo)
+      .query(`
+        SELECT
+          id,
+          NOMBRE_EQUIPO,
+          ID_UNIDAD
+        FROM dbo.INVENTARIO_M
+        WHERE id = @ID_EQUIPO;
+      `);
+
+    if (equipoResult.recordset.length === 0) {
+      return res.status(404).json({
+        message: "El equipo no existe."
+      });
+    }
+
+    const equipo = equipoResult.recordset[0];
+
+    // 2. Validar acceso a la unidad del equipo.
+    const autorizado = await usuarioPuedeAccederUnidad(
+      idUsuario,
+      equipo.ID_UNIDAD
+    );
+
+    if (!autorizado) {
+      return res.status(403).json({
+        message:
+          "No tienes autorización para consultar las licencias de este equipo."
+      });
+    }
+
+    // 3. Recuperar solamente las asignaciones activas.
+    const resultado = await pool.request()
+      .input("ID_EQUIPO", sql.Int, idEquipo)
+      .input("ID_UNIDAD", sql.Int, equipo.ID_UNIDAD)
+      .query(`
+        SELECT
+          L.ID_LICENCIA,
+          L.SOFTWARE,
+          L.VERSION,
+          L.ID_TIPO_LICENCIA,
+          T.NOMBRE AS TIPO_LICENCIA,
+          L.FECHA_ACTIVACION,
+          L.ESTADO,
+          L.COMENTARIOS,
+          L.CONFIGURACION,
+          A.ID_ASIGNACION,
+          A.FECHA_ASIGNACION
+        FROM dbo.LICENCIAS_ASIGNACIONES AS A
+        INNER JOIN dbo.LICENCIAS AS L
+          ON L.ID_LICENCIA = A.ID_LICENCIA
+        INNER JOIN dbo.TIPOS_LICENCIA AS T
+          ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+        INNER JOIN dbo.INVENTARIO_M AS E
+          ON E.id = A.ID_EQUIPO
+        WHERE A.ID_EQUIPO = @ID_EQUIPO
+          AND E.ID_UNIDAD = @ID_UNIDAD
+          AND A.FECHA_LIBERACION IS NULL
+          AND L.ESTADO = 'EN_USO'
+        ORDER BY A.FECHA_ASIGNACION DESC,
+                 A.ID_ASIGNACION DESC;
+      `);
+
+    return res.status(200).json({
+      equipo: {
+        ID_EQUIPO: equipo.id,
+        NOMBRE_EQUIPO: equipo.NOMBRE_EQUIPO,
+        ID_UNIDAD: equipo.ID_UNIDAD
+      },
+      total: resultado.recordset.length,
+      licencias: resultado.recordset
+    });
+
+  } catch (error) {
+    console.error(
+      "Error consultando licencias por equipo:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Error interno consultando licencias por equipo."
+    });
+  }
+};
+
+
+/**
+ * GET /api/licencias/:id/historial
+ *
+ * Consulta el historial completo de asignaciones.
+ * Por ahora solamente el administrador puede verlo.
+ */
+const obtenerHistorialLicencia = async (req, res) => {
+  const idLicencia = Number(req.params.id);
+  const idUsuario = Number(req.usuario?.IdUsuario);
+
+  const idValido = (id) =>
+    Number.isSafeInteger(id) &&
+    id > 0 &&
+    id <= 2147483647;
+
+  if (!idValido(idLicencia)) {
+    return res.status(400).json({
+      message: "ID de licencia inválido."
+    });
+  }
+
+  if (!idValido(idUsuario)) {
+    return res.status(401).json({
+      message: "Usuario no autenticado."
+    });
+  }
+
+  try {
+    const pool = await poolPromise;
+
+    // 1. Validar que sea administrador activo.
+    const usuarioResult = await pool.request()
+      .input("ID_USUARIO", sql.Int, idUsuario)
+      .query(`
+        SELECT TOP (1)
+          U.IdUsuario
+        FROM dbo.Usuarios AS U
+        INNER JOIN dbo.Roles AS R
+          ON R.ID_ROL = U.IdRol
+         AND R.ACTIVO = 1
+        WHERE U.IdUsuario = @ID_USUARIO
+          AND U.Activo = 1
+          AND R.NOMBRE = 'Administrador';
+      `);
+
+    if (usuarioResult.recordset.length === 0) {
+      return res.status(403).json({
+        message:
+          "El historial completo requiere autorización de administrador."
+      });
+    }
+
+    // 2. Consultar la licencia sin exponer ACTIVADOR.
+    const licenciaResult = await pool.request()
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .query(`
+        SELECT
+          L.ID_LICENCIA,
+          L.SOFTWARE,
+          L.VERSION,
+          L.ESTADO,
+          T.NOMBRE AS TIPO_LICENCIA
+        FROM dbo.LICENCIAS AS L
+        INNER JOIN dbo.TIPOS_LICENCIA AS T
+          ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+        WHERE L.ID_LICENCIA = @ID_LICENCIA;
+      `);
+
+    if (licenciaResult.recordset.length === 0) {
+      return res.status(404).json({
+        message: "La licencia no existe."
+      });
+    }
+
+    // 3. Consultar todas las asignaciones.
+    const historialResult = await pool.request()
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .query(`
+        SELECT
+          A.ID_ASIGNACION,
+          A.ID_LICENCIA,
+          A.ID_EQUIPO,
+          E.NOMBRE_EQUIPO,
+          E.ID_UNIDAD AS ID_UNIDAD_ACTUAL_EQUIPO,
+          A.FECHA_ASIGNACION,
+          A.FECHA_LIBERACION,
+          CASE
+            WHEN A.FECHA_LIBERACION IS NULL
+              THEN 'ACTIVA'
+            ELSE 'LIBERADA'
+          END AS ESTADO_ASIGNACION
+        FROM dbo.LICENCIAS_ASIGNACIONES AS A
+        LEFT JOIN dbo.INVENTARIO_M AS E
+          ON E.id = A.ID_EQUIPO
+        WHERE A.ID_LICENCIA = @ID_LICENCIA
+        ORDER BY
+          A.FECHA_ASIGNACION DESC,
+          A.ID_ASIGNACION DESC;
+      `);
+
+    return res.status(200).json({
+      licencia: licenciaResult.recordset[0],
+      totalAsignaciones: historialResult.recordset.length,
+      historial: historialResult.recordset
+    });
+
+  } catch (error) {
+    console.error(
+      "Error consultando historial de licencia:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Error interno consultando el historial de la licencia."
+    });
+  }
+};
+
 module.exports = {
   obtenerTiposLicencia,
   obtenerLicencias,
   obtenerOpcionesLicencias,
   crearLicencia,
   asignarLicencia,
-  liberarLicencia
+  liberarLicencia,
+  obtenerLicenciasPorEquipo,
+  obtenerHistorialLicencia
 };

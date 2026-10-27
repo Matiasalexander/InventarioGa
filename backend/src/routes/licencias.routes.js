@@ -17,7 +17,9 @@ const {
   obtenerOpcionesLicencias,
   liberarLicencia,
   //no borrar
-  asignarLicencia
+  asignarLicencia,
+  obtenerLicenciasPorEquipo,
+  obtenerHistorialLicencia
 } = require("../controllers/licencias.controller");
 
 // =============================================
@@ -72,6 +74,26 @@ router.post(
   verificarToken,
   verificarPermiso("licencias.crear"),
   crearLicencia
+);
+
+// =============================================
+// LICENCIAS ACTIVAS DE UN EQUIPO
+// =============================================
+router.get(
+  "/equipo/:idEquipo",
+  verificarToken,
+  verificarPermiso("licencias.ver"),
+  obtenerLicenciasPorEquipo
+);
+
+// =============================================
+// HISTORIAL DE UNA LICENCIA
+// =============================================
+router.get(
+  "/:id/historial",
+  verificarToken,
+  verificarPermiso("licencias.ver"),
+  obtenerHistorialLicencia
 );
 
 module.exports = router;
