@@ -324,7 +324,7 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
             disabled={guardando}
             aria-label="Cerrar"
           >
-            <X size={20} />
+            x
           </button>
         </div>
 

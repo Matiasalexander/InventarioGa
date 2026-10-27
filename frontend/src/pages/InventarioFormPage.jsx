@@ -3317,20 +3317,17 @@ if (esEdicion) {
             >
               <strong>{licencia.SOFTWARE}</strong>
               {" — "}
-              {licencia.VERSION}
+              {licencia.VERSION}<br></br>
 
-              <small style={{ display: "block" }}>
+              <div className="badge badge-activo">
                 {licencia.TIPO_LICENCIA}
-              </small>
+              </div>
 
-              <small
-                style={{
-                  display: "block",
-                  color: "#166534"
-                }}
+              <div
+                className="badge badge-en-uso"
               >
-                En uso — Asignada a este equipo
-              </small>
+                Asignada a este equipo
+              </div>
             </div>
           ))}
         </div>
@@ -3338,33 +3335,13 @@ if (esEdicion) {
     </div>
   )}
 
-  <h3>
-    {esEdicion
-      ? "Agregar licencias disponibles"
-      : "Asignar licencias disponibles"}
-  </h3>
-
-  <p>
-    Selecciona las licencias que deseas asociar
-    al equipo. Este proceso es opcional.
-  </p>
-
-  {cargandoLicencias && (
-    <p>Consultando licencias disponibles...</p>
-  )}
-
-  {errorLicencias && (
-    <p role="alert" style={{ color: "#b45309" }}>
-      {errorLicencias}
-    </p>
-  )}
 
   {mostrarSelectorLicencias &&
     puedeAgregarLicencias &&
     !cargandoLicencias && (
       <>
         {licenciasDisponibles.length === 0 ? (
-          <p>No existen licencias disponibles.</p>
+          <p></p>
         ) : (
           <div style={{ display: "grid", gap: "10px" }}>
             {licenciasDisponibles.map(licencia => (
