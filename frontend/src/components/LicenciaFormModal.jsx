@@ -296,11 +296,11 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
 
   return createPortal(
     <div
-      className="licencia-modal-overlay"
+      className="modal-overlay"
       role="presentation"
     >
       <div
-        className="modal modal-responsiva"
+        className="modal modal-responsiva-editar"
         role="dialog"
         aria-modal="true"
         aria-labelledby="licencia-modal-titulo"
@@ -308,7 +308,6 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
         <div className="modal-header">
           <div>
             <h2 id="licencia-modal-titulo">
-              <KeyRound size={22} />
               Registrar licencia
             </h2>
             <p>
@@ -328,7 +327,7 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
           </button>
         </div>
 
-        <form onSubmit={guardar} className="licencia-modal-form">
+        <form onSubmit={guardar} className="responsiva-modal-body">
           {cargando ? (
             <p>Cargando configuraciones...</p>
           ) : !opciones ? (
@@ -338,8 +337,9 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
             </p>
           ) : (
             <>
-              <div className="licencia-form-grid">
-                <div className="licencia-campo">
+              <div className="responsiva-form-grid">
+                <div className="form-group">
+                  <h3>Datos generales de la licencia</h3>
                   <label htmlFor="licencia-software">
                     Software *
                   </label>
@@ -360,7 +360,7 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
                   </select>
                 </div>
 
-                <div className="licencia-campo">
+                <div className="form-group">
                   <label htmlFor="licencia-version">
                     Versión *
                   </label>
@@ -386,7 +386,7 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
                   </select>
                 </div>
 
-                <div className="licencia-campo">
+                <div className="form-group">
                   <label htmlFor="licencia-edicion">
                     Edición *
                   </label>
@@ -412,7 +412,7 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
                   </select>
                 </div>
 
-                <div className="licencia-campo">
+                <div className="form-group">
                   <label htmlFor="licencia-modalidad">
                     Tipo de licencia *
                   </label>
@@ -439,13 +439,13 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
               </div>
 
               {modalidadSeleccionada && (
-                <section className="licencia-campos-dinamicos">
+                <section className="form-group">
                   <h3>Configuración de la licencia</h3>
 
-                  <div className="licencia-form-grid">
+                  <div className="responsiva-form-grid">
                     {campos.map(campo => (
                       <div
-                        className="licencia-campo"
+                        className="form-group"
                         key={campo.nombre}
                       >
                         <label htmlFor={`licencia-${campo.nombre}`}>
@@ -504,10 +504,9 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
               )}
 
               <section className="licencia-campos-dinamicos">
-                <h3>Información administrativa</h3>
-
-                <div className="licencia-form-grid">
-                  <div className="licencia-campo">
+                  <h3>Información administrativa</h3>
+                  <div className="responsiva-form-grid">
+                  <div className="form-group">
                     <label htmlFor="licencia-fecha">
                       Fecha de activación
                     </label>
@@ -523,16 +522,14 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
                       }
                       disabled={guardando}
                     />
-                  </div>
 
-                  <div className="licencia-campo">
                     <label htmlFor="licencia-activador">
                       Método de activación
                     </label>
                     <input
                       id="licencia-activador"
                       maxLength={150}
-                      placeholder="Ej. MAK o KMS"
+                      placeholder="XXXX-XXXX-XXXX"
                       value={formulario.activador}
                       onChange={e =>
                         cambiarPrincipal("activador", e.target.value)
@@ -540,11 +537,9 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
                       disabled={guardando}
                     />
                     <small>
-                      No ingreses claves de producto ni contraseñas.
+                      
                     </small>
-                  </div>
 
-                  <div className="licencia-campo licencia-campo-completo">
                     <label htmlFor="licencia-comentarios">
                       Comentarios
                     </label>
@@ -560,11 +555,9 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
                     />
                   </div>
                 </div>
-              </section>
+      
 
-              <p className="licencia-estado-inicial">
-                Estado inicial: <strong>Disponible</strong>
-              </p>
+              </section>
             </>
           )}
 
@@ -579,10 +572,10 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
             </div>
           )}
 
-          <div className="licencia-modal-footer">
+          <div className="responsiva-modal-footer">
             <button
               type="button"
-              className="licencia-btn-cancelar"
+              className="btn-cancelar"
               onClick={onCerrar}
               disabled={guardando}
             >
@@ -591,7 +584,7 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
 
             <button
               type="submit"
-              className="licencia-btn-guardar"
+              className="btn-primary"
               disabled={
                 cargando ||
                 !opciones ||
