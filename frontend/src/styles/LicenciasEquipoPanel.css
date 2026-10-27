@@ -1,0 +1,128 @@
+
+.licencias-equipo-panel {
+  width: 100%;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.licencias-equipo-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.licencias-equipo-header h3 {
+  margin: 0 0 6px;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.licencias-equipo-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.licencias-equipo-total {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.licencias-equipo-lista {
+  display: grid;
+  gap: 14px;
+}
+
+.licencias-equipo-item {
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.licencias-equipo-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.licencias-equipo-item-header strong {
+  color: #0f172a;
+}
+
+.licencias-equipo-estado {
+  background: #dcfce7;
+  color: #166534;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.licencias-equipo-datos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.licencias-equipo-datos dt {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.licencias-equipo-datos dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #0f172a;
+  font-size: 0.9rem;
+}
+
+.licencias-equipo-comentario {
+  margin: 14px 0 0;
+  color: #475569;
+  overflow-wrap: anywhere;
+}
+
+.licencias-equipo-vacio {
+  padding: 16px;
+  text-align: center;
+  color: #64748b;
+  background: #fcf8f8;
+  border-radius: 8px;
+}
+
+.licencias-equipo-error {
+  padding: 14px;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+.licencias-equipo-error button {
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+@media (max-width: 640px) {
+  .licencias-equipo-panel {
+    padding: 14px;
+  }
+
+  .licencias-equipo-datos {
+    grid-template-columns: 1fr;
+  }
+}

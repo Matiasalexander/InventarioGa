@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { obtenerInventarioPorId } from "../services/inventarioService";
 import { obtenerHistorialResponsivasPorEquipo } from "../services/responsivaService";
 
+import LicenciasEquipoPanel from "../components/LicenciasEquipoPanel";
 import "../styles/InventarioDetallePage.css";
 
 
@@ -835,6 +836,7 @@ const debeMostrarNuevaColumna = (item) => {
 
         )}
 
+<LicenciasEquipoPanel idEquipo ={equipo.id}/>
 
         {/* ======================================
             ESTADO
