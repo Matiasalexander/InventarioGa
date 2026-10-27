@@ -300,12 +300,12 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
       role="presentation"
     >
       <div
-        className="licencia-modal"
+        className="modal modal-responsiva"
         role="dialog"
         aria-modal="true"
         aria-labelledby="licencia-modal-titulo"
       >
-        <div className="licencia-modal-header">
+        <div className="modal-header">
           <div>
             <h2 id="licencia-modal-titulo">
               <KeyRound size={22} />
@@ -319,10 +319,10 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
 
           <button
             type="button"
-            className="licencia-modal-cerrar"
+            className="btn-closer"
             onClick={onCerrar}
             disabled={guardando}
-            aria-label="Cerrar modal"
+            aria-label="Cerrar"
           >
             <X size={20} />
           </button>

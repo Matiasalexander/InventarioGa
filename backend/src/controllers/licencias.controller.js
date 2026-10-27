@@ -1134,6 +1134,62 @@ const obtenerHistorialLicencia = async (req, res) => {
   }
 };
 
+
+/**
+ * GET /api/licencias/disponibles
+ *
+ * Consulta licencias disponibles para asignación.
+ * No expone ACTIVADOR.
+ */
+const obtenerLicenciasDisponibles = async (req, res) => {
+  try {
+    const pool = await poolPromise;
+
+    const resultado = await pool.request().query(`
+      SELECT
+        L.ID_LICENCIA,
+        L.SOFTWARE,
+        L.VERSION,
+        L.ID_TIPO_LICENCIA,
+        T.NOMBRE AS TIPO_LICENCIA,
+        L.ESTADO,
+        L.CONFIGURACION,
+        L.COMENTARIOS
+      FROM dbo.LICENCIAS AS L
+      INNER JOIN dbo.TIPOS_LICENCIA AS T
+        ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+      WHERE L.ESTADO = 'DISPONIBLE'
+        AND NOT EXISTS (
+          SELECT 1
+          FROM dbo.LICENCIAS_ASIGNACIONES AS A
+          WHERE A.ID_LICENCIA = L.ID_LICENCIA
+            AND A.FECHA_LIBERACION IS NULL
+        )
+      ORDER BY
+        L.SOFTWARE,
+        L.VERSION,
+        L.ID_LICENCIA;
+    `);
+
+    return res.status(200).json({
+      total: resultado.recordset.length,
+      licencias: resultado.recordset
+    });
+
+  } catch (error) {
+    console.error(
+      "Error consultando licencias disponibles:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "No se pudieron consultar las licencias disponibles."
+    });
+  }
+};
+
+
 module.exports = {
   obtenerTiposLicencia,
   obtenerLicencias,
@@ -1142,5 +1198,6 @@ module.exports = {
   asignarLicencia,
   liberarLicencia,
   obtenerLicenciasPorEquipo,
-  obtenerHistorialLicencia
+  obtenerHistorialLicencia,
+  obtenerLicenciasDisponibles
 };
