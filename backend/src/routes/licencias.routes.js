@@ -14,7 +14,10 @@ const {
   obtenerTiposLicencia,
   obtenerLicencias,
   crearLicencia,
-  obtenerOpcionesLicencias
+  obtenerOpcionesLicencias,
+  liberarLicencia,
+  //no borrar
+  asignarLicencia
 } = require("../controllers/licencias.controller");
 
 // =============================================
@@ -44,6 +47,20 @@ router.get(
   verificarToken,
   verificarPermiso("licencias.ver"),
   obtenerLicencias
+);
+
+router.post(
+  "/:id/asignar",
+  verificarToken,
+  verificarPermiso("licencias.asignar"),
+  asignarLicencia
+);
+
+router.post(
+  "/:id/liberar",
+  verificarToken,
+  verificarPermiso("licencias.asignar"),
+  liberarLicencia
 );
 
 // =============================================

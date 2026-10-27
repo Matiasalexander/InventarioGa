@@ -4,6 +4,11 @@ const { poolPromise } = require("../config/db");
 require ("../validators/licencias.validator");
     const {validarSqlServer} = require("../validators/sqlServer.validator");
 
+//importar acceso unidad
+const {
+  usuarioPuedeAccederUnidad
+} = require("../services/unidadesAcceso.service");
+
 const {OPCIONES_LICENCIAS, CAMPOS_MODALIDAD} = require("../config/licenciasOpciones");
 
 // =============================================
@@ -209,9 +214,17 @@ if (!sqlServerValidado.valido) {
 // =============================================
 // GET /api/licencias
 // =============================================
+
 const obtenerLicencias = async (req, res) => {
   try {
-    const { estado } = req.query;
+    const { estado, unidad, sinAsignar } = req.query;
+    const idUsuario = Number(req.usuario?.IdUsuario);
+
+    if (!Number.isSafeInteger(idUsuario) || idUsuario <= 0) {
+      return res.status(401).json({
+        message: "Usuario no autenticado."
+      });
+    }
 
     const estadosPermitidos = [
       "DISPONIBLE",
@@ -219,16 +232,94 @@ const obtenerLicencias = async (req, res) => {
       "OBSOLETA"
     ];
 
-    if (estado && !estadosPermitidos.includes(estado)) {
+    if (
+      estado !== undefined &&
+      !estadosPermitidos.includes(estado)
+    ) {
       return res.status(400).json({
         message: "Estado de licencia inválido."
       });
     }
 
+    let idUnidad = null;
+
+    if (unidad !== undefined) {
+      if (
+        typeof unidad !== "string" ||
+        !/^[1-9]\d*$/.test(unidad)
+      ) {
+        return res.status(400).json({
+          message: "ID de unidad inválido."
+        });
+      }
+
+      idUnidad = Number(unidad);
+
+      if (
+        !Number.isSafeInteger(idUnidad) ||
+        idUnidad > 2147483647
+      ) {
+        return res.status(400).json({
+          message: "ID de unidad inválido."
+        });
+      }
+    }
+
+    if (
+      sinAsignar !== undefined &&
+      sinAsignar !== "1"
+    ) {
+      return res.status(400).json({
+        message: "El filtro sinAsignar debe ser 1."
+      });
+    }
+
+    if (sinAsignar === "1" && idUnidad !== null) {
+      return res.status(400).json({
+        message:
+          "No se puede combinar unidad con sinAsignar."
+      });
+    }
+
     const pool = await poolPromise;
+
+    // Confirmar que el usuario esté activo y obtener su rol.
+    const usuarioResult = await pool.request()
+      .input("IdUsuario", sql.Int, idUsuario)
+      .query(`
+        SELECT TOP (1)
+          U.IdUsuario,
+          R.NOMBRE AS ROL
+        FROM dbo.Usuarios AS U
+        INNER JOIN dbo.Roles AS R
+          ON R.ID_ROL = U.IdRol
+         AND R.ACTIVO = 1
+        WHERE U.IdUsuario = @IdUsuario
+          AND U.Activo = 1;
+      `);
+
+    if (usuarioResult.recordset.length === 0) {
+      return res.status(403).json({
+        message: "Usuario sin autorización activa."
+      });
+    }
+
+    const esAdministrador =
+      usuarioResult.recordset[0].ROL === "Administrador";
+
+    if (sinAsignar === "1" && !esAdministrador) {
+      return res.status(403).json({
+        message:
+          "No tienes permiso para consultar licencias sin asignar."
+      });
+    }
 
     const resultado = await pool.request()
       .input("ESTADO", sql.NVarChar(20), estado || null)
+      .input("ID_UNIDAD", sql.Int, idUnidad)
+      .input("ID_USUARIO", sql.Int, idUsuario)
+      .input("ES_ADMIN", sql.Bit, esAdministrador)
+      .input("SIN_ASIGNAR", sql.Bit, sinAsignar === "1")
       .query(`
         SELECT
           L.ID_LICENCIA,
@@ -238,46 +329,54 @@ const obtenerLicencias = async (req, res) => {
           T.NOMBRE AS TIPO_LICENCIA,
           L.FECHA_ACTIVACION,
           L.ESTADO,
-          L.ACTIVADOR,
           L.COMENTARIOS,
           L.CONFIGURACION,
           L.FECHA_REGISTRO,
-
           A.ID_ASIGNACION,
           A.ID_EQUIPO,
           E.NOMBRE_EQUIPO,
+          E.ID_UNIDAD,
           A.FECHA_ASIGNACION
-
         FROM dbo.LICENCIAS AS L
-
         INNER JOIN dbo.TIPOS_LICENCIA AS T
           ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
-
         LEFT JOIN dbo.LICENCIAS_ASIGNACIONES AS A
           ON A.ID_LICENCIA = L.ID_LICENCIA
-          AND A.FECHA_LIBERACION IS NULL
-
+         AND A.FECHA_LIBERACION IS NULL
         LEFT JOIN dbo.INVENTARIO_M AS E
           ON E.id = A.ID_EQUIPO
+        WHERE
+          (@ESTADO IS NULL OR L.ESTADO = @ESTADO)
 
-        WHERE (
-          @ESTADO IS NULL
-          OR L.ESTADO = @ESTADO
-        )
+          AND (
+            @ID_UNIDAD IS NULL
+            OR E.ID_UNIDAD = @ID_UNIDAD
+          )
 
-        ORDER BY L.ID_LICENCIA DESC
+          AND (
+            @SIN_ASIGNAR = 0
+            OR A.ID_ASIGNACION IS NULL
+          )
+
+          AND (
+            @ES_ADMIN = 1
+            OR EXISTS (
+              SELECT 1
+              FROM dbo.Usuario_Unidades AS UU
+              WHERE UU.IdUsuario = @ID_USUARIO
+                AND UU.IdUnidad = E.ID_UNIDAD
+            )
+          )
+        ORDER BY L.ID_LICENCIA DESC;
       `);
 
-
-    const licencias = resultado.recordset.map((item) => {
-      const { ACTIVADOR, ...datosPublicos } = item;
-      return datosPublicos;
-    });
-
-    return res.status(200).json(licencias);
+    return res.status(200).json(resultado.recordset);
 
   } catch (error) {
-    console.error("Error consultando licencias:", error);
+    console.error(
+      "Error consultando licencias por unidad:",
+      error
+    );
 
     return res.status(500).json({
       message: "Error consultando licencias."
@@ -352,9 +451,456 @@ const obtenerOpcionesLicencias = async (req, res) => {
   }
 };
 
+//LIBERAR LICENCIA
+
+const liberarLicencia = async (req, res) => {
+  const idLicencia = Number(req.params.id);
+  const idUsuario = Number(req.usuario?.IdUsuario);
+
+  if (
+    !Number.isSafeInteger(idLicencia) ||
+    idLicencia <= 0 ||
+    idLicencia > 2147483647
+  ) {
+    return res.status(400).json({
+      message: "ID de licencia inválido."
+    });
+  }
+
+  if (
+    !Number.isSafeInteger(idUsuario) ||
+    idUsuario <= 0
+  ) {
+    return res.status(401).json({
+      message: "Usuario no autenticado."
+    });
+  }
+
+  let transaccion = null;
+  let iniciada = false;
+
+  try {
+    const pool = await poolPromise;
+
+    transaccion = new sql.Transaction(pool);
+
+    await transaccion.begin(
+      sql.ISOLATION_LEVEL.READ_COMMITTED
+    );
+
+    iniciada = true;
+
+    // 1. Bloquear la licencia.
+    const licenciaResult = await new sql.Request(transaccion)
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .query(`
+        SELECT
+          ID_LICENCIA,
+          SOFTWARE,
+          VERSION,
+          ESTADO
+        FROM dbo.LICENCIAS WITH (UPDLOCK, HOLDLOCK)
+        WHERE ID_LICENCIA = @ID_LICENCIA;
+      `);
+
+    if (licenciaResult.recordset.length === 0) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(404).json({
+        message: "La licencia no existe."
+      });
+    }
+
+    const licencia = licenciaResult.recordset[0];
+
+    // 2. Buscar su asignación activa y el equipo.
+    const asignacionResult = await new sql.Request(transaccion)
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .query(`
+        SELECT
+          A.ID_ASIGNACION,
+          A.ID_EQUIPO,
+          A.FECHA_ASIGNACION,
+          E.ID_UNIDAD,
+          E.NOMBRE_EQUIPO
+        FROM dbo.LICENCIAS_ASIGNACIONES AS A
+          WITH (UPDLOCK, HOLDLOCK)
+        INNER JOIN dbo.INVENTARIO_M AS E
+          ON E.id = A.ID_EQUIPO
+        WHERE A.ID_LICENCIA = @ID_LICENCIA
+          AND A.FECHA_LIBERACION IS NULL;
+      `);
+
+    const asignacion = asignacionResult.recordset[0];
+
+    // Si la licencia aparece en uso pero no tiene una
+    // asignación válida, no cambiamos ningún registro.
+    if (!asignacion) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(409).json({
+        message:
+          "La licencia no tiene una asignación activa válida."
+      });
+    }
+
+    // 3. Comprobar autorización sobre la unidad actual.
+    const autorizado = await usuarioPuedeAccederUnidad(
+      idUsuario,
+      asignacion.ID_UNIDAD,
+      transaccion
+    );
+
+    if (!autorizado) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(403).json({
+        message:
+          "No tienes autorización para liberar licencias de esta unidad."
+      });
+    }
+
+    // 4. Verificar consistencia del estado.
+    if (licencia.ESTADO !== "EN_USO") {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(409).json({
+        message:
+          "Solo se pueden liberar licencias en estado EN_USO.",
+        estadoActual: licencia.ESTADO
+      });
+    }
+
+    // 5. Cerrar la asignación sin eliminar su historial.
+    const liberacionResult = await new sql.Request(transaccion)
+      .input(
+        "ID_ASIGNACION",
+        sql.Int,
+        asignacion.ID_ASIGNACION
+      )
+      .query(`
+        UPDATE dbo.LICENCIAS_ASIGNACIONES
+        SET FECHA_LIBERACION = SYSUTCDATETIME()
+        OUTPUT
+          INSERTED.ID_ASIGNACION,
+          INSERTED.ID_LICENCIA,
+          INSERTED.ID_EQUIPO,
+          INSERTED.FECHA_ASIGNACION,
+          INSERTED.FECHA_LIBERACION
+        WHERE ID_ASIGNACION = @ID_ASIGNACION
+          AND FECHA_LIBERACION IS NULL;
+      `);
+
+    if (liberacionResult.recordset.length !== 1) {
+      throw new Error(
+        "No se pudo cerrar la asignación activa."
+      );
+    }
+
+    // 6. Devolver la licencia al estado DISPONIBLE.
+    const estadoResult = await new sql.Request(transaccion)
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .query(`
+        UPDATE dbo.LICENCIAS
+        SET ESTADO = 'DISPONIBLE'
+        WHERE ID_LICENCIA = @ID_LICENCIA
+          AND ESTADO = 'EN_USO';
+      `);
+
+    if (estadoResult.rowsAffected[0] !== 1) {
+      throw new Error(
+        "No se pudo actualizar el estado de la licencia."
+      );
+    }
+
+    // 7. Confirmar ambas operaciones.
+    await transaccion.commit();
+    iniciada = false;
+
+    return res.status(200).json({
+      message: "Licencia liberada correctamente.",
+      licencia: {
+        ID_LICENCIA: licencia.ID_LICENCIA,
+        SOFTWARE: licencia.SOFTWARE,
+        VERSION: licencia.VERSION,
+        ESTADO: "DISPONIBLE",
+        ID_UNIDAD: null
+      },
+      ultimaAsignacion: liberacionResult.recordset[0]
+    });
+
+  } catch (error) {
+    if (iniciada && transaccion) {
+      try {
+        await transaccion.rollback();
+      } catch (errorRollback) {
+        console.error(
+          "Error revirtiendo liberación:",
+          errorRollback
+        );
+      }
+    }
+
+    console.error("Error liberando licencia:", error);
+
+    return res.status(500).json({
+      message: "Error interno al liberar la licencia."
+    });
+  }
+};
+
+
+//ASIGNAR LICENCIA
+
+/**
+ * POST /api/licencias/:id/asignar
+ *
+ * Asigna una licencia disponible a un equipo
+ * existente en INVENTARIO_M.
+ *
+ * La unidad de la licencia se determina a través
+ * del ID_UNIDAD del equipo asignado.
+ */
+const asignarLicencia = async (req, res) => {
+  const idLicencia = Number(req.params.id);
+  const idEquipo = Number(req.body?.ID_EQUIPO);
+  const idUsuario = Number(req.usuario?.IdUsuario);
+
+  // 1. Validar parámetros.
+  const esIdValido = (valor) =>
+    Number.isSafeInteger(valor) &&
+    valor > 0 &&
+    valor <= 2147483647;
+
+  if (!esIdValido(idLicencia)) {
+    return res.status(400).json({
+      message: "ID de licencia inválido."
+    });
+  }
+
+  if (!esIdValido(idEquipo)) {
+    return res.status(400).json({
+      message: "Selecciona un equipo válido."
+    });
+  }
+
+  if (!esIdValido(idUsuario)) {
+    return res.status(401).json({
+      message: "Usuario no autenticado."
+    });
+  }
+
+  let transaccion = null;
+  let iniciada = false;
+
+  try {
+    const pool = await poolPromise;
+
+    transaccion = new sql.Transaction(pool);
+
+    await transaccion.begin(
+      sql.ISOLATION_LEVEL.READ_COMMITTED
+    );
+
+    iniciada = true;
+
+    // 2. Bloquear la licencia durante la operación.
+    const licenciaResult = await new sql.Request(transaccion)
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .query(`
+        SELECT
+          ID_LICENCIA,
+          SOFTWARE,
+          VERSION,
+          ESTADO
+        FROM dbo.LICENCIAS WITH (UPDLOCK, HOLDLOCK)
+        WHERE ID_LICENCIA = @ID_LICENCIA;
+      `);
+
+    if (licenciaResult.recordset.length === 0) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(404).json({
+        message: "La licencia no existe."
+      });
+    }
+
+    const licencia = licenciaResult.recordset[0];
+
+    // 3. Verificar el equipo y bloquearlo para
+    // mantener estable su unidad durante la operación.
+    const equipoResult = await new sql.Request(transaccion)
+      .input("ID_EQUIPO", sql.Int, idEquipo)
+      .query(`
+        SELECT
+          id,
+          ID_UNIDAD,
+          NOMBRE_EQUIPO
+        FROM dbo.INVENTARIO_M WITH (HOLDLOCK)
+        WHERE id = @ID_EQUIPO;
+      `);
+
+    if (equipoResult.recordset.length === 0) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(404).json({
+        message: "El equipo no existe."
+      });
+    }
+
+    const equipo = equipoResult.recordset[0];
+
+    // 4. Comprobar acceso a la unidad.
+    const autorizado = await usuarioPuedeAccederUnidad(
+      idUsuario,
+      equipo.ID_UNIDAD,
+      transaccion
+    );
+
+    if (!autorizado) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(403).json({
+        message:
+          "No tienes autorización para asignar licencias a esta unidad."
+      });
+    }
+
+    // 5. Verificar disponibilidad.
+    if (licencia.ESTADO !== "DISPONIBLE") {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(409).json({
+        message:
+          "La licencia no está disponible para asignación.",
+        estadoActual: licencia.ESTADO
+      });
+    }
+
+    // 6. Validar que no exista una asignación activa.
+    const asignacionActiva = await new sql.Request(transaccion)
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .query(`
+        SELECT TOP (1)
+          ID_ASIGNACION
+        FROM dbo.LICENCIAS_ASIGNACIONES
+        WHERE ID_LICENCIA = @ID_LICENCIA
+          AND FECHA_LIBERACION IS NULL;
+      `);
+
+    if (asignacionActiva.recordset.length > 0) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(409).json({
+        message:
+          "La licencia ya tiene una asignación activa."
+      });
+    }
+
+    // 7. Crear asignación.
+    const nuevaAsignacion = await new sql.Request(transaccion)
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .input("ID_EQUIPO", sql.Int, idEquipo)
+      .query(`
+        INSERT INTO dbo.LICENCIAS_ASIGNACIONES (
+          ID_LICENCIA,
+          ID_EQUIPO,
+          FECHA_ASIGNACION
+        )
+        OUTPUT
+          INSERTED.ID_ASIGNACION,
+          INSERTED.ID_LICENCIA,
+          INSERTED.ID_EQUIPO,
+          INSERTED.FECHA_ASIGNACION
+        VALUES (
+          @ID_LICENCIA,
+          @ID_EQUIPO,
+          SYSUTCDATETIME()
+        );
+      `);
+
+    // 8. Cambiar el estado a EN_USO.
+    const estadoResult = await new sql.Request(transaccion)
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .query(`
+        UPDATE dbo.LICENCIAS
+        SET ESTADO = 'EN_USO'
+        WHERE ID_LICENCIA = @ID_LICENCIA
+          AND ESTADO = 'DISPONIBLE';
+      `);
+
+    if (estadoResult.rowsAffected[0] !== 1) {
+      throw new Error(
+        "No se pudo actualizar el estado de la licencia."
+      );
+    }
+
+    // 9. Confirmar los cambios.
+    await transaccion.commit();
+    iniciada = false;
+
+    return res.status(201).json({
+      message: "Licencia asignada correctamente.",
+      asignacion: nuevaAsignacion.recordset[0],
+      licencia: {
+        ID_LICENCIA: licencia.ID_LICENCIA,
+        SOFTWARE: licencia.SOFTWARE,
+        VERSION: licencia.VERSION,
+        ESTADO: "EN_USO",
+        ID_UNIDAD: equipo.ID_UNIDAD
+      },
+      equipo: {
+        id: equipo.id,
+        NOMBRE_EQUIPO: equipo.NOMBRE_EQUIPO,
+        ID_UNIDAD: equipo.ID_UNIDAD
+      }
+    });
+
+  } catch (error) {
+    if (iniciada && transaccion) {
+      try {
+        await transaccion.rollback();
+      } catch (errorRollback) {
+        console.error(
+          "Error revirtiendo asignación:",
+          errorRollback
+        );
+      }
+    }
+
+    console.error("Error asignando licencia:", error);
+
+    // Índice único: no permite más de una
+    // asignación activa por licencia.
+    if ([2601, 2627].includes(error.number)) {
+      return res.status(409).json({
+        message:
+          "La licencia ya tiene una asignación activa."
+      });
+    }
+
+    return res.status(500).json({
+      message:
+        "Error interno al asignar la licencia."
+    });
+  }
+};
+
+
 module.exports = {
   obtenerTiposLicencia,
   obtenerLicencias,
   obtenerOpcionesLicencias,
-  crearLicencia
+  crearLicencia,
+  asignarLicencia,
+  liberarLicencia
 };
