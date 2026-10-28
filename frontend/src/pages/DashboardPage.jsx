@@ -20,6 +20,7 @@ import {
   Palette,
   EggIcon,
   Lamp,
+  KeyRound,
 } from "lucide-react";
 
 function DashboardPage({ setLoading }) {
@@ -29,7 +30,7 @@ function DashboardPage({ setLoading }) {
 
   //modificar esta nota de versión cuando se quiera desplegar en producto y anotar los nuevos cambios
 
-  const VERSION_ACTUAL = "4.4.0";
+  const VERSION_ACTUAL = "5.0.0";
 
 
 
@@ -621,7 +622,7 @@ function DashboardPage({ setLoading }) {
               <div className="version-item">
 
                 <span className="version-item-icon">
-                  <Lamp
+                  <KeyRound
                     size={20}
                     color="gray"
                   />
@@ -634,7 +635,8 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se agregó la columna codigo_unidad unicamente visible para los usuarios de nivel administrador y con acceso a celebration key
+                    Se agregó el gestor de licencias unicamente visible para administrador con el fin de administrar y registrar licencias
+                    para los servidores.
                   </p>
 
                 </div>

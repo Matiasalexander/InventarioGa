@@ -852,6 +852,7 @@
 }
 
 .version-item h3 {
+    text-align: left;
     margin: 2px 0 5px;
 
     font-size: 16px;
@@ -861,6 +862,7 @@
 }
 
 .version-item p {
+    text-align: left;
     margin: 0;
 
     font-size: 14px;
