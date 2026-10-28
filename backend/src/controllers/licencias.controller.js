@@ -606,7 +606,7 @@ const liberarLicencia = async (req, res) => {
       .input("ID_LICENCIA", sql.Int, idLicencia)
       .query(`
         UPDATE dbo.LICENCIAS
-        SET ESTADO = 'DISPONIBLE'
+        SET ESTADO = 'OBSOLETA'
         WHERE ID_LICENCIA = @ID_LICENCIA
           AND ESTADO = 'EN_USO';
       `);
@@ -627,7 +627,7 @@ const liberarLicencia = async (req, res) => {
         ID_LICENCIA: licencia.ID_LICENCIA,
         SOFTWARE: licencia.SOFTWARE,
         VERSION: licencia.VERSION,
-        ESTADO: "DISPONIBLE",
+        ESTADO: "OBSOLETA",
         ID_UNIDAD: null
       },
       ultimaAsignacion: liberacionResult.recordset[0]
@@ -1189,6 +1189,145 @@ const obtenerLicenciasDisponibles = async (req, res) => {
   }
 };
 
+// ESTE ENDPOINT ES PARA OBTENER DETALLES DE LA LICENCIA
+
+const obtenerDetalleLicencia = async (req, res) => {
+  const idLicencia = Number(req.params.id);
+  const idUsuario = Number(req.usuario?.IdUsuario);
+
+  const idValido = (valor) =>
+    Number.isSafeInteger(valor) &&
+    valor > 0 &&
+    valor <= 2147483647;
+
+  if (!idValido(idLicencia)) {
+    return res.status(400).json({
+      message: "ID de licencia inválido."
+    });
+  }
+
+  if (!idValido(idUsuario)) {
+    return res.status(401).json({
+      message: "Usuario no autenticado."
+    });
+  }
+
+  try {
+    const pool = await poolPromise;
+
+    const resultado = await pool.request()
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .input("ID_USUARIO", sql.Int, idUsuario)
+      .query(`
+        SELECT
+          L.ID_LICENCIA,
+          L.SOFTWARE,
+          L.VERSION,
+          L.ID_TIPO_LICENCIA,
+          T.NOMBRE AS TIPO_LICENCIA,
+          T.DESCRIPCION AS DESCRIPCION_TIPO,
+          L.FECHA_ACTIVACION,
+          L.ESTADO,
+          L.COMENTARIOS,
+          L.CONFIGURACION,
+          L.FECHA_REGISTRO,
+
+          CASE
+            WHEN R.NOMBRE = 'Administrador'
+              THEN L.ACTIVADOR
+            ELSE NULL
+          END AS ACTIVADOR,
+
+          A.ID_ASIGNACION,
+          A.ID_EQUIPO,
+          A.FECHA_ASIGNACION,
+          E.NOMBRE_EQUIPO,
+          E.ID_UNIDAD
+
+        FROM dbo.LICENCIAS AS L
+
+        INNER JOIN dbo.TIPOS_LICENCIA AS T
+          ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+
+        CROSS JOIN dbo.Usuarios AS U
+
+        INNER JOIN dbo.Roles AS R
+          ON R.ID_ROL = U.IdRol
+         AND R.ACTIVO = 1
+
+        LEFT JOIN dbo.LICENCIAS_ASIGNACIONES AS A
+          ON A.ID_LICENCIA = L.ID_LICENCIA
+         AND A.FECHA_LIBERACION IS NULL
+
+        LEFT JOIN dbo.INVENTARIO_M AS E
+          ON E.id = A.ID_EQUIPO
+
+        WHERE L.ID_LICENCIA = @ID_LICENCIA
+          AND U.IdUsuario = @ID_USUARIO
+          AND U.Activo = 1
+          AND (
+            R.NOMBRE = 'Administrador'
+            OR (
+              A.ID_ASIGNACION IS NOT NULL
+              AND EXISTS (
+                SELECT 1
+                FROM dbo.Usuario_Unidades AS UU
+                WHERE UU.IdUsuario = U.IdUsuario
+                  AND UU.IdUnidad = E.ID_UNIDAD
+              )
+            )
+          );
+      `);
+
+    if (resultado.recordset.length === 0) {
+      // No distinguir entre inexistencia y falta de
+      // acceso a una licencia de otra unidad.
+      return res.status(404).json({
+        message: "Licencia no encontrada o no disponible."
+      });
+    }
+
+    const licencia = resultado.recordset[0];
+
+    return res.status(200).json({
+      licencia: {
+        ID_LICENCIA: licencia.ID_LICENCIA,
+        SOFTWARE: licencia.SOFTWARE,
+        VERSION: licencia.VERSION,
+        ID_TIPO_LICENCIA: licencia.ID_TIPO_LICENCIA,
+        TIPO_LICENCIA: licencia.TIPO_LICENCIA,
+        DESCRIPCION_TIPO: licencia.DESCRIPCION_TIPO,
+        FECHA_ACTIVACION: licencia.FECHA_ACTIVACION,
+        ESTADO: licencia.ESTADO,
+        ACTIVADOR: licencia.ACTIVADOR,
+        COMENTARIOS: licencia.COMENTARIOS,
+        CONFIGURACION: licencia.CONFIGURACION,
+        FECHA_REGISTRO: licencia.FECHA_REGISTRO
+      },
+      asignacionActual: licencia.ID_ASIGNACION
+        ? {
+            ID_ASIGNACION: licencia.ID_ASIGNACION,
+            ID_EQUIPO: licencia.ID_EQUIPO,
+            NOMBRE_EQUIPO: licencia.NOMBRE_EQUIPO,
+            ID_UNIDAD: licencia.ID_UNIDAD,
+            FECHA_ASIGNACION: licencia.FECHA_ASIGNACION
+          }
+        : null
+    });
+
+  } catch (error) {
+    console.error(
+      "Error consultando detalle de licencia:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Error consultando detalle de licencia."
+    });
+  }
+};
+
+
 
 module.exports = {
   obtenerTiposLicencia,
@@ -1199,5 +1338,6 @@ module.exports = {
   liberarLicencia,
   obtenerLicenciasPorEquipo,
   obtenerHistorialLicencia,
-  obtenerLicenciasDisponibles
+  obtenerLicenciasDisponibles,
+  obtenerDetalleLicencia
 };

@@ -1,6 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, RefreshCw, KeyRound } from "lucide-react";
+import { Search, RefreshCw, KeyRound, Eye } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
@@ -9,6 +9,7 @@ import "../styles/LicenciasPage.css";
 
 //import del modal de licencias
 import LicenciaFormModal from "../components/LicenciaFormModal";
+import LicenciaDetalleModal from "../components/LicenciaDetalleModal";
 
 export default function LicenciasPage() {
     const [licencias, setLicencias] = useState([]);
@@ -16,6 +17,9 @@ export default function LicenciasPage() {
     const [estado, setEstado] = useState("");
     const [cargando, setCargando] = useState(true);
     const [mostarModalRegistro, setMostrarModalRegistro] = useState(false);
+
+    const [idLicenciaDetalle, setIdLicenciaDetalle] =
+        useState(null);
 
     const cargarLicencias = async (estadoActual = "") => {
         try {
@@ -144,75 +148,97 @@ export default function LicenciasPage() {
                         </select>
                     </div>
                 </div>
-            <div className="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Software</th>
-                            <th>Versión</th>
-                            <th>Tipo de licencia</th>
-                            <th>Equipo asignado</th>
-                            <th>Fecha de activación</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
+                <div className="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Software</th>
+                                <th>Versión</th>
+                                <th>Tipo de licencia</th>
+                                <th>Equipo asignado</th>
+                                <th>Fecha de activación</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
 
-                    <tbody>
-                        {cargando ? (
-                            <tr>
-                                <td colSpan={7}>
-                                    Cargando licencias...
-                                </td>
-                            </tr>
-                        ) : licenciasFiltradas.length === 0 ? (
-                            <tr>
-                                <td colSpan={7}>
-                                    No se encontraron licencias.
-                                </td>
-                            </tr>
-                        ) : (
-                            licenciasFiltradas.map((licencia) => (
-                                <tr key={licencia.ID_LICENCIA}>
-                                    <td>
-                                        <span className="licencias-software">
-                                            {licencia.SOFTWARE}
-                                        </span>
-                                    </td>
-                                    <td>{licencia.VERSION}</td>
-                                    <td>{licencia.TIPO_LICENCIA}</td>
-                                    <td>
-                                        {licencia.NOMBRE_EQUIPO || "Sin asignar"}
-                                    </td>
-                                    <td>
-                                        {formatearFecha(
-                                            licencia.FECHA_ACTIVACION
-                                        )}
-                                    </td>
-                                    <td>
-                                        <span
-                                            className={`licencias-estado ${licencia.ESTADO
-                                                }`}
-                                        >
-                                            {licencia.ESTADO === "EN_USO"
-                                                ? "En uso"
-                                                : licencia.ESTADO === "OBSOLETA"
-                                                    ? "Obsoleta"
-                                                    : "Disponible"}
-                                        </span>
+                        <tbody>
+                            {cargando ? (
+                                <tr>
+                                    <td colSpan={7}>
+                                        Cargando licencias...
                                     </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
+                            ) : licenciasFiltradas.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7}>
+                                        No se encontraron licencias.
+                                    </td>
+                                </tr>
+                            ) : (
+                                licenciasFiltradas.map((licencia) => (
+                                    <tr key={licencia.ID_LICENCIA}>
+                                        <td>
+                                            <span className="licencias-software">
+                                                {licencia.SOFTWARE}
+                                            </span>
+                                        </td>
+                                        <td>{licencia.VERSION}</td>
+                                        <td>{licencia.TIPO_LICENCIA}</td>
+                                        <td>
+                                            {licencia.NOMBRE_EQUIPO || "Sin asignar"}
+                                        </td>
+                                        <td>
+                                            {formatearFecha(
+                                                licencia.FECHA_ACTIVACION
+                                            )}
+                                        </td>
+                                        <td>
+                                            <span
+                                                className={`licencias-estado ${licencia.ESTADO
+                                                    }`}
+                                            >
+                                                {licencia.ESTADO === "EN_USO"
+                                                    ? "En uso"
+                                                    : licencia.ESTADO === "OBSOLETA"
+                                                        ? "Obsoleta"
+                                                        : "Disponible"}
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <button
+                                                type="button"
+                                                className="licencias-btn-detalle"
+                                                onClick={() =>
+                                                    setIdLicenciaDetalle(licencia.ID_LICENCIA)
+                                                }
+                                                title="Consultar información de licencia"
+                                                aria-label={`Ver detalles de ${licencia.SOFTWARE}`}
+                                            >
+                                                <Eye size={16} />
+                                                Ver detalles
+                                            </button>
+                                        </td>
+
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                <p className="licencias-total">
+                    {licenciasFiltradas.length} licencia(s)
+                    {busqueda && " encontradas"}
+                </p>
             </div>
 
-            <p className="licencias-total">
-                {licenciasFiltradas.length} licencia(s)
-                {busqueda && " encontradas"}
-            </p>
-            </div>
-
+            <LicenciaDetalleModal
+                idLicencia={idLicenciaDetalle}
+                onCerrar={() => setIdLicenciaDetalle(null)}
+            />
+            
             <LicenciaFormModal
                 mostrar={mostarModalRegistro}
                 onCerrar={() => setMostrarModalRegistro(false)}

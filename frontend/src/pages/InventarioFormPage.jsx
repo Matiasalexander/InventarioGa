@@ -1239,8 +1239,8 @@ const desvincularLicencia = async (licencia) => {
 
   const confirmado = window.confirm(
     `¿Deseas desvincular la licencia "${nombreLicencia}"?\n\n` +
-    "La licencia quedará DISPONIBLE y podrá asignarse " +
-    "a otro equipo.\n\n" +
+    "La licencia quedará OBSOLETA y no podrá volver a asignarse " +
+    "en otro equipo.\n\n" +
     "Esta acción se aplicará inmediatamente."
   );
 
@@ -1269,7 +1269,7 @@ const desvincularLicencia = async (licencia) => {
   // La liberación ya fue confirmada por el backend.
   // Si falla la recarga, no debemos presentarla como fallida.
   toast.success(
-    "Licencia desvinculada y marcada como DISPONIBLE."
+    "Licencia desvinculada y marcada como OBSOLETA."
   );
 
   try {

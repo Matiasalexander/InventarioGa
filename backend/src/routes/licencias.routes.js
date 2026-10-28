@@ -20,7 +20,7 @@ const {
   asignarLicencia,
   obtenerLicenciasPorEquipo,
   obtenerHistorialLicencia,
-  obtenerLicenciasDisponibles
+  obtenerLicenciasDisponibles, obtenerDetalleLicencia
 } = require("../controllers/licencias.controller");
 
 // =============================================
@@ -107,4 +107,11 @@ router.get(
   obtenerLicenciasDisponibles
 );
 
+//OBTENER DETALLES DE LA LICENCIA
+router.get(
+  "/:id/detalle",
+  verificarToken,
+  verificarPermiso("licencias.ver"),
+  obtenerDetalleLicencia
+);
 module.exports = router;
