@@ -1,0 +1,70 @@
+
+.licencias-acciones-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.licencias-acciones-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.licencias-acciones-trigger:hover {
+  background: #1d4ed8;
+}
+
+.licencias-acciones-trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.licencias-acciones-trigger:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.licencias-acciones-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  min-width: 180px;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+}
+
+.licencias-acciones-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #334155;
+  text-align: left;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.licencias-acciones-item:hover {
+  background: #f1f5f9;
+}
+
+
+.licencias-acciones-item.peligro:hover {
+  background: #fef2f2;
+}

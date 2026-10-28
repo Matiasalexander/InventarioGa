@@ -10,9 +10,15 @@ import {
   obtenerInventarioPorId
 } from "../services/inventarioService";
 
+
 import { obtenerCatalogos } from "../services/catalogosService";
 
 import { obtenerMisUnidades } from "../services/usuariosService";
+
+import {
+  obtenerLicenciasDisponibles,
+  asignarLicenciaAEquipo, obtenerLicenciasPorEquipo, liberarLicenciaDeEquipo
+} from "../services/licenciasService";
 
 const codigosDisponibles = [
   "BC1",
@@ -56,6 +62,36 @@ function InventarioFormPage({
   const [guardadoExitoso, setGuardadoExitoso] = useState(false);
   const [guardandoEquipo, setGuardandoEquipo] = useState(false);
   
+  //ESTADOS LICENCIA
+  // =========================================================
+// LICENCIAS DEL EQUIPO — SPRINT L4.4-B
+// =========================================================
+
+const [licenciasDisponibles, setLicenciasDisponibles] =
+  useState([]);
+
+const [licenciasSeleccionadas, setLicenciasSeleccionadas] =
+  useState([]);
+
+const [cargandoLicencias, setCargandoLicencias] =
+  useState(false);
+
+const [mostrarSelectorLicencias, setMostrarSelectorLicencias] =
+  useState(false);
+
+const [errorLicencias, setErrorLicencias] =
+  useState("");
+
+  const [licenciasAsignadas, setLicenciasAsignadas] =
+  useState([]);
+
+const [errorLicenciasAsignadas, setErrorLicenciasAsignadas] =
+  useState("");
+
+const [puedeAgregarLicencias, setPuedeAgregarLicencias] =
+  useState(false);
+
+const [licenciaDesvinculando, setLicenciaDesvinculando] = useState(null);
   //ESTADOS DEL QR
   const [mostrarQR, setMostrarQR] = useState(false);
   const [nombreEquipoQR, setNombreEquipoQR] = useState("");
@@ -519,6 +555,113 @@ function InventarioFormPage({
 
     cargarDatos();
   }, [id]);
+
+  //USE EFFECT PARA CARGAR LAS LICENCIAS
+  
+
+useEffect(() => {
+  if (pasoInventario !== 5 || guardadoExitoso) {
+    return;
+  }
+
+  let activo = true;
+
+  const cargarLicencias = async () => {
+    setCargandoLicencias(true);
+    setErrorLicencias("");
+    setErrorLicenciasAsignadas("");
+    setPuedeAgregarLicencias(false);
+
+    // 1. Si editamos, recuperar las asignaciones actuales.
+    if (esEdicion) {
+      try {
+        const respuesta = await obtenerLicenciasPorEquipo(id);
+
+        if (!activo) return;
+
+        setLicenciasAsignadas(
+          Array.isArray(respuesta?.licencias)
+            ? respuesta.licencias
+            : []
+        );
+      } catch (error) {
+        if (!activo) return;
+
+        setLicenciasAsignadas([]);
+        setErrorLicenciasAsignadas(
+          "No fue posible consultar las licencias " +
+          "actualmente asignadas a este equipo."
+        );
+
+        console.error(
+          "Error consultando licencias del equipo:",
+          error
+        );
+      }
+    }
+
+    // 2. Recuperar las disponibles para alta y edición.
+    try {
+      const disponibles =
+        await obtenerLicenciasDisponibles();
+
+      if (!activo) return;
+
+      if (!Array.isArray(disponibles)) {
+        throw new Error(
+          "El catálogo de licencias tiene un formato inválido."
+        );
+      }
+
+      setLicenciasDisponibles(disponibles);
+      setMostrarSelectorLicencias(true);
+      setPuedeAgregarLicencias(true);
+
+      const idsDisponibles = new Set(
+        disponibles.map(item => item.ID_LICENCIA)
+      );
+
+      setLicenciasSeleccionadas(actuales =>
+        actuales.filter(id => idsDisponibles.has(id))
+      );
+
+    } catch (error) {
+      if (!activo) return;
+
+      setLicenciasDisponibles([]);
+      setLicenciasSeleccionadas([]);
+      setMostrarSelectorLicencias(false);
+      setPuedeAgregarLicencias(false);
+
+      if (
+        error.response?.status !== 401 &&
+        error.response?.status !== 403
+      ) {
+        setErrorLicencias(
+          "No fue posible cargar licencias disponibles. " +
+          "Puedes continuar guardando los datos del equipo."
+        );
+      }
+    } finally {
+      if (activo) {
+        setCargandoLicencias(false);
+      }
+    }
+  };
+
+  cargarLicencias();
+
+  return () => {
+    activo = false;
+  };
+}, [
+  id,
+  esEdicion,
+  pasoInventario,
+  guardadoExitoso
+]);
+
+
 
   // =========================================================
   // MANEJAR CAMBIOS
@@ -1067,6 +1210,153 @@ function InventarioFormPage({
     );
   };
 
+  //FUNCIONES PARA GUARDAR Y ASIGNAR LICENCIAS
+  
+const alternarLicencia = (idLicencia) => {
+  if (guardandoEquipo || guardadoExitoso) return;
+
+  setLicenciasSeleccionadas(actuales => {
+    if (actuales.includes(idLicencia)) {
+      return actuales.filter(id => id !== idLicencia);
+    }
+
+    return [...actuales, idLicencia];
+  });
+};
+
+
+const desvincularLicencia = async (licencia) => {
+  if (
+    !esEdicion ||
+    guardandoEquipo ||
+    guardadoExitoso ||
+    licenciaDesvinculando !== null
+  ) {
+    return;
+  }
+
+  const nombreLicencia =
+    `${licencia.SOFTWARE} ${licencia.VERSION}`;
+
+  const confirmado = window.confirm(
+    `¿Deseas desvincular la licencia "${nombreLicencia}"?\n\n` +
+    "La licencia quedará OBSOLETA y no podrá volver a asignarse " +
+    "en otro equipo.\n\n" +
+    "Esta acción se aplicará inmediatamente."
+  );
+
+  if (!confirmado) return;
+
+  const idLicencia = licencia.ID_LICENCIA;
+
+  setLicenciaDesvinculando(idLicencia);
+
+  try {
+    // 1. Liberar la asignación desde el backend.
+    await liberarLicenciaDeEquipo(idLicencia);
+
+  } catch (error) {
+    console.error("Error desvinculando licencia:", error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "No se pudo desvincular la licencia."
+    );
+
+    setLicenciaDesvinculando(null);
+    return;
+  }
+
+  // La liberación ya fue confirmada por el backend.
+  // Si falla la recarga, no debemos presentarla como fallida.
+  toast.success(
+    "Licencia desvinculada y marcada como OBSOLETA."
+  );
+
+  try {
+    // 2. Recargar licencias activas del equipo.
+    const respuestaEquipo =
+      await obtenerLicenciasPorEquipo(id);
+
+    setLicenciasAsignadas(
+      Array.isArray(respuestaEquipo?.licencias)
+        ? respuestaEquipo.licencias
+        : []
+    );
+
+    setErrorLicenciasAsignadas("");
+
+  } catch (error) {
+    console.error(
+      "Error actualizando licencias del equipo:",
+      error
+    );
+
+    setErrorLicenciasAsignadas(
+      "La licencia se desvinculó correctamente, " +
+      "pero no se pudo actualizar el listado."
+    );
+  }
+
+  try {
+    // 3. Recargar licencias disponibles.
+    const disponibles =
+      await obtenerLicenciasDisponibles();
+
+    if (!Array.isArray(disponibles)) {
+      throw new Error("Respuesta inválida.");
+    }
+
+    setLicenciasDisponibles(disponibles);
+
+    const idsDisponibles = new Set(
+      disponibles.map(item => item.ID_LICENCIA)
+    );
+
+    setLicenciasSeleccionadas(actuales =>
+      actuales.filter(item => idsDisponibles.has(item))
+    );
+
+  } catch (error) {
+    console.error(
+      "Error actualizando licencias disponibles:",
+      error
+    );
+
+    toast.warn(
+      "La licencia fue liberada, pero no se pudo " +
+      "actualizar el catálogo de disponibles."
+    );
+  } finally {
+    setLicenciaDesvinculando(null);
+  }
+};
+
+const asignarLicenciasDelEquipo = async (idEquipo, ids) => {
+  const asignadas = [];
+  const fallidas = [];
+
+  for (const idLicencia of [...new Set(ids)]) {
+    try {
+      await asignarLicenciaAEquipo(idLicencia, idEquipo);
+      asignadas.push(idLicencia);
+    } catch (error) {
+      fallidas.push({
+        idLicencia,
+        mensaje:
+          error.response?.data?.message ||
+          "No se pudo completar la asignación."
+      });
+    }
+  }
+
+  return {
+    asignadas,
+    fallidas
+  };
+};
+
+
   // =========================================================
   // GUARDAR EQUIPO
   // =========================================================
@@ -1223,18 +1513,45 @@ function InventarioFormPage({
       // -----------------------------------------
       // EDICIÓN
       // -----------------------------------------
+
+// =========================================================
+// EDICIÓN
+// =========================================================
+
 if (esEdicion) {
+
+  // 1. Actualizar los datos actuales del equipo.
   await actualizarInventario(id, formData);
 
+  // A partir de aquí no debemos repetir la
+  // actualización del equipo al fallar una licencia.
+  setGuardadoExitoso(true);
+
+  // 2. Recuperar los datos para conservar el QR.
+  let nombreActualizado = formulario.NOMBRE_EQUIPO || "";
+
+  try {
+    const equipoActualizado =
+      await obtenerInventarioPorId(id);
+
+    const equipo =
+      equipoActualizado?.data?.equipo ??
+      equipoActualizado?.data ??
+      equipoActualizado?.equipo ??
+      equipoActualizado;
+
+    nombreActualizado =
+      equipo?.NOMBRE_EQUIPO ??
+      nombreActualizado;
+
+  } catch (error) {
+    console.warn(
+      "El equipo se actualizó, pero no se pudo refrescar su nombre:",
+      error
+    );
+  }
+
   setIdEquipoQR(id);
-
-  const equipoActualizado = await obtenerInventarioPorId(id);
-
-  const nombreActualizado =
-    equipoActualizado?.data?.NOMBRE_EQUIPO ??
-    equipoActualizado?.NOMBRE_EQUIPO ??
-    "";
-
   setNombreEquipoQR(nombreActualizado);
 
   mostrarMensajeModal(
@@ -1245,9 +1562,8 @@ if (esEdicion) {
       : "El equipo se actualizó correctamente."
   );
 }
-//
       // -----------------------------------------
-      // CREACIÓN ///
+      // CREACIÓN
       // -----------------------------------------
 
       else {
@@ -1401,17 +1717,19 @@ if (esEdicion) {
         tipo={mensajeModal.tipo}
         titulo={mensajeModal.titulo}
         mensaje={mensajeModal.mensaje}
-        onCerrar={
-          guardadoExitoso && mensajeModal.tipo === "success"
-            ? finalizarFormulario
-            : cerrarMensajeModal
-        }
-     mostrarOpcionQR={
+     onCerrar={
+  guardadoExitoso &&
+  ["success", "warning"].includes(mensajeModal.tipo)
+    ? finalizarFormulario
+    : cerrarMensajeModal
+}
+  mostrarOpcionQR={
   esCorporativo &&
+  guardadoExitoso &&
   Boolean(idEquipoQR) &&
   Boolean(nombreEquipoQR) &&
   nombreEquipoQR !== "NA" &&
-  mensajeModal.tipo === "success"
+  ["success", "warning"].includes(mensajeModal.tipo)
 }
 
         onGenerarQR={generarQR}
@@ -2960,6 +3278,162 @@ if (esEdicion) {
 
 
                 </div>
+                
+{/* ================================================
+    LICENCIAS DE SOFTWARE — SPRINT L4.4-B
+================================================ */}
+
+
+{/* =================================================
+    LICENCIAS — ALTA Y EDICIÓN
+================================================= */}
+
+<div className="card">
+  <div className="header-inv">
+    <h2>Licencias de software</h2>
+  </div>
+
+  {esEdicion && (
+    <div style={{ marginBottom: "20px" }}>
+      <h3>Licencias actualmente asignadas</h3>
+
+      {errorLicenciasAsignadas ? (
+        <p role="alert" style={{ color: "#b45309" }}>
+          {errorLicenciasAsignadas}
+        </p>
+      ) : cargandoLicencias ? (
+        <p>Consultando asignaciones...</p>
+      ) : licenciasAsignadas.length === 0 ? (
+        <p>Este equipo no tiene licencias asignadas.</p>
+      ) : (
+        <div style={{ display: "grid", gap: "10px" }}>
+
+{licenciasAsignadas.map(licencia => (
+  <div
+    key={licencia.ID_LICENCIA}
+    style={{
+      border: "1px solid #cbd5e1",
+      borderRadius: "8px",
+      padding: "12px"
+    }}
+  >
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "12px"
+      }}
+    >
+      <div>
+        <strong>
+          {licencia.SOFTWARE} — {licencia.VERSION}
+        </strong>
+<br></br>
+        <small className="badge badge-activo">
+          {licencia.TIPO_LICENCIA}
+        </small>
+
+        <small className="badge badge-en-uso"
+        >
+        Asignada a este equipo
+        </small>
+      </div>
+
+      <button
+        type="button"
+        className="btn-cancelar"
+        onClick={() => desvincularLicencia(licencia)}
+        disabled={
+          guardandoEquipo ||
+          licenciaDesvinculando !== null
+        }
+        
+      >
+        {licenciaDesvinculando === licencia.ID_LICENCIA
+          ? "Desvinculando..."
+          : "Desvincular"}
+      </button>
+    </div>
+  </div>
+))}
+
+        </div>
+      )}
+    </div>
+  )}
+
+
+  {mostrarSelectorLicencias &&
+    puedeAgregarLicencias &&
+    !cargandoLicencias && (
+      <>
+        {licenciasDisponibles.length === 0 ? (
+          <p></p>
+        ) : (
+          <div style={{ display: "grid", gap: "10px" }}>
+            {licenciasDisponibles.map(licencia => (
+              <label
+                key={licencia.ID_LICENCIA}
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "12px",
+                  border: "1px solid #cbd5e1",
+                  borderRadius: "8px",
+                  padding: "12px",
+                  cursor: "pointer"
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={licenciasSeleccionadas.includes(
+                    licencia.ID_LICENCIA
+                  )}
+                  onChange={() =>
+                    alternarLicencia(licencia.ID_LICENCIA)
+                  }
+                  disabled={guardandoEquipo}
+                />
+
+                <span>
+                  <strong>{licencia.SOFTWARE}</strong>
+                  {" — "}
+                  {licencia.VERSION}
+
+                  <small style={{ display: "block" }}>
+                    {licencia.TIPO_LICENCIA}
+                  </small>
+
+                  <small
+                    style={{
+                      display: "block",
+                      color: "#166534"
+                    }}
+                  >
+                    Disponible
+                  </small>
+                </span>
+              </label>
+            ))}
+          </div>
+        )}
+
+        <p>
+          <strong>
+            {licenciasSeleccionadas.length}
+          </strong>
+          {" nueva(s) licencia(s) seleccionada(s)"}
+        </p>
+      </>
+    )}
+
+  <small>
+    Las licencias existentes se conservan.
+    Solamente se asignarán las nuevas selecciones.
+  </small>
+</div>
 
                 {/* =========================================
                   FOTO Y COMENTARIO

@@ -23,6 +23,8 @@ const memoriasRamRoutes = require("./routes/ram.routes");
 const discosDurosRoutes = require("./routes/disco.routes");
 const sistemasOperativosRoutes = require("./routes/sistemasOperativos.routes");
 const rolesRoutes = require("./routes/roles.routes");
+const licenciasRoutes = require("./routes/licencias.routes");
+
 
 require("./config/db");
 
@@ -81,6 +83,7 @@ app.use("/api/memoria_ram", memoriasRamRoutes);
 app.use("/api/disco_duro", discosDurosRoutes);
 app.use("/api/sistemas-operativos", sistemasOperativosRoutes);
 app.use("/api/roles", rolesRoutes);
+app.use("/api/licencias", licenciasRoutes);
 
 const PORT = process.env.PORT || 3001;
 

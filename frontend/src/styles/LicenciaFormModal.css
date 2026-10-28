@@ -1,0 +1,421 @@
+
+/* =========================================
+   LICENCIA FORM MODAL
+   Inventario GA
+========================================= */
+
+/* MODAL PRINCIPAL */
+
+.modal-overlay:has(#licencia-modal-titulo) {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.modal:has(#licencia-modal-titulo) {
+  width: min(900px, 100%);
+  max-width: 900px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+}
+
+/* ENCABEZADO */
+
+.modal:has(#licencia-modal-titulo) .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 22px 28px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+#licencia-modal-titulo {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.modal:has(#licencia-modal-titulo) .modal-header p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.modal:has(#licencia-modal-titulo) .btn-closer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* CUERPO DEL FORMULARIO */
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* DATOS GENERALES
+   Dos columnas equilibradas */
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  width: 100%;
+  align-items: start;
+}
+
+/* CONTENEDORES DE SECCIONES */
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-body > .responsiva-form-grid,
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-body > section {
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* ENCABEZADOS DE SECCIONES */
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-form-grid > .form-group:first-child > h3 {
+  grid-column: 1 / -1;
+}
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-body h3 {
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  font-size: 16px;
+  font-weight: 650;
+  color: #1e293b;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* GRUPOS DE CAMPOS */
+
+.modal:has(#licencia-modal-titulo) .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+}
+
+.modal:has(#licencia-modal-titulo) .form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* INPUTS Y SELECTS */
+
+.modal:has(#licencia-modal-titulo) input,
+.modal:has(#licencia-modal-titulo) select,
+.modal:has(#licencia-modal-titulo) textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 10px 13px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.modal:has(#licencia-modal-titulo) input,
+.modal:has(#licencia-modal-titulo) select {
+  min-height: 43px;
+}
+
+.modal:has(#licencia-modal-titulo) textarea {
+  min-height: 95px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* FOCUS */
+
+.modal:has(#licencia-modal-titulo)
+:is(input, select, textarea):focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+/* DESHABILITADOS */
+
+.modal:has(#licencia-modal-titulo)
+:is(input, select, textarea):disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   CONFIGURACIÓN DINÁMICA
+========================================= */
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-body > section.form-group {
+  display: block;
+}
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-body > section.form-group
+.responsiva-form-grid {
+  margin-top: 16px;
+}
+
+/* =========================================
+   INFORMACIÓN ADMINISTRATIVA
+========================================= */
+
+.modal:has(#licencia-modal-titulo)
+.licencia-campos-dinamicos {
+  width: 100%;
+}
+
+.modal:has(#licencia-modal-titulo)
+.licencia-campos-dinamicos > .responsiva-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+/* Distribución de fecha y activador
+   con el JSX original proporcionado */
+
+.modal:has(#licencia-modal-titulo)
+.licencia-campos-dinamicos
+.form-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 24px;
+  align-items: start;
+}
+
+.modal:has(#licencia-modal-titulo)
+.licencia-campos-dinamicos
+label[for="licencia-fecha"] {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.modal:has(#licencia-modal-titulo)
+#licencia-fecha {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.modal:has(#licencia-modal-titulo)
+.licencia-campos-dinamicos
+label[for="licencia-activador"] {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.modal:has(#licencia-modal-titulo)
+#licencia-activador {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.modal:has(#licencia-modal-titulo)
+.licencia-campos-dinamicos small {
+  grid-column: 2;
+  grid-row: 3;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.modal:has(#licencia-modal-titulo)
+.licencia-campos-dinamicos
+label[for="licencia-comentarios"] {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  margin-top: 8px;
+}
+
+.modal:has(#licencia-modal-titulo)
+#licencia-comentarios {
+  grid-column: 1 / -1;
+  grid-row: 5;
+}
+
+/* =========================================
+   ERRORES
+========================================= */
+
+.modal:has(#licencia-modal-titulo)
+.licencia-errores {
+  padding: 14px 18px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 13px;
+}
+
+.modal:has(#licencia-modal-titulo)
+.licencia-errores ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px 0 0;
+  margin-top: auto;
+  border-top: 1px solid #e2e8f0;
+}
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-footer button {
+  min-height: 42px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal:has(#licencia-modal-titulo)
+.btn-cancelar {
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  background: #ffffff;
+}
+
+.modal:has(#licencia-modal-titulo)
+.btn-primary {
+  border: 1px solid #2563eb;
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.modal:has(#licencia-modal-titulo)
+.btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.modal:has(#licencia-modal-titulo)
+.responsiva-modal-footer button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+  .modal:has(#licencia-modal-titulo) {
+    width: 100%;
+    max-height: 95vh;
+  }
+
+  .modal:has(#licencia-modal-titulo)
+  .modal-header {
+    padding: 18px;
+  }
+
+  .modal:has(#licencia-modal-titulo)
+  .responsiva-modal-body {
+    padding: 18px;
+  }
+
+  .modal:has(#licencia-modal-titulo)
+  .responsiva-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .modal:has(#licencia-modal-titulo)
+  .licencia-campos-dinamicos
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal:has(#licencia-modal-titulo)
+  .licencia-campos-dinamicos
+  .form-group > * {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .modal:has(#licencia-modal-titulo)
+  .responsiva-modal-body > section,
+  .modal:has(#licencia-modal-titulo)
+  .responsiva-modal-body > .responsiva-form-grid {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay:has(#licencia-modal-titulo) {
+    padding: 8px;
+  }
+
+  .modal:has(#licencia-modal-titulo)
+  .responsiva-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal:has(#licencia-modal-titulo)
+  .responsiva-modal-footer button {
+    width: 100%;
+  }
+}

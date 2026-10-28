@@ -29,6 +29,7 @@ import RolesPage from "./pages/RolesPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ProcesadoresModelosPPage from "./pages/ProcesadoresModelosPPage";
 import DashboardPage from "./pages/DashboardPage";
+import LicenciasPage from "./pages/LicenciasPage";
 
 
 import LoginPage from "./pages/LoginPage";
@@ -104,6 +105,7 @@ function App() {
                  <InventarioPage setLoading={setLoading} /></ProtectedRoute>
                   }
 />
+
                       <Route
   path="/inventario/nuevo"
   element={
@@ -156,6 +158,14 @@ function App() {
   element={
     <ProtectedRoute permiso="roles.ver">
       <RolesPage setLoading={setLoading} />
+    </ProtectedRoute>
+  }
+/>
+<Route
+  path="/licencias"
+   element={
+    <ProtectedRoute permiso="licencias.ver">
+      <LicenciasPage setLoading={setLoading} />
     </ProtectedRoute>
   }
 />
@@ -217,6 +227,7 @@ function App() {
                         }
                       />
                     </Routes>
+                    
                   </main>
                 </div>
               </ProtectedRoute>

@@ -15,7 +15,7 @@ import {
   MonitorCog,
   Signature,
   UsersRound,
-  SlidersHorizontal
+  SlidersHorizontal, KeyRound
 } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -83,6 +83,12 @@ export default function Sidebar() {
       label: "Roles",
       icon: SlidersHorizontal,
       permiso: "roles.ver"
+    },
+    {
+      to: "/licencias",
+      label: "Licencias",
+      icon: KeyRound,
+      permiso: "licencias.ver"
     }
   ];
 

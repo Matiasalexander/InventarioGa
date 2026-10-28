@@ -21,6 +21,7 @@ import {
   EggIcon,
   Lamp,
   QrCode,
+  KeyRound,
 } from "lucide-react";
 
 function DashboardPage({ setLoading }) {
@@ -622,7 +623,7 @@ function DashboardPage({ setLoading }) {
               <div className="version-item">
 
                 <span className="version-item-icon">
-                  <Lamp
+                  <KeyRound
                     size={20}
                     color="gray"
                   />
@@ -635,7 +636,8 @@ function DashboardPage({ setLoading }) {
                   </h3>
 
                   <p>
-                    Se agregó la columna codigo_unidad unicamente visible para los usuarios de nivel administrador y con acceso a celebration key
+                    Se agregó el gestor de licencias unicamente visible para administrador con el fin de administrar y registrar licencias
+                    para los servidores.
                   </p>
 
                 </div>
