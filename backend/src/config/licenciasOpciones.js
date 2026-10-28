@@ -6,7 +6,25 @@ const OPCIONES_LICENCIAS = {
 
     versiones: [
       {
-        version: "2022",
+        version: "2022", 
+        ediciones: [
+          {
+            nombre: "Standard",
+            modalidades: [
+              "POR_NUCLEO",
+              "SERVER_CAL"
+            ]
+          },
+          {
+            nombre: "Enterprise",
+            modalidades: [
+              "POR_NUCLEO"
+            ]
+          }
+        ]
+      }, 
+      {
+        version: "2019", 
         ediciones: [
           {
             nombre: "Standard",
