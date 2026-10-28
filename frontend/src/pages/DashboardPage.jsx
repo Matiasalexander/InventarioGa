@@ -644,7 +644,7 @@ function DashboardPage({ setLoading }) {
 
               </div>
 
-
+{/*
               <div className="version-item">
 
                 <span className="version-item-icon">
@@ -691,7 +691,7 @@ function DashboardPage({ setLoading }) {
 
               </div>
 
-
+ */}
             </div>
 
 
