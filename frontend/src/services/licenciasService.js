@@ -89,3 +89,13 @@ export const obtenerDetalleLicencia = async (idLicencia) => {
 
   return response.data;
 };
+
+//EDITAR LICENCIA
+export const actualizarLicencia = async (idLicencia, datos) => {
+  const response = await apiLicencias.put(
+    `/api/licencias/${idLicencia}`,
+    datos
+  );
+
+  return response.data;
+};

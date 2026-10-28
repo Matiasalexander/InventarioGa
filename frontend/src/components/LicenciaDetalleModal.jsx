@@ -191,11 +191,11 @@ export default function LicenciaDetalleModal({
 
           <button
 
-            className="btn-closer"
+            className="usuario-modal-close"
             onClick={onCerrar}
             aria-label="Cerrar detalles"
           >
-           x
+           X
           </button>
         </header>
 

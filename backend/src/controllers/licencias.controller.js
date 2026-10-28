@@ -1328,6 +1328,79 @@ const obtenerDetalleLicencia = async (req, res) => {
 };
 
 
+//EDITAR LICENCIAS
+
+const actualizarLicencia = async (req, res) => {
+  const idLicencia = Number(req.params.id);
+
+  if (
+    !Number.isSafeInteger(idLicencia) ||
+    idLicencia <= 0 ||
+    idLicencia > 2147483647
+  ) {
+    return res.status(400).json({
+      message: "ID de licencia inválido."
+    });
+  }
+
+  const { SOFTWARE, VERSION, COMENTARIOS } = req.body ?? {};
+
+  if (
+    typeof SOFTWARE !== "string" ||
+    !SOFTWARE.trim() ||
+    typeof VERSION !== "string" ||
+    !VERSION.trim() ||
+    (COMENTARIOS != null &&
+      typeof COMENTARIOS !== "string")
+  ) {
+    return res.status(400).json({
+      message: "Datos de licencia inválidos."
+    });
+  }
+
+  try {
+    const pool = await poolPromise;
+
+    const resultado = await pool.request()
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .input("SOFTWARE", sql.NVarChar, SOFTWARE.trim())
+      .input("VERSION", sql.NVarChar, VERSION.trim())
+      .input("COMENTARIOS", sql.NVarChar(sql.MAX), COMENTARIOS ?? null)
+      .query(`
+        UPDATE dbo.LICENCIAS
+        SET
+          SOFTWARE = @SOFTWARE,
+          VERSION = @VERSION,
+          COMENTARIOS = @COMENTARIOS
+        OUTPUT
+          INSERTED.ID_LICENCIA,
+          INSERTED.SOFTWARE,
+          INSERTED.VERSION,
+          INSERTED.COMENTARIOS,
+          INSERTED.ESTADO
+        WHERE ID_LICENCIA = @ID_LICENCIA;
+      `);
+
+    if (!resultado.recordset.length) {
+      return res.status(404).json({
+        message: "Licencia no encontrada."
+      });
+    }
+
+    return res.status(200).json({
+      message: "Licencia actualizada correctamente.",
+      licencia: resultado.recordset[0]
+    });
+  } catch (error) {
+    console.error("Error actualizando licencia:", error);
+
+    return res.status(500).json({
+      message: "No se pudo actualizar la licencia."
+    });
+  }
+};
+
+
 
 module.exports = {
   obtenerTiposLicencia,
@@ -1339,5 +1412,5 @@ module.exports = {
   obtenerLicenciasPorEquipo,
   obtenerHistorialLicencia,
   obtenerLicenciasDisponibles,
-  obtenerDetalleLicencia
+  obtenerDetalleLicencia, actualizarLicencia
 };

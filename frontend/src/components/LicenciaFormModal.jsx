@@ -318,7 +318,7 @@ function LicenciaFormModal({ mostrar, onCerrar, onGuardado }) {
 
           <button
             type="button"
-            className="btn-closer"
+            className="usuario-modal-close"
             onClick={onCerrar}
             disabled={guardando}
             aria-label="Cerrar"

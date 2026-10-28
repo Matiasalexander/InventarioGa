@@ -10,6 +10,7 @@ import "../styles/LicenciasPage.css";
 //import del modal de licencias
 import LicenciaFormModal from "../components/LicenciaFormModal";
 import LicenciaDetalleModal from "../components/LicenciaDetalleModal";
+import LicenciaEditarModal from "../components/LicenciaEditarModal";
 
 //ACCIONES DE LA PAGE
 import LicenciasAcciones from "../components/LicenciasAcciones";
@@ -22,7 +23,8 @@ export default function LicenciasPage() {
     const [mostarModalRegistro, setMostrarModalRegistro] = useState(false);
 
     //ESTADOS DE LAS ACCIONES
-
+const [idLicenciaEditar, setIdLicenciaEditar] =
+  useState(null);
     const [idLicenciaProcesando, setIdLicenciaProcesando] =
         useState(null);
 
@@ -284,7 +286,7 @@ await cargarLicencias(estado);
                                                     setIdLicenciaDetalle(idLicencia)
                                                 }
                                                 onDesvincular={manejarDesvinculacion}
-                                                procesando={idLicenciaProcesando !== null}
+onEditar={setIdLicenciaEditar}                                                procesando={idLicenciaProcesando !== null}
                                             />
                                         </td>
 
@@ -315,6 +317,15 @@ await cargarLicencias(estado);
                     await cargarLicencias(estado);
                 }}
             />
+
+            <LicenciaEditarModal
+  idLicencia={idLicenciaEditar}
+  onCerrar={() => setIdLicenciaEditar(null)}
+  onGuardado={async () => {
+    setIdLicenciaEditar(null);
+    await cargarLicencias(estado);
+  }}
+/>
         </div>
     );
 }

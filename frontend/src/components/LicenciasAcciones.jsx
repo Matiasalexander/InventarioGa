@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   MoreVertical,
   Eye,
-  Unlink
+  Unlink, Pencil
 } from "lucide-react";
 
 import { useAuth } from "../context/AuthContext";
@@ -13,6 +13,7 @@ export default function LicenciasAcciones({
   item,
   onDetalle,
   onDesvincular,
+  onEditar,
   procesando = false
 }) {
   const [abierto, setAbierto] = useState(false);
@@ -25,8 +26,10 @@ export default function LicenciasAcciones({
     tienePermiso("licencias.asignar") &&
     item.ESTADO === "EN_USO";
 
+const puedeEditar = tienePermiso("licencias.editar");
+
   const tieneAcciones =
-    puedeVer || puedeDesvincular;
+    puedeVer || puedeDesvincular || puedeEditar;
 
   useEffect(() => {
     const manejarClickFuera = (event) => {
@@ -127,6 +130,20 @@ export default function LicenciasAcciones({
               Ver detalle
             </button>
           )}
+
+          {puedeEditar && (
+  <button
+    type="button"
+    role="menuitem"
+    className="acciones-menu-item"
+    onClick={() =>
+      ejecutarAccion(() => onEditar(item.ID_LICENCIA))
+    }
+  >
+    <Pencil size={16} color="gold"/>
+    Editar
+  </button>
+)}
 
           {puedeDesvincular && (
             <button

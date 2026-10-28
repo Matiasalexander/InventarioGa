@@ -179,14 +179,6 @@
   border-top: 1px solid #e2e8f0;
 }
 
-.licencia-detalle-footer button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  background: #2563eb;
-  color: #fff;
-  cursor: pointer;
-}
 
 @media (max-width: 640px) {
   .licencia-detalle-overlay {
