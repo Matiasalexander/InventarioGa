@@ -250,15 +250,10 @@ export default function LicenciaDetalleModal({
 
               <div className="licencia-detalle-seccion">
                 <h3>
-                  <KeyRound size={17} />
                   Información general
                 </h3>
 
                 <div className="licencia-detalle-grid">
-                  <CampoDetalle
-                    titulo="ID de licencia"
-                    valor={licencia.ID_LICENCIA}
-                  />
                   <CampoDetalle
                     titulo="Tipo de licencia"
                     valor={licencia.TIPO_LICENCIA}

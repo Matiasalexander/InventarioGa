@@ -1,15 +1,18 @@
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, RefreshCw, KeyRound, Eye } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
-import { obtenerLicencias } from "../services/licenciasService";
+import { obtenerLicencias, liberarLicenciaDeEquipo } from "../services/licenciasService";
 import "../styles/LicenciasPage.css";
 
 //import del modal de licencias
 import LicenciaFormModal from "../components/LicenciaFormModal";
 import LicenciaDetalleModal from "../components/LicenciaDetalleModal";
+
+//ACCIONES DE LA PAGE
+import LicenciasAcciones from "../components/LicenciasAcciones";
 
 export default function LicenciasPage() {
     const [licencias, setLicencias] = useState([]);
@@ -17,6 +20,11 @@ export default function LicenciasPage() {
     const [estado, setEstado] = useState("");
     const [cargando, setCargando] = useState(true);
     const [mostarModalRegistro, setMostrarModalRegistro] = useState(false);
+
+    //ESTADOS DE LAS ACCIONES
+
+    const [idLicenciaProcesando, setIdLicenciaProcesando] =
+        useState(null);
 
     const [idLicenciaDetalle, setIdLicenciaDetalle] =
         useState(null);
@@ -43,6 +51,68 @@ export default function LicenciasPage() {
             setCargando(false);
         }
     };
+
+
+    const manejarDesvinculacion = async (licencia) => {
+        if (
+            idLicenciaProcesando !== null ||
+            licencia.ESTADO !== "EN_USO"
+        ) {
+            return;
+        }
+
+        const nombre =
+            `${licencia.SOFTWARE} ${licencia.VERSION}`;
+
+        const confirmado = window.confirm(
+            `¿Desvincular la licencia "${nombre}"?\n\n` +
+            `Equipo actual: ${licencia.NOMBRE_EQUIPO || "Sin nombre"}\n\n` +
+            "La licencia cambiará a OBSOLETA y ya no " +
+            "estará disponible para asignación.\n\n" +
+            "Esta operación conservará el historial."
+        );
+
+        if (!confirmado) return;
+
+        setIdLicenciaProcesando(licencia.ID_LICENCIA);
+
+        try {
+            const resultado = await liberarLicenciaDeEquipo(
+                licencia.ID_LICENCIA
+            );
+console.log(
+  "Respuesta de liberación:",
+  resultado
+);
+
+// La API respondió correctamente.
+// Recargamos la información real del backend.
+toast.success(
+  "Licencia desvinculada correctamente."
+);
+
+await cargarLicencias(estado);
+
+        } catch (error) {
+            console.error(
+                "Error desvinculando licencia:",
+                error
+            );
+
+            toast.error(
+                error.response?.data?.message ||
+                "No se pudo completar o verificar la desvinculación."
+            );
+
+            // Si se perdió una respuesta de red, consultar
+            // nuevamente para conocer el estado real.
+            await cargarLicencias(estado);
+
+        } finally {
+            setIdLicenciaProcesando(null);
+        }
+    };
+
 
     useEffect(() => {
         cargarLicencias(estado);
@@ -206,20 +276,18 @@ export default function LicenciasPage() {
                                             </span>
                                         </td>
 
+
                                         <td>
-                                            <button
-                                                type="button"
-                                                className="licencias-btn-detalle"
-                                                onClick={() =>
-                                                    setIdLicenciaDetalle(licencia.ID_LICENCIA)
+                                            <LicenciasAcciones
+                                                item={licencia}
+                                                onDetalle={(idLicencia) =>
+                                                    setIdLicenciaDetalle(idLicencia)
                                                 }
-                                                title="Consultar información de licencia"
-                                                aria-label={`Ver detalles de ${licencia.SOFTWARE}`}
-                                            >
-                                                <Eye size={16} />
-                                                Ver detalles
-                                            </button>
+                                                onDesvincular={manejarDesvinculacion}
+                                                procesando={idLicenciaProcesando !== null}
+                                            />
                                         </td>
+
 
                                     </tr>
                                 ))
@@ -238,7 +306,7 @@ export default function LicenciasPage() {
                 idLicencia={idLicenciaDetalle}
                 onCerrar={() => setIdLicenciaDetalle(null)}
             />
-            
+
             <LicenciaFormModal
                 mostrar={mostarModalRegistro}
                 onCerrar={() => setMostrarModalRegistro(false)}
