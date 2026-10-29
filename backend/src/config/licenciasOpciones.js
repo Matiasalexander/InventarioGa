@@ -40,6 +40,24 @@ const OPCIONES_LICENCIAS = {
             ]
           }
         ]
+      },
+      {
+        version: "2021", 
+        ediciones: [
+          {
+            nombre: "Standard",
+            modalidades: [
+              "POR_NUCLEO",
+              "SERVER_CAL"
+            ]
+          },
+          {
+            nombre: "Enterprise",
+            modalidades: [
+              "POR_NUCLEO"
+            ]
+          }
+        ]
       }
     ]
   }
