@@ -1526,6 +1526,27 @@ if (esEdicion) {
   // A partir de aquí no debemos repetir la
   // actualización del equipo al fallar una licencia.
   setGuardadoExitoso(true);
+  // 2. Asignar las licencias nuevas seleccionadas.
+const resultadoLicencias = await asignarLicenciasDelEquipo(
+  Number(id),
+  licenciasSeleccionadas
+);
+
+if (resultadoLicencias.fallidas.length > 0) {
+  const detalleErrores = resultadoLicencias.fallidas
+    .map(item => `Licencia ${item.idLicencia}: ${item.mensaje}`)
+    .join("\n");
+
+  console.warn("Licencias no asignadas:", detalleErrores);
+
+  toast.warning(
+    `Equipo actualizado. ${resultadoLicencias.fallidas.length} licencia(s) no se pudieron asignar.`
+  );
+} else if (resultadoLicencias.asignadas.length > 0) {
+  toast.success(
+    `${resultadoLicencias.asignadas.length} licencia(s) asignada(s) correctamente.`
+  );
+}
 
   // 2. Recuperar los datos para conservar el QR.
   let nombreActualizado = formulario.NOMBRE_EQUIPO || "";
@@ -1573,6 +1594,31 @@ if (esEdicion) {
         const {id, NOMBRE_EQUIPO} = equipoCreado;
         setIdEquipoQR(id);
         setNombreEquipoQR(NOMBRE_EQUIPO);
+        if (!id) {
+  throw new Error(
+    "El equipo fue creado, pero el backend no devolvió su identificador."
+  );
+}
+
+const resultadoLicencias = await asignarLicenciasDelEquipo(
+  Number(id),
+  licenciasSeleccionadas
+);
+
+if (resultadoLicencias.fallidas.length > 0) {
+  console.warn(
+    "Licencias no asignadas:",
+    resultadoLicencias.fallidas
+  );
+
+  toast.warning(
+    `Equipo creado. ${resultadoLicencias.fallidas.length} licencia(s) quedaron pendientes de asignación.`
+  );
+} else if (resultadoLicencias.asignadas.length > 0) {
+  toast.success(
+    `${resultadoLicencias.asignadas.length} licencia(s) asignada(s) al equipo.`
+  );
+}
          mostrarMensajeModal(
     "success",
     "Equipo registrado",
