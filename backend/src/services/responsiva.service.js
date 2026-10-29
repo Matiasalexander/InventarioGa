@@ -2,6 +2,7 @@ const { poolPromise } = require("../config/db");
 const generarPdfResponsiva = require("../helpers/generarPdfResponsiva");
 const enviarCorreoResponsiva = require("../helpers/enviarCorreoResponsiva");
 
+const generarPdfDevolucion = require("../helpers/generarPdfDevolucion");
 const crearFolioResponsiva = (id) => {
   return `RESP-${String(id).padStart(5, "0")}`;
 };
@@ -697,6 +698,93 @@ const eliminarResponsiva = async (id) => {
   };
 };
 
+//PDF DE DEVOLUCION
+
+const generarComprobanteDevolucion = async (idDetalle) => {
+  const id = Number(idDetalle);
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    id > 2147483647
+  ) {
+    lanzarError("Identificador de detalle inválido", 400);
+  }
+
+  const pool = await poolPromise;
+
+  const resultado = await pool.request()
+    .input("IdDetalle", id)
+    .query(`
+      SELECT
+        rd.IdDetalle,
+        rd.IdResponsiva,
+        rd.IdInventario,
+        rd.Descripcion,
+        rd.Marca,
+        rd.Modelo,
+        rd.NoSerie,
+        rd.Devuelto,
+        rd.FechaDevolucion,
+        rd.ComentariosDevolucion,
+
+        r.NombreReceptor,
+        r.Puesto,
+        r.Area
+
+      FROM dbo.Responsiva_Detalle AS rd
+
+      INNER JOIN dbo.Responsivas AS r
+        ON r.IdResponsiva = rd.IdResponsiva
+
+      WHERE rd.IdDetalle = @IdDetalle;
+    `);
+
+  if (resultado.recordset.length === 0) {
+    lanzarError(
+      "No se encontró el detalle de la responsiva",
+      404
+    );
+  }
+
+  const registro = resultado.recordset[0];
+
+  if (!registro.Devuelto || !registro.FechaDevolucion) {
+    lanzarError(
+      "El equipo todavía no tiene una devolución registrada",
+      409
+    );
+  }
+
+  const folioResponsiva =
+    crearFolioResponsiva(registro.IdResponsiva);
+
+  const folio =
+    `DEV-${String(registro.IdResponsiva).padStart(5, "0")}` +
+    `-${String(registro.IdDetalle).padStart(4, "0")}`;
+
+  const pdfBuffer = await generarPdfDevolucion({
+    folio,
+    folioResponsiva,
+    fechaDevolucion: registro.FechaDevolucion,
+    nombreReceptor: registro.NombreReceptor,
+    puesto: registro.Puesto,
+    area: registro.Area,
+    descripcion: registro.Descripcion,
+    marca: registro.Marca,
+    modelo: registro.Modelo,
+    noSerie: registro.NoSerie,
+    idInventario: registro.IdInventario,
+    comentarios: registro.ComentariosDevolucion
+  });
+
+  return {
+    folio,
+    pdfBuffer
+  };
+};
+
+
 module.exports = {
   crearResponsiva,
   actualizarResponsiva,
@@ -709,5 +797,6 @@ module.exports = {
   obtenerEquiposDisponibles,
   eliminarResponsiva,
   autorizarEdicionFirma,
-  actualizarFirmaResponsiva
+  actualizarFirmaResponsiva,
+  generarComprobanteDevolucion
 };

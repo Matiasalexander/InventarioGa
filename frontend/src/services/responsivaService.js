@@ -104,3 +104,35 @@ export const actualizarFirmaResponsiva = async (
 
   return data;
 };
+
+//DESCARGAR COMPROBANTE DEVOLUCIÓN
+
+export const descargarComprobanteDevolucion = async (idDetalle) => {
+  const response = await api.get(
+    `/responsiva/detalles/${idDetalle}/comprobante-devolucion`,
+    {
+      responseType: "blob"
+    }
+  );
+
+  const blob = new Blob(
+    [response.data],
+    { type: "application/pdf" }
+  );
+
+  const url = window.URL.createObjectURL(blob);
+
+  try {
+    const enlace = document.createElement("a");
+    enlace.href = url;
+    enlace.download = `DEVOLUCION-DETALLE-${idDetalle}.pdf`;
+
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+  } finally {
+    window.setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+    }, 1000);
+  }
+};

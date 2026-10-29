@@ -10,6 +10,8 @@ import SignatureCanvas from "react-signature-canvas";
 
 import { useAuth } from "../context/AuthContext";
 
+import { descargarComprobanteDevolucion } from "../services/responsivaService";
+
 import { CircleArrowLeft, CircleArrowRight, X } from "lucide-react";
 
 import {
@@ -1297,45 +1299,62 @@ const valores = [
 
     if (!confirmar) return;
 
-    try {
 
-      setLoading(true);
+try {
+  setLoading(true);
 
-      await marcarEquipoDevuelto(
-        idDetalle,
-        "Equipo devuelto correctamente"
-      );
+  // Primero se confirma la devolución en SQL Server.
+  await marcarEquipoDevuelto(
+    idDetalle,
+    "Equipo devuelto correctamente"
+  );
 
-      toast.success(
-        "Equipo marcado como devuelto."
-      );
+  toast.success("Equipo marcado como devuelto.");
 
-      if (responsivaSeleccionada) {
+  // Después se intenta descargar el comprobante.
+  // Una falla del PDF no debe revertir visualmente
+  // una devolución ya registrada.
+  try {
+    await descargarComprobanteDevolucion(idDetalle);
 
-        await verDetalle(
-          responsivaSeleccionada.IdResponsiva
-        );
-      }
+    toast.success(
+      "Comprobante de devolución descargado."
+    );
+  } catch (pdfError) {
+    console.error(
+      "Error descargando comprobante:",
+      pdfError
+    );
 
-      await cargarResponsivas();
+    toast.warning(
+      "La devolución se registró correctamente, " +
+      "pero no se pudo descargar el comprobante."
+    );
+  }
 
-    } catch (error) {
+  if (responsivaSeleccionada) {
+    await verDetalle(
+      responsivaSeleccionada.IdResponsiva
+    );
+  }
 
-      console.error(
-        "Error devolviendo equipo:",
-        error.response?.data || error
-      );
+  await cargarResponsivas();
 
-      toast.error(
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Error devolviendo equipo."
-      );
+} catch (error) {
+  console.error(
+    "Error durante la devolución o actualización:",
+    error
+  );
 
-    } finally {
+  toast.error(
+    "No fue posible completar o actualizar la operación. " +
+    "Consulta el detalle antes de intentar devolver nuevamente."
+  );
 
-      setLoading(false);
-    }
+} finally {
+  setLoading(false);
+}
+
   };
 
   //----------------------------------

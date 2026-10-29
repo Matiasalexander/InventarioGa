@@ -14,7 +14,7 @@ const {
   marcarEquipoDevuelto,
   obtenerEquiposDisponibles,
   descargarResponsivaPdf,
-  reenviarResponsivaCorreo
+  reenviarResponsivaCorreo, descargarComprobanteDevolucion
 } = require("../controllers/responsiva.controller");
 
 const router = express.Router();
@@ -107,6 +107,14 @@ router.delete(
   verificarToken,
   verificarPermiso("responsivas.eliminar"),
   eliminarResponsiva
+);
+
+//OBTENER COMPROBANTE RESPONSIVA
+router.get(
+  "/detalles/:idDetalle/comprobante-devolucion",
+  verificarToken,
+  verificarPermiso("responsivas.pdf"),
+  descargarComprobanteDevolucion
 );
 
 module.exports = router;

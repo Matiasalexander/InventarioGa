@@ -151,6 +151,40 @@ const eliminarResponsiva = async (req, res) => {
   }
 };
 
+// DESCARGAR COMPROBANTE DEVOLUCION
+
+const descargarComprobanteDevolucion = async (req, res) => {
+  try {
+    const { folio, pdfBuffer } =
+      await responsivaService.generarComprobanteDevolucion(
+        req.params.idDetalle
+      );
+
+    res.setHeader(
+      "Content-Type",
+      "application/pdf"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${folio}.pdf"`
+    );
+
+    res.setHeader(
+      "Content-Length",
+      pdfBuffer.length
+    );
+
+    res.end(pdfBuffer);
+  } catch (error) {
+    responderError(
+      res,
+      error,
+      "Error generando comprobante de devolución"
+    );
+  }
+};
+
 module.exports = {
   crearResponsiva,
   actualizarResponsiva,
@@ -163,5 +197,6 @@ module.exports = {
   marcarEquipoDevuelto,
   obtenerEquiposDisponibles,
   autorizarEdicionFirma,
-  actualizarFirmaResponsiva
+  actualizarFirmaResponsiva,
+  descargarComprobanteDevolucion
 };
