@@ -73,10 +73,6 @@ const OPCIONES_LICENCIAS = {
             nombre: "Enterprise",
             modalidades: [
               "POR_NUCLEO"
-            ],
-            nombre: "Express",
-            modalidades: [
-              "POR_NUCLEO"
             ]
           }
         ]
