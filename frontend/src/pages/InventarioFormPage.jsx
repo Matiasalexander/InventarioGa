@@ -79,6 +79,8 @@ const [cargandoLicencias, setCargandoLicencias] =
 const [mostrarSelectorLicencias, setMostrarSelectorLicencias] =
   useState(false);
 
+  const [licenciasDesplegadas, setLicenciasDesplegadas] = useState(false);
+
 const [errorLicencias, setErrorLicencias] =
   useState("");
 
@@ -3411,69 +3413,101 @@ if (resultadoLicencias.fallidas.length > 0) {
   )}
 
 
-  {mostrarSelectorLicencias &&
-    puedeAgregarLicencias &&
-    !cargandoLicencias && (
-      <>
-        {licenciasDisponibles.length === 0 ? (
-          <p></p>
-        ) : (
-          <div style={{ display: "grid", gap: "10px" }}>
-            {licenciasDisponibles.map(licencia => (
-              <label
-                key={licencia.ID_LICENCIA}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "12px",
-                  border: "1px solid #cbd5e1",
-                  borderRadius: "8px",
-                  padding: "12px",
-                  cursor: "pointer"
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={licenciasSeleccionadas.includes(
-                    licencia.ID_LICENCIA
-                  )}
-                  onChange={() =>
-                    alternarLicencia(licencia.ID_LICENCIA)
-                  }
-                  disabled={guardandoEquipo}
-                />
 
-                <span>
-                  <strong>{licencia.SOFTWARE}</strong>
-                  {" — "}
-                  {licencia.VERSION}
+{/* =========================================
+    DROPDOWN DE LICENCIAS DISPONIBLES
+========================================= */}
 
-                  <small style={{ display: "block" }}>
-                    {licencia.TIPO_LICENCIA}
-                  </small>
+{mostrarSelectorLicencias &&
+  puedeAgregarLicencias &&
+  !cargandoLicencias && (
+    <div className="licencias-dropdown">
 
-                  <small
-                    style={{
-                      display: "block",
-                      color: "#166534"
-                    }}
-                  >
-                    Disponible
-                  </small>
-                </span>
-              </label>
-            ))}
-          </div>
-        )}
+      <button
+        type="button"
+        className={`licencias-dropdown-btn ${
+          licenciasDesplegadas ? "abierto" : ""
+        }`}
+        onClick={() =>
+          setLicenciasDesplegadas((actual) => !actual)
+        }
+        aria-expanded={licenciasDesplegadas}
+        aria-controls="listado-licencias-disponibles"
+        disabled={guardandoEquipo}
+      >
+        <span className="licencias-dropdown-titulo">
+          <span className="licencias-dropdown-icono">
+            ▣
+          </span>
 
-        <p>
-          <strong>
-            {licenciasSeleccionadas.length}
-          </strong>
-          {" nueva(s) licencia(s) seleccionada(s)"}
-        </p>
-      </>
-    )}
+          Licencias disponibles
+
+          <span className="licencias-dropdown-cantidad">
+            {licenciasDisponibles.length}
+          </span>
+        </span>
+
+        <span className="licencias-dropdown-flecha">
+          {licenciasDesplegadas ? "▲" : "▼"}
+        </span>
+      </button>
+
+      {licenciasDesplegadas && (
+        <div
+          id="listado-licencias-disponibles"
+          className="licencias-dropdown-contenido"
+        >
+          {licenciasDisponibles.length === 0 ? (
+            <p className="licencias-sin-resultados">
+              No hay licencias disponibles para asignar.
+            </p>
+          ) : (
+            <div className="licencias-dropdown-lista">
+              {licenciasDisponibles.map((licencia) => (
+                <label
+                  key={licencia.ID_LICENCIA}
+                  className="licencias-dropdown-item"
+                >
+                  <input
+                    type="checkbox"
+                    checked={licenciasSeleccionadas.includes(
+                      licencia.ID_LICENCIA
+                    )}
+                    onChange={() =>
+                      alternarLicencia(licencia.ID_LICENCIA)
+                    }
+                    disabled={guardandoEquipo}
+                  />
+
+                  <span className="licencias-dropdown-info">
+                    <strong>
+                      {licencia.SOFTWARE} — {licencia.VERSION}
+                    </strong>
+
+                    <small>
+                      {licencia.TIPO_LICENCIA}
+                    </small>
+
+                    <span className="licencias-dropdown-estado">
+                      Disponible
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <p className="licencias-dropdown-resumen">
+        <strong>
+          {licenciasSeleccionadas.length}
+        </strong>
+        {" nueva(s) licencia(s) seleccionada(s)"}
+      </p>
+    </div>
+  )}
+
 
   <small>
     Las licencias existentes se conservan.
