@@ -453,24 +453,24 @@ const obtenerOpcionesLicencias = async (req, res) => {
 
 //LIBERAR LICENCIA
 
+
 const liberarLicencia = async (req, res) => {
   const idLicencia = Number(req.params.id);
   const idUsuario = Number(req.usuario?.IdUsuario);
+  const idEquipoSolicitado = Number(req.body?.ID_EQUIPO);
 
-  if (
-    !Number.isSafeInteger(idLicencia) ||
-    idLicencia <= 0 ||
-    idLicencia > 2147483647
-  ) {
+  const esIdValido = (valor) =>
+    Number.isSafeInteger(valor) &&
+    valor > 0 &&
+    valor <= 2147483647;
+
+  if (!esIdValido(idLicencia)) {
     return res.status(400).json({
       message: "ID de licencia inválido."
     });
   }
 
-  if (
-    !Number.isSafeInteger(idUsuario) ||
-    idUsuario <= 0
-  ) {
+  if (!esIdValido(idUsuario)) {
     return res.status(401).json({
       message: "Usuario no autenticado."
     });
@@ -491,19 +491,24 @@ const liberarLicencia = async (req, res) => {
     iniciada = true;
 
     // 1. Bloquear la licencia.
-    const licenciaResult = await new sql.Request(transaccion)
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .query(`
-        SELECT
-          ID_LICENCIA,
-          SOFTWARE,
-          VERSION,
-          ESTADO
-        FROM dbo.LICENCIAS WITH (UPDLOCK, HOLDLOCK)
-        WHERE ID_LICENCIA = @ID_LICENCIA;
-      `);
+    const licenciaResult =
+      await new sql.Request(transaccion)
+        .input("ID_LICENCIA", sql.Int, idLicencia)
+        .query(`
+          SELECT
+            L.ID_LICENCIA,
+            L.SOFTWARE,
+            L.VERSION,
+            L.ESTADO,
+            T.NOMBRE AS TIPO_LICENCIA
+          FROM dbo.LICENCIAS AS L
+            WITH (UPDLOCK, HOLDLOCK)
+          INNER JOIN dbo.TIPOS_LICENCIA AS T
+            ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+          WHERE L.ID_LICENCIA = @ID_LICENCIA;
+        `);
 
-    if (licenciaResult.recordset.length === 0) {
+    if (!licenciaResult.recordset.length) {
       await transaccion.rollback();
       iniciada = false;
 
@@ -514,10 +519,33 @@ const liberarLicencia = async (req, res) => {
 
     const licencia = licenciaResult.recordset[0];
 
-    // 2. Buscar su asignación activa y el equipo.
-    const asignacionResult = await new sql.Request(transaccion)
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .query(`
+    const esCompartida =
+      licencia.TIPO_LICENCIA === "GRATUITA";
+
+    // Para gratuitas es obligatorio identificar
+    // el equipo que se va a desvincular.
+    if (esCompartida && !esIdValido(idEquipoSolicitado)) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(400).json({
+        message:
+          "Para liberar una licencia gratuita debes indicar ID_EQUIPO."
+      });
+    }
+
+    // 2. Buscar asignación activa.
+    const requestAsignacion =
+      new sql.Request(transaccion)
+        .input("ID_LICENCIA", sql.Int, idLicencia)
+        .input(
+          "ID_EQUIPO",
+          sql.Int,
+          esCompartida ? idEquipoSolicitado : null
+        );
+
+    const asignacionResult =
+      await requestAsignacion.query(`
         SELECT
           A.ID_ASIGNACION,
           A.ID_EQUIPO,
@@ -529,24 +557,26 @@ const liberarLicencia = async (req, res) => {
         INNER JOIN dbo.INVENTARIO_M AS E
           ON E.id = A.ID_EQUIPO
         WHERE A.ID_LICENCIA = @ID_LICENCIA
-          AND A.FECHA_LIBERACION IS NULL;
+          AND A.FECHA_LIBERACION IS NULL
+          AND (
+            @ID_EQUIPO IS NULL
+            OR A.ID_EQUIPO = @ID_EQUIPO
+          );
       `);
 
-    const asignacion = asignacionResult.recordset[0];
-
-    // Si la licencia aparece en uso pero no tiene una
-    // asignación válida, no cambiamos ningún registro.
-    if (!asignacion) {
+    if (!asignacionResult.recordset.length) {
       await transaccion.rollback();
       iniciada = false;
 
       return res.status(409).json({
         message:
-          "La licencia no tiene una asignación activa válida."
+          "No existe una asignación activa para esta licencia y equipo."
       });
     }
 
-    // 3. Comprobar autorización sobre la unidad actual.
+    const asignacion = asignacionResult.recordset[0];
+
+    // 3. Verificar acceso a la unidad.
     const autorizado = await usuarioPuedeAccederUnidad(
       idUsuario,
       asignacion.ID_UNIDAD,
@@ -563,7 +593,7 @@ const liberarLicencia = async (req, res) => {
       });
     }
 
-    // 4. Verificar consistencia del estado.
+    // 4. Comprobar estado.
     if (licencia.ESTADO !== "EN_USO") {
       await transaccion.rollback();
       iniciada = false;
@@ -575,25 +605,55 @@ const liberarLicencia = async (req, res) => {
       });
     }
 
-    // 5. Cerrar la asignación sin eliminar su historial.
-    const liberacionResult = await new sql.Request(transaccion)
-      .input(
-        "ID_ASIGNACION",
-        sql.Int,
-        asignacion.ID_ASIGNACION
-      )
-      .query(`
-        UPDATE dbo.LICENCIAS_ASIGNACIONES
-        SET FECHA_LIBERACION = SYSUTCDATETIME()
-        OUTPUT
-          INSERTED.ID_ASIGNACION,
-          INSERTED.ID_LICENCIA,
-          INSERTED.ID_EQUIPO,
-          INSERTED.FECHA_ASIGNACION,
-          INSERTED.FECHA_LIBERACION
-        WHERE ID_ASIGNACION = @ID_ASIGNACION
-          AND FECHA_LIBERACION IS NULL;
-      `);
+    // 5. Cerrar el vínculo seleccionado.
+
+    // ============================================
+    // 5. LIBERAR ASIGNACIÓN
+    // Compatible con trigger AFTER UPDATE.
+    // ============================================
+
+    const liberacionResult =
+      await new sql.Request(transaccion)
+        .input(
+          "ID_ASIGNACION",
+          sql.Int,
+          asignacion.ID_ASIGNACION
+        )
+        .query(`
+          DECLARE @AsignacionLiberada TABLE (
+            ID_ASIGNACION INT,
+            ID_LICENCIA INT,
+            ID_EQUIPO INT,
+            FECHA_ASIGNACION DATETIME2,
+            FECHA_LIBERACION DATETIME2
+          );
+
+          UPDATE dbo.LICENCIAS_ASIGNACIONES
+          SET FECHA_LIBERACION = SYSUTCDATETIME()
+          OUTPUT
+            INSERTED.ID_ASIGNACION,
+            INSERTED.ID_LICENCIA,
+            INSERTED.ID_EQUIPO,
+            INSERTED.FECHA_ASIGNACION,
+            INSERTED.FECHA_LIBERACION
+          INTO @AsignacionLiberada (
+            ID_ASIGNACION,
+            ID_LICENCIA,
+            ID_EQUIPO,
+            FECHA_ASIGNACION,
+            FECHA_LIBERACION
+          )
+          WHERE ID_ASIGNACION = @ID_ASIGNACION
+            AND FECHA_LIBERACION IS NULL;
+
+          SELECT
+            ID_ASIGNACION,
+            ID_LICENCIA,
+            ID_EQUIPO,
+            FECHA_ASIGNACION,
+            FECHA_LIBERACION
+          FROM @AsignacionLiberada;
+        `);
 
     if (liberacionResult.recordset.length !== 1) {
       throw new Error(
@@ -601,15 +661,50 @@ const liberarLicencia = async (req, res) => {
       );
     }
 
-    // 6. Devolver la licencia al estado DISPONIBLE.
-    const estadoResult = await new sql.Request(transaccion)
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .query(`
-        UPDATE dbo.LICENCIAS
-        SET ESTADO = 'OBSOLETA'
-        WHERE ID_LICENCIA = @ID_LICENCIA
-          AND ESTADO = 'EN_USO';
-      `);
+
+    if (liberacionResult.recordset.length !== 1) {
+      throw new Error(
+        "No se pudo cerrar la asignación activa."
+      );
+    }
+
+    let nuevoEstado;
+
+    if (esCompartida) {
+      // 6A. Contar vínculos gratuitos restantes.
+      const restantesResult =
+        await new sql.Request(transaccion)
+          .input("ID_LICENCIA", sql.Int, idLicencia)
+          .query(`
+            SELECT COUNT(*) AS TOTAL
+            FROM dbo.LICENCIAS_ASIGNACIONES
+            WHERE ID_LICENCIA = @ID_LICENCIA
+              AND FECHA_LIBERACION IS NULL;
+          `);
+
+      const restantes =
+        restantesResult.recordset[0].TOTAL;
+
+      nuevoEstado = restantes > 0
+        ? "EN_USO"
+        : "DISPONIBLE";
+
+    } else {
+      // 6B. Regla comercial original.
+      nuevoEstado = "OBSOLETA";
+    }
+
+    // 7. Actualizar estado de licencia.
+    const estadoResult =
+      await new sql.Request(transaccion)
+        .input("ID_LICENCIA", sql.Int, idLicencia)
+        .input("ESTADO", sql.NVarChar(20), nuevoEstado)
+        .query(`
+          UPDATE dbo.LICENCIAS
+          SET ESTADO = @ESTADO
+          WHERE ID_LICENCIA = @ID_LICENCIA
+            AND ESTADO = 'EN_USO';
+        `);
 
     if (estadoResult.rowsAffected[0] !== 1) {
       throw new Error(
@@ -617,19 +712,25 @@ const liberarLicencia = async (req, res) => {
       );
     }
 
-    // 7. Confirmar ambas operaciones.
+    // 8. Confirmar la transacción.
     await transaccion.commit();
     iniciada = false;
 
     return res.status(200).json({
-      message: "Licencia liberada correctamente.",
+      message: esCompartida
+        ? "Licencia gratuita desvinculada del equipo correctamente."
+        : "Licencia liberada correctamente.",
+
       licencia: {
         ID_LICENCIA: licencia.ID_LICENCIA,
         SOFTWARE: licencia.SOFTWARE,
         VERSION: licencia.VERSION,
-        ESTADO: "OBSOLETA",
+        TIPO_LICENCIA: licencia.TIPO_LICENCIA,
+        ESTADO: nuevoEstado,
+        ES_COMPARTIDA: esCompartida,
         ID_UNIDAD: null
       },
+
       ultimaAsignacion: liberacionResult.recordset[0]
     });
 
@@ -654,6 +755,7 @@ const liberarLicencia = async (req, res) => {
 };
 
 
+
 //ASIGNAR LICENCIA
 
 /**
@@ -665,12 +767,12 @@ const liberarLicencia = async (req, res) => {
  * La unidad de la licencia se determina a través
  * del ID_UNIDAD del equipo asignado.
  */
+
 const asignarLicencia = async (req, res) => {
   const idLicencia = Number(req.params.id);
   const idEquipo = Number(req.body?.ID_EQUIPO);
   const idUsuario = Number(req.usuario?.IdUsuario);
 
-  // 1. Validar parámetros.
   const esIdValido = (valor) =>
     Number.isSafeInteger(valor) &&
     valor > 0 &&
@@ -708,17 +810,21 @@ const asignarLicencia = async (req, res) => {
 
     iniciada = true;
 
-    // 2. Bloquear la licencia durante la operación.
+    // 1. Bloquear la licencia y consultar su modalidad.
     const licenciaResult = await new sql.Request(transaccion)
       .input("ID_LICENCIA", sql.Int, idLicencia)
       .query(`
         SELECT
-          ID_LICENCIA,
-          SOFTWARE,
-          VERSION,
-          ESTADO
-        FROM dbo.LICENCIAS WITH (UPDLOCK, HOLDLOCK)
-        WHERE ID_LICENCIA = @ID_LICENCIA;
+          L.ID_LICENCIA,
+          L.SOFTWARE,
+          L.VERSION,
+          L.ESTADO,
+          T.NOMBRE AS TIPO_LICENCIA
+        FROM dbo.LICENCIAS AS L
+          WITH (UPDLOCK, HOLDLOCK)
+        INNER JOIN dbo.TIPOS_LICENCIA AS T
+          ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+        WHERE L.ID_LICENCIA = @ID_LICENCIA;
       `);
 
     if (licenciaResult.recordset.length === 0) {
@@ -732,8 +838,10 @@ const asignarLicencia = async (req, res) => {
 
     const licencia = licenciaResult.recordset[0];
 
-    // 3. Verificar el equipo y bloquearlo para
-    // mantener estable su unidad durante la operación.
+    const esCompartida =
+      licencia.TIPO_LICENCIA === "GRATUITA";
+
+    // 2. Comprobar existencia del equipo.
     const equipoResult = await new sql.Request(transaccion)
       .input("ID_EQUIPO", sql.Int, idEquipo)
       .query(`
@@ -756,7 +864,7 @@ const asignarLicencia = async (req, res) => {
 
     const equipo = equipoResult.recordset[0];
 
-    // 4. Comprobar acceso a la unidad.
+    // 3. Validar autorización sobre la unidad.
     const autorizado = await usuarioPuedeAccederUnidad(
       idUsuario,
       equipo.ID_UNIDAD,
@@ -773,8 +881,14 @@ const asignarLicencia = async (req, res) => {
       });
     }
 
-    // 5. Verificar disponibilidad.
-    if (licencia.ESTADO !== "DISPONIBLE") {
+    // 4. Validar estado según modalidad.
+    const estadoPermitido = esCompartida
+      ? ["DISPONIBLE", "EN_USO"].includes(
+          licencia.ESTADO
+        )
+      : licencia.ESTADO === "DISPONIBLE";
+
+    if (!estadoPermitido) {
       await transaccion.rollback();
       iniciada = false;
 
@@ -785,84 +899,169 @@ const asignarLicencia = async (req, res) => {
       });
     }
 
-    // 6. Validar que no exista una asignación activa.
-    const asignacionActiva = await new sql.Request(transaccion)
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .query(`
-        SELECT TOP (1)
-          ID_ASIGNACION
-        FROM dbo.LICENCIAS_ASIGNACIONES
-        WHERE ID_LICENCIA = @ID_LICENCIA
-          AND FECHA_LIBERACION IS NULL;
-      `);
+    // 5. Obtener asignaciones activas de la licencia.
+    const asignacionesResult =
+      await new sql.Request(transaccion)
+        .input("ID_LICENCIA", sql.Int, idLicencia)
+        .query(`
+          SELECT
+            ID_ASIGNACION,
+            ID_EQUIPO
+          FROM dbo.LICENCIAS_ASIGNACIONES
+          WHERE ID_LICENCIA = @ID_LICENCIA
+            AND FECHA_LIBERACION IS NULL;
+        `);
 
-    if (asignacionActiva.recordset.length > 0) {
+    const asignacionesActivas =
+      asignacionesResult.recordset;
+
+    // 6. Evitar duplicar la licencia en el mismo equipo.
+    const yaAsignadaAlEquipo =
+      asignacionesActivas.some(
+        asignacion =>
+          asignacion.ID_EQUIPO === idEquipo
+      );
+
+    if (yaAsignadaAlEquipo) {
       await transaccion.rollback();
       iniciada = false;
 
       return res.status(409).json({
         message:
-          "La licencia ya tiene una asignación activa."
+          "Esta licencia ya está asignada al equipo seleccionado."
       });
     }
 
-    // 7. Crear asignación.
-    const nuevaAsignacion = await new sql.Request(transaccion)
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .input("ID_EQUIPO", sql.Int, idEquipo)
-      .query(`
-        INSERT INTO dbo.LICENCIAS_ASIGNACIONES (
-          ID_LICENCIA,
-          ID_EQUIPO,
-          FECHA_ASIGNACION
+    // 7. Las comerciales siguen siendo exclusivas.
+    if (
+      !esCompartida &&
+      asignacionesActivas.length > 0
+    ) {
+      await transaccion.rollback();
+      iniciada = false;
+
+      return res.status(409).json({
+        message:
+          "La licencia comercial ya tiene una asignación activa."
+      });
+    }
+
+    // 8. Crear la asignación con clasificación correcta.
+
+    // ============================================
+    // 8. CREAR ASIGNACIÓN
+    // Compatible con trigger AFTER INSERT.
+    // ============================================
+
+    const nuevaAsignacion =
+      await new sql.Request(transaccion)
+        .input("ID_LICENCIA", sql.Int, idLicencia)
+        .input("ID_EQUIPO", sql.Int, idEquipo)
+        .input(
+          "ES_COMPARTIDA",
+          sql.Bit,
+          esCompartida ? 1 : 0
         )
-        OUTPUT
-          INSERTED.ID_ASIGNACION,
-          INSERTED.ID_LICENCIA,
-          INSERTED.ID_EQUIPO,
-          INSERTED.FECHA_ASIGNACION
-        VALUES (
-          @ID_LICENCIA,
-          @ID_EQUIPO,
-          SYSUTCDATETIME()
-        );
-      `);
+        .query(`
+          DECLARE @NuevaAsignacion TABLE (
+            ID_ASIGNACION INT,
+            ID_LICENCIA INT,
+            ID_EQUIPO INT,
+            FECHA_ASIGNACION DATETIME2,
+            ES_COMPARTIDA BIT
+          );
 
-    // 8. Cambiar el estado a EN_USO.
-    const estadoResult = await new sql.Request(transaccion)
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .query(`
-        UPDATE dbo.LICENCIAS
-        SET ESTADO = 'EN_USO'
-        WHERE ID_LICENCIA = @ID_LICENCIA
-          AND ESTADO = 'DISPONIBLE';
-      `);
+          INSERT INTO dbo.LICENCIAS_ASIGNACIONES (
+            ID_LICENCIA,
+            ID_EQUIPO,
+            FECHA_ASIGNACION,
+            ES_COMPARTIDA
+          )
+          OUTPUT
+            INSERTED.ID_ASIGNACION,
+            INSERTED.ID_LICENCIA,
+            INSERTED.ID_EQUIPO,
+            INSERTED.FECHA_ASIGNACION,
+            INSERTED.ES_COMPARTIDA
+          INTO @NuevaAsignacion (
+            ID_ASIGNACION,
+            ID_LICENCIA,
+            ID_EQUIPO,
+            FECHA_ASIGNACION,
+            ES_COMPARTIDA
+          )
+          VALUES (
+            @ID_LICENCIA,
+            @ID_EQUIPO,
+            SYSUTCDATETIME(),
+            @ES_COMPARTIDA
+          );
 
-    if (estadoResult.rowsAffected[0] !== 1) {
+          SELECT
+            ID_ASIGNACION,
+            ID_LICENCIA,
+            ID_EQUIPO,
+            FECHA_ASIGNACION,
+            ES_COMPARTIDA
+          FROM @NuevaAsignacion;
+        `);
+
+    if (nuevaAsignacion.recordset.length !== 1) {
       throw new Error(
-        "No se pudo actualizar el estado de la licencia."
+        "No se pudo recuperar la asignación creada."
       );
     }
 
-    // 9. Confirmar los cambios.
+
+    // 9. Para gratuitas que ya estén EN_USO,
+    // no hace falta cambiar el estado.
+    if (licencia.ESTADO === "DISPONIBLE") {
+      const estadoResult =
+        await new sql.Request(transaccion)
+          .input("ID_LICENCIA", sql.Int, idLicencia)
+          .query(`
+            UPDATE dbo.LICENCIAS
+            SET ESTADO = 'EN_USO'
+            WHERE ID_LICENCIA = @ID_LICENCIA
+              AND ESTADO = 'DISPONIBLE';
+          `);
+
+      if (estadoResult.rowsAffected[0] !== 1) {
+        throw new Error(
+          "No se pudo actualizar el estado de la licencia."
+        );
+      }
+    }
+
+    // 10. Confirmar transacción.
     await transaccion.commit();
     iniciada = false;
 
     return res.status(201).json({
-      message: "Licencia asignada correctamente.",
+      message: esCompartida
+        ? "Licencia gratuita vinculada correctamente al equipo."
+        : "Licencia asignada correctamente.",
+
       asignacion: nuevaAsignacion.recordset[0],
+
       licencia: {
         ID_LICENCIA: licencia.ID_LICENCIA,
         SOFTWARE: licencia.SOFTWARE,
         VERSION: licencia.VERSION,
+        TIPO_LICENCIA: licencia.TIPO_LICENCIA,
+        ES_COMPARTIDA: esCompartida,
         ESTADO: "EN_USO",
         ID_UNIDAD: equipo.ID_UNIDAD
       },
+
       equipo: {
         id: equipo.id,
         NOMBRE_EQUIPO: equipo.NOMBRE_EQUIPO,
         ID_UNIDAD: equipo.ID_UNIDAD
-      }
+      },
+
+      totalAsignacionesActivas:
+        asignacionesActivas.length + 1
     });
 
   } catch (error) {
@@ -879,18 +1078,15 @@ const asignarLicencia = async (req, res) => {
 
     console.error("Error asignando licencia:", error);
 
-    // Índice único: no permite más de una
-    // asignación activa por licencia.
     if ([2601, 2627].includes(error.number)) {
       return res.status(409).json({
         message:
-          "La licencia ya tiene una asignación activa."
+          "La licencia ya tiene una asignación activa incompatible o duplicada."
       });
     }
 
     return res.status(500).json({
-      message:
-        "Error interno al asignar la licencia."
+      message: "Error interno al asignar la licencia."
     });
   }
 };
@@ -1141,6 +1337,7 @@ const obtenerHistorialLicencia = async (req, res) => {
  * Consulta licencias disponibles para asignación.
  * No expone ACTIVADOR.
  */
+
 const obtenerLicenciasDisponibles = async (req, res) => {
   try {
     const pool = await poolPromise;
@@ -1154,17 +1351,40 @@ const obtenerLicenciasDisponibles = async (req, res) => {
         T.NOMBRE AS TIPO_LICENCIA,
         L.ESTADO,
         L.CONFIGURACION,
-        L.COMENTARIOS
+        L.COMENTARIOS,
+        CASE
+          WHEN T.NOMBRE = 'GRATUITA'
+            THEN CAST(1 AS BIT)
+          ELSE CAST(0 AS BIT)
+        END AS ES_COMPARTIDA,
+        (
+          SELECT COUNT(*)
+          FROM dbo.LICENCIAS_ASIGNACIONES A
+          WHERE A.ID_LICENCIA = L.ID_LICENCIA
+            AND A.FECHA_LIBERACION IS NULL
+        ) AS TOTAL_EQUIPOS
+
       FROM dbo.LICENCIAS AS L
       INNER JOIN dbo.TIPOS_LICENCIA AS T
         ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
-      WHERE L.ESTADO = 'DISPONIBLE'
-        AND NOT EXISTS (
-          SELECT 1
-          FROM dbo.LICENCIAS_ASIGNACIONES AS A
-          WHERE A.ID_LICENCIA = L.ID_LICENCIA
-            AND A.FECHA_LIBERACION IS NULL
+
+      WHERE
+        (
+          T.NOMBRE = 'GRATUITA'
+          AND L.ESTADO IN ('DISPONIBLE', 'EN_USO')
         )
+        OR
+        (
+          T.NOMBRE <> 'GRATUITA'
+          AND L.ESTADO = 'DISPONIBLE'
+          AND NOT EXISTS (
+            SELECT 1
+            FROM dbo.LICENCIAS_ASIGNACIONES A
+            WHERE A.ID_LICENCIA = L.ID_LICENCIA
+              AND A.FECHA_LIBERACION IS NULL
+          )
+        )
+
       ORDER BY
         L.SOFTWARE,
         L.VERSION,
@@ -1188,6 +1408,7 @@ const obtenerLicenciasDisponibles = async (req, res) => {
     });
   }
 };
+
 
 // ESTE ENDPOINT ES PARA OBTENER DETALLES DE LA LICENCIA
 
