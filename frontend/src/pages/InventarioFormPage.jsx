@@ -79,6 +79,8 @@ const [cargandoLicencias, setCargandoLicencias] =
 const [mostrarSelectorLicencias, setMostrarSelectorLicencias] =
   useState(false);
 
+  const [licenciasDesplegadas, setLicenciasDesplegadas] = useState(false);
+
 const [errorLicencias, setErrorLicencias] =
   useState("");
 
@@ -1526,6 +1528,27 @@ if (esEdicion) {
   // A partir de aquí no debemos repetir la
   // actualización del equipo al fallar una licencia.
   setGuardadoExitoso(true);
+  // 2. Asignar las licencias nuevas seleccionadas.
+const resultadoLicencias = await asignarLicenciasDelEquipo(
+  Number(id),
+  licenciasSeleccionadas
+);
+
+if (resultadoLicencias.fallidas.length > 0) {
+  const detalleErrores = resultadoLicencias.fallidas
+    .map(item => `Licencia ${item.idLicencia}: ${item.mensaje}`)
+    .join("\n");
+
+  console.warn("Licencias no asignadas:", detalleErrores);
+
+  toast.warning(
+    `Equipo actualizado. ${resultadoLicencias.fallidas.length} licencia(s) no se pudieron asignar.`
+  );
+} else if (resultadoLicencias.asignadas.length > 0) {
+  toast.success(
+    `${resultadoLicencias.asignadas.length} licencia(s) asignada(s) correctamente.`
+  );
+}
 
   // 2. Recuperar los datos para conservar el QR.
   let nombreActualizado = formulario.NOMBRE_EQUIPO || "";
@@ -1573,6 +1596,31 @@ if (esEdicion) {
         const {id, NOMBRE_EQUIPO} = equipoCreado;
         setIdEquipoQR(id);
         setNombreEquipoQR(NOMBRE_EQUIPO);
+        if (!id) {
+  throw new Error(
+    "El equipo fue creado, pero el backend no devolvió su identificador."
+  );
+}
+
+const resultadoLicencias = await asignarLicenciasDelEquipo(
+  Number(id),
+  licenciasSeleccionadas
+);
+
+if (resultadoLicencias.fallidas.length > 0) {
+  console.warn(
+    "Licencias no asignadas:",
+    resultadoLicencias.fallidas
+  );
+
+  toast.warning(
+    `Equipo creado. ${resultadoLicencias.fallidas.length} licencia(s) quedaron pendientes de asignación.`
+  );
+} else if (resultadoLicencias.asignadas.length > 0) {
+  toast.success(
+    `${resultadoLicencias.asignadas.length} licencia(s) asignada(s) al equipo.`
+  );
+}
          mostrarMensajeModal(
     "success",
     "Equipo registrado",
@@ -3365,69 +3413,101 @@ if (esEdicion) {
   )}
 
 
-  {mostrarSelectorLicencias &&
-    puedeAgregarLicencias &&
-    !cargandoLicencias && (
-      <>
-        {licenciasDisponibles.length === 0 ? (
-          <p></p>
-        ) : (
-          <div style={{ display: "grid", gap: "10px" }}>
-            {licenciasDisponibles.map(licencia => (
-              <label
-                key={licencia.ID_LICENCIA}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: "12px",
-                  border: "1px solid #cbd5e1",
-                  borderRadius: "8px",
-                  padding: "12px",
-                  cursor: "pointer"
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={licenciasSeleccionadas.includes(
-                    licencia.ID_LICENCIA
-                  )}
-                  onChange={() =>
-                    alternarLicencia(licencia.ID_LICENCIA)
-                  }
-                  disabled={guardandoEquipo}
-                />
 
-                <span>
-                  <strong>{licencia.SOFTWARE}</strong>
-                  {" — "}
-                  {licencia.VERSION}
+{/* =========================================
+    DROPDOWN DE LICENCIAS DISPONIBLES
+========================================= */}
 
-                  <small style={{ display: "block" }}>
-                    {licencia.TIPO_LICENCIA}
-                  </small>
+{mostrarSelectorLicencias &&
+  puedeAgregarLicencias &&
+  !cargandoLicencias && (
+    <div className="licencias-dropdown">
 
-                  <small
-                    style={{
-                      display: "block",
-                      color: "#166534"
-                    }}
-                  >
-                    Disponible
-                  </small>
-                </span>
-              </label>
-            ))}
-          </div>
-        )}
+      <button
+        type="button"
+        className={`licencias-dropdown-btn ${
+          licenciasDesplegadas ? "abierto" : ""
+        }`}
+        onClick={() =>
+          setLicenciasDesplegadas((actual) => !actual)
+        }
+        aria-expanded={licenciasDesplegadas}
+        aria-controls="listado-licencias-disponibles"
+        disabled={guardandoEquipo}
+      >
+        <span className="licencias-dropdown-titulo">
+          <span className="licencias-dropdown-icono">
+            ▣
+          </span>
 
-        <p>
-          <strong>
-            {licenciasSeleccionadas.length}
-          </strong>
-          {" nueva(s) licencia(s) seleccionada(s)"}
-        </p>
-      </>
-    )}
+          Licencias disponibles
+
+          <span className="licencias-dropdown-cantidad">
+            {licenciasDisponibles.length}
+          </span>
+        </span>
+
+        <span className="licencias-dropdown-flecha">
+          {licenciasDesplegadas ? "▲" : "▼"}
+        </span>
+      </button>
+
+      {licenciasDesplegadas && (
+        <div
+          id="listado-licencias-disponibles"
+          className="licencias-dropdown-contenido"
+        >
+          {licenciasDisponibles.length === 0 ? (
+            <p className="licencias-sin-resultados">
+              No hay licencias disponibles para asignar.
+            </p>
+          ) : (
+            <div className="licencias-dropdown-lista">
+              {licenciasDisponibles.map((licencia) => (
+                <label
+                  key={licencia.ID_LICENCIA}
+                  className="licencias-dropdown-item"
+                >
+                  <input
+                    type="checkbox"
+                    checked={licenciasSeleccionadas.includes(
+                      licencia.ID_LICENCIA
+                    )}
+                    onChange={() =>
+                      alternarLicencia(licencia.ID_LICENCIA)
+                    }
+                    disabled={guardandoEquipo}
+                  />
+
+                  <span className="licencias-dropdown-info">
+                    <strong>
+                      {licencia.SOFTWARE} — {licencia.VERSION}
+                    </strong>
+
+                    <small>
+                      {licencia.TIPO_LICENCIA}
+                    </small>
+
+                    <span className="licencias-dropdown-estado">
+                      Disponible
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <p className="licencias-dropdown-resumen">
+        <strong>
+          {licenciasSeleccionadas.length}
+        </strong>
+        {" nueva(s) licencia(s) seleccionada(s)"}
+      </p>
+    </div>
+  )}
+
 
   <small>
     Las licencias existentes se conservan.

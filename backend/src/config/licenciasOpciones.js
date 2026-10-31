@@ -6,38 +6,106 @@ const OPCIONES_LICENCIAS = {
 
     versiones: [
       {
-        version: "2022", 
+        version: "2022",
         ediciones: [
           {
             nombre: "Standard",
-            modalidades: [
-              "POR_NUCLEO",
-              "SERVER_CAL"
-            ]
+            modalidades: ["POR_NUCLEO", "SERVER_CAL"]
           },
           {
             nombre: "Enterprise",
-            modalidades: [
-              "POR_NUCLEO"
-            ]
+            modalidades: ["POR_NUCLEO"]
+          },
+          {
+            nombre: "Express",
+            modalidades: ["GRATUITA"]
           }
         ]
-      }, 
+      },
+
       {
-        version: "2019", 
+        version: "2019",
         ediciones: [
           {
             nombre: "Standard",
-            modalidades: [
-              "POR_NUCLEO",
-              "SERVER_CAL"
-            ]
+            modalidades: ["POR_NUCLEO", "SERVER_CAL"]
           },
           {
             nombre: "Enterprise",
-            modalidades: [
-              "POR_NUCLEO"
-            ]
+            modalidades: ["POR_NUCLEO"]
+          },
+          {
+            nombre: "Express",
+            modalidades: ["GRATUITA"]
+          }
+        ]
+      },
+
+      // Versiones conservadas del catálogo original.
+      // Revisar posteriormente su nomenclatura.
+       {
+        version: "2015",
+        ediciones: [
+          {
+            nombre: "Standard",
+            modalidades: ["POR_NUCLEO", "SERVER_CAL"]
+          },
+          {
+            nombre: "Enterprise",
+            modalidades: ["POR_NUCLEO"]
+          },
+          {
+            nombre: "Express",
+            modalidades: ["GRATUITA"]
+          }
+        ]
+      },
+        {
+        version: "2016",
+        ediciones: [
+          {
+            nombre: "Standard",
+            modalidades: ["POR_NUCLEO", "SERVER_CAL"]
+          },
+          {
+            nombre: "Enterprise",
+            modalidades: ["POR_NUCLEO"]
+          },
+          {
+            nombre: "Express",
+            modalidades: ["GRATUITA"]
+          },
+          {
+  nombre: "Developer",
+  modalidades: ["GRATUITA"]
+}
+        ]
+      },
+
+      {
+        version: "2018",
+        ediciones: [
+          {
+            nombre: "Standard",
+            modalidades: ["POR_NUCLEO", "SERVER_CAL"]
+          },
+          {
+            nombre: "Enterprise",
+            modalidades: ["POR_NUCLEO"]
+          }
+        ]
+      },
+
+      {
+        version: "2021",
+        ediciones: [
+          {
+            nombre: "Standard",
+            modalidades: ["POR_NUCLEO", "SERVER_CAL"]
+          },
+          {
+            nombre: "Enterprise",
+            modalidades: ["POR_NUCLEO"]
           }
         ]
       }
@@ -60,8 +128,14 @@ const CAMPOS_MODALIDAD = {
       tipo: "select",
       obligatorio: false,
       opciones: [
-        { valor: "FISICO", etiqueta: "Servidor físico" },
-        { valor: "VIRTUAL", etiqueta: "Máquina virtual" }
+        {
+          valor: "FISICO",
+          etiqueta: "Servidor físico"
+        },
+        {
+          valor: "VIRTUAL",
+          etiqueta: "Máquina virtual"
+        }
       ]
     }
   ],
@@ -73,8 +147,14 @@ const CAMPOS_MODALIDAD = {
       tipo: "select",
       obligatorio: true,
       opciones: [
-        { valor: "USUARIO", etiqueta: "Usuario" },
-        { valor: "DISPOSITIVO", etiqueta: "Dispositivo" }
+        {
+          valor: "USUARIO",
+          etiqueta: "Usuario"
+        },
+        {
+          valor: "DISPOSITIVO",
+          etiqueta: "Dispositivo"
+        }
       ]
     },
     {
@@ -95,7 +175,10 @@ const CAMPOS_MODALIDAD = {
     }
   ],
 
-  PERPETUA: []
+  PERPETUA: [],
+
+  // Sin campos adicionales de licenciamiento.
+  GRATUITA: []
 };
 
 module.exports = {
