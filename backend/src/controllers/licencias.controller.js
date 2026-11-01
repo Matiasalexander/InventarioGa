@@ -1804,86 +1804,94 @@ const obtenerEquiposDeLicencia = async (req, res) => {
   try {
     const pool = await poolPromise;
 
-    const resultado = await pool.request()
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .input("ID_USUARIO", sql.Int, idUsuario)
-      .query(`
-        WITH UsuarioAutorizado AS (
-          SELECT TOP (1)
-            CASE
-              WHEN R.NOMBRE = 'Administrador'
-                THEN 1 ELSE 0
-            END AS ES_ADMIN
-          FROM dbo.Usuarios U
-          INNER JOIN dbo.Roles R
-            ON R.ID_ROL = U.IdRol
-           AND R.ACTIVO = 1
-          WHERE U.IdUsuario = @ID_USUARIO
-            AND U.Activo = 1
+ 
+const resultado = await pool.request()
+  .input("ID_LICENCIA", sql.Int, idLicencia)
+  .input("ID_USUARIO", sql.Int, idUsuario)
+  .query(`
+    WITH UsuarioAutorizado AS (
+      SELECT TOP (1)
+        CASE
+          WHEN R.NOMBRE = 'Administrador'
+            THEN 1
+          ELSE 0
+        END AS ES_ADMIN
+      FROM dbo.Usuarios AS U
+      INNER JOIN dbo.Roles AS R
+        ON R.ID_ROL = U.IdRol
+       AND R.ACTIVO = 1
+      WHERE U.IdUsuario = @ID_USUARIO
+        AND U.Activo = 1
+    )
+    SELECT
+      A.ID_ASIGNACION,
+      A.ID_LICENCIA,
+      A.ID_EQUIPO,
+      E.NOMBRE_EQUIPO,
+      E.ID_UNIDAD,
+      UN.Ubicacion AS NOMBRE_UNIDAD,
+      A.FECHA_ASIGNACION,
+      A.ES_COMPARTIDA
+    FROM dbo.LICENCIAS_ASIGNACIONES AS A
+    INNER JOIN dbo.INVENTARIO_M AS E
+      ON E.id = A.ID_EQUIPO
+    LEFT JOIN dbo.UNIDADES AS UN
+      ON UN.id = E.ID_UNIDAD
+    CROSS JOIN UsuarioAutorizado AS UA
+    WHERE A.ID_LICENCIA = @ID_LICENCIA
+      AND A.FECHA_LIBERACION IS NULL
+      AND (
+        UA.ES_ADMIN = 1
+        OR EXISTS (
+          SELECT 1
+          FROM dbo.Usuario_Unidades AS UU
+          WHERE UU.IdUsuario = @ID_USUARIO
+            AND UU.IdUnidad = E.ID_UNIDAD
         )
-        SELECT
-          A.ID_ASIGNACION,
-          A.ID_LICENCIA,
-          A.ID_EQUIPO,
-          E.NOMBRE_EQUIPO,
-          E.ID_UNIDAD,
-          A.FECHA_ASIGNACION,
-          A.ES_COMPARTIDA
-        FROM dbo.LICENCIAS_ASIGNACIONES A
-        INNER JOIN dbo.INVENTARIO_M E
-          ON E.id = A.ID_EQUIPO
-        CROSS JOIN UsuarioAutorizado U
-        WHERE A.ID_LICENCIA = @ID_LICENCIA
-          AND A.FECHA_LIBERACION IS NULL
-          AND (
-            U.ES_ADMIN = 1
-            OR EXISTS (
-              SELECT 1
-              FROM dbo.Usuario_Unidades UU
-              WHERE UU.IdUsuario = @ID_USUARIO
-                AND UU.IdUnidad = E.ID_UNIDAD
-            )
-          )
-        ORDER BY
-          E.NOMBRE_EQUIPO,
-          A.ID_ASIGNACION;
-      `);
+      )
+    ORDER BY
+      E.NOMBRE_EQUIPO,
+      A.ID_ASIGNACION;
+  `);
+
 
     // No revelar detalles de licencias ajenas.
-    const acceso = await pool.request()
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .input("ID_USUARIO", sql.Int, idUsuario)
-      .query(`
-        SELECT TOP (1)
-          L.ID_LICENCIA,
-          L.SOFTWARE,
-          L.VERSION,
-          T.NOMBRE AS TIPO_LICENCIA
-        FROM dbo.LICENCIAS L
-        INNER JOIN dbo.TIPOS_LICENCIA T
-          ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
-        INNER JOIN dbo.Usuarios U
-          ON U.IdUsuario = @ID_USUARIO
-         AND U.Activo = 1
-        INNER JOIN dbo.Roles R
-          ON R.ID_ROL = U.IdRol
-         AND R.ACTIVO = 1
-        WHERE L.ID_LICENCIA = @ID_LICENCIA
-          AND (
-            R.NOMBRE = 'Administrador'
-            OR EXISTS (
-              SELECT 1
-              FROM dbo.LICENCIAS_ASIGNACIONES A
-              INNER JOIN dbo.INVENTARIO_M E
-                ON E.id = A.ID_EQUIPO
-              INNER JOIN dbo.Usuario_Unidades UU
-                ON UU.IdUnidad = E.ID_UNIDAD
-              WHERE A.ID_LICENCIA = L.ID_LICENCIA
-                AND A.FECHA_LIBERACION IS NULL
-                AND UU.IdUsuario = @ID_USUARIO
-            )
-          );
-      `);
+
+const acceso = await pool.request()
+  .input("ID_LICENCIA", sql.Int, idLicencia)
+  .input("ID_USUARIO", sql.Int, idUsuario)
+  .query(`
+    SELECT TOP (1)
+      L.ID_LICENCIA,
+      L.SOFTWARE,
+      L.VERSION,
+      T.NOMBRE AS TIPO_LICENCIA
+    FROM dbo.LICENCIAS AS L
+    INNER JOIN dbo.TIPOS_LICENCIA AS T
+      ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+    INNER JOIN dbo.Usuarios AS U
+      ON U.IdUsuario = @ID_USUARIO
+     AND U.Activo = 1
+    INNER JOIN dbo.Roles AS R
+      ON R.ID_ROL = U.IdRol
+     AND R.ACTIVO = 1
+    WHERE L.ID_LICENCIA = @ID_LICENCIA
+      AND (
+        R.NOMBRE = 'Administrador'
+        OR EXISTS (
+          SELECT 1
+          FROM dbo.LICENCIAS_ASIGNACIONES AS A
+          INNER JOIN dbo.INVENTARIO_M AS E
+            ON E.id = A.ID_EQUIPO
+          INNER JOIN dbo.Usuario_Unidades AS UU
+            ON UU.IdUnidad = E.ID_UNIDAD
+           AND UU.IdUsuario = @ID_USUARIO
+          WHERE A.ID_LICENCIA = L.ID_LICENCIA
+            AND A.FECHA_LIBERACION IS NULL
+        )
+      );
+  `);
+
 
     if (!acceso.recordset.length) {
       return res.status(404).json({

@@ -88,8 +88,8 @@ export default function LicenciaDetalleModal({
   const [error, setError] = useState("");
   const [recarga, setRecarga] = useState(0);
   const [equiposVinculados, setEquiposVinculados] = useState([]);
-const [cargandoEquipos, setCargandoEquipos] = useState(false);
-const [errorEquipos, setErrorEquipos] = useState("");
+  const [cargandoEquipos, setCargandoEquipos] = useState(false);
+  const [errorEquipos, setErrorEquipos] = useState("");
 
   useEffect(() => {
     if (!idLicencia) return;
@@ -139,60 +139,60 @@ const [errorEquipos, setErrorEquipos] = useState("");
     };
   }, [idLicencia, recarga]);
 
-  
-useEffect(() => {
-  if (!idLicencia) {
-    setEquiposVinculados([]);
-    return;
-  }
 
-  let activo = true;
-
-  const cargarEquipos = async () => {
-    setCargandoEquipos(true);
-    setErrorEquipos("");
-    setEquiposVinculados([]);
-
-    try {
-      const respuesta = await obtenerEquiposDeLicencia(
-        idLicencia
-      );
-
-      if (!activo) return;
-
-      if (!Array.isArray(respuesta?.equipos)) {
-        throw new Error(
-          "La API no devolvió una lista válida de equipos."
-        );
-      }
-
-      setEquiposVinculados(respuesta.equipos);
-    } catch (error) {
-      if (!activo) return;
-
-      console.error(
-        "Error consultando equipos vinculados:",
-        error
-      );
-
-      setErrorEquipos(
-        error.response?.data?.message ||
-        error.message ||
-        "No fue posible consultar los equipos vinculados."
-      );
-    } finally {
-      if (activo) {
-        setCargandoEquipos(false);
-      }
+  useEffect(() => {
+    if (!idLicencia) {
+      setEquiposVinculados([]);
+      return;
     }
-  };
 
-  cargarEquipos();
+    let activo = true;
 
-  return () => {
-    activo = false;
-  };
-}, [idLicencia, recarga]);
+    const cargarEquipos = async () => {
+      setCargandoEquipos(true);
+      setErrorEquipos("");
+      setEquiposVinculados([]);
+
+      try {
+        const respuesta = await obtenerEquiposDeLicencia(
+          idLicencia
+        );
+
+        if (!activo) return;
+
+        if (!Array.isArray(respuesta?.equipos)) {
+          throw new Error(
+            "La API no devolvió una lista válida de equipos."
+          );
+        }
+
+        setEquiposVinculados(respuesta.equipos);
+      } catch (error) {
+        if (!activo) return;
+
+        console.error(
+          "Error consultando equipos vinculados:",
+          error
+        );
+
+        setErrorEquipos(
+          error.response?.data?.message ||
+          error.message ||
+          "No fue posible consultar los equipos vinculados."
+        );
+      } finally {
+        if (activo) {
+          setCargandoEquipos(false);
+        }
+      }
+    };
+
+    cargarEquipos();
+
+    return () => {
+      activo = false;
+    };
+  }, [idLicencia, recarga]);
 
 
   useEffect(() => {
@@ -216,8 +216,8 @@ useEffect(() => {
   const licencia = detalle?.licencia;
   const asignacion = detalle?.asignacionActual;
   const esLicenciaGratuita = String(licencia?.TIPO_LICENCIA ?? "")
-  .trim()
-  .toUpperCase()==="GRATUITA";
+    .trim()
+    .toUpperCase() === "GRATUITA";
 
   const configuracion = interpretarConfiguracion(
     licencia?.CONFIGURACION
@@ -257,7 +257,7 @@ useEffect(() => {
             onClick={onCerrar}
             aria-label="Cerrar detalles"
           >
-           X
+            X
           </button>
         </header>
 
@@ -347,128 +347,128 @@ useEffect(() => {
                 </div>
               </div>
 
-             
-<div className="licencia-detalle-seccion">
-  <h3>
-    {esLicenciaGratuita
-      ? "Equipos vinculados"
-      : "Asignación actual"}
-  </h3>
 
-  {esLicenciaGratuita ? (
-    <>
-      {cargandoEquipos ? (
-        <p className="licencia-detalle-sin-asignacion">
-          Consultando equipos vinculados...
-        </p>
-      ) : errorEquipos ? (
-        <div
-          className="licencia-detalle-error"
-          role="alert"
-        >
-          <p>{errorEquipos}</p>
+              <div className="licencia-detalle-seccion">
+                <h3>
+                  {esLicenciaGratuita
+                    ? "Equipos vinculados"
+                    : "Asignación actual"}
+                </h3>
 
-          <button
-            type="button"
-            onClick={() =>
-              setRecarga((actual) => actual + 1)
-            }
-          >
-            <RefreshCw size={16} />
-            Reintentar
-          </button>
-        </div>
-      ) : equiposVinculados.length === 0 ? (
-        <p className="licencia-detalle-sin-asignacion">
-          Esta licencia gratuita no tiene
-          equipos vinculados actualmente.
-        </p>
-      ) : (
-        <>
-          <p className="licencia-detalle-equipos-total">
-            <strong>
-              {equiposVinculados.length}
-            </strong>
-            {" equipo(s) vinculado(s)"}
-          </p>
+                {esLicenciaGratuita ? (
+                  <>
+                    {cargandoEquipos ? (
+                      <p className="licencia-detalle-sin-asignacion">
+                        Consultando equipos vinculados...
+                      </p>
+                    ) : errorEquipos ? (
+                      <div
+                        className="licencia-detalle-error"
+                        role="alert"
+                      >
+                        <p>{errorEquipos}</p>
 
-          <div className="licencia-detalle-equipos-contenedor">
-            <table className="licencia-detalle-equipos-tabla">
-              <thead>
-                <tr>
-                  <th>Equipo</th>
-                  <th>ID equipo</th>
-                  <th>Unidad</th>
-                  <th>Fecha de asignación</th>
-                </tr>
-              </thead>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setRecarga((actual) => actual + 1)
+                          }
+                        >
+                          <RefreshCw size={16} />
+                          Reintentar
+                        </button>
+                      </div>
+                    ) : equiposVinculados.length === 0 ? (
+                      <p className="licencia-detalle-sin-asignacion">
+                        Esta licencia gratuita no tiene
+                        equipos vinculados actualmente.
+                      </p>
+                    ) : (
+                      <>
+                        <p className="licencia-detalle-equipos-total">
+                          <strong>
+                            {equiposVinculados.length}
+                          </strong>
+                          {" equipo(s) vinculado(s)"}
+                        </p>
 
-              <tbody>
-                {equiposVinculados.map((equipo) => (
-                  <tr
-                    key={
-                      equipo.ID_ASIGNACION ??
-                      equipo.ID_EQUIPO
-                    }
-                  >
-                    <td>
-                      <span className="licencia-detalle-equipo-nombre">
-                        {equipo.NOMBRE_EQUIPO ||
-                          "Sin nombre"}
-                      </span>
-                    </td>
+                        <div className="licencia-detalle-equipos-contenedor">
+                          <table className="licencia-detalle-equipos-tabla">
+                            <thead>
+                              <tr>
+                                <th>ID equipo</th>
+                                <th>Equipo</th>
+                                <th>Unidad</th>
+                                <th>Fecha de asignación</th>
+                              </tr>
+                            </thead>
 
-                    <td>
-                      {equipo.ID_EQUIPO ?? "—"}
-                    </td>
+                            <tbody>
+                              {equiposVinculados.map((equipo) => (
+                                <tr
+                                  key={
+                                    equipo.ID_ASIGNACION ??
+                                    equipo.ID_EQUIPO
+                                  }
+                                >
 
-                    <td>
-                      {equipo.ID_UNIDAD ?? "—"}
-                    </td>
+                                  <td>
+                                    {equipo.ID_EQUIPO ?? "—"}
+                                  </td>
+                                  <td>
+                                    <span className="licencia-detalle-equipo-nombre">
+                                      {equipo.NOMBRE_EQUIPO ||
+                                        "Sin nombre"}
+                                    </span>
+                                  </td>
+                                  <td>
+                                    {equipo.NOMBRE_UNIDAD ||
+                                      `Unidad #${equipo.ID_UNIDAD}`}
+                                  </td>
 
-                    <td>
-                      {formatearFechaHora(
-                        equipo.FECHA_ASIGNACION
+                                  <td>
+                                    {formatearFechaHora(
+                                      equipo.FECHA_ASIGNACION
+                                    )}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </>
+                    )}
+                  </>
+                ) : asignacion ? (
+                  <div className="licencia-detalle-grid">
+                    <CampoDetalle
+                      titulo="Equipo"
+                      valor={asignacion.NOMBRE_EQUIPO}
+                    />
+
+                    <CampoDetalle
+                      titulo="ID de equipo"
+                      valor={asignacion.ID_EQUIPO}
+                    />
+
+                    <CampoDetalle
+                      titulo="ID de unidad"
+                      valor={asignacion.ID_UNIDAD}
+                    />
+
+                    <CampoDetalle
+                      titulo="Fecha de asignación"
+                      valor={formatearFechaHora(
+                        asignacion.FECHA_ASIGNACION
                       )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-    </>
-  ) : asignacion ? (
-    <div className="licencia-detalle-grid">
-      <CampoDetalle
-        titulo="Equipo"
-        valor={asignacion.NOMBRE_EQUIPO}
-      />
-
-      <CampoDetalle
-        titulo="ID de equipo"
-        valor={asignacion.ID_EQUIPO}
-      />
-
-      <CampoDetalle
-        titulo="ID de unidad"
-        valor={asignacion.ID_UNIDAD}
-      />
-
-      <CampoDetalle
-        titulo="Fecha de asignación"
-        valor={formatearFechaHora(
-          asignacion.FECHA_ASIGNACION
-        )}
-      />
-    </div>
-  ) : (
-    <p className="licencia-detalle-sin-asignacion">
-      Esta licencia no tiene una asignación activa.
-    </p>
-  )}
-</div>
+                    />
+                  </div>
+                ) : (
+                  <p className="licencia-detalle-sin-asignacion">
+                    Esta licencia no tiene una asignación activa.
+                  </p>
+                )}
+              </div>
 
 
               <div className="licencia-detalle-seccion">
