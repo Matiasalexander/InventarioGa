@@ -38,11 +38,15 @@ const obtenerClaveGrupo = (licencia) =>
   ].join("|");
 
 export default function LicenciasPage() {
+    
   const [licencias, setLicencias] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const [estado, setEstado] = useState("");
   const [segmento, setSegmento] = useState("comerciales");
   const [gruposAbiertos, setGruposAbiertos] = useState([]);
+
+  const [paginaActual, setPaginaActual] = useState(1);
+const [registrosPorPagina, setRegistrosPorPagina] = useState(8);
 
   const [cargando, setCargando] = useState(true);
   const [mostrarModalRegistro, setMostrarModalRegistro] =
@@ -223,6 +227,31 @@ export default function LicenciasPage() {
     return resultado;
   }, [licenciasFiltradas]);
 
+  const totalRegistros = filasVisuales.length;
+
+const totalPaginas = Math.max(
+  1,
+  Math.ceil(totalRegistros / registrosPorPagina)
+);
+
+const paginaSegura = Math.min(
+  Math.max(1, paginaActual),
+  totalPaginas
+);
+
+const indiceInicial =
+  (paginaSegura - 1) * registrosPorPagina;
+
+const indiceFinal =
+  indiceInicial + registrosPorPagina;
+
+const filasVisualesPaginadas = useMemo(() => {
+  return filasVisuales.slice(
+    indiceInicial,
+    indiceFinal
+  );
+}, [filasVisuales, indiceInicial, indiceFinal]);
+
   const alternarGrupo = (clave) => {
     setGruposAbiertos((actuales) =>
       actuales.includes(clave)
@@ -248,11 +277,7 @@ export default function LicenciasPage() {
     >
       <td>
         <span className="licencias-software">
-          {dentroDeGrupo && (
-            <span className="licencias-indicador-hijo">
-              ↳
-            </span>
-          )}
+
           {licencia.SOFTWARE}
         </span>
 
@@ -296,7 +321,7 @@ export default function LicenciasPage() {
   );
 
   return (
-    <div className="roles-page">
+    <div className="roles-page licencias-page">
       <div className="card-user">
         <div className="header-user">
           <div>
@@ -447,14 +472,14 @@ export default function LicenciasPage() {
     <tr>
       <td colSpan={7}>Cargando licencias...</td>
     </tr>
-  ) : filasVisuales.length === 0 ? (
+  ) : filasVisualesPaginadas.length === 0 ? (
     <tr>
       <td colSpan={7}>
         No se encontraron licencias.
       </td>
     </tr>
   ) : (
-    filasVisuales.map((fila) => {
+    filasVisualesPaginadas.map((fila) => {
       if (fila.tipo === "licencia") {
         return renderizarLicencia(fila.licencia);
       }
@@ -465,11 +490,11 @@ export default function LicenciasPage() {
       const totalRegistros =
         fila.licencias.length;
 
-      const totalEnUso =
-        fila.licencias.filter(
-          (licencia) =>
-            licencia.ESTADO === "EN_USO"
-        ).length;
+      const totalEquiposEnUso = fila.licencias.reduce(
+        (total, licencia) => {
+            return total + Number(licencia.EQUIPOS_VINCULADOS ?? 0);
+        }, 0
+      );
 
       return (
         <Fragment key={`grupo-${fila.clave}`}>
@@ -484,14 +509,6 @@ export default function LicenciasPage() {
                 aria-expanded={abierto}
               >
                 <span className="licencias-grupo-identidad">
-                  {abierto ? (
-                    <ChevronDown size={18} />
-                  ) : (
-                    <ChevronRight size={18} />
-                  )}
-
-                  <Layers size={18} />
-
                   <span>
                     <strong>
                       {fila.software}
@@ -509,7 +526,7 @@ export default function LicenciasPage() {
                 </span>
 
                 <span className="licencias-grupo-resumen">
-                  {totalEnUso} registro(s) en uso
+                  {totalEquiposEnUso} equipo(s) en uso
                 </span>
               </button>
             </td>
@@ -527,6 +544,74 @@ export default function LicenciasPage() {
 
           </table>
         </div>
+
+        
+<div className="inventario-paginacion">
+  <div className="inventario-paginacion-info">
+    {totalRegistros === 0
+      ? "0 registros"
+      : `${
+          indiceInicial + 1
+        }-${Math.min(
+          indiceFinal,
+          totalRegistros
+        )} de ${totalRegistros} elementos`}
+  </div>
+
+  <div className="inventario-paginacion-controles">
+    <label htmlFor="licencias-por-pagina">
+      Registros por página:
+    </label>
+
+    <select
+      id="licencias-por-pagina"
+      value={registrosPorPagina}
+      onChange={(e) =>
+        setRegistrosPorPagina(
+          Number(e.target.value)
+        )
+      }
+    >
+      <option value={10}>10</option>
+      <option value={20}>20</option>
+      <option value={50}>50</option>
+      <option value={100}>100</option>
+    </select>
+
+    <button
+      type="button"
+      onClick={() =>
+        setPaginaActual((prev) =>
+          Math.max(1, prev - 1)
+        )
+      }
+      disabled={paginaSegura === 1 || cargando}
+      aria-label="Página anterior"
+    >
+      ‹
+    </button>
+
+    <span className="licencias-paginacion-numero">
+      Página {paginaSegura} de {totalPaginas}
+    </span>
+
+    <button
+      type="button"
+      onClick={() =>
+        setPaginaActual((prev) =>
+          Math.min(totalPaginas, prev + 1)
+        )
+      }
+      disabled={
+        paginaSegura === totalPaginas || cargando
+      }
+      aria-label="Página siguiente"
+    >
+      ›
+    </button>
+  </div>
+</div>
+
 
         <p className="licencias-total">
           {licenciasFiltradas.length}

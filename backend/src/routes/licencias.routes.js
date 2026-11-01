@@ -70,7 +70,7 @@ router.post(
 
 router.get(
   "/:id/equipos",
- 
+ verificarToken,
   verificarPermiso("licencias.ver"),
  obtenerEquiposDeLicencia
 );
