@@ -39,6 +39,14 @@ export const crearLicencia = async(datos)=> {
     return response.data;
 };
 
+export const obtenerEquiposDeLicencia = async (idLicencia) => {
+  const respuesta = await apiLicencias.get(
+    `/api/licencias/${idLicencia}/equipos`
+  );
+
+  return respuesta.data;
+};
+
 //SERIVICIO PARA LA ALTA DE EQUIPOS
 
 export const obtenerLicenciasDisponibles = async () => {

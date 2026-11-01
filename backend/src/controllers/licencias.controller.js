@@ -48,77 +48,78 @@ const { validarLicencia } = require(
 // =============================================
 // POST /api/licencias //OSEA CREACIÓN DE LICENCIAS
 // =============================================
+
 const crearLicencia = async (req, res) => {
+  const datos = req.body;
+
+  if (
+    !datos ||
+    typeof datos !== "object" ||
+    Array.isArray(datos)
+  ) {
+    return res.status(400).json({
+      message: "Solicitud inválida."
+    });
+  }
+
+  if (
+    datos.ESTADO !== undefined &&
+    datos.ESTADO !== "DISPONIBLE"
+  ) {
+    return res.status(400).json({
+      message:
+        "Una licencia nueva debe iniciar como DISPONIBLE."
+    });
+  }
+
+  if (
+    datos.ID_EQUIPO !== undefined &&
+    datos.ID_EQUIPO !== null
+  ) {
+    return res.status(400).json({
+      message:
+        "La asignación a equipos se realiza por separado."
+    });
+  }
+
+  const idTipo = Number(datos.ID_TIPO_LICENCIA);
+
+  if (
+    !Number.isSafeInteger(idTipo) ||
+    idTipo <= 0 ||
+    idTipo > 2147483647
+  ) {
+    return res.status(400).json({
+      message: "Selecciona un tipo de licencia válido."
+    });
+  }
+
+  let transaccion = null;
+  let iniciada = false;
+
   try {
-    const datos = req.body;
-
-    if (!datos || typeof datos !== "object" ||
-        Array.isArray(datos)) {
-      return res.status(400).json({
-        message: "Solicitud inválida."
-      });
-    }
-
-    // En este sprint todas las licencias
-    // se registran inicialmente disponibles.
-    if (
-      datos.ESTADO !== undefined &&
-      datos.ESTADO !== "DISPONIBLE"
-    ) {
-      return res.status(400).json({
-        message:
-          "Una licencia nueva debe iniciar como DISPONIBLE."
-      });
-    }
-
-    const idTipo = Number(datos.ID_TIPO_LICENCIA);
-
-    if (
-      !Number.isSafeInteger(idTipo) ||
-      idTipo <= 0
-    ) {
-      return res.status(400).json({
-        message: "Selecciona un tipo de licencia válido."
-      });
-    }
-
-    if (
-      datos.ID_EQUIPO !== undefined &&
-      datos.ID_EQUIPO !== null
-    ) {
-      return res.status(400).json({
-        message:
-          "La asignación a equipos se realiza por separado."
-      });
-    }
-
     const pool = await poolPromise;
 
-    // Obtener el tipo real desde SQL Server.
     const tipoResult = await pool.request()
       .input("ID_TIPO", sql.Int, idTipo)
       .query(`
-        SELECT
-          ID_TIPO_LICENCIA,
-          NOMBRE
+        SELECT ID_TIPO_LICENCIA, NOMBRE
         FROM dbo.TIPOS_LICENCIA
         WHERE ID_TIPO_LICENCIA = @ID_TIPO
-          AND ACTIVO = 1
+          AND ACTIVO = 1;
       `);
 
-    if (tipoResult.recordset.length === 0) {
+    if (!tipoResult.recordset.length) {
       return res.status(400).json({
-        message: "El tipo de licencia no existe o está inactivo."
+        message:
+          "El tipo de licencia no existe o está inactivo."
       });
     }
 
     const tipoNombre = tipoResult.recordset[0].NOMBRE;
 
     const licenciaValidada = validarLicencia(
-      {
-        ...datos,
-        ESTADO: "DISPONIBLE"
-      },
+      { ...datos, ESTADO: "DISPONIBLE" },
       tipoNombre
     );
 
@@ -129,32 +130,109 @@ const crearLicencia = async (req, res) => {
       });
     }
 
+    const sqlServerValidado = validarSqlServer(
+      datos,
+      tipoNombre
+    );
+
+    if (!sqlServerValidado.valido) {
+      return res.status(400).json({
+        message:
+          "La modalidad no corresponde a la edición.",
+        errores: sqlServerValidado.errores
+      });
+    }
+
     const software = datos.SOFTWARE.trim();
     const version = datos.VERSION.trim();
-
-    // ACTIVADOR describe el método de activación,
-    // no una clave o contraseña.
     const activador = datos.ACTIVADOR?.trim() || null;
     const comentarios = datos.COMENTARIOS?.trim() || null;
-
     const configuracion = JSON.stringify(datos.CONFIGURACION);
 
-    //validar sqlserverlicencia
+    transaccion = new sql.Transaction(pool);
+    await transaccion.begin(
+      sql.ISOLATION_LEVEL.READ_COMMITTED
+    );
+    iniciada = true;
 
-const sqlServerValidado = validarSqlServer(
-  datos,
-  tipoNombre
-);
+    // Las gratuitas son entradas compartidas:
+    // solo puede existir una por software y versión.
+    if (tipoNombre === "GRATUITA") {
+      const clave = [
+        software.normalize("NFKC").trim().toUpperCase(),
+        version.normalize("NFKC").trim().toUpperCase()
+      ].join("|");
 
-if (!sqlServerValidado.valido) {
-  return res.status(400).json({
-    message:
-      "La modalidad de licencia no es compatible con la edición de SQL Server.",
-    errores: sqlServerValidado.errores
-  });
-}
+      // HASHBYTES evita exceder el límite de 255
+      // caracteres del recurso de sp_getapplock.
+      const bloqueo = await new sql.Request(transaccion)
+        .input("CLAVE", sql.NVarChar(400), clave)
+        .query(`
+          DECLARE @recurso NVARCHAR(255) =
+            'LIC_GRATUITA_' +
+            CONVERT(
+              VARCHAR(64),
+              HASHBYTES(
+                'SHA2_256',
+                @CLAVE
+              ),
+              2
+            );
 
-    const resultado = await pool.request()
+          DECLARE @resultado INT;
+
+          EXEC @resultado = sys.sp_getapplock
+            @Resource = @recurso,
+            @LockMode = 'Exclusive',
+            @LockOwner = 'Transaction',
+            @LockTimeout = 10000;
+
+          SELECT @resultado AS Resultado;
+        `);
+
+      if (bloqueo.recordset[0].Resultado < 0) {
+        await transaccion.rollback();
+        iniciada = false;
+
+        return res.status(503).json({
+          message:
+            "No se pudo verificar la unicidad. Intenta nuevamente."
+        });
+      }
+
+      const duplicada = await new sql.Request(transaccion)
+        .input("SOFTWARE", sql.NVarChar(150), software)
+        .input("VERSION", sql.NVarChar(100), version)
+        .query(`
+          SELECT TOP (1)
+            L.ID_LICENCIA,
+            L.SOFTWARE,
+            L.VERSION,
+            L.ESTADO
+          FROM dbo.LICENCIAS L WITH (UPDLOCK, HOLDLOCK)
+          INNER JOIN dbo.TIPOS_LICENCIA T
+            ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+          WHERE T.NOMBRE = 'GRATUITA'
+            AND UPPER(LTRIM(RTRIM(L.SOFTWARE))) =
+                UPPER(LTRIM(RTRIM(@SOFTWARE)))
+            AND UPPER(LTRIM(RTRIM(L.VERSION))) =
+                UPPER(LTRIM(RTRIM(@VERSION)))
+          ORDER BY L.ID_LICENCIA;
+        `);
+
+      if (duplicada.recordset.length > 0) {
+        await transaccion.rollback();
+        iniciada = false;
+
+        return res.status(409).json({
+          message:
+            "Esta edición gratuita ya está registrada. Utiliza el registro existente para asignarla a más equipos.",
+          licenciaExistente: duplicada.recordset[0]
+        });
+      }
+    }
+
+    const resultado = await new sql.Request(transaccion)
       .input("SOFTWARE", sql.NVarChar(150), software)
       .input("VERSION", sql.NVarChar(100), version)
       .input("ID_TIPO", sql.Int, idTipo)
@@ -165,7 +243,11 @@ if (!sqlServerValidado.valido) {
       )
       .input("ACTIVADOR", sql.NVarChar(150), activador)
       .input("COMENTARIOS", sql.NVarChar(sql.MAX), comentarios)
-      .input("CONFIGURACION", sql.NVarChar(sql.MAX), configuracion)
+      .input(
+        "CONFIGURACION",
+        sql.NVarChar(sql.MAX),
+        configuracion
+      )
       .query(`
         INSERT INTO dbo.LICENCIAS (
           SOFTWARE,
@@ -193,8 +275,11 @@ if (!sqlServerValidado.valido) {
           @ACTIVADOR,
           @COMENTARIOS,
           @CONFIGURACION
-        )
+        );
       `);
+
+    await transaccion.commit();
+    iniciada = false;
 
     return res.status(201).json({
       message: "Licencia registrada correctamente.",
@@ -202,13 +287,31 @@ if (!sqlServerValidado.valido) {
     });
 
   } catch (error) {
+    if (iniciada && transaccion) {
+      try {
+        await transaccion.rollback();
+      } catch (errorRollback) {
+        console.error(
+          "Error revirtiendo creación:",
+          errorRollback
+        );
+      }
+    }
+
     console.error("Error registrando licencia:", error);
+
+    if ([2601, 2627].includes(error.number)) {
+      return res.status(409).json({
+        message: "Ya existe un registro equivalente."
+      });
+    }
 
     return res.status(500).json({
       message: "Error interno al registrar la licencia."
     });
   }
 };
+
 
 
 // =============================================
@@ -314,61 +417,117 @@ const obtenerLicencias = async (req, res) => {
       });
     }
 
-    const resultado = await pool.request()
-      .input("ESTADO", sql.NVarChar(20), estado || null)
-      .input("ID_UNIDAD", sql.Int, idUnidad)
-      .input("ID_USUARIO", sql.Int, idUsuario)
-      .input("ES_ADMIN", sql.Bit, esAdministrador)
-      .input("SIN_ASIGNAR", sql.Bit, sinAsignar === "1")
-      .query(`
-        SELECT
-          L.ID_LICENCIA,
-          L.SOFTWARE,
-          L.VERSION,
-          L.ID_TIPO_LICENCIA,
-          T.NOMBRE AS TIPO_LICENCIA,
-          L.FECHA_ACTIVACION,
-          L.ESTADO,
-          L.COMENTARIOS,
-          L.CONFIGURACION,
-          L.FECHA_REGISTRO,
-          A.ID_ASIGNACION,
-          A.ID_EQUIPO,
-          E.NOMBRE_EQUIPO,
-          E.ID_UNIDAD,
-          A.FECHA_ASIGNACION
-        FROM dbo.LICENCIAS AS L
-        INNER JOIN dbo.TIPOS_LICENCIA AS T
-          ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
-        LEFT JOIN dbo.LICENCIAS_ASIGNACIONES AS A
-          ON A.ID_LICENCIA = L.ID_LICENCIA
-         AND A.FECHA_LIBERACION IS NULL
-        LEFT JOIN dbo.INVENTARIO_M AS E
-          ON E.id = A.ID_EQUIPO
-        WHERE
-          (@ESTADO IS NULL OR L.ESTADO = @ESTADO)
 
+const resultado = await pool.request()
+  .input("ESTADO", sql.NVarChar(20), estado || null)
+  .input("ID_UNIDAD", sql.Int, idUnidad)
+  .input("ID_USUARIO", sql.Int, idUsuario)
+  .input("ES_ADMIN", sql.Bit, esAdministrador)
+  .input("SIN_ASIGNAR", sql.Bit, sinAsignar === "1")
+  .query(`
+    SELECT
+      L.ID_LICENCIA,
+      L.SOFTWARE,
+      L.VERSION,
+      L.ID_TIPO_LICENCIA,
+      T.NOMBRE AS TIPO_LICENCIA,
+      L.FECHA_ACTIVACION,
+      L.ESTADO,
+      L.COMENTARIOS,
+      L.CONFIGURACION,
+      L.FECHA_REGISTRO,
+      CAST(
+        CASE
+          WHEN T.NOMBRE = 'GRATUITA' THEN 1
+          ELSE 0
+        END AS BIT
+      ) AS ES_COMPARTIDA,
+      COALESCE(C.TOTAL_EQUIPOS, 0) AS EQUIPOS_VINCULADOS,
+      A.ID_ASIGNACION,
+      A.ID_EQUIPO,
+      A.NOMBRE_EQUIPO,
+      A.ID_UNIDAD,
+      A.FECHA_ASIGNACION
+    FROM dbo.LICENCIAS AS L
+    INNER JOIN dbo.TIPOS_LICENCIA AS T
+      ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+    OUTER APPLY (
+      SELECT COUNT(*) AS TOTAL_EQUIPOS
+      FROM dbo.LICENCIAS_ASIGNACIONES AS X
+      INNER JOIN dbo.INVENTARIO_M AS EX
+        ON EX.id = X.ID_EQUIPO
+      WHERE X.ID_LICENCIA = L.ID_LICENCIA
+        AND X.FECHA_LIBERACION IS NULL
+        AND (
+          @ES_ADMIN = 1
+          OR EXISTS (
+            SELECT 1
+            FROM dbo.Usuario_Unidades AS UX
+            WHERE UX.IdUsuario = @ID_USUARIO
+              AND UX.IdUnidad = EX.ID_UNIDAD
+          )
+        )
+        AND (
+          @ID_UNIDAD IS NULL
+          OR EX.ID_UNIDAD = @ID_UNIDAD
+        )
+    ) AS C
+    OUTER APPLY (
+      SELECT TOP (1)
+        X.ID_ASIGNACION,
+        X.ID_EQUIPO,
+        EX.NOMBRE_EQUIPO,
+        EX.ID_UNIDAD,
+        X.FECHA_ASIGNACION
+      FROM dbo.LICENCIAS_ASIGNACIONES AS X
+      INNER JOIN dbo.INVENTARIO_M AS EX
+        ON EX.id = X.ID_EQUIPO
+      WHERE X.ID_LICENCIA = L.ID_LICENCIA
+        AND X.FECHA_LIBERACION IS NULL
+        AND (
+          @ES_ADMIN = 1
+          OR EXISTS (
+            SELECT 1
+            FROM dbo.Usuario_Unidades AS UX
+            WHERE UX.IdUsuario = @ID_USUARIO
+              AND UX.IdUnidad = EX.ID_UNIDAD
+          )
+        )
+        AND (
+          @ID_UNIDAD IS NULL
+          OR EX.ID_UNIDAD = @ID_UNIDAD
+        )
+      ORDER BY X.ID_ASIGNACION DESC
+    ) AS A
+    WHERE
+      (
+        @ESTADO IS NULL
+        OR L.ESTADO = @ESTADO
+      )
+      AND (
+        @SIN_ASIGNAR = 0
+        OR NOT EXISTS (
+          SELECT 1
+          FROM dbo.LICENCIAS_ASIGNACIONES AS X
+          WHERE X.ID_LICENCIA = L.ID_LICENCIA
+            AND X.FECHA_LIBERACION IS NULL
+        )
+      )
+      AND (
+        (
+          @ES_ADMIN = 1
           AND (
             @ID_UNIDAD IS NULL
-            OR E.ID_UNIDAD = @ID_UNIDAD
+            OR C.TOTAL_EQUIPOS > 0
           )
-
-          AND (
-            @SIN_ASIGNAR = 0
-            OR A.ID_ASIGNACION IS NULL
-          )
-
-          AND (
-            @ES_ADMIN = 1
-            OR EXISTS (
-              SELECT 1
-              FROM dbo.Usuario_Unidades AS UU
-              WHERE UU.IdUsuario = @ID_USUARIO
-                AND UU.IdUnidad = E.ID_UNIDAD
-            )
-          )
-        ORDER BY L.ID_LICENCIA DESC;
-      `);
+        )
+        OR (
+          @ES_ADMIN = 0
+          AND C.TOTAL_EQUIPOS > 0
+        )
+      )
+    ORDER BY L.ID_LICENCIA DESC;
+  `);
 
     return res.status(200).json(resultado.recordset);
 
@@ -1621,7 +1780,134 @@ const actualizarLicencia = async (req, res) => {
   }
 };
 
+const obtenerEquiposDeLicencia = async (req, res) => {
+  const idLicencia = Number(req.params.id);
+  const idUsuario = Number(req.usuario?.IdUsuario);
 
+  const idValido = (id) =>
+    Number.isSafeInteger(id) &&
+    id > 0 &&
+    id <= 2147483647;
+
+  if (!idValido(idLicencia)) {
+    return res.status(400).json({
+      message: "ID de licencia inválido."
+    });
+  }
+
+  if (!idValido(idUsuario)) {
+    return res.status(401).json({
+      message: "Usuario no autenticado."
+    });
+  }
+
+  try {
+    const pool = await poolPromise;
+
+    const resultado = await pool.request()
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .input("ID_USUARIO", sql.Int, idUsuario)
+      .query(`
+        WITH UsuarioAutorizado AS (
+          SELECT TOP (1)
+            CASE
+              WHEN R.NOMBRE = 'Administrador'
+                THEN 1 ELSE 0
+            END AS ES_ADMIN
+          FROM dbo.Usuarios U
+          INNER JOIN dbo.Roles R
+            ON R.ID_ROL = U.IdRol
+           AND R.ACTIVO = 1
+          WHERE U.IdUsuario = @ID_USUARIO
+            AND U.Activo = 1
+        )
+        SELECT
+          A.ID_ASIGNACION,
+          A.ID_LICENCIA,
+          A.ID_EQUIPO,
+          E.NOMBRE_EQUIPO,
+          E.ID_UNIDAD,
+          A.FECHA_ASIGNACION,
+          A.ES_COMPARTIDA
+        FROM dbo.LICENCIAS_ASIGNACIONES A
+        INNER JOIN dbo.INVENTARIO_M E
+          ON E.id = A.ID_EQUIPO
+        CROSS JOIN UsuarioAutorizado U
+        WHERE A.ID_LICENCIA = @ID_LICENCIA
+          AND A.FECHA_LIBERACION IS NULL
+          AND (
+            U.ES_ADMIN = 1
+            OR EXISTS (
+              SELECT 1
+              FROM dbo.Usuario_Unidades UU
+              WHERE UU.IdUsuario = @ID_USUARIO
+                AND UU.IdUnidad = E.ID_UNIDAD
+            )
+          )
+        ORDER BY
+          E.NOMBRE_EQUIPO,
+          A.ID_ASIGNACION;
+      `);
+
+    // No revelar detalles de licencias ajenas.
+    const acceso = await pool.request()
+      .input("ID_LICENCIA", sql.Int, idLicencia)
+      .input("ID_USUARIO", sql.Int, idUsuario)
+      .query(`
+        SELECT TOP (1)
+          L.ID_LICENCIA,
+          L.SOFTWARE,
+          L.VERSION,
+          T.NOMBRE AS TIPO_LICENCIA
+        FROM dbo.LICENCIAS L
+        INNER JOIN dbo.TIPOS_LICENCIA T
+          ON T.ID_TIPO_LICENCIA = L.ID_TIPO_LICENCIA
+        INNER JOIN dbo.Usuarios U
+          ON U.IdUsuario = @ID_USUARIO
+         AND U.Activo = 1
+        INNER JOIN dbo.Roles R
+          ON R.ID_ROL = U.IdRol
+         AND R.ACTIVO = 1
+        WHERE L.ID_LICENCIA = @ID_LICENCIA
+          AND (
+            R.NOMBRE = 'Administrador'
+            OR EXISTS (
+              SELECT 1
+              FROM dbo.LICENCIAS_ASIGNACIONES A
+              INNER JOIN dbo.INVENTARIO_M E
+                ON E.id = A.ID_EQUIPO
+              INNER JOIN dbo.Usuario_Unidades UU
+                ON UU.IdUnidad = E.ID_UNIDAD
+              WHERE A.ID_LICENCIA = L.ID_LICENCIA
+                AND A.FECHA_LIBERACION IS NULL
+                AND UU.IdUsuario = @ID_USUARIO
+            )
+          );
+      `);
+
+    if (!acceso.recordset.length) {
+      return res.status(404).json({
+        message: "Licencia no encontrada o no disponible."
+      });
+    }
+
+    return res.status(200).json({
+      licencia: acceso.recordset[0],
+      total: resultado.recordset.length,
+      equipos: resultado.recordset
+    });
+
+  } catch (error) {
+    console.error(
+      "Error consultando equipos de licencia:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Error consultando equipos vinculados."
+    });
+  }
+};
 
 module.exports = {
   obtenerTiposLicencia,
@@ -1633,5 +1919,6 @@ module.exports = {
   obtenerLicenciasPorEquipo,
   obtenerHistorialLicencia,
   obtenerLicenciasDisponibles,
+  obtenerEquiposDeLicencia,
   obtenerDetalleLicencia, actualizarLicencia
 };

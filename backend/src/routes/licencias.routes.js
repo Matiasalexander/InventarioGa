@@ -16,6 +16,7 @@ const {
   crearLicencia,
   obtenerOpcionesLicencias,
   liberarLicencia,
+  obtenerEquiposDeLicencia,
   //no borrar
   asignarLicencia,
   obtenerLicenciasPorEquipo,
@@ -65,6 +66,13 @@ router.post(
   verificarToken,
   verificarPermiso("licencias.asignar"),
   liberarLicencia
+);
+
+router.get(
+  "/:id/equipos",
+ 
+  verificarPermiso("licencias.ver"),
+ obtenerEquiposDeLicencia
 );
 
 // =============================================
