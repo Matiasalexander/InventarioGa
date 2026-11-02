@@ -207,3 +207,21 @@
     grid-template-columns: 1fr;
   }
 }
+
+.licencia-editar-configuracion {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.licencia-editar-configuracion h3 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.licencia-editar-configuracion p {
+  font-size: 13px;
+  color: #64748b;
+}

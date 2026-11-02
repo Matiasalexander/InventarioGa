@@ -1625,7 +1625,12 @@ const obtenerDetalleLicencia = async (req, res) => {
               THEN L.ACTIVADOR
             ELSE NULL
           END AS ACTIVADOR,
-
+CAST(
+  CASE
+    WHEN R.NOMBRE = 'Administrador' THEN 1
+    ELSE 0
+  END AS BIT
+) AS PUEDE_EDITAR_ACTIVADOR,
           A.ID_ASIGNACION,
           A.ID_EQUIPO,
           A.FECHA_ASIGNACION,
@@ -1696,6 +1701,9 @@ E.ID_UNIDAD
         FECHA_ACTIVACION: licencia.FECHA_ACTIVACION,
         ESTADO: licencia.ESTADO,
         ACTIVADOR: licencia.ACTIVADOR,
+            PUEDE_EDITAR_ACTIVADOR:
+      Boolean(licencia.PUEDE_EDITAR_ACTIVADOR),
+
         COMENTARIOS: licencia.COMENTARIOS,
         CONFIGURACION: licencia.CONFIGURACION,
         FECHA_REGISTRO: licencia.FECHA_REGISTRO
@@ -1726,31 +1734,64 @@ E.ID_UNIDAD
 
 //EDITAR LICENCIAS
 
+
 const actualizarLicencia = async (req, res) => {
   const idLicencia = Number(req.params.id);
 
-  if (
-    !Number.isSafeInteger(idLicencia) ||
-    idLicencia <= 0 ||
-    idLicencia > 2147483647
-  ) {
+  const idValido =
+    Number.isSafeInteger(idLicencia) &&
+    idLicencia > 0 &&
+    idLicencia <= 2147483647;
+
+  if (!idValido) {
     return res.status(400).json({
       message: "ID de licencia inválido."
     });
   }
 
-  const { SOFTWARE, VERSION, COMENTARIOS } = req.body ?? {};
+  const {
+    SOFTWARE,
+    VERSION,
+    ACTIVADOR,
+    COMENTARIOS,
+    CONFIGURACION
+  } = req.body ?? {};
 
+  // Validar todos los campos editables.
   if (
     typeof SOFTWARE !== "string" ||
     !SOFTWARE.trim() ||
+    SOFTWARE.trim().length > 150 ||
     typeof VERSION !== "string" ||
     !VERSION.trim() ||
+    VERSION.trim().length > 100 ||
+    (ACTIVADOR != null &&
+      typeof ACTIVADOR !== "string") ||
+    (typeof ACTIVADOR === "string" &&
+      ACTIVADOR.trim().length > 150) ||
     (COMENTARIOS != null &&
-      typeof COMENTARIOS !== "string")
+      typeof COMENTARIOS !== "string") ||
+    !CONFIGURACION ||
+    typeof CONFIGURACION !== "object" ||
+    Array.isArray(CONFIGURACION)
   ) {
     return res.status(400).json({
       message: "Datos de licencia inválidos."
+    });
+  }
+
+  const software = SOFTWARE.trim();
+  const version = VERSION.trim();
+  const activador = ACTIVADOR?.trim() || null;
+  const comentarios = COMENTARIOS?.trim() || null;
+
+  let configuracion;
+
+  try {
+    configuracion = JSON.stringify(CONFIGURACION);
+  } catch {
+    return res.status(400).json({
+      message: "Configuración de licencia inválida."
     });
   }
 
@@ -1758,21 +1799,50 @@ const actualizarLicencia = async (req, res) => {
     const pool = await poolPromise;
 
     const resultado = await pool.request()
-      .input("ID_LICENCIA", sql.Int, idLicencia)
-      .input("SOFTWARE", sql.NVarChar, SOFTWARE.trim())
-      .input("VERSION", sql.NVarChar, VERSION.trim())
-      .input("COMENTARIOS", sql.NVarChar(sql.MAX), COMENTARIOS ?? null)
+      .input(
+        "ID_LICENCIA",
+        sql.Int,
+        idLicencia
+      )
+      .input(
+        "SOFTWARE",
+        sql.NVarChar(150),
+        software
+      )
+      .input(
+        "VERSION",
+        sql.NVarChar(100),
+        version
+      )
+      .input(
+        "ACTIVADOR",
+        sql.NVarChar(150),
+        activador
+      )
+      .input(
+        "COMENTARIOS",
+        sql.NVarChar(sql.MAX),
+        comentarios
+      )
+      .input(
+        "CONFIGURACION",
+        sql.NVarChar(sql.MAX),
+        configuracion
+      )
       .query(`
         UPDATE dbo.LICENCIAS
         SET
           SOFTWARE = @SOFTWARE,
           VERSION = @VERSION,
-          COMENTARIOS = @COMENTARIOS
+          ACTIVADOR = @ACTIVADOR,
+          COMENTARIOS = @COMENTARIOS,
+          CONFIGURACION = @CONFIGURACION
         OUTPUT
           INSERTED.ID_LICENCIA,
           INSERTED.SOFTWARE,
           INSERTED.VERSION,
           INSERTED.COMENTARIOS,
+          INSERTED.CONFIGURACION,
           INSERTED.ESTADO
         WHERE ID_LICENCIA = @ID_LICENCIA;
       `);
@@ -1787,8 +1857,12 @@ const actualizarLicencia = async (req, res) => {
       message: "Licencia actualizada correctamente.",
       licencia: resultado.recordset[0]
     });
+
   } catch (error) {
-    console.error("Error actualizando licencia:", error);
+    console.error(
+      "Error actualizando licencia:",
+      error
+    );
 
     return res.status(500).json({
       message: "No se pudo actualizar la licencia."

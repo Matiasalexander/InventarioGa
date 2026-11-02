@@ -22,6 +22,7 @@
     padding:24px;
 }
 
+
 body {
   margin: 0;
   background: #eef2f7;
@@ -762,3 +763,4 @@ td button{
         flex-shrink: 0;
     }
 }
+

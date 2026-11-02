@@ -10,6 +10,8 @@ import {
   obtenerInventarioPorId
 } from "../services/inventarioService";
 
+import LicenciaDetalleModal from "../components/LicenciaDetalleModal";
+
 
 import { obtenerCatalogos } from "../services/catalogosService";
 
@@ -67,6 +69,7 @@ function InventarioFormPage({
   // LICENCIAS DEL EQUIPO — SPRINT L4.4-B
   // =========================================================
 
+  const [idLicenciaDetalle, setIdLicenciaDetalle] = useState(null);
   const [licenciasDisponibles, setLicenciasDisponibles] =
     useState([]);
 
@@ -97,6 +100,12 @@ function InventarioFormPage({
     useState(false);
 
   const [licenciaDesvinculando, setLicenciaDesvinculando] = useState(null);
+
+  //función para abrir detalle
+  const abrirDetalleLicencia = (idLicencia)=> {
+    if(!idLicencia) return;
+    setIdLicenciaDetalle(idLicencia);
+  };
   //ESTADOS DEL QR
   const [mostrarQR, setMostrarQR] = useState(false);
   const [nombreEquipoQR, setNombreEquipoQR] = useState("");
@@ -3568,6 +3577,7 @@ function InventarioFormPage({
                             Agregar licencias al equipo
                             {" "}
                             ({licenciasDisponibles.length} opciones)
+                            
                           </span>
 
                           <span aria-hidden="true">
@@ -3585,6 +3595,7 @@ function InventarioFormPage({
                               </p>
                             ) : (
                               licenciasDisponibles.map(licencia => {
+                                
                                 const idLicencia =
                                   Number(licencia.ID_LICENCIA);
 
@@ -3594,7 +3605,7 @@ function InventarioFormPage({
                                 return (
                                   <label
                                     key={idLicencia}
-                                    className="licencias-dropdown-item"
+                                    className="licencias-dropdown-item licencia-item-con-detalle"
                                   >
                                     <input
                                       type="checkbox"
@@ -3664,12 +3675,30 @@ function InventarioFormPage({
                                           >
                                             Solo para desarrollo y pruebas
                                           </small>
-                                        )}
+                                        )}<br></br>
+                                                                             <button
+        type="button"
+        className="btn-ver-detalle-licencia"
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          setIdLicenciaDetalle(idLicencia);
+        }}
+        aria-label={
+          `Ver detalles de ${licencia.SOFTWARE} ${licencia.VERSION}`
+        }
+      >
+        Ver detalles
+      </button>
                                     </span>
+
                                   </label>
+                                  
+                                  
                                 );
                               })
                             )}
+                            
                           </div>
                         )}
 
@@ -3808,6 +3837,12 @@ function InventarioFormPage({
           )}
 
         </form>
+        {idLicenciaDetalle !== null && (
+  <LicenciaDetalleModal
+    idLicencia={idLicenciaDetalle}
+    onCerrar={() => setIdLicenciaDetalle(null)}
+  />
+)}
 
       </div>
 
