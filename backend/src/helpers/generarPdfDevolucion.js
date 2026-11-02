@@ -160,7 +160,7 @@ const generarPdfDevolucion = (datos) => {
         )
         .font("Helvetica")
         .text(
-          " en Grupo Andersons. La devolución queda " +
+          "  en Grupo Andersons. La devolución queda " +
           "registrada en el sistema de inventario, " +
           "conservando como referencia la responsiva " +
           "de entrega original."
@@ -312,25 +312,10 @@ const generarPdfDevolucion = (datos) => {
           .moveDown(0.5);
       };
 
-      escribirDato(
-        "ID de inventario",
-        datos.idInventario
-      );
-
-      escribirDato(
-        "Fecha de devolución",
-        fechaDevolucion
-      );
-
-      escribirDato(
-        "Área",
-        datos.area
-      );
-
       // ============================
       // OBSERVACIONES
       // ============================
-
+/* 
       if (doc.y > doc.page.height - 170) {
         doc.addPage();
         doc.y = 60;
@@ -358,7 +343,7 @@ const generarPdfDevolucion = (datos) => {
           }
         );
 
-      doc.moveDown(2);
+      doc.moveDown(2);*/
 
       // ============================
       // REFERENCIA DEL RESPONSABLE
@@ -415,7 +400,7 @@ const generarPdfDevolucion = (datos) => {
         .fontSize(8)
         .fillColor("#6b7280")
         .text(
-          "Referencia del responsable de la responsiva original",
+          "Firma",
           margen,
           doc.y,
           {
@@ -423,29 +408,6 @@ const generarPdfDevolucion = (datos) => {
             align: "center"
           }
         );
-
-      // ============================
-      // NOTA DE CONTROL
-      // ============================
-
-      doc.moveDown(2);
-
-      doc
-        .font("Helvetica")
-        .fontSize(8.5)
-        .fillColor("#555555")
-        .text(
-          "Este documento confirma el registro de devolución " +
-          "del equipo indicado en el sistema de Inventario GA2. " +
-          "No representa una firma de recepción, salvo que " +
-          "se adjunte una constancia de entrega y recepción " +
-          "firmada por las partes correspondientes.",
-          {
-            align: "justify"
-          }
-        );
-
-      doc.end();
 
     } catch (error) {
       reject(error);
