@@ -22,7 +22,7 @@ const {
   obtenerLicenciasPorEquipo,
   obtenerHistorialLicencia,
   obtenerLicenciasDisponibles, obtenerDetalleLicencia,
-  actualizarLicencia
+  actualizarLicencia, exportarLicenciasExcel
 } = require("../controllers/licencias.controller");
 
 // =============================================
@@ -130,5 +130,12 @@ router.put(
   verificarToken,
   verificarPermiso("licencias.editar"),
   actualizarLicencia
+);
+
+//EXPORTAR GESTOR DE LICENCIAS A EXCEL
+router.get("/exportar/excel",
+  verificarToken,
+  verificarPermiso("licencias.ver"),
+  exportarLicenciasExcel
 );
 module.exports = router;

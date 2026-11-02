@@ -117,3 +117,26 @@ export const actualizarLicencia = async (idLicencia, datos) => {
 
   return response.data;
 };
+
+//exportar a excel
+export const exportarLicenciasExcel = async ({
+  segmento = "todas",
+  estado = "",
+  busqueda = ""
+} = {}) => {
+  const response = await apiLicencias.get(
+    "/api/licencias/exportar/excel",
+    {
+      params: {
+        segmento,
+        ...(estado ? { estado } : {}),
+        ...(busqueda.trim()
+          ? { busqueda: busqueda.trim() }
+          : {})
+      },
+      responseType: "blob"
+    }
+  );
+
+  return response.data;
+};

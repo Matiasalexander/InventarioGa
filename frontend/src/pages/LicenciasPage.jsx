@@ -1,17 +1,17 @@
 
 import { Fragment, useEffect, useMemo, useState } from "react";
 import {
-  RefreshCw,
+  RefreshCw, FileUp,
   ChevronDown,
   ChevronRight,
-  Layers
+  Layers, Download
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
 import {
   obtenerLicencias,
-  liberarLicenciaDeEquipo
+  liberarLicenciaDeEquipo, exportarLicenciasExcel
 } from "../services/licenciasService";
 
 import LicenciaFormModal from "../components/LicenciaFormModal";
@@ -47,6 +47,58 @@ export default function LicenciasPage() {
 
   const [paginaActual, setPaginaActual] = useState(1);
 const [registrosPorPagina, setRegistrosPorPagina] = useState(8);
+
+//estado de exportación.
+const [exportandoExcel, setExportandoExcel] = useState(false);
+
+//función para exportar a excel
+
+const manejarExportacionExcel = async () => {
+  if (exportandoExcel) return;
+
+  try {
+    setExportandoExcel(true);
+
+    const archivo = await exportarLicenciasExcel({
+      segmento, estado, busqueda
+    });
+
+    const url = window.URL.createObjectURL(archivo);
+
+    const enlace = document.createElement("a");
+
+    enlace.href = url;
+
+    enlace.download = `Licencias_GA_${
+      new Date().toISOString().slice(0, 10)
+    }.xlsx`;
+
+    document.body.appendChild(enlace);
+    enlace.click();
+    enlace.remove();
+
+    window.setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+    }, 1000);
+
+    toast.success(
+      "Archivo Excel generado correctamente."
+    );
+
+  } catch (error) {
+    console.error(
+      "Error exportando licencias:",
+      error
+    );
+
+    toast.error(
+      "No fue posible exportar las licencias."
+    );
+  } finally {
+    setExportandoExcel(false);
+  }
+};
+
 
   const [cargando, setCargando] = useState(true);
   const [mostrarModalRegistro, setMostrarModalRegistro] =
@@ -340,6 +392,16 @@ const filasVisualesPaginadas = useMemo(() => {
               flexWrap: "wrap"
             }}
           >
+            <button
+            type= "button"
+            className="btn-export"
+            onClick={manejarExportacionExcel}
+            disabled={exportandoExcel}
+            >
+              <FileUp className="file-icon" />
+              {exportandoExcel
+              ? "Exportando..." : "Exportar a excel"}
+            </button>
             <button
               type="button"
               className="btn-export"

@@ -11,6 +11,8 @@ const {
 
 const {OPCIONES_LICENCIAS, CAMPOS_MODALIDAD} = require("../config/licenciasOpciones");
 
+const {generarLicenciasExcel} = require("../services/excel/licenciasExcel.service");
+
 // =============================================
 // GET /api/licencias/tipos
 // =============================================
@@ -2019,6 +2021,266 @@ const acceso = await pool.request()
   }
 };
 
+
+const exportarLicenciasExcel = async (req, res) => {
+  const idUsuario = Number(req.usuario?.IdUsuario);
+
+  if (
+    !Number.isSafeInteger(idUsuario) ||
+    idUsuario <= 0
+  ) {
+    return res.status(401).json({
+      message: "Usuario no autenticado."
+    });
+  }
+
+  const {
+    segmento = "todas",
+    estado = "",
+    busqueda = ""
+  } = req.query;
+
+  const segmentosPermitidos = [
+    "comerciales", "gratuitas", "todas"
+  ];
+  const estadosPermitidos = [
+    "",
+    "DISPONIBLE",
+    "EN_USO",
+    "OBSOLETA"
+  ];
+if (
+  typeof segmento !== "string" ||
+  !segmentosPermitidos.includes(segmento)
+) {
+  return res.status(400).json({
+    message: "Segmento de licencias inválido."
+  });
+}
+
+if (
+  typeof estado !== "string" ||
+  !estadosPermitidos.includes(estado)
+) {
+  return res.status(400).json({
+    message: "Estado de licencia inválido."
+  });
+}
+
+if (
+  typeof busqueda !== "string" ||
+  busqueda.length > 150
+) {
+  return res.status(400).json({
+    message: "Búsqueda inválida."
+  });
+}
+  try {
+    const pool = await poolPromise;
+
+    const resultado = await pool.request()
+      .input("ID_USUARIO", sql.Int, idUsuario)
+        .input(
+    "SEGMENTO",
+    sql.VarChar(20),
+    segmento
+  )
+  .input(
+    "ESTADO",
+    sql.VarChar(20),
+    estado || null
+  )
+  .input(
+    "BUSQUEDA",
+    sql.NVarChar(150),
+    busqueda.trim() || null
+  )
+      .query(`
+        WITH UsuarioAutorizado AS (
+          SELECT
+            CASE
+              WHEN R.NOMBRE = 'Administrador'
+                THEN 1 ELSE 0
+            END AS ES_ADMIN
+          FROM dbo.Usuarios AS U
+          INNER JOIN dbo.Roles AS R
+            ON R.ID_ROL = U.IdRol
+           AND R.ACTIVO = 1
+          WHERE U.IdUsuario = @ID_USUARIO
+            AND U.Activo = 1
+        ),
+        LicenciasVisibles AS (
+          SELECT
+            L.ID_LICENCIA,
+            L.SOFTWARE,
+            L.VERSION,
+            T.NOMBRE AS TIPO_LICENCIA,
+            L.ESTADO,
+            L.COMENTARIOS,
+            L.FECHA_ACTIVACION,
+            L.FECHA_REGISTRO,
+
+            A.ID_ASIGNACION,
+            A.ID_EQUIPO,
+            A.FECHA_ASIGNACION,
+
+            E.NOMBRE_EQUIPO AS NOMBRE_ORIGINAL,
+            E.UBICACION AS UBICACION_INTERNA,
+            E.ID_UNIDAD,
+
+            UN.Ubicacion AS LOCALIDAD,
+            RST.Marca AS RESTAURANTE
+
+          FROM dbo.LICENCIAS AS L
+          INNER JOIN dbo.TIPOS_LICENCIA AS T
+            ON T.ID_TIPO_LICENCIA =
+               L.ID_TIPO_LICENCIA
+
+          CROSS JOIN UsuarioAutorizado AS UA
+
+          LEFT JOIN dbo.LICENCIAS_ASIGNACIONES AS A
+            ON A.ID_LICENCIA = L.ID_LICENCIA
+           AND A.FECHA_LIBERACION IS NULL
+
+          LEFT JOIN dbo.INVENTARIO_M AS E
+            ON E.id = A.ID_EQUIPO
+
+          LEFT JOIN dbo.UNIDADES AS UN
+            ON UN.id = E.ID_UNIDAD
+
+          LEFT JOIN dbo.RESTAURANTES AS RST
+            ON RST.id_marca = UN.id_marca
+
+          WHERE
+            UA.ES_ADMIN = 1
+            OR (
+              A.ID_ASIGNACION IS NOT NULL
+              AND EXISTS (
+                SELECT 1
+                FROM dbo.Usuario_Unidades AS UU
+                WHERE UU.IdUsuario = @ID_USUARIO
+                  AND UU.IdUnidad = E.ID_UNIDAD
+              )
+            )
+        )
+
+        SELECT
+          ID_LICENCIA,
+          SOFTWARE,
+          VERSION,
+          TIPO_LICENCIA,
+          ESTADO,
+          COMENTARIOS,
+
+          COUNT(ID_ASIGNACION) OVER (
+            PARTITION BY ID_LICENCIA
+          ) AS TOTAL_EQUIPOS,
+
+          ID_EQUIPO,
+
+          COALESCE(
+            CASE
+              WHEN UPPER(
+                LTRIM(RTRIM(NOMBRE_ORIGINAL))
+              ) NOT IN ('', 'NA', 'N/A')
+                THEN LTRIM(RTRIM(NOMBRE_ORIGINAL))
+            END,
+            NULLIF(
+              LTRIM(RTRIM(UBICACION_INTERNA)),
+              ''
+            ),
+            CASE
+              WHEN ID_EQUIPO IS NOT NULL
+                THEN 'Sin identificar'
+              ELSE NULL
+            END
+          ) AS NOMBRE_EQUIPO,
+
+          ID_UNIDAD,
+          RESTAURANTE,
+          LOCALIDAD,
+          UBICACION_INTERNA,
+          FECHA_ASIGNACION,
+          FECHA_ACTIVACION,
+          FECHA_REGISTRO
+
+       FROM LicenciasVisibles
+WHERE
+  (
+    @SEGMENTO = 'todas'
+    OR (
+      @SEGMENTO = 'gratuitas'
+      AND TIPO_LICENCIA = 'GRATUITA'
+    )
+    OR (
+      @SEGMENTO = 'comerciales'
+      AND TIPO_LICENCIA <> 'GRATUITA'
+    )
+  )
+  AND (
+    @ESTADO IS NULL
+    OR ESTADO = @ESTADO
+  )
+  AND (
+    @BUSQUEDA IS NULL
+    OR CHARINDEX(
+      UPPER(@BUSQUEDA),
+      UPPER(COALESCE(SOFTWARE, ''))
+    ) > 0
+    OR CHARINDEX(
+      UPPER(@BUSQUEDA),
+      UPPER(COALESCE(VERSION, ''))
+    ) > 0
+  )
+ORDER BY
+  SOFTWARE,
+  VERSION,
+  ID_LICENCIA,
+  RESTAURANTE,
+  NOMBRE_EQUIPO;
+      `);
+
+    const buffer = await generarLicenciasExcel(
+      resultado.recordset
+    );
+
+    const nombreArchivo =
+      `Licencias_GA_${
+        new Date().toISOString().slice(0, 10)
+      }.xlsx`;
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${nombreArchivo}"`
+    );
+
+    res.setHeader(
+      "Cache-Control",
+      "no-store"
+    );
+
+    return res.status(200).send(
+      Buffer.from(buffer)
+    );
+
+  } catch (error) {
+    console.error(
+      "Error exportando licencias a Excel:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "No fue posible exportar las licencias."
+    });
+  }
+};
+
 module.exports = {
   obtenerTiposLicencia,
   obtenerLicencias,
@@ -2030,5 +2292,5 @@ module.exports = {
   obtenerHistorialLicencia,
   obtenerLicenciasDisponibles,
   obtenerEquiposDeLicencia,
-  obtenerDetalleLicencia, actualizarLicencia
+  obtenerDetalleLicencia, actualizarLicencia, exportarLicenciasExcel
 };
