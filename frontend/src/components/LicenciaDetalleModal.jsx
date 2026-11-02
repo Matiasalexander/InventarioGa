@@ -399,6 +399,7 @@ export default function LicenciaDetalleModal({
                                 <th>ID equipo</th>
                                 <th>Equipo</th>
                                 <th>Unidad</th>
+                                <th>Localidad</th>
                                 <th>Fecha de asignación</th>
                               </tr>
                             </thead>
@@ -420,6 +421,12 @@ export default function LicenciaDetalleModal({
                                       {equipo.NOMBRE_EQUIPO ||
                                         "Sin nombre"}
                                     </span>
+                                  </td>
+                                  <td>
+                                    {equipo.NOMBRE_RESTAURANTE ||
+                                      (equipo.ID_MARCA != null
+                                        ? `Marca #${equipo.ID_MARCA}`
+                                        : "Sin registrar")}
                                   </td>
                                   <td>
                                     {equipo.NOMBRE_UNIDAD ||

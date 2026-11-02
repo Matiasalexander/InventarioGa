@@ -1829,6 +1829,8 @@ const resultado = await pool.request()
       A.ID_EQUIPO,
       E.NOMBRE_EQUIPO,
       E.ID_UNIDAD,
+      UN.id_marca AS ID_MARCA,
+      R.Marca AS NOMBRE_RESTAURANTE,
       UN.Ubicacion AS NOMBRE_UNIDAD,
       A.FECHA_ASIGNACION,
       A.ES_COMPARTIDA
@@ -1837,6 +1839,8 @@ const resultado = await pool.request()
       ON E.id = A.ID_EQUIPO
     LEFT JOIN dbo.UNIDADES AS UN
       ON UN.id = E.ID_UNIDAD
+    LEFT JOIN dbo.RESTAURANTES AS R
+      ON R.id_marca = UN.id_marca
     CROSS JOIN UsuarioAutorizado AS UA
     WHERE A.ID_LICENCIA = @ID_LICENCIA
       AND A.FECHA_LIBERACION IS NULL
