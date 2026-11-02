@@ -396,7 +396,6 @@ export default function LicenciaDetalleModal({
                           <table className="licencia-detalle-equipos-tabla">
                             <thead>
                               <tr>
-                                <th>ID equipo</th>
                                 <th>Equipo</th>
                                 <th>Unidad</th>
                                 <th>Localidad</th>
@@ -412,10 +411,6 @@ export default function LicenciaDetalleModal({
                                     equipo.ID_EQUIPO
                                   }
                                 >
-
-                                  <td>
-                                    {equipo.ID_EQUIPO ?? "—"}
-                                  </td>
                                   <td>
                                     <span className="licencia-detalle-equipo-nombre">
                                       {equipo.NOMBRE_EQUIPO ||

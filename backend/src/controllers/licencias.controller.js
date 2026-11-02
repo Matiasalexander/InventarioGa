@@ -476,7 +476,15 @@ const resultado = await pool.request()
       SELECT TOP (1)
         X.ID_ASIGNACION,
         X.ID_EQUIPO,
-        EX.NOMBRE_EQUIPO,
+       COALESCE(
+  CASE
+    WHEN UPPER(LTRIM(RTRIM(EX.NOMBRE_EQUIPO))) NOT IN
+      ('', 'NA', 'N/A')
+    THEN LTRIM(RTRIM(EX.NOMBRE_EQUIPO))
+  END,
+  NULLIF(LTRIM(RTRIM(EX.UBICACION)), ''),
+  'Sin identificar'
+) AS NOMBRE_EQUIPO,
         EX.ID_UNIDAD,
         X.FECHA_ASIGNACION
       FROM dbo.LICENCIAS_ASIGNACIONES AS X
@@ -1621,8 +1629,16 @@ const obtenerDetalleLicencia = async (req, res) => {
           A.ID_ASIGNACION,
           A.ID_EQUIPO,
           A.FECHA_ASIGNACION,
-          E.NOMBRE_EQUIPO,
-          E.ID_UNIDAD
+          COALESCE(
+  CASE
+    WHEN UPPER(LTRIM(RTRIM(E.NOMBRE_EQUIPO))) NOT IN
+      ('', 'NA', 'N/A')
+    THEN LTRIM(RTRIM(E.NOMBRE_EQUIPO))
+  END,
+  NULLIF(LTRIM(RTRIM(E.UBICACION)), ''),
+  'Sin identificar'
+) AS NOMBRE_EQUIPO,
+E.ID_UNIDAD
 
         FROM dbo.LICENCIAS AS L
 
@@ -1827,7 +1843,15 @@ const resultado = await pool.request()
       A.ID_ASIGNACION,
       A.ID_LICENCIA,
       A.ID_EQUIPO,
-      E.NOMBRE_EQUIPO,
+      COALESCE(
+  CASE
+    WHEN UPPER(LTRIM(RTRIM(E.NOMBRE_EQUIPO))) NOT IN
+      ('', 'NA', 'N/A')
+    THEN LTRIM(RTRIM(E.NOMBRE_EQUIPO))
+  END,
+  NULLIF(LTRIM(RTRIM(E.UBICACION)), ''),
+  'Sin identificar'
+) AS NOMBRE_EQUIPO,
       E.ID_UNIDAD,
       UN.id_marca AS ID_MARCA,
       R.Marca AS NOMBRE_RESTAURANTE,
