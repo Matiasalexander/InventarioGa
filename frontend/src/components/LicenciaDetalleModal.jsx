@@ -390,7 +390,7 @@ export default function LicenciaDetalleModal({
                             {equiposVinculados.length}
                           </strong>
                           {" equipo(s) vinculado(s)"}
-                        </p>
+                        </p><br></br>
 
                         <div className="licencia-detalle-equipos-contenedor">
                           <table className="licencia-detalle-equipos-tabla">
