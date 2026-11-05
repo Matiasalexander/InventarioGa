@@ -3,6 +3,8 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
 
+//OBTENER NOMBRE DE QUIEN AUTORIZA
+
 const logoPath = path.join(
   __dirname,
   "../assets/gandersons-logo.png"
@@ -150,7 +152,7 @@ const generarPdfDevolucion = (datos) => {
         )
         .font("Helvetica")
         .text(
-          ", quien desempeña el puesto de ",
+          ", quien desempeña el puesto de   ",
           { continued: true }
         )
         .font("Helvetica-Bold")
@@ -372,7 +374,7 @@ const generarPdfDevolucion = (datos) => {
         .font("Helvetica-Bold")
         .fontSize(11)
         .text(
-          texto(datos.nombreReceptor, "NOMBRE"),
+          texto(datos.nombreAutoriza, "NOMBRE"),
           centro - anchoFirma / 2,
           doc.y,
           {
@@ -380,20 +382,6 @@ const generarPdfDevolucion = (datos) => {
             align: "center"
           }
         );
-
-      doc
-        .font("Helvetica")
-        .fontSize(10)
-        .text(
-          texto(datos.area, "ÁREA"),
-          centro - anchoFirma / 2,
-          doc.y,
-          {
-            width: anchoFirma,
-            align: "center"
-          }
-        );
-
       doc.moveDown(0.5);
 
       doc

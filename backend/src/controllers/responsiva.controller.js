@@ -157,7 +157,8 @@ const descargarComprobanteDevolucion = async (req, res) => {
   try {
     const { folio, pdfBuffer } =
       await responsivaService.generarComprobanteDevolucion(
-        req.params.idDetalle
+        req.params.idDetalle,
+        req.usuario.Correo
       );
 
     res.setHeader(

@@ -1006,7 +1006,7 @@ if (equipo.IdInventario) {
 
 //PDF DE DEVOLUCION
 
-const generarComprobanteDevolucion = async (idDetalle) => {
+const generarComprobanteDevolucion = async (idDetalle, correoAutoriza) => {
   const id = Number(idDetalle);
 
   if (
@@ -1018,6 +1018,20 @@ const generarComprobanteDevolucion = async (idDetalle) => {
   }
 
   const pool = await poolPromise;
+
+  const usuarioResultado = await pool.request()
+    .input("Correo", sql.NVarChar(255), correoAutoriza)
+    .query(`
+      SELECT TOP(1)
+      Nombre, Correo
+        FROM dbo.Usuarios
+        WHERE LOWER(LTRIM(RTRIM(Correo))) = LOWER(LTRIM(RTRIM(@Correo)));
+      `);
+  if (usuarioResultado.recordset.length === 0) {
+    lanzarError("No se encontró el usuario autenticado", 404);
+  } 
+  const nombreAutoriza =
+  usuarioResultado.recordset[0].Nombre;
 
   const resultado = await pool.request()
     .input("IdDetalle", id)
@@ -1076,6 +1090,7 @@ const generarComprobanteDevolucion = async (idDetalle) => {
     nombreReceptor: registro.NombreReceptor,
     puesto: registro.Puesto,
     area: registro.Area,
+    nombreAutoriza,
     descripcion: registro.Descripcion,
     marca: registro.Marca,
     modelo: registro.Modelo,
