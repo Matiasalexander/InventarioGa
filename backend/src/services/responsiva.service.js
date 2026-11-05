@@ -1,4 +1,5 @@
 const { poolPromise } = require("../config/db");
+const sql = require("mssql");
 const generarPdfResponsiva = require("../helpers/generarPdfResponsiva");
 const enviarCorreoResponsiva = require("../helpers/enviarCorreoResponsiva");
 
@@ -49,6 +50,7 @@ const validarEquiposDisponibles = async (pool, equipos) => {
   }
 };
 
+
 const crearResponsiva = async (payload) => {
   validarResponsiva(payload);
 
@@ -64,147 +66,255 @@ const crearResponsiva = async (payload) => {
     equipos
   } = payload;
 
-  const pool = await poolPromise;
+  const idsEquipos = equipos
+    .filter(equipo => equipo.IdInventario != null)
+    .map(equipo => Number(equipo.IdInventario));
 
-  await validarEquiposDisponibles(pool, equipos);
-
-const fechaResponsiva = Fecha.substring(0, 10);
-
-const hoy = new Date();
-const fechaHoy = hoy.toISOString().substring(0, 10);
-
-
-
-  for (const equipo of equipos) {
-    if (!equipo.IdInventario) continue;
-
-const result = await pool.request()
-  .input("IdInventario", equipo.IdInventario)
-  .input("FechaResponsiva", Fecha)
-  .query(`
-    SELECT
-      FECHA_FABRICACION,
-      CASE
-        WHEN CAST(@FechaResponsiva AS date) < CAST(FECHA_FABRICACION AS date)
-        THEN 1
-        ELSE 0
-      END AS FechaInvalida
-    FROM INVENTARIO_M
-    WHERE id = @IdInventario
-  `);
-    if (result.recordset.length === 0) {
-      lanzarError(`El equipo con ID ${equipo.IdInventario} no existe`, 404);
-    }
-    const equipoBD = result.recordset[0];
-
-    console.log("VALIDACIÓN FECHAS:", {
-  IdInventario: equipo.IdInventario,
-  FechaResponsiva: Fecha,
-  FechaFabricacionEquipo: equipoBD.FECHA_FABRICACION,
-  FechaInvalida: equipoBD.FechaInvalida
-});
-
-if (equipoBD.FechaInvalida === 1) {
-  lanzarError(
-    "El rango de fechas no coincide",
-    400
-  );
-}
+  if (idsEquipos.some(id =>
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    id > 2147483647
+  )) {
+    lanzarError("Hay identificadores de equipo inválidos.");
   }
- 
-  
-  const result = await pool.request()
-    .input("Fecha", Fecha)
-    .input("NombreReceptor", NombreReceptor)
-    .input("Puesto", Puesto)
-    .input("Area", Area || null)
-    .input("Correo", Correo || null)
-    .input("FirmaBase64", FirmaBase64 || null)
-    .input("CorreoCreador", CorreoCreador || null)
-    .input("IdUsuarioCreador", IdUsuarioCreador || null)
-    .query(`
-      INSERT INTO Responsivas (
-        Fecha,
-        NombreReceptor,
-        Puesto,
-        Area,
-        Correo,
-        FirmaBase64,
-        Estado,
-        CorreoCreador,
-        IdUsuarioCreador
-      )
-      OUTPUT INSERTED.IdResponsiva
-      VALUES (
-        @Fecha,
-        @NombreReceptor,
-        @Puesto,
-        @Area,
-        @Correo,
-        @FirmaBase64,
-        'ACTIVA',
-        @CorreoCreador,
-        @IdUsuarioCreador
-      )
-    `);
 
-  const IdResponsiva = result.recordset[0].IdResponsiva;
+  if (new Set(idsEquipos).size !== idsEquipos.length) {
+    lanzarError(
+      "No puedes agregar dos veces el mismo equipo."
+    );
+  }
 
-  for (const equipo of equipos) {
-    await pool.request()
-      .input("IdResponsiva", IdResponsiva)
-      .input("IdInventario", equipo.IdInventario || null)
-      .input("Descripcion", equipo.Descripcion || null)
-      .input("Marca", equipo.Marca || null)
-      .input("Modelo", equipo.Modelo || null)
-      .input("NoSerie", equipo.NoSerie || null)
+  const pool = await poolPromise;
+  const transaccion = new sql.Transaction(pool);
+
+  let iniciada = false;
+  let IdResponsiva;
+
+  try {
+    await transaccion.begin(
+      sql.ISOLATION_LEVEL.READ_COMMITTED
+    );
+
+    iniciada = true;
+
+    // 1. Validar y bloquear los equipos de inventario.
+    // El bloqueo se conserva hasta terminar la transacción.
+    for (const idEquipo of [...idsEquipos].sort(
+      (a, b) => a - b
+    )) {
+      const resultado = await new sql.Request(transaccion)
+        .input("IdInventario", sql.Int, idEquipo)
+        .input("FechaResponsiva", Fecha)
+        .query(`
+          SELECT
+            i.id,
+            i.ID_ESTATUS,
+            i.FECHA_FABRICACION,
+            CASE
+              WHEN CAST(@FechaResponsiva AS date) <
+                   CAST(i.FECHA_FABRICACION AS date)
+              THEN 1
+              ELSE 0
+            END AS FechaInvalida
+          FROM dbo.INVENTARIO_M AS i
+            WITH (UPDLOCK, HOLDLOCK)
+          WHERE i.id = @IdInventario;
+        `);
+
+      if (!resultado.recordset.length) {
+        lanzarError(
+          `El equipo ${idEquipo} no existe.`,
+          404
+        );
+      }
+
+      const equipoBD = resultado.recordset[0];
+
+      if (equipoBD.FechaInvalida === 1) {
+        lanzarError(
+          `La fecha de la responsiva es anterior a la fabricación del equipo ${idEquipo}.`
+        );
+      }
+
+      if (Number(equipoBD.ID_ESTATUS) !== 1) {
+        lanzarError(
+          `El equipo ${idEquipo} no está disponible para asignación.`,
+          409
+        );
+      }
+
+      const asignacion = await new sql.Request(
+        transaccion
+      )
+        .input("IdInventario", sql.Int, idEquipo)
+        .query(`
+          SELECT TOP (1)
+            r.NombreReceptor
+          FROM dbo.Responsiva_Detalle AS rd
+          INNER JOIN dbo.Responsivas AS r
+            ON r.IdResponsiva = rd.IdResponsiva
+          WHERE rd.IdInventario = @IdInventario
+            AND ISNULL(rd.Devuelto, 0) = 0;
+        `);
+
+      if (asignacion.recordset.length) {
+        lanzarError(
+          `El equipo ${idEquipo} ya está asignado a ${
+            asignacion.recordset[0].NombreReceptor
+          }.`,
+          409
+        );
+      }
+    }
+
+    // 2. Crear encabezado de responsiva.
+    const nuevaResponsiva = await new sql.Request(
+      transaccion
+    )
+      .input("Fecha", Fecha)
+      .input("NombreReceptor", NombreReceptor)
+      .input("Puesto", Puesto)
+      .input("Area", Area || null)
+      .input("Correo", Correo || null)
+      .input("FirmaBase64", FirmaBase64 || null)
+      .input("CorreoCreador", CorreoCreador || null)
+      .input(
+        "IdUsuarioCreador",
+        IdUsuarioCreador || null
+      )
       .query(`
-        INSERT INTO Responsiva_Detalle (
-          IdResponsiva,
-          IdInventario,
-          Descripcion,
-          Marca,
-          Modelo,
-          NoSerie
+        INSERT INTO dbo.Responsivas (
+          Fecha,
+          NombreReceptor,
+          Puesto,
+          Area,
+          Correo,
+          FirmaBase64,
+          Estado,
+          CorreoCreador,
+          IdUsuarioCreador
         )
+        OUTPUT INSERTED.IdResponsiva
         VALUES (
-          @IdResponsiva,
-          @IdInventario,
-          @Descripcion,
-          @Marca,
-          @Modelo,
-          @NoSerie
-        )
+          @Fecha,
+          @NombreReceptor,
+          @Puesto,
+          @Area,
+          @Correo,
+          @FirmaBase64,
+          'ACTIVA',
+          @CorreoCreador,
+          @IdUsuarioCreador
+        );
       `);
 
-    if (equipo.IdInventario) {
-      await pool.request()
-        .input("IdInventario", equipo.IdInventario)
+    IdResponsiva =
+      nuevaResponsiva.recordset[0].IdResponsiva;
+
+    // 3. Registrar los detalles y actualizar inventario.
+    for (const equipo of equipos) {
+      const IdInventario =
+        equipo.IdInventario == null
+          ? null
+          : Number(equipo.IdInventario);
+
+      await new sql.Request(transaccion)
+        .input("IdResponsiva", IdResponsiva)
+        .input("IdInventario", IdInventario)
+        .input("Descripcion", equipo.Descripcion || null)
+        .input("Marca", equipo.Marca || null)
+        .input("Modelo", equipo.Modelo || null)
+        .input("NoSerie", equipo.NoSerie || null)
+        .query(`
+          INSERT INTO dbo.Responsiva_Detalle (
+            IdResponsiva,
+            IdInventario,
+            Descripcion,
+            Marca,
+            Modelo,
+            NoSerie
+          )
+          VALUES (
+            @IdResponsiva,
+            @IdInventario,
+            @Descripcion,
+            @Marca,
+            @Modelo,
+            @NoSerie
+          );
+        `);
+
+      if (IdInventario === null) {
+        continue;
+      }
+
+      const actualizacion = await new sql.Request(
+        transaccion
+      )
+        .input("IdInventario", sql.Int, IdInventario)
         .input("IdResponsiva", IdResponsiva)
         .query(`
-          UPDATE INVENTARIO_M
+          UPDATE dbo.INVENTARIO_M
           SET
+            ID_ESTATUS = 2,
             RESPONSIVA_DIGITAL = 1,
             NUM_RESPONSIVA = @IdResponsiva
           WHERE id = @IdInventario
+            AND ID_ESTATUS = 1;
         `);
+
+      if (actualizacion.rowsAffected[0] !== 1) {
+        lanzarError(
+          `No fue posible asignar el equipo ${IdInventario}.`,
+          409
+        );
+      }
     }
+
+    // 4. Confirmar todo en una sola operación.
+    await transaccion.commit();
+    iniciada = false;
+
+  } catch (error) {
+    if (iniciada) {
+      try {
+        await transaccion.rollback();
+      } catch (errorRollback) {
+        console.error(
+          "Error revirtiendo responsiva:",
+          errorRollback
+        );
+      }
+    }
+
+    throw error;
   }
 
+  // 5. Generar y enviar documentos después de guardar.
+  // Si falla el correo no se revierte una responsiva
+  // que ya se registró correctamente.
   const folio = crearFolioResponsiva(IdResponsiva);
   let correoEnviado = false;
 
   if (Correo) {
-    const { pdfBuffer } = await generarPdfResponsiva(IdResponsiva);
+    try {
+      const { pdfBuffer } =
+        await generarPdfResponsiva(IdResponsiva);
 
-    await enviarCorreoResponsiva({
-      correo: Correo,
-      nombre: NombreReceptor,
-      folio,
-      pdfBuffer
-    });
+      await enviarCorreoResponsiva({
+        correo: Correo,
+        nombre: NombreReceptor,
+        folio,
+        pdfBuffer
+      });
 
-    correoEnviado = true;
+      correoEnviado = true;
+    } catch (errorCorreo) {
+      console.error(
+        "Responsiva creada, pero falló el envío de correo:",
+        errorCorreo
+      );
+    }
   }
 
   return {
@@ -540,72 +650,266 @@ const reenviarResponsivaCorreo = async (id) => {
   };
 };
 
-const marcarEquipoDevuelto = async (idDetalle, ComentariosDevolucion) => {
+
+const marcarEquipoDevuelto = async (
+  idDetalle,
+  ComentariosDevolucion
+) => {
+  const id = Number(idDetalle);
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    id > 2147483647
+  ) {
+    lanzarError(
+      "Identificador de detalle inválido.",
+      400
+    );
+  }
+
   const pool = await poolPromise;
+  const transaccion = new sql.Transaction(pool);
 
-  const detalle = await pool.request()
-    .input("IdDetalle", idDetalle)
-    .query(`
-      SELECT
-        IdInventario,
-        IdResponsiva
-      FROM Responsiva_Detalle
-      WHERE IdDetalle = @IdDetalle
-    `);
+  let iniciada = false;
 
-  if (detalle.recordset.length === 0) {
-    lanzarError("Detalle de responsiva no encontrado", 404);
-  }
+  try {
+    await transaccion.begin(
+      sql.ISOLATION_LEVEL.READ_COMMITTED
+    );
 
-  const { IdInventario, IdResponsiva } = detalle.recordset[0];
+    iniciada = true;
 
-  await pool.request()
-    .input("IdDetalle", idDetalle)
-    .input("ComentariosDevolucion", ComentariosDevolucion || null)
-    .query(`
-      UPDATE Responsiva_Detalle
-      SET
-        Devuelto = 1,
-        FechaDevolucion = GETDATE(),
-        ComentariosDevolucion = @ComentariosDevolucion
-      WHERE IdDetalle = @IdDetalle
-    `);
-
-  if (IdInventario) {
-    await pool.request()
-      .input("IdInventario", IdInventario)
+    // 1. Obtener y bloquear la asignación.
+    const detalle = await new sql.Request(transaccion)
+      .input("IdDetalle", sql.Int, id)
       .query(`
-        UPDATE INVENTARIO_M
+        SELECT
+          RD.IdDetalle,
+          RD.IdInventario,
+          RD.IdResponsiva,
+          RD.Devuelto,
+          R.Estado AS EstadoResponsiva
+        FROM dbo.Responsiva_Detalle AS RD
+          WITH (UPDLOCK, HOLDLOCK)
+        INNER JOIN dbo.Responsivas AS R
+          ON R.IdResponsiva = RD.IdResponsiva
+        WHERE RD.IdDetalle = @IdDetalle;
+      `);
+
+    if (!detalle.recordset.length) {
+      lanzarError(
+        "Detalle de responsiva no encontrado.",
+        404
+      );
+    }
+
+    const {
+      IdInventario,
+      IdResponsiva,
+      Devuelto,
+      EstadoResponsiva
+    } = detalle.recordset[0];
+
+    // 2. Evitar devoluciones duplicadas.
+    if (Number(Devuelto) === 1) {
+      lanzarError(
+        "Este equipo ya fue devuelto anteriormente.",
+        409
+      );
+    }
+
+    if (EstadoResponsiva !== "ACTIVA") {
+      lanzarError(
+        "La responsiva no está activa.",
+        409
+      );
+    }
+
+    // 3. Bloquear y validar el equipo de inventario.
+    if (IdInventario != null) {
+      const equipo = await new sql.Request(transaccion)
+        .input(
+          "IdInventario",
+          sql.Int,
+          IdInventario
+        )
+        .query(`
+          SELECT
+            id,
+            ID_ESTATUS,
+            RESPONSIVA_DIGITAL,
+            NUM_RESPONSIVA
+          FROM dbo.INVENTARIO_M
+            WITH (UPDLOCK, HOLDLOCK)
+          WHERE id = @IdInventario;
+        `);
+
+      if (!equipo.recordset.length) {
+        lanzarError(
+          "El equipo asociado ya no existe en inventario.",
+          404
+        );
+      }
+
+      const registro = equipo.recordset[0];
+
+      if (
+        Number(registro.ID_ESTATUS) !== 2 ||
+        Number(registro.NUM_RESPONSIVA) !==
+          Number(IdResponsiva) ||
+        Number(registro.RESPONSIVA_DIGITAL) !== 1
+      ) {
+        lanzarError(
+          "El estado o la responsiva del equipo no coinciden con esta devolución.",
+          409
+        );
+      }
+    }
+
+    // 4. Registrar la devolución.
+    const devolucion = await new sql.Request(
+      transaccion
+    )
+      .input("IdDetalle", sql.Int, id)
+      .input(
+        "ComentariosDevolucion",
+        sql.NVarChar(sql.MAX),
+        ComentariosDevolucion || null
+      )
+      .query(`
+        UPDATE dbo.Responsiva_Detalle
         SET
-          RESPONSIVA_DIGITAL = 0,
-          NUM_RESPONSIVA = NULL
-        WHERE id = @IdInventario
+          Devuelto = 1,
+          FechaDevolucion = GETDATE(),
+          ComentariosDevolucion =
+            @ComentariosDevolucion
+        WHERE IdDetalle = @IdDetalle
+          AND ISNULL(Devuelto, 0) = 0;
       `);
-  }
 
-  const pendientes = await pool.request()
-    .input("IdResponsiva", IdResponsiva)
-    .query(`
-      SELECT COUNT(*) AS Pendientes
-      FROM Responsiva_Detalle
-      WHERE IdResponsiva = @IdResponsiva
-        AND ISNULL(Devuelto, 0) = 0
-    `);
+    if (devolucion.rowsAffected[0] !== 1) {
+      lanzarError(
+        "No fue posible registrar la devolución.",
+        409
+      );
+    }
 
-  if (pendientes.recordset[0].Pendientes === 0) {
-    await pool.request()
-      .input("IdResponsiva", IdResponsiva)
+    // 5. Cambiar el equipo a Disponible.
+    if (IdInventario != null) {
+      const actualizacion = await new sql.Request(
+        transaccion
+      )
+        .input(
+          "IdInventario",
+          sql.Int,
+          IdInventario
+        )
+        .input(
+          "IdResponsiva",
+          sql.Int,
+          IdResponsiva
+        )
+        .query(`
+          UPDATE dbo.INVENTARIO_M
+          SET
+            ID_ESTATUS = 1,
+            RESPONSIVA_DIGITAL = 0,
+            NUM_RESPONSIVA = NULL
+          WHERE id = @IdInventario
+            AND ID_ESTATUS = 2
+            AND RESPONSIVA_DIGITAL = 1
+            AND NUM_RESPONSIVA = @IdResponsiva;
+        `);
+
+      if (actualizacion.rowsAffected[0] !== 1) {
+        lanzarError(
+          "No fue posible liberar el equipo en inventario.",
+          409
+        );
+      }
+    }
+
+    // 6. Comprobar equipos pendientes.
+    const pendientes = await new sql.Request(
+      transaccion
+    )
+      .input(
+        "IdResponsiva",
+        sql.Int,
+        IdResponsiva
+      )
       .query(`
-        UPDATE Responsivas
-        SET Estado = 'INACTIVA'
+        SELECT COUNT(*) AS Pendientes
+        FROM dbo.Responsiva_Detalle
         WHERE IdResponsiva = @IdResponsiva
+          AND ISNULL(Devuelto, 0) = 0;
       `);
-  }
 
-  return {
-    message: "Equipo marcado como devuelto"
-  };
+    const totalPendientes = Number(
+      pendientes.recordset[0].Pendientes
+    );
+
+    // 7. Cerrar la responsiva solo cuando
+    // todos los equipos hayan sido devueltos.
+    if (totalPendientes === 0) {
+      const cierre = await new sql.Request(
+        transaccion
+      )
+        .input(
+          "IdResponsiva",
+          sql.Int,
+          IdResponsiva
+        )
+        .query(`
+          UPDATE dbo.Responsivas
+          SET Estado = 'INACTIVA'
+          WHERE IdResponsiva = @IdResponsiva
+            AND Estado = 'ACTIVA';
+        `);
+
+      if (cierre.rowsAffected[0] !== 1) {
+        lanzarError(
+          "No fue posible cerrar la responsiva.",
+          409
+        );
+      }
+    }
+
+    // 8. Confirmar todas las modificaciones.
+    await transaccion.commit();
+    iniciada = false;
+
+    return {
+      message: "Equipo devuelto correctamente.",
+      IdDetalle: id,
+      IdInventario,
+      IdResponsiva,
+      estatusEquipo: IdInventario != null
+        ? "Disponible"
+        : null,
+      equiposPendientes: totalPendientes,
+      estadoResponsiva: totalPendientes === 0
+        ? "INACTIVA"
+        : "ACTIVA"
+    };
+
+  } catch (error) {
+    if (iniciada) {
+      try {
+        await transaccion.rollback();
+      } catch (errorRollback) {
+        console.error(
+          "Error revirtiendo devolución:",
+          errorRollback
+        );
+      }
+    }
+
+    throw error;
+  }
 };
+
 
 const obtenerEquiposDisponibles = async () => {
   const pool = await poolPromise;
@@ -642,13 +946,14 @@ const obtenerEquiposDisponibles = async () => {
     LEFT JOIN Estatus e
       ON i.ID_ESTATUS = e.Id
 
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM Responsiva_Detalle rd
-      WHERE rd.IdInventario = i.id
-        AND ISNULL(rd.Devuelto, 0) = 0
-    )
-
+   WHERE
+  UPPER(LTRIM(RTRIM(e.Estatus_equipo))) = 'DISPONIBLE'
+  AND NOT EXISTS (
+    SELECT 1
+    FROM Responsiva_Detalle rd
+    WHERE rd.IdInventario = i.id
+      AND ISNULL(rd.Devuelto, 0) = 0
+  )
     ORDER BY i.id DESC
   `);
 
@@ -666,17 +971,18 @@ const eliminarResponsiva = async (id) => {
     `);
 
   for (const equipo of detalle.recordset) {
-    if (equipo.IdInventario) {
-      await pool.request()
-        .input("IdInventario", equipo.IdInventario)
-        .query(`
-          UPDATE INVENTARIO_M
-          SET
-            RESPONSIVA_DIGITAL = 0,
-            NUM_RESPONSIVA = NULL
-          WHERE id = @IdInventario
-        `);
-    }
+if (equipo.IdInventario) {
+  await pool.request()
+    .input("IdInventario", equipo.IdInventario)
+    .input("IdResponsiva", IdResponsiva)
+    .query(`
+      UPDATE INVENTARIO_M
+      SET
+        RESPONSIVA_DIGITAL = 1,
+        NUM_RESPONSIVA = @IdResponsiva
+      WHERE id = @IdInventario
+    `);
+}
   }
 
   await pool.request()

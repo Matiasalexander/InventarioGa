@@ -408,6 +408,7 @@ const generarPdfDevolucion = (datos) => {
             align: "center"
           }
         );
+        doc.end();
 
     } catch (error) {
       reject(error);

@@ -342,7 +342,7 @@ const esSistemas =
       const estatus = item.ESTATUS?.toLowerCase();
 
 
-     if (estatus !== "en uso" && estatus !== "disponible") {
+     if (estatus !==  "disponible") {
 
   return false;
 }
