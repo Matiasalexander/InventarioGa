@@ -1778,28 +1778,36 @@ const obtenerArbolUnidades = async (
    EXPORTAR INVENTARIO A EXCEL
 ========================================================= */
 
-const exportarInventarioExcel = async (
-  req,
-  res
-) => {
-  try {
-    const pool = await poolPromise;
 
-    const permisos =
-      await obtenerPermisosDesdeRequest(req);
+const exportarInventarioExcel = async (req, res) => {
+  const inicio = Date.now();
+
+  const medir = (etapa) => {
+    console.log(
+      `[EXCEL INVENTARIO] ${etapa}: ${Date.now() - inicio} ms`
+    );
+  };
+
+  try {
+    console.log("[EXCEL INVENTARIO] Inicio de exportación");
+
+    const pool = await poolPromise;
+    medir("Conexión SQL");
+
+    const permisos = await obtenerPermisosDesdeRequest(req);
+    medir("Obtención de permisos");
 
     const { unidad } = req.query;
 
     const request = pool.request();
     const condiciones = [];
 
-    const filtroPermisos =
-      crearFiltroUnidades({
-        request,
-        permisos,
-        columna: "i.ID_UNIDAD",
-        prefijo: "ExcelUnidad"
-      });
+    const filtroPermisos = crearFiltroUnidades({
+      request,
+      permisos,
+      columna: "i.ID_UNIDAD",
+      prefijo: "ExcelUnidad"
+    });
 
     if (filtroPermisos) {
       condiciones.push(filtroPermisos);
@@ -1810,25 +1818,17 @@ const exportarInventarioExcel = async (
       unidad !== null &&
       unidad !== ""
     ) {
-      const idUnidad =
-        convertirIdUnidad(unidad);
+      const idUnidad = convertirIdUnidad(unidad);
 
       if (!idUnidad) {
         return res.status(400).json({
-          message:
-            "La unidad enviada no es válida."
+          message: "La unidad enviada no es válida."
         });
       }
 
-      if (
-        !puedeAccederUnidad(
-          permisos,
-          idUnidad
-        )
-      ) {
+      if (!puedeAccederUnidad(permisos, idUnidad)) {
         return res.status(403).json({
-          message:
-            "No tienes permiso para exportar esta unidad."
+          message: "No tienes permiso para exportar esta unidad."
         });
       }
 
@@ -1845,131 +1845,87 @@ const exportarInventarioExcel = async (
 
     const where =
       condiciones.length > 0
-        ? `WHERE ${condiciones.join(
-            " AND "
-          )}`
+        ? `WHERE ${condiciones.join(" AND ")}`
         : "";
 
     const result = await request.query(`
       SELECT
         i.id,
-
         i.ID_UNIDAD,
         r.Marca AS UNIDAD,
         i.LOCALIDAD,
         i.UBICACION,
         i.CODIGO_UNIDAD,
-
         i.ID_DEPARTAMENTO,
         d.Nombre_departamento AS DEPARTAMENTO,
         i.PUESTO,
-
         i.ID_TIPO_EQUIPO,
         te.tequipo AS TIPO_EQUIPO,
         i.TIPO_IMPRESORA,
         i.NOMBRE_EQUIPO,
-
         i.SERIAL,
-
         i.FECHA_FABRICACION,
         i.FECHA_GARANTIA,
         i.FECHA_INICIO,
         i.FECHA_REGISTRO,
-
         i.ID_DISCO,
-        CONCAT(
-          dd.modelo_disco,
-          ' ',
-          dd.capacidad
-        ) AS DISCO_DURO,
-
+        CONCAT(dd.modelo_disco, ' ', dd.capacidad) AS DISCO_DURO,
         i.ID_RAM,
         mr.capacidad AS MEMORIA_RAM,
-
         i.ID_PROCESADOR,
         p.Nombre AS PROCESADOR,
         i.MODELO_PROCESADOR,
-
         i.id_sistema_operativo AS ID_SISTEMA_OPERATIVO,
         so.Nombre AS SISTEMA_OPERATIVO,
         so.N_Version AS VERSION_SISTEMA_OPERATIVO,
-
         i.LECTOR_DE_HUELLA,
         i.CONEXION,
-
         i.ID_MARCA,
         m.Marca AS MARCA,
         i.MODELO,
-
         i.IP,
         i.PUERTO,
-
         i.ID_ESTATUS,
         e.Estatus_equipo AS ESTATUS,
         i.ESTADO_FISICO,
-
         i.CORREO,
-
         i.ACCESO_TEAM_VIEWER,
         i.CONTRASEÑA_TEAM_VIEWER,
-
         i.ACCESO_ANYDESK,
         i.CONTRASEÑA_ANYDESK,
-
         i.FOTO,
-
         i.COMENTARIO
-
       FROM INVENTARIO_M i
-
-      LEFT JOIN Unidades u
-        ON i.ID_UNIDAD = u.id
-
-      LEFT JOIN Restaurantes r
-        ON u.id_marca = r.id_marca
-
-      LEFT JOIN Tipo_equipo te
-        ON i.ID_TIPO_EQUIPO = te.id
-
-      LEFT JOIN DEPARTAMENTOS d
-        ON i.ID_DEPARTAMENTO = d.Id
-
-      LEFT JOIN PROCESADORES p
-        ON i.ID_PROCESADOR = p.id
-
-      LEFT JOIN MEMORIA_RAM mr
-        ON i.ID_RAM = mr.id
-
-      LEFT JOIN DISCO_DURO dd
-        ON i.ID_DISCO = dd.id
-
-      LEFT JOIN SISTEMAS_OPERATIVOS so
-        ON i.id_sistema_operativo = so.id
-
-      LEFT JOIN Marcas m
-        ON i.ID_MARCA = m.id
-
-      LEFT JOIN Estatus e
-        ON i.ID_ESTATUS = e.Id
-
+      LEFT JOIN Unidades u ON i.ID_UNIDAD = u.id
+      LEFT JOIN Restaurantes r ON u.id_marca = r.id_marca
+      LEFT JOIN Tipo_equipo te ON i.ID_TIPO_EQUIPO = te.id
+      LEFT JOIN DEPARTAMENTOS d ON i.ID_DEPARTAMENTO = d.Id
+      LEFT JOIN PROCESADORES p ON i.ID_PROCESADOR = p.id
+      LEFT JOIN MEMORIA_RAM mr ON i.ID_RAM = mr.id
+      LEFT JOIN DISCO_DURO dd ON i.ID_DISCO = dd.id
+      LEFT JOIN SISTEMAS_OPERATIVOS so ON i.id_sistema_operativo = so.id
+      LEFT JOIN Marcas m ON i.ID_MARCA = m.id
+      LEFT JOIN Estatus e ON i.ID_ESTATUS = e.Id
       ${where}
-
-      ORDER BY
-        r.Marca,
-        i.LOCALIDAD,
-        i.NOMBRE_EQUIPO,
-        i.id
+      ORDER BY r.Marca, i.LOCALIDAD, i.NOMBRE_EQUIPO, i.id
     `);
 
-    const inventario =
-      result.recordset.map(
-        aplicarCalculosInventario
-      );
+    medir("Consulta SQL");
 
-    const excel =
-      await generarInventarioExcel(
-        inventario
-      );
+    console.log(
+      "[EXCEL INVENTARIO] Registros encontrados:",
+      result.recordset.length
+    );
+
+    const inventario = result.recordset.map(
+      aplicarCalculosInventario
+    );
+
+    medir("Procesamiento de registros");
+
+    const excel = await generarInventarioExcel(inventario);
+
+    medir("Generación del archivo Excel");
 
     res.setHeader(
       "Content-Type",
@@ -1981,20 +1937,41 @@ const exportarInventarioExcel = async (
       'attachment; filename="InventarioGA.xlsx"'
     );
 
+    res.setHeader("Content-Length", excel.length);
+
+    console.log(
+      "[EXCEL INVENTARIO] Tamaño del archivo:",
+      (excel.length / 1024 / 1024).toFixed(2),
+      "MB"
+    );
+
+    medir("Preparación de respuesta");
+
     return res.send(excel);
 
   } catch (error) {
     console.error(
-      "Error exportando inventario a Excel:",
+      "[EXCEL INVENTARIO] Error:",
       error
     );
 
-    return res.status(500).json({
-      message: "Error exportando Excel",
-      error: error.message
-    });
+    console.error(
+      "[EXCEL INVENTARIO] Tiempo hasta el error:",
+      Date.now() - inicio,
+      "ms"
+    );
+
+    if (!res.headersSent) {
+      return res.status(500).json({
+        message: "Error exportando Excel",
+        error: error.message
+      });
+    }
+
+    return res.end();
   }
 };
+
 
 /* =========================================================
    EXPORTACIONES
