@@ -58,6 +58,7 @@ export const exportarInventarioExcel = async (unidad = null) => {
   const response = await api.get(`${ENDPOINTS.INVENTARIO}/exportar-excel`, {
     params,
     responseType: "blob",
+    timeout: 120000
   });
 
   return response.data;
