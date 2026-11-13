@@ -186,6 +186,24 @@ const descargarComprobanteDevolucion = async (req, res) => {
   }
 };
 
+const actualizarComentariosDevolucion = async (req, res) => {
+  try {
+    const data = await responsivaService.actualizarComentariosDevolucion(
+      req.params.idDetalle,
+      req.body.ComentariosDevolucion
+    );
+
+    res.json(data);
+  } catch (error) {
+    responderError(
+      res,
+      error,
+      "Error actualizando comentarios de devolución"
+    );
+  }
+};
+
+
 module.exports = {
   crearResponsiva,
   actualizarResponsiva,
@@ -199,5 +217,6 @@ module.exports = {
   obtenerEquiposDisponibles,
   autorizarEdicionFirma,
   actualizarFirmaResponsiva,
-  descargarComprobanteDevolucion
+  descargarComprobanteDevolucion,
+  actualizarComentariosDevolucion
 };

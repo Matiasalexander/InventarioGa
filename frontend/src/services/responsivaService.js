@@ -75,6 +75,17 @@ export const marcarEquipoDevuelto = async (idDetalle, ComentariosDevolucion) => 
   return data;
 };
 
+export const actualizarComentariosDevolucion = async (
+  idDetalle,
+  ComentariosDevolucion
+) => {
+  const { data } = await api.put(
+    `${ENDPOINTS.RESPONSIVA}/detalle/${idDetalle}/comentarios-devolucion`,
+    { ComentariosDevolucion }
+  );
+
+  return data;
+};
 export const eliminarResponsiva = async (id) => {
   const { data } = await api.delete(`${ENDPOINTS.RESPONSIVA}/${id}`);
   return data;

@@ -122,7 +122,8 @@ const esSistemas =
     NombreReceptor: "",
     Puesto: "",
     Area: "",
-    Correo: ""
+    Correo: "",
+    Comentario: ""
   });
 
   // Estado del checkbox del administrador
@@ -798,7 +799,9 @@ const valores = [
         Area:
           responsiva.Area || "",
         Correo:
-          responsiva.Correo || ""
+          responsiva.Correo || "",
+        Comentario:
+        responsiva.Comentario || ""
       });
 
       // MUY IMPORTANTE
@@ -849,7 +852,8 @@ const valores = [
       NombreReceptor: "",
       Puesto: "",
       Area: "",
-      Correo: ""
+      Correo: "",
+      Comentario: ""
 
     });
 
@@ -1761,6 +1765,23 @@ try {
           />
         </div>
 
+       <div className="form-group">
+  <p>Comentario</p>
+
+  <textarea
+    value={formEditar.Comentario}
+    disabled={esSistemas}
+    rows={4}
+    placeholder="escribe el comentario."
+    onChange={(e) =>
+      setFormEditar({
+        ...formEditar,
+        Comentario: e.target.value
+      })
+    }
+  />
+</div>
+
       </div>
 
 
@@ -2030,23 +2051,16 @@ try {
 
                                   </div>
 
-                                  <div className="detalle-item">
-
-                                    <span>
-                                      Comentarios:
-                                    </span>
-
-                                    <strong>
-
-                                      {item.ComentariosDevolucion ||
-                                        "Sin comentarios"}
-
-                                    </strong>
-
-                                  </div>
-
+                                
                                 </div>
+<div className="detalle-comentario-general">
+  <h4>Comentario de devolución</h4>
 
+  <p>
+    {responsivaSeleccionada?.Comentario?.trim()
+      || "Sin comentarios de devolución."}
+  </p>
+</div>
                               </div>
 
                               {item.Devuelto ? (
