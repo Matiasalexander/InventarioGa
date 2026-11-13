@@ -324,26 +324,38 @@ const crearResponsiva = async (payload) => {
   };
 };
 
+
 const actualizarResponsiva = async (id, payload) => {
   const {
     Fecha,
     NombreReceptor,
     Puesto,
     Area,
-    Correo
+    Correo,
+    Comentario
   } = payload;
 
   if (!Fecha || !NombreReceptor || !Puesto) {
-    lanzarError("Fecha, nombre del receptor y puesto son obligatorios");
+    lanzarError(
+      "Fecha, nombre del receptor y puesto son obligatorios"
+    );
+  }
+
+  if (
+    Comentario !== undefined &&
+    Comentario !== null &&
+    typeof Comentario !== "string"
+  ) {
+    lanzarError("El comentario debe ser texto.");
   }
 
   const pool = await poolPromise;
 
   const existe = await pool.request()
-    .input("IdResponsiva", id)
+    .input("IdResponsiva", sql.Int, id)
     .query(`
       SELECT IdResponsiva
-      FROM Responsivas
+      FROM dbo.Responsivas
       WHERE IdResponsiva = @IdResponsiva
     `);
 
@@ -352,20 +364,27 @@ const actualizarResponsiva = async (id, payload) => {
   }
 
   await pool.request()
-    .input("IdResponsiva", id)
-    .input("Fecha", Fecha)
-    .input("NombreReceptor", NombreReceptor)
-    .input("Puesto", Puesto)
-    .input("Area", Area || null)
-    .input("Correo", Correo || null)
+    .input("IdResponsiva", sql.Int, id)
+    .input("Fecha", sql.Date, Fecha)
+    .input("NombreReceptor", sql.NVarChar(255), NombreReceptor)
+    .input("Puesto", sql.NVarChar(255), Puesto)
+    .input("Area", sql.NVarChar(255), Area || null)
+    .input("Correo", sql.NVarChar(255), Correo || null)
+    .input(
+      "Comentario",
+      sql.NVarChar(sql.MAX),
+      Comentario?.trim() || null
+    )
     .query(`
-      UPDATE Responsivas
+      UPDATE dbo.Responsivas
       SET
         Fecha = @Fecha,
         NombreReceptor = @NombreReceptor,
         Puesto = @Puesto,
         Area = @Area,
-        Correo = @Correo
+        Correo = @Correo,
+        Comentario = @Comentario,
+        FechaActualizacion = GETDATE()
       WHERE IdResponsiva = @IdResponsiva
     `);
 
@@ -911,6 +930,65 @@ const marcarEquipoDevuelto = async (
 };
 
 
+const actualizarComentariosDevolucion = async (
+  idDetalle,
+  ComentariosDevolucion
+) => {
+  const id = Number(idDetalle);
+
+  if (
+    !Number.isSafeInteger(id) ||
+    id <= 0 ||
+    id > 2147483647
+  ) {
+    lanzarError("Identificador de detalle inválido.", 400);
+  }
+
+  if (
+    ComentariosDevolucion !== null &&
+    ComentariosDevolucion !== undefined &&
+    typeof ComentariosDevolucion !== "string"
+  ) {
+    lanzarError("Los comentarios deben ser texto.", 400);
+  }
+
+  const comentario = ComentariosDevolucion?.trim() || null;
+
+  const pool = await poolPromise;
+
+  const resultado = await pool.request()
+    .input("IdDetalle", sql.Int, id)
+    .input(
+      "ComentariosDevolucion",
+      sql.NVarChar(sql.MAX),
+      comentario
+    )
+    .query(`
+      UPDATE dbo.Responsiva_Detalle
+      SET ComentariosDevolucion = @ComentariosDevolucion
+      OUTPUT
+        INSERTED.IdDetalle,
+        INSERTED.ComentariosDevolucion,
+        INSERTED.Devuelto,
+        INSERTED.FechaDevolucion
+      WHERE IdDetalle = @IdDetalle
+        AND Devuelto = 1;
+    `);
+
+  if (resultado.recordset.length === 0) {
+    lanzarError(
+      "No se encontró el detalle o el equipo todavía no ha sido devuelto.",
+      409
+    );
+  }
+
+  return {
+    message: "Comentarios de devolución actualizados correctamente.",
+    ...resultado.recordset[0]
+  };
+};
+
+
 const obtenerEquiposDisponibles = async () => {
   const pool = await poolPromise;
 
@@ -1119,5 +1197,6 @@ module.exports = {
   eliminarResponsiva,
   autorizarEdicionFirma,
   actualizarFirmaResponsiva,
-  generarComprobanteDevolucion
+  generarComprobanteDevolucion,
+  actualizarComentariosDevolucion
 };

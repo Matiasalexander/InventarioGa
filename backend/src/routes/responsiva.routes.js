@@ -14,7 +14,7 @@ const {
   marcarEquipoDevuelto,
   obtenerEquiposDisponibles,
   descargarResponsivaPdf,
-  reenviarResponsivaCorreo, descargarComprobanteDevolucion
+  reenviarResponsivaCorreo, descargarComprobanteDevolucion, actualizarComentariosDevolucion
 } = require("../controllers/responsiva.controller");
 
 const router = express.Router();
@@ -115,6 +115,13 @@ router.get(
   verificarToken,
   verificarPermiso("responsivas.pdf"),
   descargarComprobanteDevolucion
+);
+
+router.put(
+  "/detalle/:idDetalle/comentarios-devolucion",
+  verificarToken,
+  verificarPermiso("responsivas.editar"),
+  actualizarComentariosDevolucion
 );
 
 module.exports = router;
